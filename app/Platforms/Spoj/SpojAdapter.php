@@ -43,6 +43,7 @@ class SpojAdapter implements PlatformAdapter
             // Build raw data
             $rawData = [
                 'handle' => $profileData['handle'],
+                'points' => $profileData['points'],
                 'rank' => $profileData['rank'],
                 'join_date' => $profileData['join_date'],
                 'problem_slugs_count' => count($profileData['problem_slugs'] ?? []),
@@ -51,7 +52,7 @@ class SpojAdapter implements PlatformAdapter
             return new ProfileDTO(
                 platform: Platform::SPOJ,
                 handle: $profileData['handle'],
-                rating: null, // SPOJ has no rating system
+                rating: $profileData['points'],
                 totalSolved: $profileData['total_solved'],
                 raw: $rawData
             );

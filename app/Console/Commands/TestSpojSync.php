@@ -30,6 +30,7 @@ class TestSpojSync extends Command
             $profile = $adapter->fetchProfile($handle);
 
             $this->line("   ✓ Handle: {$profile->handle}");
+            $this->line("   ✓ Rating (Points): " . ($profile->rating ?? 'N/A'));
             $this->line("   ✓ Rank: " . ($profile->raw['rank'] ?? 'Unranked'));
             $this->line("   ✓ Total Solved: {$profile->totalSolved}");
             $this->line("   ✓ Join Date: " . ($profile->raw['join_date'] ?? 'N/A'));
@@ -87,6 +88,7 @@ class TestSpojSync extends Command
 
                 $platformProfile->refresh();
                 $this->line("   ✓ Sync completed!");
+                $this->line("   ✓ Rating (Points): " . ($platformProfile->rating ?? 'N/A'));
                 $this->line("   ✓ Total Solved: {$platformProfile->total_solved}");
                 $this->line("   ✓ Rank: " . ($platformProfile->raw['rank'] ?? 'Unranked'));
             }

@@ -79,7 +79,7 @@
                 <div class="d-flex gap-2 flex-wrap mb-3">
                     @if ($user->date_of_birth)
                         <div class="d-flex align-items-center gap-1">
-                            <i class="bi bi-calendar"></i>
+                            <i class="bi bi-cake"></i>
                             <span>{{ Carbon\Carbon::parse($user->date_of_birth)->format('F j, Y') }}
                                 ({{ Carbon\Carbon::parse($user->date_of_birth)->age }} years old)</span>
                         </div>

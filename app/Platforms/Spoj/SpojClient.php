@@ -36,15 +36,24 @@ class SpojClient
         // Parse HTML with Crawler for reliable data extraction
         $crawler = new Crawler($html);
 
-        // Extract problems solved from <dt>Problems solved</dt><dd>727</dd> structure
+        // Extract key metrics from legacy <dt>/<dd> profile layout
         $totalSolved = 0;
+        $points = null;
         try {
-            $crawler->filter('dt')->each(function (Crawler $dt) use (&$totalSolved) {
+            $crawler->filter('dt')->each(function (Crawler $dt) use (&$totalSolved, &$points) {
                 $text = trim(strip_tags($dt->html())); // Remove HTML tags and &nbsp;
                 if (stripos($text, 'Problems solved') !== false) {
                     $dd = $dt->nextAll()->filter('dd')->first();
                     if ($dd->count() > 0) {
                         $totalSolved = (int) trim($dd->text());
+                    }
+                } elseif (stripos($text, 'Points') !== false) {
+                    $dd = $dt->nextAll()->filter('dd')->first();
+                    if ($dd->count() > 0) {
+                        $pointsText = str_replace(',', '', trim($dd->text()));
+                        if (preg_match('/-?\d+(?:\.\d+)?/', $pointsText, $pointsMatch)) {
+                            $points = (int) round((float) $pointsMatch[0]);
+                        }
                     }
                 }
             });
@@ -52,10 +61,44 @@ class SpojClient
             Log::warning("SPOJ: Failed to parse problems solved: {$e->getMessage()}");
         }
 
-        // Extract rank - try both regex and DOM parsing
         $rank = null;
-        if (preg_match('/Rank:\s*(\d+)/i', $html, $rankMatch)) {
+
+        // Extract rank and points from current profile layout, e.g.
+        // "World Rank: #8 (851.6 points)"
+        try {
+            $leftProfileText = $crawler->filter('#user-profile-left')->count() > 0
+                ? preg_replace('/\s+/', ' ', trim($crawler->filter('#user-profile-left')->text()))
+                : '';
+
+            if (
+                ! empty($leftProfileText) &&
+                preg_match('/World\s*Rank:\s*#\s*([\d,]+)\s*\(([-\d.,]+)\s*points?\)/i', $leftProfileText, $rankPointsMatch)
+            ) {
+                $rank = (int) str_replace(',', '', $rankPointsMatch[1]);
+                $points = (int) round((float) str_replace(',', '', $rankPointsMatch[2]));
+            } elseif (
+                ! empty($leftProfileText) &&
+                preg_match('/World\s*Leader\s*\(([-\d.,]+)\s*points?\)/i', $leftProfileText, $leaderPointsMatch)
+            ) {
+                $rank = 1;
+                $points = (int) round((float) str_replace(',', '', $leaderPointsMatch[1]));
+            }
+        } catch (\Exception $e) {
+            Log::warning("SPOJ: Failed to parse world rank and points from profile-left: {$e->getMessage()}");
+        }
+
+        // Rank fallback for older formats
+        if ($rank === null && preg_match('/Rank:\s*(\d+)/i', $html, $rankMatch)) {
             $rank = (int) $rankMatch[1];
+        } elseif ($rank === null && preg_match('/World\s*Rank:\s*#\s*([\d,]+)/i', $html, $worldRankMatch)) {
+            $rank = (int) str_replace(',', '', $worldRankMatch[1]);
+        } elseif ($rank === null && preg_match('/World\s*Leader/i', $html)) {
+            $rank = 1;
+        }
+
+        // Points fallback for older formats
+        if ($points === null && preg_match('/\(([-\d.,]+)\s*points?\)/i', $html, $pointsMatch)) {
+            $points = (int) round((float) str_replace(',', '', $pointsMatch[1]));
         }
 
         // Extract join date
@@ -70,6 +113,7 @@ class SpojClient
         return [
             'handle' => $handle,
             'total_solved' => $totalSolved,
+            'points' => $points,
             'rank' => $rank,
             'join_date' => $joinDate,
             'problem_slugs' => $problemSlugs,
