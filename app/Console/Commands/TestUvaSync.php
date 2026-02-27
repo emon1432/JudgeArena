@@ -30,9 +30,7 @@ class TestUvaSync extends Command
             $this->line("   ✓ User ID: {$profile->raw['user_id']}");
             $this->line("   ✓ Total Solved: {$profile->totalSolved}");
             $this->line("   ✓ Total Submissions: {$profile->raw['submissions']}");
-            if ($profile->raw['rank']) {
-                $this->line("   ✓ Rank: {$profile->raw['rank']}");
-            }
+            $this->line("   ✓ Rank: " . ($profile->raw['ranking'] ?? $profile->raw['rank'] ?? 'N/A'));
             $this->newLine();
 
             $this->info('2. Fetching submissions...');
@@ -96,6 +94,7 @@ class TestUvaSync extends Command
                 $platformProfile->refresh();
                 $this->line("   ✓ Sync completed!");
                 $this->line("   ✓ Total Solved: {$platformProfile->total_solved}");
+                $this->line("   ✓ Rank: " . ($platformProfile->ranking ?? 'N/A'));
             }
 
             $this->newLine();

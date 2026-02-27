@@ -23,8 +23,8 @@ class UvaAdapter implements PlatformAdapter
 
     public function profileUrl(string $handle): string
     {
-        $this->client->fetchProfile($handle);
-        return "https://uhunt.onlinejudge.org/id/{$handle}";
+        $profile = $this->client->fetchProfile($handle);
+        return "https://uhunt.onlinejudge.org/id/{$profile['user_id']}";
     }
 
     public function supportsSubmissions(): bool
@@ -43,7 +43,10 @@ class UvaAdapter implements PlatformAdapter
             totalSolved: $profileData['total_solved'],
             raw: [
                 'user_id' => $profileData['user_id'],
+                'name' => $profileData['name'] ?? null,
+                'uname' => $profileData['uname'] ?? null,
                 'submissions' => $profileData['submissions'] ?? 0,
+                'ranking' => $profileData['ranking'] ?? $profileData['rank'] ?? null,
                 'rank' => $profileData['rank'] ?? null,
             ]
         );

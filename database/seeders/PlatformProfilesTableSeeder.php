@@ -14,12 +14,12 @@ class PlatformProfilesTableSeeder extends Seeder
      */
     public function run()
     {
-        
+
 
         \DB::table('platform_profiles')->delete();
-        
+
         \DB::table('platform_profiles')->insert(array (
-            0 => 
+            0 =>
             array (
                 'id' => 1,
                 'user_id' => 2,
@@ -34,7 +34,7 @@ class PlatformProfilesTableSeeder extends Seeder
                 'created_at' => '2026-02-06 11:27:33',
                 'updated_at' => '2026-02-08 16:06:46',
             ),
-            1 => 
+            1 =>
             array (
                 'id' => 2,
                 'user_id' => 2,
@@ -49,7 +49,7 @@ class PlatformProfilesTableSeeder extends Seeder
                 'created_at' => '2026-02-06 11:27:33',
                 'updated_at' => '2026-02-08 16:06:46',
             ),
-            2 => 
+            2 =>
             array (
                 'id' => 3,
                 'user_id' => 2,
@@ -64,7 +64,7 @@ class PlatformProfilesTableSeeder extends Seeder
                 'created_at' => '2026-02-06 11:27:33',
                 'updated_at' => '2026-02-08 16:06:46',
             ),
-            3 => 
+            3 =>
             array (
                 'id' => 4,
                 'user_id' => 2,
@@ -79,7 +79,7 @@ class PlatformProfilesTableSeeder extends Seeder
                 'created_at' => '2026-02-06 11:27:33',
                 'updated_at' => '2026-02-08 16:06:47',
             ),
-            4 => 
+            4 =>
             array (
                 'id' => 5,
                 'user_id' => 2,
@@ -94,7 +94,7 @@ class PlatformProfilesTableSeeder extends Seeder
                 'created_at' => '2026-02-06 11:27:33',
                 'updated_at' => '2026-02-08 16:06:47',
             ),
-            5 => 
+            5 =>
             array (
                 'id' => 6,
                 'user_id' => 2,
@@ -109,7 +109,7 @@ class PlatformProfilesTableSeeder extends Seeder
                 'created_at' => '2026-02-06 11:27:33',
                 'updated_at' => '2026-02-08 16:06:47',
             ),
-            6 => 
+            6 =>
             array (
                 'id' => 7,
                 'user_id' => 2,
@@ -124,7 +124,7 @@ class PlatformProfilesTableSeeder extends Seeder
                 'created_at' => '2026-02-06 11:27:33',
                 'updated_at' => '2026-02-08 16:06:47',
             ),
-            7 => 
+            7 =>
             array (
                 'id' => 8,
                 'user_id' => 2,
@@ -139,22 +139,22 @@ class PlatformProfilesTableSeeder extends Seeder
                 'created_at' => '2026-02-06 11:27:33',
                 'updated_at' => '2026-02-08 16:06:47',
             ),
-            8 => 
+            8 =>
             array (
                 'id' => 9,
                 'user_id' => 2,
                 'platform_id' => 8,
-                'handle' => '249',
+                'handle' => '1133',
                 'rating' => NULL,
                 'total_solved' => 0,
                 'raw' => NULL,
-                'profile_url' => 'https://uhunt.onlinejudge.org/id/249',
+                'profile_url' => 'https://uhunt.onlinejudge.org/id/1133',
                 'status' => 'Active',
                 'last_synced_at' => NULL,
                 'created_at' => '2026-02-06 11:27:33',
                 'updated_at' => '2026-02-08 16:06:47',
             ),
-            9 => 
+            9 =>
             array (
                 'id' => 10,
                 'user_id' => 3,
@@ -169,7 +169,7 @@ class PlatformProfilesTableSeeder extends Seeder
                 'created_at' => '2026-02-09 08:28:10',
                 'updated_at' => '2026-02-09 08:29:02',
             ),
-            10 => 
+            10 =>
             array (
                 'id' => 11,
                 'user_id' => 3,
@@ -184,7 +184,7 @@ class PlatformProfilesTableSeeder extends Seeder
                 'created_at' => '2026-02-09 08:28:10',
                 'updated_at' => '2026-02-09 08:29:05',
             ),
-            11 => 
+            11 =>
             array (
                 'id' => 12,
                 'user_id' => 3,
@@ -199,7 +199,7 @@ class PlatformProfilesTableSeeder extends Seeder
                 'created_at' => '2026-02-09 08:28:10',
                 'updated_at' => '2026-02-09 08:29:12',
             ),
-            12 => 
+            12 =>
             array (
                 'id' => 13,
                 'user_id' => 3,
@@ -214,7 +214,7 @@ class PlatformProfilesTableSeeder extends Seeder
                 'created_at' => '2026-02-09 08:28:10',
                 'updated_at' => '2026-02-09 08:29:28',
             ),
-            13 => 
+            13 =>
             array (
                 'id' => 14,
                 'user_id' => 3,
@@ -229,7 +229,7 @@ class PlatformProfilesTableSeeder extends Seeder
                 'created_at' => '2026-02-09 08:28:10',
                 'updated_at' => '2026-02-09 08:29:50',
             ),
-            14 => 
+            14 =>
             array (
                 'id' => 15,
                 'user_id' => 3,
@@ -244,7 +244,7 @@ class PlatformProfilesTableSeeder extends Seeder
                 'created_at' => '2026-02-09 08:28:10',
                 'updated_at' => '2026-02-09 08:29:57',
             ),
-            15 => 
+            15 =>
             array (
                 'id' => 16,
                 'user_id' => 3,
@@ -259,7 +259,7 @@ class PlatformProfilesTableSeeder extends Seeder
                 'created_at' => '2026-02-09 08:28:10',
                 'updated_at' => '2026-02-09 08:30:28',
             ),
-            16 => 
+            16 =>
             array (
                 'id' => 17,
                 'user_id' => 3,
@@ -274,7 +274,7 @@ class PlatformProfilesTableSeeder extends Seeder
                 'created_at' => '2026-02-09 08:28:10',
                 'updated_at' => '2026-02-09 08:30:37',
             ),
-            17 => 
+            17 =>
             array (
                 'id' => 18,
                 'user_id' => 3,
@@ -290,7 +290,7 @@ class PlatformProfilesTableSeeder extends Seeder
                 'updated_at' => '2026-02-09 08:31:11',
             ),
         ));
-        
-        
+
+
     }
 }
