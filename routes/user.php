@@ -20,6 +20,11 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified',
                 Route::post('/institute-request', 'submitInstituteRequest')->name('institute.request');
             });
 
-        Route::post('/sync', [SyncController::class, 'sync'])->name('sync');
-        Route::get('/sync-status', [SyncController::class, 'getSyncStatus'])->name('sync.status');
+        Route::controller(SyncController::class)
+            ->prefix('sync')
+            ->name('sync.')
+            ->group(function () {
+                Route::post('/', 'sync')->name('start');
+                Route::get('/status', 'getSyncStatus')->name('status');
+            });
     });

@@ -1,6 +1,9 @@
 @extends('web.layouts.app')
 
-@section('title', 'Leaderboard - VertiCode')
+@section('title', 'Leaderboard | VertiCode')
+@section('description', 'Explore VertiCode global leaderboard rankings, compare coding ratings, and filter top programmers by country, institute, and platform.')
+@section('keywords', 'coding leaderboard, competitive programming ranking, programmer rankings, VertiCode leaderboard')
+@section('canonical', route('leaderboard'))
 
 @push('styles')
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />

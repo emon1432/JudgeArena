@@ -1,6 +1,22 @@
 @extends('user.layouts.app')
 @section('title', $user->name . ' | Profile')
 @section('description', 'View ' . $user->name . '\'s profile, stats, and platform profiles on VertiCode.')
+@section('keywords', $user->name . ', competitive programming profile, coding profile, VertiCode user profile')
+@section('canonical', route('user.profile.show', $user->username))
+
+@push('structured-data')
+    <script type="application/ld+json">
+        {!! json_encode([
+            '@context' => 'https://schema.org',
+            '@type' => 'Person',
+            'name' => $user->name,
+            'url' => route('user.profile.show', $user->username),
+            'description' => 'Competitive programming profile on ' . config('app.name', 'VertiCode'),
+            'sameAs' => array_values(array_filter([$user->website, $user->github, $user->linkedin, $user->twitter])),
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+    </script>
+@endpush
+
 @push('styles')
     <style>
         .sync-button .bi.spin {

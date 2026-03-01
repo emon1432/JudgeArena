@@ -1,4 +1,9 @@
 @extends('web.layouts.app')
+
+@section('title', 'VertiCode - Track Your Competitive Programming Journey')
+@section('description', 'Track coding progress across platforms, compare leaderboard rankings, and showcase your competitive programming profile with VertiCode.')
+@section('keywords', 'VertiCode, competitive programming tracker, coding leaderboard, coding profile, programming analytics')
+
 @section('content')
     @include('web.pages.sections.hero')
     @include('web.pages.sections.features')

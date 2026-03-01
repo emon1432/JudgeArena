@@ -1,6 +1,9 @@
 @extends('web.layouts.app')
 
-@section('title', 'Contact Us - VertiCode')
+@section('title', 'Contact Us | VertiCode')
+@section('description', 'Get in touch with the VertiCode team for support, feedback, partnerships, or platform-related questions.')
+@section('keywords', 'contact VertiCode, VertiCode support, coding platform support, partnership inquiry')
+@section('canonical', route('contact.us'))
 
 @push('styles')
     <style>

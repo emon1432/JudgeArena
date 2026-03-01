@@ -1,4 +1,4 @@
-(window.config = {
+((window.config = {
     colors: {
         primary: window.Helpers.getCssVar("primary"),
         secondary: window.Helpers.getCssVar("secondary"),
@@ -37,7 +37,7 @@
             displayCustomizer: !0,
             lang:
                 localStorage.getItem(
-                    "templateCustomizer-" + templateName + "--Lang"
+                    "templateCustomizer-" + templateName + "--Lang",
                 ) || "en",
             controls: [
                 "color",
@@ -50,4 +50,4 @@
                 "contentLayout",
                 "rtl",
             ],
-        }));
+        })));

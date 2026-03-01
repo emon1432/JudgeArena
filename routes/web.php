@@ -2,8 +2,11 @@
 
 use App\Http\Controllers\Admin\OthersController;
 use App\Http\Controllers\Web\LeaderboardController;
+use App\Http\Controllers\Web\SeoController;
 use App\Http\Controllers\Web\WebsiteController;
 use Illuminate\Support\Facades\Route;
+
+
 
 
 Route::controller(WebsiteController::class)->group(function () {
@@ -22,6 +25,7 @@ Route::controller(LeaderboardController::class)->group(function () {
 Route::controller(OthersController::class)->group(function () {
     Route::middleware('guest')->get('/admin/login', 'login')->name('admin.login');
     Route::get('/ajax/select2-options', 'select2Options')->name('select2.options');
+    Route::get('/sitemap.xml', 'sitemap')->name('sitemap');
     Route::post('/test-mail', 'testMail')->name('test.mail');
     Route::get('/migrate', 'migrate')->name('migration');
     Route::get('/clear', 'clear')->name('clear');

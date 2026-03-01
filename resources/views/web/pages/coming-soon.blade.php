@@ -2,6 +2,7 @@
 
 @section('title', $title . ' | Coming Soon - VertiCode')
 @section('description', $title . ' is coming soon on VertiCode. Stay tuned for the next big update.')
+@section('robots', 'noindex,nofollow')
 
 @push('styles')
 	<style>

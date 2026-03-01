@@ -6,12 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Mail\TestMail;
 use App\Models\Country;
 use App\Models\Institute;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
-
 class OthersController extends Controller
 {
     public function select2Options(Request $request)
@@ -92,6 +93,52 @@ class OthersController extends Controller
                 'more' => false,
             ],
         ]);
+    }
+
+    public function sitemap()
+    {
+        $leaderboardLastMod = User::query()->where('role', 'user')->max('updated_at');
+
+        $staticUrls = collect([
+            [
+                'loc' => route('home'),
+                'changefreq' => 'daily',
+                'priority' => '1.0',
+                'lastmod' => now()->toAtomString(),
+            ],
+            [
+                'loc' => route('leaderboard'),
+                'changefreq' => 'hourly',
+                'priority' => '0.9',
+                'lastmod' => $leaderboardLastMod ? Carbon::parse($leaderboardLastMod)->toAtomString() : now()->toAtomString(),
+            ],
+            [
+                'loc' => route('contact.us'),
+                'changefreq' => 'monthly',
+                'priority' => '0.6',
+                'lastmod' => now()->toAtomString(),
+            ],
+        ]);
+
+        $profileUrls = User::query()
+            ->where('role', 'user')
+            ->whereNotNull('username')
+            ->orderByDesc('updated_at')
+            ->get(['username', 'updated_at'])
+            ->map(function (User $user) {
+                return [
+                    'loc' => route('user.profile.show', $user->username),
+                    'changefreq' => 'weekly',
+                    'priority' => '0.7',
+                    'lastmod' => optional($user->updated_at)->toAtomString() ?? now()->toAtomString(),
+                ];
+            });
+
+        $urls = $staticUrls->merge($profileUrls);
+
+        return response()
+            ->view('web.pages.sitemap', ['urls' => $urls])
+            ->header('Content-Type', 'application/xml');
     }
 
     public function login()
