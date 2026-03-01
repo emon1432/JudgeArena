@@ -1,33 +1,19 @@
-<!doctype html>
-<html lang="en">
+@extends('web.layouts.app')
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+@section('title', 'Register | Welcome to VertiCode')
+@section('description', 'Create your VertiCode account and start tracking your coding progress.')
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-    <title>Register | Welcome to VertiCode</title>
-
+@push('styles')
     <style>
         :root {
             --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
 
-        body {
+        .auth-page {
             font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            padding-top: 90px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -35,7 +21,7 @@
             overflow: hidden;
         }
 
-        body::before {
+        .auth-page::before {
             content: '';
             position: absolute;
             top: 0;
@@ -64,6 +50,7 @@
 
         .register-left {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
             color: white;
             padding: 60px 40px;
             display: flex;
@@ -265,188 +252,180 @@
             }
         }
     </style>
-</head>
+@endpush
 
-<body>
-    <div class="register-container">
-        <div class="register-card">
-            <div class="row g-0">
-                <!-- Left Side - Branding -->
-                <div class="col-lg-5 d-none d-lg-block">
-                    <div class="register-left">
-                        <div class="brand-logo">
-                            <div class="brand-logo-icon">
-                                <i class="bi bi-code-slash"></i>
+@section('content')
+    <div class="auth-page">
+        <div class="register-container">
+            <div class="register-card">
+                <div class="row g-0">
+                    <!-- Left Side - Branding -->
+                    <div class="col-lg-5 d-none d-lg-block">
+                        <div class="register-left">
+                            <div class="brand-logo">
+                                <div class="brand-logo-icon">
+                                    <i class="bi bi-code-slash"></i>
+                                </div>
+                                <div class="brand-logo-text">
+                                    <a href="{{ route('home') }}" class="text-white text-decoration-none">
+                                        VertiCode
+                                    </a>
+                                </div>
                             </div>
-                            <div class="brand-logo-text">
-                                <a href="{{ route('home') }}" class="text-white text-decoration-none">
-                                    VertiCode
-                                </a>
-                            </div>
-                        </div>
 
-                        <h2 class="mb-4" style="font-weight: 700;">Start Your Coding Journey Today</h2>
-                        <p class="mb-4" style="opacity: 0.95;">Join thousands of programmers tracking their progress
-                            across multiple competitive programming platforms.</p>
+                            <h2 class="mb-4" style="font-weight: 700;">Start Your Coding Journey Today</h2>
+                            <p class="mb-4" style="opacity: 0.95;">Join thousands of programmers tracking their progress
+                                across multiple competitive programming platforms.</p>
 
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <i class="bi bi-lightning-charge-fill"></i>
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <i class="bi bi-lightning-charge-fill"></i>
+                                </div>
+                                <div>
+                                    <h5 class="mb-1">Real-time Sync</h5>
+                                    <p class="mb-0" style="opacity: 0.9; font-size: 0.95rem;">Automatically sync profiles
+                                        from all major platforms</p>
+                                </div>
                             </div>
-                            <div>
-                                <h5 class="mb-1">Real-time Sync</h5>
-                                <p class="mb-0" style="opacity: 0.9; font-size: 0.95rem;">Automatically sync profiles
-                                    from all major platforms</p>
-                            </div>
-                        </div>
 
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <i class="bi bi-graph-up-arrow"></i>
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <i class="bi bi-graph-up-arrow"></i>
+                                </div>
+                                <div>
+                                    <h5 class="mb-1">Track Progress</h5>
+                                    <p class="mb-0" style="opacity: 0.9; font-size: 0.95rem;">Visualize your growth with
+                                        detailed analytics</p>
+                                </div>
                             </div>
-                            <div>
-                                <h5 class="mb-1">Track Progress</h5>
-                                <p class="mb-0" style="opacity: 0.9; font-size: 0.95rem;">Visualize your growth with
-                                    detailed analytics</p>
-                            </div>
-                        </div>
 
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <i class="bi bi-shield-check"></i>
-                            </div>
-                            <div>
-                                <h5 class="mb-1">Secure & Private</h5>
-                                <p class="mb-0" style="opacity: 0.9; font-size: 0.95rem;">Your data is encrypted and
-                                    completely secure</p>
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <i class="bi bi-shield-check"></i>
+                                </div>
+                                <div>
+                                    <h5 class="mb-1">Secure & Private</h5>
+                                    <p class="mb-0" style="opacity: 0.9; font-size: 0.95rem;">Your data is encrypted and
+                                        completely secure</p>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Right Side - Registration Form -->
-                <div class="col-lg-7">
-                    <div class="register-right">
-                        <div class="text-center d-lg-none mb-4">
-                            <div class="d-inline-flex align-items-center gap-2">
-                                <div
-                                    style="width: 40px; height: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white;">
-                                    <i class="bi bi-code-slash"></i>
+                    <!-- Right Side - Registration Form -->
+                    <div class="col-lg-7">
+                        <div class="register-right">
+                            <div class="text-center d-lg-none mb-4">
+                                <div class="d-inline-flex align-items-center gap-2">
+                                    <div
+                                        style="width: 40px; height: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white;">
+                                        <i class="bi bi-code-slash"></i>
+                                    </div>
+                                    <span
+                                        style="font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">VertiCode</span>
                                 </div>
-                                <span
-                                    style="font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">VertiCode</span>
-                            </div>
-                        </div>
-
-                        <h1 class="page-title">Create Account</h1>
-                        <p class="page-subtitle">Fill in your details to get started</p>
-
-                        @if ($errors->any())
-                            <div class="alert alert-danger">
-                                <ul class="mb-0">
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @endif
-
-                        <form method="POST" action="{{ route('register') }}" autocomplete="off">
-                            @csrf
-
-                            <div class="mb-3">
-                                <label for="name" class="form-label">
-                                    <i class="bi bi-person-fill text-muted"></i> Full Name
-                                </label>
-                                <input type="text" class="form-control @error('name') is-invalid @enderror"
-                                    id="name" name="name" value="{{ old('name') }}"
-                                    placeholder="Enter your full name" required>
-                                @error('name')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
                             </div>
 
-                            <div class="mb-3">
-                                <label for="username" class="form-label">
-                                    <i class="bi bi-person-badge-fill text-muted"></i> Username
-                                </label>
-                                <input type="text" class="form-control @error('username') is-invalid @enderror"
-                                    minlength="4" maxlength="20" id="username" name="username"
-                                    value="{{ old('username') }}" placeholder="Choose a username" required>
-                                @error('username')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
+                            <h1 class="page-title">Create Account</h1>
+                            <p class="page-subtitle">Fill in your details to get started</p>
 
-                            <div class="mb-3">
-                                <label for="email" class="form-label">
-                                    <i class="bi bi-envelope-fill text-muted"></i> Email Address
-                                </label>
-                                <input type="email" class="form-control @error('email') is-invalid @enderror"
-                                    id="email" name="email" value="{{ old('email') }}"
-                                    placeholder="Enter your email" required>
-                                @error('email')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
+                            @if ($errors->any())
+                                <div class="alert alert-danger">
+                                    <ul class="mb-0">
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
 
-                            <div class="mb-3">
-                                <label for="password" class="form-label">
-                                    <i class="bi bi-lock-fill text-muted"></i> Password
-                                </label>
-                                <div class="input-group">
-                                    <input type="password"
-                                        class="form-control @error('password') is-invalid @enderror" id="password"
-                                        name="password" placeholder="Create a strong password" required>
-                                    <span class="input-group-text" onclick="togglePassword('password', this)">
-                                        <i class="bi bi-eye"></i>
-                                    </span>
-                                    @error('password')
+                            <form method="POST" action="{{ route('register') }}" autocomplete="off">
+                                @csrf
+
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">
+                                        <i class="bi bi-person-fill text-muted"></i> Full Name
+                                    </label>
+                                    <input type="text" class="form-control @error('name') is-invalid @enderror"
+                                        id="name" name="name" value="{{ old('name') }}"
+                                        placeholder="Enter your full name" required>
+                                    @error('name')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
-                                <small class="text-muted">Must be at least 8 characters</small>
-                            </div>
 
-                            <div class="mb-4">
-                                <label for="password_confirmation" class="form-label">
-                                    <i class="bi bi-lock-fill text-muted"></i> Confirm Password
-                                </label>
-                                <div class="input-group">
-                                    <input type="password" class="form-control" id="password_confirmation"
-                                        name="password_confirmation" placeholder="Confirm your password" required>
-                                    <span class="input-group-text"
-                                        onclick="togglePassword('password_confirmation', this)">
-                                        <i class="bi bi-eye"></i>
-                                    </span>
+                                <div class="mb-3">
+                                    <label for="username" class="form-label">
+                                        <i class="bi bi-person-badge-fill text-muted"></i> Username
+                                    </label>
+                                    <input type="text" class="form-control @error('username') is-invalid @enderror"
+                                        minlength="4" maxlength="20" id="username" name="username"
+                                        value="{{ old('username') }}" placeholder="Choose a username" required>
+                                    @error('username')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
+
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">
+                                        <i class="bi bi-envelope-fill text-muted"></i> Email Address
+                                    </label>
+                                    <input type="email" class="form-control @error('email') is-invalid @enderror"
+                                        id="email" name="email" value="{{ old('email') }}"
+                                        placeholder="Enter your email" required>
+                                    @error('email')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="password" class="form-label">
+                                        <i class="bi bi-lock-fill text-muted"></i> Password
+                                    </label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control @error('password') is-invalid @enderror"
+                                            id="password" name="password" placeholder="Create a strong password" required>
+                                        <span class="input-group-text" onclick="togglePassword('password', this)">
+                                            <i class="bi bi-eye"></i>
+                                        </span>
+                                        @error('password')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <small class="text-muted">Must be at least 8 characters</small>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label for="password_confirmation" class="form-label">
+                                        <i class="bi bi-lock-fill text-muted"></i> Confirm Password
+                                    </label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="password_confirmation"
+                                            name="password_confirmation" placeholder="Confirm your password" required>
+                                        <span class="input-group-text"
+                                            onclick="togglePassword('password_confirmation', this)">
+                                            <i class="bi bi-eye"></i>
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-register">
+                                    <i class="bi bi-rocket-takeoff"></i> Create Account
+                                </button>
+                            </form>
+
+                            <div class="login-link">
+                                Already have an account? <a href="{{ route('login') }}">Sign in here</a>
                             </div>
-
-                            <button type="submit" class="btn btn-register">
-                                <i class="bi bi-rocket-takeoff"></i> Create Account
-                            </button>
-                        </form>
-
-                        <div class="login-link">
-                            Already have an account? <a href="{{ route('login') }}">Sign in here</a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Back to Home Link -->
-        <div class="text-center mt-3">
-            <a href="{{ route('home') }}" class="text-white text-decoration-none">
-                <i class="bi bi-arrow-left"></i> Back to Home
-            </a>
-        </div>
     </div>
+@endsection
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous">
-    </script>
-
+@push('scripts')
     <script>
         function togglePassword(inputId, icon) {
             const input = document.getElementById(inputId);
@@ -463,6 +442,4 @@
             }
         }
     </script>
-</body>
-
-</html>
+@endpush

@@ -1,30 +1,15 @@
-<!doctype html>
-<html lang="en">
+@extends('web.layouts.app')
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+@section('title', 'Login | VertiCode')
+@section('description', 'Sign in to your VertiCode account and continue your coding journey.')
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-    <title>Login | VertiCode</title>
-
+@push('styles')
     <style>
         :root {
             --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
 
-        body {
+        .auth-page {
             font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
@@ -35,7 +20,7 @@
             overflow: hidden;
         }
 
-        body::before {
+        .auth-page::before {
             content: '';
             position: absolute;
             top: 0;
@@ -256,169 +241,162 @@
             }
         }
     </style>
-</head>
+@endpush
 
-<body>
-    <div class="login-container">
-        <div class="login-card">
-            <div class="row g-0">
-                <!-- Left Side - Branding -->
-                <div class="col-lg-5 d-none d-lg-block">
-                    <div class="login-left">
-                        <div class="brand-logo">
-                            <div class="brand-logo-icon">
-                                <i class="bi bi-code-slash"></i>
+@section('content')
+    <div class="auth-page">
+        <div class="login-container">
+            <div class="login-card">
+                <div class="row g-0">
+                    <!-- Left Side - Branding -->
+                    <div class="col-lg-5 d-none d-lg-block">
+                        <div class="login-left">
+                            <div class="brand-logo">
+                                <div class="brand-logo-icon">
+                                    <i class="bi bi-code-slash"></i>
+                                </div>
+                                <div class="brand-logo-text">
+                                    <a href="{{ route('home') }}" class="text-white text-decoration-none">
+                                        VertiCode
+                                    </a>
+                                </div>
                             </div>
-                            <div class="brand-logo-text">
-                                <a href="{{ route('home') }}" class="text-white text-decoration-none">
-                                    VertiCode
-                                </a>
-                            </div>
-                        </div>
 
-                        <h2 class="mb-4" style="font-weight: 700;">Welcome Back! 👋</h2>
-                        <p class="mb-4" style="opacity: 0.95;">Sign in to your account and continue your coding
-                            journey across multiple competitive programming platforms.</p>
+                            <h2 class="mb-4" style="font-weight: 700;">Welcome Back! 👋</h2>
+                            <p class="mb-4" style="opacity: 0.95;">Sign in to your account and continue your coding
+                                journey across multiple competitive programming platforms.</p>
 
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <i class="bi bi-lightning-charge-fill"></i>
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <i class="bi bi-lightning-charge-fill"></i>
+                                </div>
+                                <div>
+                                    <h5 class="mb-1">Real-time Sync</h5>
+                                    <p class="mb-0" style="opacity: 0.9; font-size: 0.95rem;">Automatically sync profiles
+                                        from all major platforms</p>
+                                </div>
                             </div>
-                            <div>
-                                <h5 class="mb-1">Real-time Sync</h5>
-                                <p class="mb-0" style="opacity: 0.9; font-size: 0.95rem;">Automatically sync profiles
-                                    from all major platforms</p>
-                            </div>
-                        </div>
 
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <i class="bi bi-graph-up-arrow"></i>
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <i class="bi bi-graph-up-arrow"></i>
+                                </div>
+                                <div>
+                                    <h5 class="mb-1">Track Progress</h5>
+                                    <p class="mb-0" style="opacity: 0.9; font-size: 0.95rem;">Visualize your growth with
+                                        detailed analytics</p>
+                                </div>
                             </div>
-                            <div>
-                                <h5 class="mb-1">Track Progress</h5>
-                                <p class="mb-0" style="opacity: 0.9; font-size: 0.95rem;">Visualize your growth with
-                                    detailed analytics</p>
-                            </div>
-                        </div>
 
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <i class="bi bi-trophy-fill"></i>
-                            </div>
-                            <div>
-                                <h5 class="mb-1">Performance Analytics</h5>
-                                <p class="mb-0" style="opacity: 0.9; font-size: 0.95rem;">Deep insights into your
-                                    problem-solving patterns</p>
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <i class="bi bi-trophy-fill"></i>
+                                </div>
+                                <div>
+                                    <h5 class="mb-1">Performance Analytics</h5>
+                                    <p class="mb-0" style="opacity: 0.9; font-size: 0.95rem;">Deep insights into your
+                                        problem-solving patterns</p>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Right Side - Login Form -->
-                <div class="col-lg-7">
-                    <div class="login-right">
-                        <div class="text-center d-lg-none mb-4">
-                            <div class="d-inline-flex align-items-center gap-2">
-                                <div
-                                    style="width: 40px; height: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white;">
-                                    <i class="bi bi-code-slash"></i>
+                    <!-- Right Side - Login Form -->
+                    <div class="col-lg-7">
+                        <div class="login-right">
+                            <div class="text-center d-lg-none mb-4">
+                                <div class="d-inline-flex align-items-center gap-2">
+                                    <div
+                                        style="width: 40px; height: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white;">
+                                        <i class="bi bi-code-slash"></i>
+                                    </div>
+                                    <span
+                                        style="font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">VertiCode</span>
                                 </div>
-                                <span
-                                    style="font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">VertiCode</span>
-                            </div>
-                        </div>
-
-                        <h1 class="page-title">Sign In</h1>
-                        <p class="page-subtitle">Welcome back! Please enter your details</p>
-
-                        @if ($errors->any())
-                            <div class="alert alert-danger">
-                                <ul class="mb-0">
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @endif
-
-                        @if (session('status'))
-                            <div class="alert alert-success">
-                                {{ session('status') }}
-                            </div>
-                        @endif
-
-                        <form method="POST" action="{{ route('login') }}">
-                            @csrf
-
-                            <div class="mb-3">
-                                <label for="email" class="form-label">
-                                    <i class="bi bi-person-fill text-muted"></i> Email or Username
-                                </label>
-                                <input type="text" class="form-control @error('email') is-invalid @enderror"
-                                    id="email" name="email" value="{{ old('email') }}"
-                                    placeholder="Enter your email or username" required autofocus>
-                                @error('email')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
                             </div>
 
-                            <div class="mb-3">
-                                <label for="password" class="form-label">
-                                    <i class="bi bi-lock-fill text-muted"></i> Password
-                                </label>
-                                <div class="input-group">
-                                    <input type="password" class="form-control @error('password') is-invalid @enderror"
-                                        id="password" name="password" placeholder="Enter your password" required>
-                                    <span class="input-group-text" onclick="togglePassword('password', this)">
-                                        <i class="bi bi-eye"></i>
-                                    </span>
-                                    @error('password')
+                            <h1 class="page-title">Sign In</h1>
+                            <p class="page-subtitle">Welcome back! Please enter your details</p>
+
+                            @if ($errors->any())
+                                <div class="alert alert-danger">
+                                    <ul class="mb-0">
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
+
+                            @if (session('status'))
+                                <div class="alert alert-success">
+                                    {{ session('status') }}
+                                </div>
+                            @endif
+
+                            <form method="POST" action="{{ route('login') }}">
+                                @csrf
+
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">
+                                        <i class="bi bi-person-fill text-muted"></i> Email or Username
+                                    </label>
+                                    <input type="text" class="form-control @error('email') is-invalid @enderror"
+                                        id="email" name="email" value="{{ old('email') }}"
+                                        placeholder="Enter your email or username" required autofocus>
+                                    @error('email')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
-                            </div>
 
-                            <div class="mb-4 d-flex justify-content-between align-items-center">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="remember" name="remember"
-                                        {{ old('remember') ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="remember">
-                                        Remember me
+                                <div class="mb-3">
+                                    <label for="password" class="form-label">
+                                        <i class="bi bi-lock-fill text-muted"></i> Password
                                     </label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control @error('password') is-invalid @enderror"
+                                            id="password" name="password" placeholder="Enter your password" required>
+                                        <span class="input-group-text" onclick="togglePassword('password', this)">
+                                            <i class="bi bi-eye"></i>
+                                        </span>
+                                        @error('password')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                                 </div>
-                                @if (Route::has('password.request'))
-                                    <a href="{{ route('password.request') }}" class="forgot-password">
-                                        Forgot Password?
-                                    </a>
-                                @endif
+
+                                <div class="mb-4 d-flex justify-content-between align-items-center">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="remember" name="remember"
+                                            {{ old('remember') ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="remember">
+                                            Remember me
+                                        </label>
+                                    </div>
+                                    @if (Route::has('password.request'))
+                                        <a href="{{ route('password.request') }}" class="forgot-password">
+                                            Forgot Password?
+                                        </a>
+                                    @endif
+                                </div>
+
+                                <button type="submit" class="btn btn-login">
+                                    <i class="bi bi-box-arrow-in-right"></i> Sign In
+                                </button>
+                            </form>
+
+                            <div class="register-link">
+                                Don't have an account? <a href="{{ route('register') }}">Create one now</a>
                             </div>
-
-                            <button type="submit" class="btn btn-login">
-                                <i class="bi bi-box-arrow-in-right"></i> Sign In
-                            </button>
-                        </form>
-
-                        <div class="register-link">
-                            Don't have an account? <a href="{{ route('register') }}">Create one now</a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Back to Home Link -->
-        <div class="text-center mt-3">
-            <a href="{{ route('home') }}" class="text-white text-decoration-none">
-                <i class="bi bi-arrow-left"></i> Back to Home
-            </a>
-        </div>
     </div>
+@endsection
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous">
-    </script>
-
+@push('scripts')
     <script>
         function togglePassword(inputId, icon) {
             const input = document.getElementById(inputId);
@@ -435,6 +413,4 @@
             }
         }
     </script>
-</body>
-
-</html>
+@endpush
