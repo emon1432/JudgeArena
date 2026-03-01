@@ -3,8 +3,8 @@
 
 <head>
     @php
-        $seoTitle = trim($__env->yieldContent('title', config('app.name', 'VertiCode') . ' - Track Your Problem Solving Journey'));
-        $seoDescription = trim($__env->yieldContent('description', 'VertiCode helps competitive programmers track progress, compare rankings, and grow with community insights.'));
+        $seoTitle = trim($__env->yieldContent('title', config('app.name', 'JudgeArena') . ' - Track Your Problem Solving Journey'));
+        $seoDescription = trim($__env->yieldContent('description', 'JudgeArena helps competitive programmers track progress, compare rankings, and grow with community insights.'));
         $seoKeywords = trim($__env->yieldContent('keywords', 'competitive programming, coding challenges, problem-solving, contests, leaderboard, community'));
         $seoRobots = trim($__env->yieldContent('robots', 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1'));
         $seoCanonical = trim($__env->yieldContent('canonical', url()->current()));
@@ -17,10 +17,10 @@
     <meta name="description" content="{{ $seoDescription }}">
     <meta name="keywords" content="{{ $seoKeywords }}">
     <meta name="robots" content="{{ $seoRobots }}">
-    <meta name="author" content="VertiCode Team">
+    <meta name="author" content="JudgeArena Team">
     <meta property="og:locale" content="{{ str_replace('_', '-', app()->getLocale()) }}">
     <meta property="og:type" content="{{ $seoType }}">
-    <meta property="og:site_name" content="{{ config('app.name', 'VertiCode') }}">
+    <meta property="og:site_name" content="{{ config('app.name', 'JudgeArena') }}">
     <meta property="og:title" content="{{ $seoTitle }}">
     <meta property="og:description" content="{{ $seoDescription }}">
     <meta property="og:url" content="{{ $seoCanonical }}">
@@ -47,7 +47,7 @@
         {!! json_encode([
             '@context' => 'https://schema.org',
             '@type' => 'WebSite',
-            'name' => config('app.name', 'VertiCode'),
+            'name' => config('app.name', 'JudgeArena'),
             'url' => rtrim(config('app.url'), '/'),
             'description' => $seoDescription,
             'inLanguage' => str_replace('_', '-', app()->getLocale()),

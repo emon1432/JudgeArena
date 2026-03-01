@@ -3,7 +3,7 @@
         <div class="row align-items-center">
             <div class="col-lg-8 text-white mb-4 mb-lg-0">
                 <h2 class="fw-bold mb-2">Start Tracking Your Progress Today</h2>
-                <p class="mb-0 opacity-75">Join thousands of competitive programmers already using VertiCode to
+                <p class="mb-0 opacity-75">Join thousands of competitive programmers already using JudgeArena to
                     monitor their journey and compete on global leaderboards.</p>
             </div>
             <div class="col-lg-4 text-lg-end">

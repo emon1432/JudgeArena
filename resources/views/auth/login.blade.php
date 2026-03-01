@@ -1,7 +1,7 @@
 @extends('web.layouts.app')
 
-@section('title', 'Login | VertiCode')
-@section('description', 'Sign in to your VertiCode account and continue your coding journey.')
+@section('title', 'Login | JudgeArena')
+@section('description', 'Sign in to your JudgeArena account and continue your coding journey.')
 
 @push('styles')
     <style>
@@ -257,7 +257,7 @@
                                 </div>
                                 <div class="brand-logo-text">
                                     <a href="{{ route('home') }}" class="text-white text-decoration-none">
-                                        VertiCode
+                                        JudgeArena
                                     </a>
                                 </div>
                             </div>
@@ -311,7 +311,7 @@
                                         <i class="bi bi-code-slash"></i>
                                     </div>
                                     <span
-                                        style="font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">VertiCode</span>
+                                        style="font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">JudgeArena</span>
                                 </div>
                             </div>
 

@@ -1,8 +1,8 @@
 @extends('web.layouts.app')
 
-@section('title', 'Leaderboard | VertiCode')
-@section('description', 'Explore VertiCode global leaderboard rankings, compare coding ratings, and filter top programmers by country, institute, and platform.')
-@section('keywords', 'coding leaderboard, competitive programming ranking, programmer rankings, VertiCode leaderboard')
+@section('title', 'Leaderboard | JudgeArena')
+@section('description', 'Explore JudgeArena global leaderboard rankings, compare coding ratings, and filter top programmers by country, institute, and platform.')
+@section('keywords', 'coding leaderboard, competitive programming ranking, programmer rankings, JudgeArena leaderboard')
 @section('canonical', route('leaderboard'))
 
 @push('styles')

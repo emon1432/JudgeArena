@@ -1,7 +1,7 @@
 @extends('user.layouts.app')
 @section('title', $user->name . ' | Profile')
-@section('description', 'View ' . $user->name . '\'s profile, stats, and platform profiles on VertiCode.')
-@section('keywords', $user->name . ', competitive programming profile, coding profile, VertiCode user profile')
+@section('description', 'View ' . $user->name . '\'s profile, stats, and platform profiles on JudgeArena.')
+@section('keywords', $user->name . ', competitive programming profile, coding profile, JudgeArena user profile')
 @section('canonical', route('user.profile.show', $user->username))
 
 @push('structured-data')
@@ -11,7 +11,7 @@
             '@type' => 'Person',
             'name' => $user->name,
             'url' => route('user.profile.show', $user->username),
-            'description' => 'Competitive programming profile on ' . config('app.name', 'VertiCode'),
+            'description' => 'Competitive programming profile on ' . config('app.name', 'JudgeArena'),
             'sameAs' => array_values(array_filter([$user->website, $user->github, $user->linkedin, $user->twitter])),
         ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
     </script>

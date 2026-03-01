@@ -3,8 +3,8 @@
 
 <head>
     @php
-        $seoTitle = trim($__env->yieldContent('title', config('app.name', 'VertiCode') . ' - Profile'));
-        $seoDescription = trim($__env->yieldContent('description', 'Explore competitive programming profiles, ratings, and solved statistics on VertiCode.'));
+        $seoTitle = trim($__env->yieldContent('title', config('app.name', 'JudgeArena') . ' - Profile'));
+        $seoDescription = trim($__env->yieldContent('description', 'Explore competitive programming profiles, ratings, and solved statistics on JudgeArena.'));
         $seoKeywords = trim($__env->yieldContent('keywords', 'competitive programming profile, coding profile, coding ratings, programming stats'));
         $seoRobots = trim($__env->yieldContent('robots', 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1'));
         $seoCanonical = trim($__env->yieldContent('canonical', url()->current()));
@@ -19,7 +19,7 @@
     <meta name="robots" content="{{ $seoRobots }}">
     <meta property="og:locale" content="{{ str_replace('_', '-', app()->getLocale()) }}">
     <meta property="og:type" content="{{ $seoType }}">
-    <meta property="og:site_name" content="{{ config('app.name', 'VertiCode') }}">
+    <meta property="og:site_name" content="{{ config('app.name', 'JudgeArena') }}">
     <meta property="og:title" content="{{ $seoTitle }}">
     <meta property="og:description" content="{{ $seoDescription }}">
     <meta property="og:url" content="{{ $seoCanonical }}">
@@ -33,7 +33,7 @@
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('web/img/favicon-16x16.png') }}">
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('web/img/apple-touch-icon.png') }}">
     <link rel="manifest" href="{{ asset('site.webmanifest') }}">
-    <meta name="author" content="VertiCode Team">
+    <meta name="author" content="JudgeArena Team">
     <title>{{ $seoTitle }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">

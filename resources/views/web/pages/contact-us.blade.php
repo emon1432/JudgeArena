@@ -1,8 +1,8 @@
 @extends('web.layouts.app')
 
-@section('title', 'Contact Us | VertiCode')
-@section('description', 'Get in touch with the VertiCode team for support, feedback, partnerships, or platform-related questions.')
-@section('keywords', 'contact VertiCode, VertiCode support, coding platform support, partnership inquiry')
+@section('title', 'Contact Us | JudgeArena')
+@section('description', 'Get in touch with the JudgeArena team for support, feedback, partnerships, or platform-related questions.')
+@section('keywords', 'contact JudgeArena, JudgeArena support, coding platform support, partnership inquiry')
 @section('canonical', route('contact.us'))
 
 @push('styles')
@@ -113,7 +113,7 @@
                                     <div class="contact-info-box">
                                         <div class="contact-info-icon"><i class="bi bi-envelope"></i></div>
                                         <h6 class="fw-bold mb-1">Email</h6>
-                                        <p class="mb-0 text-muted">{{ config('mail.from.address', 'support@verticode.com') }}</p>
+                                        <p class="mb-0 text-muted">{{ config('mail.from.address', 'support@judgearena.com') }}</p>
                                     </div>
                                 </div>
                                 <div class="col-md-6 col-lg-12">

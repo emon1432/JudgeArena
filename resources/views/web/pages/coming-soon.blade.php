@@ -1,7 +1,7 @@
 @extends('web.layouts.app')
 
-@section('title', $title . ' | Coming Soon - VertiCode')
-@section('description', $title . ' is coming soon on VertiCode. Stay tuned for the next big update.')
+@section('title', $title . ' | Coming Soon - JudgeArena')
+@section('description', $title . ' is coming soon on JudgeArena. Stay tuned for the next big update.')
 @section('robots', 'noindex,nofollow')
 
 @push('styles')

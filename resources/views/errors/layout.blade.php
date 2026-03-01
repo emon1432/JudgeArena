@@ -1,7 +1,7 @@
 @extends('web.layouts.app')
 
-@section('title', trim($__env->yieldContent('error_code', 'Error')) . ' - ' . trim($__env->yieldContent('error_title', 'Something went wrong')) . ' | VertiCode')
-@section('description', trim($__env->yieldContent('error_message', 'An unexpected error occurred on VertiCode.')))
+@section('title', trim($__env->yieldContent('error_code', 'Error')) . ' - ' . trim($__env->yieldContent('error_title', 'Something went wrong')) . ' | JudgeArena')
+@section('description', trim($__env->yieldContent('error_message', 'An unexpected error occurred on JudgeArena.')))
 
 @push('styles')
     <style>
