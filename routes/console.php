@@ -5,7 +5,6 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
 use App\Models\PlatformProfile;
 use App\Jobs\SyncPlatformProfileJob;
-use App\Platforms\Codeforces\CodeforcesAdapter;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
@@ -16,12 +15,7 @@ Schedule::call(function () {
     PlatformProfile::active()
         ->chunkById(100, function ($profiles) {
             foreach ($profiles as $profile) {
-                dispatch(
-                    new SyncPlatformProfileJob(
-                        $profile,
-                        CodeforcesAdapter::class
-                    )
-                );
+                SyncPlatformProfileJob::dispatch($profile);
             }
         });
 })->hourly();

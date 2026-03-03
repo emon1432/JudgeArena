@@ -44,20 +44,22 @@ class HackerEarthClient
 
         $ratingGraph = $this->fetchRatingGraph($handle);
         $profileMetrics = $this->fetchProfileMetricsWithBrowser($handle);
+        $fallbackMetrics = $this->extractMetricsFromProfileHtml($handle);
 
-        $totalSolved = (int) ($profileMetrics['problem_solved'] ?? 0);
+        $totalSolved = isset($profileMetrics['problem_solved']) && is_numeric($profileMetrics['problem_solved'])
+            ? (int) $profileMetrics['problem_solved']
+            : ($fallbackMetrics['problem_solved'] ?? 0);
         $contestRating = $profileMetrics['contest_rating'] ?? null;
         $rating = is_numeric($contestRating)
             ? (int) $contestRating
             : $this->extractLatestRating($ratingGraph);
-        $fallbackRanks = $this->extractRanksFromProfileHtml($handle);
 
         $globalRank = isset($profileMetrics['global_rank']) && is_numeric($profileMetrics['global_rank'])
             ? (int) $profileMetrics['global_rank']
-            : ($fallbackRanks['global_rank'] ?? null);
+            : ($fallbackMetrics['global_rank'] ?? null);
         $countryRank = isset($profileMetrics['country_rank']) && is_numeric($profileMetrics['country_rank'])
             ? (int) $profileMetrics['country_rank']
-            : ($fallbackRanks['country_rank'] ?? null);
+            : ($fallbackMetrics['country_rank'] ?? null);
 
         if ($globalRank === null) {
             $globalRank = $this->fetchGlobalRankFromLeaderboard($handle, $rating);
@@ -222,7 +224,7 @@ class HackerEarthClient
         return null;
     }
 
-    private function extractRanksFromProfileHtml(string $handle): array
+    private function extractMetricsFromProfileHtml(string $handle): array
     {
         try {
             $url = "{$this->baseUrl}/@{$handle}/";
@@ -233,33 +235,60 @@ class HackerEarthClient
 
             if (! $response->ok()) {
                 return [
+                    'problem_solved' => 0,
                     'global_rank' => null,
                     'country_rank' => null,
                 ];
             }
 
             $html = $response->body();
+            $plainText = preg_replace('/\s+/', ' ', strip_tags($html));
+
+            if (! is_string($plainText)) {
+                return [
+                    'problem_solved' => 0,
+                    'global_rank' => null,
+                    'country_rank' => null,
+                ];
+            }
 
             return [
-                'global_rank' => $this->extractRankValue($html, 'Global\s+Rank'),
-                'country_rank' => $this->extractRankValue($html, 'Country\s+Rank'),
+                'problem_solved' => $this->extractSolvedValue($plainText),
+                'global_rank' => $this->extractRankValue($plainText, 'Global\s+Rank'),
+                'country_rank' => $this->extractRankValue($plainText, 'Country\s+Rank'),
             ];
         } catch (\Exception $e) {
-            Log::warning("HackerEarth rank fallback failed for {$handle}: {$e->getMessage()}");
+            Log::warning("HackerEarth profile HTML metrics fallback failed for {$handle}: {$e->getMessage()}");
             return [
+                'problem_solved' => 0,
                 'global_rank' => null,
                 'country_rank' => null,
             ];
         }
     }
 
-    private function extractRankValue(string $html, string $labelPattern): ?int
+    private function extractSolvedValue(string $plainText): int
     {
-        $plainText = preg_replace('/\s+/', ' ', strip_tags($html));
-        if (! is_string($plainText)) {
-            return null;
+        $patterns = [
+            '/([0-9][0-9,]*)\s+(?:Problems?|Problem)\s+Solved/i',
+            '/(?:Problems?|Problem)\s+Solved\s*[:\-]?\s*([0-9][0-9,]*)/i',
+            '/Solved\s+Problems?\s*[:\-]?\s*([0-9][0-9,]*)/i',
+        ];
+
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $plainText, $matches)) {
+                $value = (int) str_replace(',', '', $matches[1]);
+                if ($value >= 0) {
+                    return $value;
+                }
+            }
         }
 
+        return 0;
+    }
+
+    private function extractRankValue(string $plainText, string $labelPattern): ?int
+    {
         $patterns = [
             '/([0-9][0-9,]*)\s+' . $labelPattern . '/i',
             '/' . $labelPattern . '\s*[:\-]?\s*([0-9][0-9,]*)/i',
@@ -306,7 +335,10 @@ class HackerEarthClient
             $process->run();
 
             if (! $process->isSuccessful()) {
-                Log::warning("HackerEarth Playwright process failed for {$handle}: " . $process->getErrorOutput());
+                $stderr = trim($process->getErrorOutput());
+                $stdout = trim($process->getOutput());
+                $details = $stderr !== '' ? $stderr : ($stdout !== '' ? $stdout : 'No process output');
+                Log::warning("HackerEarth Playwright process failed for {$handle}: {$details}");
                 return [];
             }
 
@@ -337,33 +369,38 @@ class HackerEarthClient
 
     public function fetchRatingGraph(string $handle): array
     {
-        $url = "{$this->baseUrl}/ratings/AJAX/rating-graph/{$handle}/";
+        try {
+            $url = "{$this->baseUrl}/ratings/AJAX/rating-graph/{$handle}/";
 
-        $response = Http::withHeaders([
-            'User-Agent' => $this->userAgent,
-            'Accept' => 'text/html',
-            'Referer' => "{$this->baseUrl}/@{$handle}/",
-        ])->timeout(20)->get($url);
+            $response = Http::withHeaders([
+                'User-Agent' => $this->userAgent,
+                'Accept' => 'text/html',
+                'Referer' => "{$this->baseUrl}/@{$handle}/",
+            ])->timeout(20)->retry(2, 500)->get($url);
 
-        if (! $response->ok()) {
+            if (! $response->ok()) {
+                return [];
+            }
+
+            $body = trim($response->body());
+            if ($body === '') {
+                return [];
+            }
+
+            if (! preg_match('/var dataset = (\[.*?\]);/s', $body, $matches)) {
+                return [];
+            }
+
+            $data = json_decode($matches[1], true);
+            if (! is_array($data)) {
+                return [];
+            }
+
+            return $data;
+        } catch (\Throwable $e) {
+            Log::warning("HackerEarth rating graph fetch failed for {$handle}: {$e->getMessage()}");
             return [];
         }
-
-        $body = trim($response->body());
-        if ($body === '') {
-            return [];
-        }
-
-        if (! preg_match('/var dataset = (\[.*?\]);/s', $body, $matches)) {
-            return [];
-        }
-
-        $data = json_decode($matches[1], true);
-        if (! is_array($data)) {
-            return [];
-        }
-
-        return $data;
     }
 
     /**

@@ -195,6 +195,19 @@ class AtCoderClient extends BaseHttpClient
         }
 
         try {
+            $v3InfoUrl = $this->atcoderApiUrl() . '/v3/user_info?user=' . urlencode($handle);
+            $payload = $this->fetchKenkooooJson($v3InfoUrl);
+            if (is_array($payload)) {
+                $count = $payload['accepted_count'] ?? null;
+                if (is_numeric($count)) {
+                    return (int) $count;
+                }
+            }
+        } catch (\Exception $e) {
+            Log::warning("AtCoder v3 user_info fallback failed for {$handle}: {$e->getMessage()}");
+        }
+
+        try {
             $v2Url = $this->atcoderApiUrl() . '/v2/user_info?user=' . urlencode($handle);
             $payload = $this->fetchKenkooooJson($v2Url);
             if (is_array($payload)) {

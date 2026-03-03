@@ -41,8 +41,8 @@ class TestHackerEarthSync extends Command
         $this->info("2. Using rendered profile metrics (Playwright fallback)");
         $metrics = $profileDto->raw['profile_metrics'] ?? [];
         $this->line("   ✓ Problem Solved: " . ((int) ($metrics['problem_solved'] ?? $profileDto->totalSolved)));
-        $this->line("   ✓ Global Rank: " . ((int) ($metrics['global_rank'] ?? 0)));
-        $this->line("   ✓ Country Rank: " . ((int) ($metrics['country_rank'] ?? 0)));
+        $this->line("   ✓ Global Rank: " . (isset($metrics['global_rank']) && is_numeric($metrics['global_rank']) ? (int) $metrics['global_rank'] : 'N/A'));
+        $this->line("   ✓ Country Rank: " . (isset($metrics['country_rank']) && is_numeric($metrics['country_rank']) ? (int) $metrics['country_rank'] : 'N/A'));
         $this->line("   ✓ Solutions Submitted: " . ((int) ($metrics['solutions_submitted'] ?? 0)));
         $this->line("   ✓ Contest Rating: " . ((int) ($metrics['contest_rating'] ?? 0)));
         $this->newLine();

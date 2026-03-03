@@ -93,14 +93,32 @@ const parseSolvedFromDom = async (page) => {
       return Number.parseInt(normalized, 10);
     };
 
+    const bodyText = (document.body?.innerText || '').replace(/\s+/g, ' ');
+    const bodyPatterns = [
+      /([0-9][0-9,]*)\s+(?:Problems?|Problem)\s+Solved/i,
+      /(?:Problems?|Problem)\s+Solved\s*[:\-]?\s*([0-9][0-9,]*)/i,
+      /Solved\s+Problems?\s*[:\-]?\s*([0-9][0-9,]*)/i,
+    ];
+
+    for (const pattern of bodyPatterns) {
+      const match = bodyText.match(pattern);
+      if (match) {
+        const parsed = parseNumber(match[1]);
+        if (parsed !== null) {
+          return parsed;
+        }
+      }
+    }
+
     const nodes = Array.from(document.querySelectorAll('*'));
-    const target = nodes.find((el) => (el.textContent || '').trim().toLowerCase() === 'problems solved');
+    const labelPattern = /^(?:problems?|problem)\s+solved$/i;
+    const target = nodes.find((el) => labelPattern.test((el.textContent || '').trim()));
     if (!target) {
       return null;
     }
 
     const parentText = (target.parentElement?.textContent || '').replace(/\s+/g, ' ');
-    const parentMatch = parentText.match(/([0-9][0-9,]*)\s*Problems Solved/i);
+    const parentMatch = parentText.match(/([0-9][0-9,]*)\s+(?:Problems?|Problem)\s+Solved/i);
     if (parentMatch) {
       return parseNumber(parentMatch[1]);
     }
@@ -233,7 +251,7 @@ async function run() {
       }
     }
 
-    if (!metrics || metrics.problem_solved === null) {
+    if (!metrics) {
       console.log(JSON.stringify({
         ok: false,
         error: 'Could not extract profile metrics from rendered page',
