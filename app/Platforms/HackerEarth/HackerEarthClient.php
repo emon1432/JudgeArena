@@ -23,7 +23,7 @@ class HackerEarthClient
         $response = Http::withHeaders([
             'User-Agent' => $this->userAgent,
             'Accept' => 'text/html',
-        ])->timeout(20)->get($url);
+        ])->retry(2, 1000)->timeout(30)->get($url);
 
         if ($response->status() === 404) {
             return false;
@@ -45,6 +45,7 @@ class HackerEarthClient
         $ratingGraph = $this->fetchRatingGraph($handle);
         $profileMetrics = $this->fetchProfileMetricsWithBrowser($handle);
         $fallbackMetrics = $this->extractMetricsFromProfileHtml($handle);
+        $identity = $this->extractIdentityFromProfileHtml($handle);
 
         $totalSolved = isset($profileMetrics['problem_solved']) && is_numeric($profileMetrics['problem_solved'])
             ? (int) $profileMetrics['problem_solved']
@@ -67,6 +68,12 @@ class HackerEarthClient
 
         return [
             'handle' => $handle,
+            'platform_user_id' => $identity['platform_user_id'] ?? $handle,
+            'name' => $identity['name'] ?? $handle,
+            'avatar_url' => $identity['avatar_url'] ?? null,
+            'joined_at' => $identity['joined_at'] ?? null,
+            'country' => $identity['country'] ?? null,
+            'organization' => $identity['organization'] ?? null,
             'rating' => $rating,
             'ranking' => $globalRank,
             'global_rank' => $globalRank,
@@ -75,6 +82,93 @@ class HackerEarthClient
             'rating_graph' => $ratingGraph,
             'profile_metrics' => $profileMetrics,
         ];
+    }
+
+    private function extractIdentityFromProfileHtml(string $handle): array
+    {
+        try {
+            $url = "{$this->baseUrl}/@{$handle}/";
+            $response = Http::withHeaders([
+                'User-Agent' => $this->userAgent,
+                'Accept' => 'text/html',
+            ])->retry(2, 1000)->timeout(30)->get($url);
+
+            if (! $response->ok()) {
+                return [
+                    'platform_user_id' => $handle,
+                    'name' => $handle,
+                    'avatar_url' => null,
+                    'joined_at' => null,
+                    'country' => null,
+                    'organization' => null,
+                ];
+            }
+
+            $html = $response->body();
+            $crawler = new Crawler($html);
+
+            $name = null;
+            $avatarUrl = null;
+            $country = null;
+            $organization = null;
+            $joinedAt = null;
+
+            if ($crawler->filter('meta[property="og:title"]')->count() > 0) {
+                $title = trim((string) $crawler->filter('meta[property="og:title"]')->attr('content'));
+                if ($title !== '') {
+                    $name = preg_replace('/\|\s*HackerEarth.*$/i', '', $title);
+                    $name = trim((string) $name);
+                }
+            }
+
+            if ($crawler->filter('meta[property="og:image"]')->count() > 0) {
+                $avatarUrl = trim((string) $crawler->filter('meta[property="og:image"]')->attr('content'));
+            }
+
+            if (preg_match('/Country\s*[:\-]?\s*([A-Za-z][A-Za-z\s]{1,80})/i', strip_tags($html), $m)) {
+                $country = trim($m[1]);
+            }
+
+            if (preg_match('/(Affiliation|Organization|Institute)\s*[:\-]?\s*([^\n\r<]{2,120})/i', strip_tags($html), $m)) {
+                $organization = trim($m[2]);
+            }
+
+            if (preg_match('/(Joined|Registered)\s*[:\-]?\s*([A-Za-z0-9,\-\/\s]+)/i', strip_tags($html), $m)) {
+                try {
+                    $joinedAt = CarbonImmutable::parse(trim($m[2]))->toIso8601String();
+                } catch (\Throwable) {
+                    $joinedAt = null;
+                }
+            }
+
+            if (! is_string($name) || trim($name) === '') {
+                $name = $handle;
+            }
+
+            if (! is_string($avatarUrl) || trim($avatarUrl) === '') {
+                $avatarUrl = null;
+            }
+
+            return [
+                'platform_user_id' => $handle,
+                'name' => $name,
+                'avatar_url' => $avatarUrl,
+                'joined_at' => $joinedAt,
+                'country' => $country,
+                'organization' => $organization,
+            ];
+        } catch (\Throwable $e) {
+            Log::warning("HackerEarth identity extraction failed for {$handle}: {$e->getMessage()}");
+
+            return [
+                'platform_user_id' => $handle,
+                'name' => $handle,
+                'avatar_url' => null,
+                'joined_at' => null,
+                'country' => null,
+                'organization' => null,
+            ];
+        }
     }
 
     private function fetchGlobalRankFromLeaderboard(string $handle, ?int $rating): ?int
@@ -231,7 +325,7 @@ class HackerEarthClient
             $response = Http::withHeaders([
                 'User-Agent' => $this->userAgent,
                 'Accept' => 'text/html',
-            ])->timeout(20)->get($url);
+            ])->retry(2, 1000)->timeout(30)->get($url);
 
             if (! $response->ok()) {
                 return [

@@ -27,6 +27,10 @@ class TestHackerEarthSync extends Command
         try {
             $profileDto = $adapter->fetchProfile($handle);
             $this->line("   ✓ Handle: {$profileDto->handle}");
+            $this->line("   ✓ Name: " . ($profileDto->raw['name'] ?? 'N/A'));
+            $this->line("   ✓ Country: " . ($profileDto->raw['country'] ?? 'N/A'));
+            $this->line("   ✓ Joined At: " . ($profileDto->raw['joined_at'] ?? 'N/A'));
+            $this->line("   ✓ Avatar URL: " . (!empty($profileDto->raw['avatar_url']) ? 'available' : 'N/A'));
             $this->line("   ✓ Rating: " . ($profileDto->rating ?? 'null'));
             $this->line("   ✓ Global Rank: " . ($profileDto->raw['ranking'] ?? 'N/A'));
             $this->line("   ✓ Total Solved (from DTO): {$profileDto->totalSolved}");
@@ -73,7 +77,7 @@ class TestHackerEarthSync extends Command
                     'handle' => $handle,
                 ],
                 [
-                    'profile_url' => $adapter->profileUrl($handle),
+                    'profile_url' => "https://www.hackerearth.com/@{$handle}/",
                 ]
             );
 
