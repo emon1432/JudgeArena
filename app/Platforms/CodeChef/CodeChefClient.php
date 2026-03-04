@@ -27,7 +27,10 @@ class CodeChefClient extends BaseHttpClient
             throw new \RuntimeException('CodeChef user not found');
         }
 
-        $crawler = new Crawler($response->body());
+        $html = $response->body();
+        $crawler = new Crawler($html);
+
+        $extended = $this->extractExtendedProfileFields($html, $crawler, $handle);
 
         // Extract rating
         $rating = null;
@@ -97,6 +100,12 @@ class CodeChefClient extends BaseHttpClient
 
         return [
             'handle' => $handle,
+            'platform_user_id' => $extended['platform_user_id'],
+            'name' => $extended['name'],
+            'avatar_url' => $extended['avatar_url'],
+            'joined_at' => $extended['joined_at'],
+            'country' => $extended['country'],
+            'affiliation' => $extended['affiliation'],
             'rating' => $rating,
             'max_rating' => $maxRating,
             'stars' => $stars,
@@ -106,6 +115,146 @@ class CodeChefClient extends BaseHttpClient
             'fully_solved' => $fullySolved,
             'partially_solved' => $partiallySolved,
             'badges' => $badges,
+        ];
+    }
+
+    private function extractExtendedProfileFields(string $html, Crawler $crawler, string $handle): array
+    {
+        $name = null;
+        $country = null;
+        $affiliation = null;
+        $joinedAt = null;
+        $avatarUrl = null;
+        $platformUserId = $handle;
+
+        if ($crawler->filter('meta[property="og:image"]')->count() > 0) {
+            $avatarUrl = $crawler->filter('meta[property="og:image"]')->attr('content');
+        }
+
+        if ($crawler->filter('meta[property="og:title"]')->count() > 0) {
+            $title = trim((string) $crawler->filter('meta[property="og:title"]')->attr('content'));
+            if ($title !== '') {
+                $name = str_ireplace('| CodeChef', '', $title);
+                $name = trim((string) $name);
+            }
+        }
+
+        if ($crawler->filter('.user-name, .profile-details .name')->count() > 0) {
+            $heading = trim((string) $crawler->filter('.user-name, .profile-details .name')->first()->text(''));
+            if ($heading !== '' && ! str_contains(strtolower($heading), 'user profile')) {
+                $name = $heading;
+            }
+        }
+
+        $crawler->filter('tr')->each(function (Crawler $row) use (&$country, &$affiliation, &$joinedAt) {
+            if ($row->filter('th')->count() === 0 || $row->filter('td')->count() === 0) {
+                return;
+            }
+
+            $label = strtolower(trim((string) $row->filter('th')->first()->text('')));
+            $value = trim((string) $row->filter('td')->first()->text(''));
+
+            if ($value === '') {
+                return;
+            }
+
+            if (str_contains($label, 'country') && $country === null) {
+                $country = $value;
+            } elseif ((str_contains($label, 'institution') || str_contains($label, 'organization') || str_contains($label, 'affiliation')) && $affiliation === null) {
+                $affiliation = $value;
+            } elseif ((str_contains($label, 'joined') || str_contains($label, 'registered')) && $joinedAt === null) {
+                try {
+                    $joinedAt = CarbonImmutable::parse($value)->toIso8601String();
+                } catch (\Throwable) {
+                    $joinedAt = null;
+                }
+            }
+        });
+
+        if (preg_match('/window\.__INITIAL_STATE__\s*=\s*(\{.*?\});/s', $html, $matches)) {
+            $state = json_decode($matches[1], true);
+            if (is_array($state)) {
+                $platformUserId = (string) (
+                    data_get($state, 'userDetails.userId')
+                    ?? data_get($state, 'profile.userId')
+                    ?? data_get($state, 'user.id')
+                    ?? $platformUserId
+                );
+
+                $name = $name
+                    ?? data_get($state, 'userDetails.name')
+                    ?? data_get($state, 'profile.name')
+                    ?? data_get($state, 'user.name');
+
+                $country = $country
+                    ?? data_get($state, 'userDetails.country')
+                    ?? data_get($state, 'profile.country')
+                    ?? data_get($state, 'user.country');
+
+                $affiliation = $affiliation
+                    ?? data_get($state, 'userDetails.institution')
+                    ?? data_get($state, 'userDetails.organization')
+                    ?? data_get($state, 'profile.organization');
+
+                $avatarUrl = $avatarUrl
+                    ?? data_get($state, 'userDetails.profileImage')
+                    ?? data_get($state, 'profile.avatar');
+
+                if ($joinedAt === null) {
+                    $joinedRaw = data_get($state, 'userDetails.joinedOn')
+                        ?? data_get($state, 'profile.createdAt')
+                        ?? data_get($state, 'user.createdAt');
+
+                    if (is_string($joinedRaw) && trim($joinedRaw) !== '') {
+                        try {
+                            $joinedAt = CarbonImmutable::parse($joinedRaw)->toIso8601String();
+                        } catch (\Throwable) {
+                            $joinedAt = null;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (! is_string($name) || trim($name) === '') {
+            $name = $handle;
+        }
+
+        $name = preg_replace('/\buser\s+profile\s+for\b.*$/i', '', $name ?? '') ?? '';
+        $name = trim(preg_replace('/\s+/', ' ', $name) ?? '');
+
+        $lowerName = strtolower($name);
+        if (
+            str_contains($lowerName, 'programming')
+            || str_contains($lowerName, 'competitive')
+            || str_contains($lowerName, 'dsa')
+            || str_contains($lowerName, 'codechef')
+        ) {
+            $name = $handle;
+        }
+
+        if ($name === '' || strcasecmp($name, 'profile') === 0) {
+            $name = $handle;
+        }
+
+        if (is_string($avatarUrl)) {
+            $normalizedAvatar = strtolower($avatarUrl);
+            if (
+                str_contains($normalizedAvatar, '/cc-logo')
+                || str_contains($normalizedAvatar, '/codechef-logo')
+                || str_contains($normalizedAvatar, '/themes/abessive/')
+            ) {
+                $avatarUrl = null;
+            }
+        }
+
+        return [
+            'platform_user_id' => $platformUserId !== '' ? $platformUserId : $handle,
+            'name' => trim($name),
+            'avatar_url' => is_string($avatarUrl) && trim($avatarUrl) !== '' ? trim($avatarUrl) : null,
+            'joined_at' => $joinedAt,
+            'country' => is_string($country) && trim($country) !== '' ? trim($country) : null,
+            'affiliation' => is_string($affiliation) && trim($affiliation) !== '' ? trim($affiliation) : null,
         ];
     }
 

@@ -29,6 +29,11 @@ class TestCodeChefSync extends Command
             $profile = $adapter->fetchProfile($handle);
 
             $this->line("   ✓ Handle: {$profile->handle}");
+            $this->line("   ✓ Name: " . ($profile->raw['name'] ?? 'N/A'));
+            $this->line("   ✓ Country: " . ($profile->raw['country'] ?? 'N/A'));
+            $this->line("   ✓ Affiliation: " . ($profile->raw['affiliation'] ?? 'N/A'));
+            $this->line("   ✓ Joined At: " . ($profile->raw['joined_at'] ?? 'N/A'));
+            $this->line("   ✓ Avatar URL: " . (!empty($profile->raw['avatar_url']) ? 'available' : 'N/A'));
             $this->line("   ✓ Current Rating: " . ($profile->rating ?? 'Unrated'));
             $this->line("   ✓ Max Rating: " . ($profile->raw['max_rating'] ?? 'N/A'));
             $this->line("   ✓ Stars: " . ($profile->raw['stars'] ?? 'N/A'));

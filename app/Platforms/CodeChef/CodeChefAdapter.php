@@ -38,7 +38,14 @@ class CodeChefAdapter implements PlatformAdapter
 
         // Build comprehensive raw data
         $rawData = [
+            'platform_user_id' => $profileData['platform_user_id'] ?? $profileData['handle'],
             'handle' => $profileData['handle'],
+            'name' => $profileData['name'] ?? $profileData['handle'],
+            'avatar_url' => $profileData['avatar_url'] ?? null,
+            'joined_at' => $profileData['joined_at'] ?? null,
+            'country' => $profileData['country'] ?? null,
+            'organization' => $profileData['affiliation'] ?? null,
+            'affiliation' => $profileData['affiliation'] ?? null,
             'rating' => $profileData['rating'],
             'max_rating' => $profileData['max_rating'],
             'stars' => $profileData['stars'],
