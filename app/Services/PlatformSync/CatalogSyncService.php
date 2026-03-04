@@ -86,7 +86,7 @@ class CatalogSyncService
                 'is_rated' => false,
                 'tags' => null,
                 'raw' => $contest,
-                'status' => 'active',
+                'status' => 'Active',
             ];
         }
 
@@ -131,7 +131,7 @@ class CatalogSyncService
                 'url' => $this->codeforcesClient->getProblemUrl((int) $contestId, $problemIndex),
                 'editorial_url' => null,
                 'raw' => $problemData,
-                'status' => 'active',
+                'status' => 'Active',
                 'is_premium' => false,
             ];
         }

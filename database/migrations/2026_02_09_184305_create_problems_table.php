@@ -51,7 +51,7 @@ return new class extends Migration
             $table->json('raw')->nullable()->comment('Raw data from platform API');
 
             // Status
-            $table->string('status', 50)->default('active')->comment('active, inactive, archived');
+            $table->string('status', 50)->default('Active')->comment('active, inactive, archived');
             $table->boolean('is_premium')->default(false);
 
             // Indexes

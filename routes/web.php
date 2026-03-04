@@ -2,12 +2,8 @@
 
 use App\Http\Controllers\Admin\OthersController;
 use App\Http\Controllers\Web\LeaderboardController;
-use App\Http\Controllers\Web\SeoController;
 use App\Http\Controllers\Web\WebsiteController;
 use Illuminate\Support\Facades\Route;
-
-
-
 
 Route::controller(WebsiteController::class)->group(function () {
     Route::get('/', 'home')->name('home');

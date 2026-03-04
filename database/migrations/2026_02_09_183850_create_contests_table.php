@@ -40,7 +40,7 @@ return new class extends Migration
             $table->json('raw')->nullable()->comment('Raw data from platform API');
 
             // Status
-            $table->string('status', 50)->default('active')->comment('active, inactive, archived');
+            $table->string('status', 50)->default('Active')->comment('active, inactive, archived');
 
             // Indexes
             $table->unique(['platform_id', 'platform_contest_id'], 'unique_platform_contest');
