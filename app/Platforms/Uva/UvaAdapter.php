@@ -42,6 +42,11 @@ class UvaAdapter implements PlatformAdapter
             rating: null,
             totalSolved: $profileData['total_solved'],
             raw: [
+                'platform_user_id' => $profileData['platform_user_id'] ?? (string) ($profileData['user_id'] ?? $profileData['handle']),
+                'name' => $profileData['name'] ?? $profileData['handle'],
+                'avatar_url' => $profileData['avatar_url'] ?? null,
+                'joined_at' => $profileData['joined_at'] ?? null,
+                'country' => $profileData['country'] ?? null,
                 'user_id' => $profileData['user_id'],
                 'name' => $profileData['name'] ?? null,
                 'uname' => $profileData['uname'] ?? null,

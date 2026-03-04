@@ -58,9 +58,13 @@ class UvaClient
 
             return [
                 'handle' => $handle,
+                'platform_user_id' => (string) $uid,
                 'user_id' => (string) $uid,
                 'name' => $rankEntry['name'] ?? null,
                 'uname' => $rankEntry['username'] ?? null,
+                'avatar_url' => null,
+                'joined_at' => null,
+                'country' => null,
                 'total_solved' => $totalSolved,
                 'submissions' => $totalSubmissions,
                 'rank' => is_numeric($rankEntry['rank'] ?? null) ? (int) $rankEntry['rank'] : null,
@@ -165,6 +169,11 @@ class UvaClient
     {
         return [
             'handle' => $handle,
+            'platform_user_id' => (string) $handle,
+            'name' => $handle,
+            'avatar_url' => null,
+            'joined_at' => null,
+            'country' => null,
             'total_solved' => 0,
             'submissions' => 0,
             'rank' => null,

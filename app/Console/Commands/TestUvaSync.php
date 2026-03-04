@@ -27,6 +27,10 @@ class TestUvaSync extends Command
             $profile = $adapter->fetchProfile($handle);
 
             $this->line("   ✓ Handle: {$profile->handle}");
+            $this->line("   ✓ Name: " . ($profile->raw['name'] ?? 'N/A'));
+            $this->line("   ✓ Country: " . ($profile->raw['country'] ?? 'N/A'));
+            $this->line("   ✓ Joined At: " . ($profile->raw['joined_at'] ?? 'N/A'));
+            $this->line("   ✓ Avatar URL: " . (!empty($profile->raw['avatar_url']) ? 'available' : 'N/A'));
             $this->line("   ✓ User ID: {$profile->raw['user_id']}");
             $this->line("   ✓ Total Solved: {$profile->totalSolved}");
             $this->line("   ✓ Total Submissions: {$profile->raw['submissions']}");
