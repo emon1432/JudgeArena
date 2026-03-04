@@ -37,6 +37,7 @@ class HackerRankAdapter implements PlatformAdapter
     {
         $data = $this->client->fetchProfile($handle);
         $ratingGraph = $this->client->fetchRatingGraph($handle);
+        $rawProfile = is_array($data['raw'] ?? null) ? $data['raw'] : [];
 
         $latestRating = null;
         if (!empty($ratingGraph)) {
@@ -57,15 +58,39 @@ class HackerRankAdapter implements PlatformAdapter
             ? (int) round((float) $latestRating)
             : null;
 
+        $name = $rawProfile['name']
+            ?? $rawProfile['full_name']
+            ?? $rawProfile['username']
+            ?? $handle;
+
+        $avatarUrl = $rawProfile['avatar']
+            ?? $rawProfile['avatar_url']
+            ?? $rawProfile['profile_picture']
+            ?? null;
+
+        $joinedAt = $rawProfile['created_at']
+            ?? $rawProfile['createdAt']
+            ?? $rawProfile['joined_at']
+            ?? null;
+
+        $country = $rawProfile['country']
+            ?? $rawProfile['country_name']
+            ?? null;
+
         return new ProfileDTO(
             platform: Platform::HACKERRANK,
             handle: $handle,
             rating: $normalizedRating,
             totalSolved: (int) ($data['total_solved'] ?? 0),
             raw: [
+                'platform_user_id' => $rawProfile['id'] ?? $handle,
+                'name' => $name,
+                'avatar_url' => $avatarUrl,
+                'joined_at' => $joinedAt,
+                'country' => $country,
                 'ranking' => $data['ranking'] ?? null,
                 'badges' => $data['badges'] ?? null,
-                'profile' => $data['raw'] ?? [],
+                'profile' => $rawProfile,
                 'rating_graph' => $ratingGraph,
             ]
         );
@@ -81,7 +106,7 @@ class HackerRankAdapter implements PlatformAdapter
 
             $submittedAt = isset($row['created_at'])
                 ? CarbonImmutable::parse($row['created_at'])
-                : now();
+                : CarbonImmutable::now();
 
             return new SubmissionDTO(
                 problemId: $problemSlug ?: ($row['name'] ?? 'unknown'),
