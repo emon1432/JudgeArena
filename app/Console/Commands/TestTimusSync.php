@@ -28,6 +28,9 @@ class TestTimusSync extends Command
 
             $this->line("   ✓ Name: {$profile->raw['name']}");
             $this->line("   ✓ User ID: {$profile->raw['user_id']}");
+            $this->line("   ✓ Country: " . ($profile->raw['country'] ?? 'N/A'));
+            $this->line("   ✓ Joined At: " . ($profile->raw['joined_at'] ?? 'N/A'));
+            $this->line("   ✓ Avatar URL: " . (!empty($profile->raw['avatar_url']) ? 'available' : 'N/A'));
             $this->line("   ✓ Handle: {$profile->handle}");
             $this->line("   ✓ Total Solved: {$profile->totalSolved}");
             if ($profile->rating) {
