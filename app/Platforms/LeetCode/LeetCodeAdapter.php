@@ -35,6 +35,7 @@ class LeetCodeAdapter implements PlatformAdapter
     {
         $profileData = $this->client->fetchUserProfile($handle);
         $difficultyStats = $this->client->extractDifficultyStats($profileData);
+        $profileMeta = $profileData['profile'] ?? [];
 
         // Fetch additional data
         $recentSubmissions = $this->client->fetchRecentSubmissions($handle);
@@ -45,7 +46,12 @@ class LeetCodeAdapter implements PlatformAdapter
 
         // Build comprehensive raw data
         $rawData = [
+            'platform_user_id' => $profileData['username'] ?? $handle,
             'username' => $profileData['username'],
+            'name' => $profileMeta['realName'] ?: ($profileData['username'] ?? $handle),
+            'avatar_url' => $profileMeta['userAvatar'] ?? null,
+            'joined_at' => null,
+            'country' => $profileMeta['countryName'] ?? null,
             'profile' => $profileData['profile'] ?? [],
             'submitStatsGlobal' => $profileData['submitStatsGlobal'] ?? [],
             'easy_solved' => $difficultyStats['easy'],
