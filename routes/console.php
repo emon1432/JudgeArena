@@ -19,3 +19,9 @@ Schedule::call(function () {
             }
         });
 })->hourly();
+
+Schedule::command('judgearena:sync-catalog')
+    ->daily()
+    ->withoutOverlapping(1430)
+    ->runInBackground()
+    ->name('judgearena-catalog-sync');
