@@ -43,6 +43,10 @@ class AtCoderClient extends BaseHttpClient
         $rank = null;
         $solved = 0;
         $rated = 0;
+        $country = null;
+        $affiliation = null;
+        $joinedAt = null;
+        $avatarUrl = $this->extractAvatarUrl($crawler);
 
         $crawler->filter('table.dl-table tr')->each(function ($row) use (&$rating, &$highestRating, &$rank, &$solved, &$rated) {
             $label = trim($row->filter('th')->text(''));
@@ -64,6 +68,24 @@ class AtCoderClient extends BaseHttpClient
             }
         });
 
+        $crawler->filter('table.dl-table tr')->each(function ($row) use (&$country, &$affiliation, &$joinedAt) {
+            $label = trim($row->filter('th')->text(''));
+            $value = trim($row->filter('td')->text(''));
+            $normalizedLabel = strtolower(rtrim($label, ':'));
+
+            if (in_array($normalizedLabel, ['country/region', 'country', 'region'], true)) {
+                $country = $value !== '' ? $value : null;
+            } elseif ($normalizedLabel === 'affiliation') {
+                $affiliation = $value !== '' ? $value : null;
+            } elseif (in_array($normalizedLabel, ['registered', 'registration date'], true)) {
+                try {
+                    $joinedAt = CarbonImmutable::parse($value)->toIso8601String();
+                } catch (\Throwable) {
+                    $joinedAt = null;
+                }
+            }
+        });
+
         if ($solved === 0) {
             $fallbackSolved = $this->fetchAcceptedCount($handle);
             if ($fallbackSolved !== null) {
@@ -78,7 +100,36 @@ class AtCoderClient extends BaseHttpClient
             'rank' => $rank,
             'total_solved' => $solved,
             'rated_matches' => $rated,
+            'country' => $country,
+            'affiliation' => $affiliation,
+            'joined_at' => $joinedAt,
+            'avatar_url' => $avatarUrl,
         ];
+    }
+
+    private function extractAvatarUrl(Crawler $crawler): ?string
+    {
+        $avatar = null;
+
+        if ($crawler->filter('img[src*="img.atcoder.jp/icons/"]')->count() > 0) {
+            $avatar = $crawler->filter('img[src*="img.atcoder.jp/icons/"]')->first()->attr('src');
+        } elseif ($crawler->filter('.avatar img')->count() > 0) {
+            $avatar = $crawler->filter('.avatar img')->first()->attr('src');
+        }
+
+        if (! is_string($avatar) || trim($avatar) === '') {
+            return null;
+        }
+
+        if (str_starts_with($avatar, 'http://') || str_starts_with($avatar, 'https://')) {
+            return $avatar;
+        }
+
+        if (str_starts_with($avatar, '//')) {
+            return 'https:' . $avatar;
+        }
+
+        return rtrim(self::BASE_URL, '/') . '/' . ltrim($avatar, '/');
     }
 
     /**

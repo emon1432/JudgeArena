@@ -36,7 +36,14 @@ class AtCoderAdapter implements PlatformAdapter
 
         // Build comprehensive raw data
         $rawData = [
+            'platform_user_id' => $profileData['handle'],
             'handle' => $profileData['handle'],
+            'name' => $profileData['handle'],
+            'avatar_url' => $profileData['avatar_url'] ?? null,
+            'joined_at' => $profileData['joined_at'] ?? null,
+            'country' => $profileData['country'] ?? null,
+            'organization' => $profileData['affiliation'] ?? null,
+            'affiliation' => $profileData['affiliation'] ?? null,
             'rating' => $profileData['rating'],
             'highest_rating' => $profileData['highest_rating'],
             'rank' => $profileData['rank'],
