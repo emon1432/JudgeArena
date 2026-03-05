@@ -36,6 +36,18 @@
                 <div>{{ __('Platforms') }}</div>
             </a>
         </li>
+        <li class="menu-item">
+            <a href="{{ route('all-problems.index') }}" class="menu-link">
+                <i class="menu-icon icon-base ti tabler-list-check"></i>
+                <div>{{ __('Problems') }}</div>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="{{ route('all-contests.index') }}" class="menu-link">
+                <i class="menu-icon icon-base ti tabler-trophy"></i>
+                <div>{{ __('Contests') }}</div>
+            </a>
+        </li>
         <li class="menu-header small">
             <span class="menu-header-text">{{ __('User Management') }}</span>
         </li>

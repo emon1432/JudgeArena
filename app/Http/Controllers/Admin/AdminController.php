@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserRequest;
 use App\Models\User;
+use App\Support\Datatable\ServerSideDatatable;
 use App\View\Components\Actions;
 use App\View\Components\UserInfo;
 use Illuminate\Http\Request;
@@ -14,7 +15,7 @@ class AdminController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            return response()->json($this->data());
+            return response()->json($this->data($request));
         }
         return view('admin.pages.admins.index');
     }
@@ -97,22 +98,40 @@ class AdminController extends Controller
         }
     }
 
-    protected function data()
+    protected function data(Request $request): array
     {
-        return User::where('role', 'admin')->get()->map(function ($admin) {
-            $admin->actions = (new Actions([
-                'model' => $admin,
-                'resource' => 'admins',
-                'buttons' => [
-                    'basic' => [
-                        'view' => true,
-                        'edit' => true,
-                        'delete' => true,
-                    ],
+        return ServerSideDatatable::make(
+            $request,
+            User::query()->where('role', 'admin'),
+            [
+                'searchable' => ['name', 'email', 'phone'],
+                'orderable' => [
+                    0 => 'name',
+                    1 => 'email',
+                    2 => 'phone',
                 ],
-            ]))->render()->render();
-            $admin->name = (new UserInfo($admin))->render()->render();
-            return $admin;
-        })->toArray();
+                'defaultOrder' => [
+                    'column' => 'name',
+                    'dir' => 'asc',
+                ],
+            ],
+            function (User $admin) {
+                $admin->actions = (new Actions([
+                    'model' => $admin,
+                    'resource' => 'admins',
+                    'buttons' => [
+                        'basic' => [
+                            'view' => true,
+                            'edit' => true,
+                            'delete' => true,
+                        ],
+                    ],
+                ]))->render()->render();
+
+                $admin->name = (new UserInfo($admin))->render()->render();
+
+                return $admin;
+            }
+        );
     }
 }

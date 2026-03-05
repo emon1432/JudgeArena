@@ -11,6 +11,7 @@ use App\Console\Commands\TestLeetCodeSync;
 use App\Console\Commands\TestSpojSync;
 use App\Console\Commands\TestTimusSync;
 use App\Console\Commands\TestUvaSync;
+use App\Console\Commands\SyncCatalogData;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 class Kernel extends ConsoleKernel
@@ -25,5 +26,6 @@ class Kernel extends ConsoleKernel
         TestSpojSync::class,
         TestUvaSync::class,
         TestTimusSync::class,
+        SyncCatalogData::class,
     ];
 }

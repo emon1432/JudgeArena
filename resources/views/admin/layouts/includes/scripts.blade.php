@@ -89,10 +89,13 @@
                 ajax: {
                     url: datatableElement.dataset.url,
                     method: "GET",
-                    dataSrc: "",
+                    dataSrc:"data",
                 },
                 columns: JSON.parse(datatableElement.dataset.columns),
                 processing: true,
+                serverSide: true,
+                deferRender: true,
+                searchDelay: 350,
                 ordering: true,
                 order: JSON.parse(datatableElement.dataset.order || "[]"),
                 layout: {

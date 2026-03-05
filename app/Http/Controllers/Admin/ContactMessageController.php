@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ContactMessage;
+use App\Support\Datatable\ServerSideDatatable;
 use App\View\Components\Actions;
 use Illuminate\Http\Request;
 
@@ -12,7 +13,7 @@ class ContactMessageController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            return response()->json($this->data());
+            return response()->json($this->data($request));
         }
 
         return view('admin.pages.contact-messages.index');
@@ -27,12 +28,26 @@ class ContactMessageController extends Controller
         return view('admin.pages.contact-messages.show', compact('contactMessage'));
     }
 
-    protected function data()
+    protected function data(Request $request): array
     {
-        return ContactMessage::query()
-            ->latest()
-            ->get()
-            ->map(function ($contactMessage) {
+        return ServerSideDatatable::make(
+            $request,
+            ContactMessage::query(),
+            [
+                'searchable' => ['name', 'email', 'subject', 'status'],
+                'orderable' => [
+                    0 => 'name',
+                    1 => 'email',
+                    2 => 'subject',
+                    3 => 'status',
+                    4 => 'created_at',
+                ],
+                'defaultOrder' => [
+                    'column' => 'created_at',
+                    'dir' => 'desc',
+                ],
+            ],
+            function (ContactMessage $contactMessage) {
                 $contactMessage->name = '<strong>' . e($contactMessage->name) . '</strong>';
                 $contactMessage->email = '<a href="mailto:' . e($contactMessage->email) . '">' . e($contactMessage->email) . '</a>';
                 $contactMessage->subject = e($contactMessage->subject);
@@ -51,8 +66,8 @@ class ContactMessageController extends Controller
                 ]))->render()->render();
 
                 return $contactMessage;
-            })
-            ->toArray();
+            }
+        );
     }
 
     protected function statusBadge(string $status): string

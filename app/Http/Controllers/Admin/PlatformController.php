@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PlatformRequest;
 use App\Models\Platform;
+use App\Support\Datatable\ServerSideDatatable;
 use App\View\Components\Actions;
 use App\View\Components\PlatformInfo;
 use App\View\Components\StatusBadge;
@@ -15,7 +16,7 @@ class PlatformController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            return response()->json($this->data());
+            return response()->json($this->data($request));
         }
         return view('admin.pages.platforms.index');
     }
@@ -96,24 +97,42 @@ class PlatformController extends Controller
         }
     }
 
-    protected function data()
+    protected function data(Request $request): array
     {
-        return Platform::orderBy('display_name', 'asc')->get()->map(function ($platform) {
-            $platform->actions = (new Actions([
-                'model' => $platform,
-                'resource' => 'platforms',
-                'buttons' => [
-                    'basic' => [
-                        'view' => true,
-                        'edit' => true,
-                        'delete' => true,
-                    ],
+        return ServerSideDatatable::make(
+            $request,
+            Platform::query(),
+            [
+                'searchable' => ['name', 'display_name', 'base_url', 'status'],
+                'orderable' => [
+                    0 => 'display_name',
+                    1 => 'base_url',
+                    2 => 'status',
                 ],
-            ]))->render()->render();
-            $platform->name = (new PlatformInfo($platform))->render()->render();
-            $platform->base_url = '<a href="' . e($platform->base_url) . '" target="_blank">' . e($platform->base_url) . '</a>';
-            $platform->status = (new StatusBadge($platform->status))->render()->render();
-            return $platform;
-        })->toArray();
+                'defaultOrder' => [
+                    'column' => 'display_name',
+                    'dir' => 'asc',
+                ],
+            ],
+            function (Platform $platform) {
+                $platform->actions = (new Actions([
+                    'model' => $platform,
+                    'resource' => 'platforms',
+                    'buttons' => [
+                        'basic' => [
+                            'view' => true,
+                            'edit' => true,
+                            'delete' => true,
+                        ],
+                    ],
+                ]))->render()->render();
+
+                $platform->name = (new PlatformInfo($platform))->render()->render();
+                $platform->base_url = '<a href="' . e($platform->base_url) . '" target="_blank">' . e($platform->base_url) . '</a>';
+                $platform->status = (new StatusBadge($platform->status))->render()->render();
+
+                return $platform;
+            }
+        );
     }
 }
