@@ -9,12 +9,41 @@ class ProblemRepository
 {
     public function upsertOne(int $platformId, array $attributes): Problem
     {
+        $payload = array_merge($attributes, ['platform_id' => $platformId]);
+
+        $slug = isset($attributes['slug']) ? trim((string) $attributes['slug']) : '';
+        if ($slug !== '') {
+            $model = Problem::where('platform_id', $platformId)
+                ->where('slug', $slug)
+                ->first();
+
+            if ($model) {
+                $incomingProblemId = (string) ($payload['platform_problem_id'] ?? '');
+                if ($incomingProblemId !== '' && $incomingProblemId !== (string) $model->platform_problem_id) {
+                    $alreadyUsed = Problem::where('platform_id', $platformId)
+                        ->where('platform_problem_id', $incomingProblemId)
+                        ->where('id', '!=', $model->id)
+                        ->exists();
+
+                    // Keep existing unique ID if the incoming one belongs to another row.
+                    if ($alreadyUsed) {
+                        unset($payload['platform_problem_id']);
+                    }
+                }
+
+                $model->fill($payload);
+                $model->save();
+
+                return $model;
+            }
+        }
+
         return Problem::updateOrCreate(
             [
                 'platform_id' => $platformId,
                 'platform_problem_id' => (string) ($attributes['platform_problem_id'] ?? ''),
             ],
-            array_merge($attributes, ['platform_id' => $platformId])
+            $payload
         );
     }
 

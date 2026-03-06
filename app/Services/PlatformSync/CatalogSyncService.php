@@ -4,6 +4,7 @@ namespace App\Services\PlatformSync;
 
 use App\Models\Platform;
 use App\Platforms\Codeforces\CodeforcesClient;
+use App\Platforms\LeetCode\LeetCodeClient;
 use App\Repositories\Global\ContestRepository;
 use App\Repositories\Global\ProblemRepository;
 use Illuminate\Support\Arr;
@@ -16,6 +17,7 @@ class CatalogSyncService
         private readonly ContestRepository $contestRepository,
         private readonly ProblemRepository $problemRepository,
         private readonly CodeforcesClient $codeforcesClient,
+        private readonly LeetCodeClient $leetCodeClient,
     ) {
     }
 
@@ -30,6 +32,7 @@ class CatalogSyncService
             try {
                 return match ($platform->name) {
                     'codeforces' => $this->syncCodeforces($platform),
+                    'leetcode' => $this->syncLeetCode($platform),
                     default => [
                         'contests_synced' => 0,
                         'problems_synced' => 0,
@@ -149,5 +152,135 @@ class CatalogSyncService
             'problems_synced' => count($problemRows),
             'skipped' => false,
         ];
+    }
+
+    private function syncLeetCode(Platform $platform): array
+    {
+        $contestRows = [];
+        $contests = $this->leetCodeClient->fetchContestList();
+
+        foreach ($contests as $contest) {
+            $slug = (string) ($contest['titleSlug'] ?? $contest['title_slug'] ?? '');
+            if ($slug === '') {
+                continue;
+            }
+
+            $name = trim((string) ($contest['title'] ?? $contest['name'] ?? 'LeetCode Contest'));
+            $startTimestamp = (int) ($contest['startTime'] ?? $contest['start_time'] ?? 0);
+            $durationSeconds = (int) ($contest['duration'] ?? $contest['durationSeconds'] ?? 0);
+
+            $startTime = $startTimestamp > 0 ? now()->setTimestamp($startTimestamp) : null;
+            $endTime = ($startTime && $durationSeconds > 0) ? (clone $startTime)->addSeconds($durationSeconds) : null;
+
+            $contestRows[] = [
+                'platform_contest_id' => $slug,
+                'slug' => $slug,
+                'name' => $name,
+                'description' => $contest['description'] ?? null,
+                'type' => 'contest',
+                'phase' => $this->resolvePhase($startTime, $endTime),
+                'duration_seconds' => $durationSeconds > 0 ? $durationSeconds : null,
+                'start_time' => $startTime,
+                'end_time' => $endTime,
+                'url' => 'https://leetcode.com/contest/' . $slug,
+                'participant_count' => null,
+                'is_rated' => ! (bool) ($contest['isVirtual'] ?? false),
+                'tags' => ['leetcode', ((bool) ($contest['containsPremium'] ?? false) ? 'contains-premium' : 'no-premium')],
+                'raw' => $contest,
+                'status' => 'Active',
+            ];
+        }
+
+        $this->contestRepository->upsertMany($platform->id, $contestRows);
+
+        $problemRows = [];
+        $problems = $this->leetCodeClient->fetchProblemCatalog();
+
+        foreach ($problems as $problem) {
+            $titleSlug = (string) ($problem['titleSlug'] ?? '');
+            $frontendId = trim((string) ($problem['questionFrontendId'] ?? ''));
+            $internalId = trim((string) ($problem['questionId'] ?? ''));
+
+            if ($titleSlug === '' && $frontendId === '' && $internalId === '') {
+                continue;
+            }
+
+            $name = trim((string) ($problem['title'] ?? ''));
+            $slug = $titleSlug !== ''
+                ? $titleSlug
+                : (($internalId !== '' ? 'leetcode-' . $internalId : 'leetcode-' . ($frontendId !== '' ? $frontendId : Str::slug($name))));
+            $platformProblemId = $slug;
+            $difficulty = Str::lower((string) ($problem['difficulty'] ?? ''));
+            $acRate = is_numeric($problem['acRate'] ?? null) ? round((float) $problem['acRate'], 2) : null;
+
+            $topicTags = collect($problem['topicTags'] ?? [])
+                ->pluck('name')
+                ->filter()
+                ->values()
+                ->all();
+
+            $problemRows[] = [
+                'contest_id' => null,
+                'platform_problem_id' => (string) $platformProblemId,
+                'slug' => $slug,
+                'name' => $name !== '' ? $name : ('Problem ' . $platformProblemId),
+                'code' => $frontendId !== '' ? $frontendId : null,
+                'description' => null,
+                'difficulty' => $difficulty !== '' ? $difficulty : null,
+                'rating' => null,
+                'points' => null,
+                'accuracy' => $acRate,
+                'acceptance_rate' => $acRate,
+                'time_limit_ms' => null,
+                'memory_limit_mb' => null,
+                'total_submissions' => 0,
+                'accepted_submissions' => 0,
+                'solved_count' => 0,
+                'tags' => $topicTags,
+                'topics' => $topicTags,
+                'url' => $titleSlug !== ''
+                    ? ('https://leetcode.com/problems/' . $titleSlug . '/')
+                    : ('https://leetcode.com/problemset/all/?search=' . urlencode($name !== '' ? $name : $platformProblemId)),
+                'editorial_url' => $titleSlug !== ''
+                    ? ('https://leetcode.com/problems/' . $titleSlug . '/editorial/')
+                    : null,
+                'raw' => $problem,
+                'status' => isset($problem['status']) && $problem['status'] ? 'Solved' : 'Active',
+                'is_premium' => (bool) ($problem['isPaidOnly'] ?? false),
+            ];
+        }
+
+        $this->problemRepository->upsertMany($platform->id, $problemRows);
+
+        Log::info('LeetCode catalog synced', [
+            'platform_id' => $platform->id,
+            'contests' => count($contestRows),
+            'problems' => count($problemRows),
+        ]);
+
+        return [
+            'contests_synced' => count($contestRows),
+            'problems_synced' => count($problemRows),
+            'skipped' => false,
+        ];
+    }
+
+    private function resolvePhase($startTime, $endTime): ?string
+    {
+        if (! $startTime) {
+            return null;
+        }
+
+        $now = now();
+
+        if ($now->lt($startTime)) {
+            return 'before';
+        }
+
+        if ($endTime && $now->gt($endTime)) {
+            return 'finished';
+        }
+
+        return 'coding';
     }
 }

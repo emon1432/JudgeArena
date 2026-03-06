@@ -283,4 +283,135 @@ GQL;
             'hard' => (int) ($stats['Hard']['count'] ?? 0),
         ];
     }
+
+    /**
+     * Fetch global LeetCode contest list.
+     */
+    public function fetchContestList(): array
+    {
+        try {
+            $query = <<<'GQL'
+query allContests {
+  allContests {
+    title
+    titleSlug
+    startTime
+    duration
+    originStartTime
+    isVirtual
+    containsPremium
+  }
+}
+GQL;
+
+            $response = $this->postGraphQL([
+                'query' => $query,
+                'variables' => (object) [],
+            ]);
+
+            $contests = $response['data']['allContests'] ?? [];
+            if (! is_array($contests)) {
+                return [];
+            }
+
+            $unique = [];
+            foreach ($contests as $contest) {
+                $slug = (string) ($contest['title_slug'] ?? $contest['titleSlug'] ?? '');
+                $key = $slug !== '' ? $slug : md5(json_encode($contest));
+                $unique[$key] = $contest;
+            }
+
+            return array_values($unique);
+        } catch (\Throwable $e) {
+            Log::warning('Failed to fetch LeetCode contest list: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Fetch global LeetCode problem catalog with pagination.
+     */
+        public function fetchProblemCatalog(int $limit = 100, int $maxPages = 120): array
+    {
+        $query = <<<'GQL'
+query problemsetQuestionList($categorySlug: String, $limit: Int, $skip: Int, $filters: QuestionListFilterInput) {
+  problemsetQuestionList: questionList(categorySlug: $categorySlug, limit: $limit, skip: $skip, filters: $filters) {
+    total: totalNum
+    questions: data {
+            questionFrontendId
+            questionId
+      title
+      titleSlug
+      difficulty
+      acRate
+            isPaidOnly
+            status
+      hasSolution
+      hasVideoSolution
+      topicTags {
+        name
+        slug
+      }
+    }
+  }
+}
+GQL;
+
+        $all = [];
+        $skip = 0;
+        $total = null;
+
+        for ($page = 1; $page <= $maxPages; $page++) {
+            $pageData = null;
+
+            for ($attempt = 1; $attempt <= 3; $attempt++) {
+                try {
+                    $response = $this->postGraphQL([
+                        'query' => $query,
+                        'variables' => [
+                            'categorySlug' => '',
+                            'skip' => $skip,
+                            'limit' => $limit,
+                            'filters' => [
+                                'tags' => [],
+                                'difficulty' => null,
+                            ],
+                        ],
+                    ]);
+
+                    if (! empty($response['errors'])) {
+                        throw new \RuntimeException($response['errors'][0]['message'] ?? 'LeetCode questionList GraphQL error');
+                    }
+
+                    $pageData = $response['data']['problemsetQuestionList'] ?? [];
+                    break;
+                } catch (\Throwable $e) {
+                    if ($attempt >= 3) {
+                        Log::warning('LeetCode problem catalog fetch failed on page ' . $page . ': ' . $e->getMessage());
+                        return $all;
+                    }
+
+                    usleep((int) ((700 * $attempt + random_int(150, 350)) * 1000));
+                }
+            }
+
+            $questions = $pageData['questions'] ?? [];
+            $total = isset($pageData['total']) ? (int) $pageData['total'] : $total;
+
+            if (empty($questions)) {
+                break;
+            }
+
+            $all = array_merge($all, $questions);
+            $skip += $limit;
+
+            if ($total !== null && count($all) >= $total) {
+                break;
+            }
+
+            usleep(200 * 1000);
+        }
+
+        return $all;
+    }
 }
