@@ -79,6 +79,16 @@ return [
         'known_issues' => [
             'kenkoooo_api_403' => 'Kenkoooo API may return 403 from some networks/environments, resulting in solved count fallback to 0.',
         ],
+        'catalog' => [
+            // Prefer Kenkoooo resources API (with browser fallback) before HTML scraping.
+            'resource_mode_enabled' => env('ATCODER_CATALOG_RESOURCE_MODE_ENABLED', true),
+            // Archive pages to scan from newest to oldest for contest upsert.
+            'archive_pages' => env('ATCODER_CATALOG_ARCHIVE_PAGES', 2),
+            // Number of most recent contests for which task lists are fetched.
+            'max_contests_for_problems' => env('ATCODER_CATALOG_MAX_CONTESTS_FOR_PROBLEMS', 120),
+            // Sleep between task-page requests to avoid aggressive request bursts.
+            'task_delay_ms' => env('ATCODER_CATALOG_TASK_DELAY_MS', 120),
+        ],
     ],
 
     'codechef' => [

@@ -334,6 +334,50 @@ class AtCoderClient extends BaseHttpClient
     }
 
     /**
+     * Fetch contests from Kenkoooo resources API.
+     */
+    public function fetchResourceContests(): array
+    {
+        $url = 'https://kenkoooo.com/atcoder/resources/contests.json';
+        $json = $this->fetchKenkooooJson($url);
+
+        return is_array($json) ? $json : [];
+    }
+
+    /**
+     * Fetch problems from Kenkoooo resources API.
+     */
+    public function fetchResourceProblems(): array
+    {
+        $url = 'https://kenkoooo.com/atcoder/resources/problems.json';
+        $json = $this->fetchKenkooooJson($url);
+
+        return is_array($json) ? $json : [];
+    }
+
+    /**
+     * Fetch merged problem details from Kenkoooo resources API.
+     */
+    public function fetchResourceMergedProblems(): array
+    {
+        $url = 'https://kenkoooo.com/atcoder/resources/merged-problems.json';
+        $json = $this->fetchKenkooooJson($url);
+
+        return is_array($json) ? $json : [];
+    }
+
+    /**
+     * Fetch contest-problem pairs from Kenkoooo resources API.
+     */
+    public function fetchResourceContestProblemPairs(): array
+    {
+        $url = 'https://kenkoooo.com/atcoder/resources/contest-problem.json';
+        $json = $this->fetchKenkooooJson($url);
+
+        return is_array($json) ? $json : [];
+    }
+
+    /**
      * Check if user profile exists
      */
     public function profileExists(string $handle): bool
@@ -395,5 +439,179 @@ class AtCoderClient extends BaseHttpClient
     public function getSubmissionUrl(string $contestId, int $submissionId): string
     {
         return self::BASE_URL . '/contests/' . $contestId . '/submissions/' . $submissionId;
+    }
+
+    /**
+     * Fetch contests from AtCoder archive pages.
+     */
+    public function fetchContestArchive(int $maxPages = 2): array
+    {
+        $all = [];
+
+        for ($page = 1; $page <= $maxPages; $page++) {
+            try {
+                $url = self::BASE_URL . '/contests/archive?page=' . $page . '&lang=en';
+                $response = $this->get($url, [
+                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                    'Accept-Language' => 'en-US,en;q=0.9',
+                ]);
+
+                if (! $response->ok()) {
+                    break;
+                }
+
+                $crawler = new Crawler($response->body());
+                $rows = $crawler->filter('table.table tbody tr');
+
+                if ($rows->count() === 0) {
+                    break;
+                }
+
+                $countBefore = count($all);
+
+                $rows->each(function (Crawler $row) use (&$all) {
+                    try {
+                        $cells = $row->filter('td');
+                        if ($cells->count() < 2) {
+                            return;
+                        }
+
+                        $timeText = trim($cells->eq(0)->text(''));
+                        $link = $cells->eq(1)->filter('a')->first();
+                        if ($link->count() === 0) {
+                            return;
+                        }
+
+                        $href = (string) $link->attr('href');
+                        if (! preg_match('#/contests/([A-Za-z0-9_-]+)$#', $href, $matches)) {
+                            return;
+                        }
+
+                        $contestId = $matches[1];
+                        $name = trim($link->text(''));
+                        $durationText = $cells->count() > 2 ? trim($cells->eq(2)->text('')) : '';
+                        $durationSeconds = $this->parseDurationToSeconds($durationText);
+
+                        $startTime = null;
+                        if ($timeText !== '') {
+                            try {
+                                $startTime = CarbonImmutable::parse($timeText, 'Asia/Tokyo')->setTimezone('UTC');
+                            } catch (\Throwable) {
+                                $startTime = null;
+                            }
+                        }
+
+                        $endTime = ($startTime && $durationSeconds !== null)
+                            ? $startTime->addSeconds($durationSeconds)
+                            : null;
+
+                        $typeLabel = null;
+                        if ($cells->eq(1)->filter('span[title]')->count() > 0) {
+                            $typeLabel = strtolower((string) $cells->eq(1)->filter('span[title]')->first()->attr('title'));
+                        }
+
+                        $all[] = [
+                            'contest_id' => $contestId,
+                            'name' => $name,
+                            'start_time' => $startTime?->toDateTimeString(),
+                            'end_time' => $endTime?->toDateTimeString(),
+                            'duration_seconds' => $durationSeconds,
+                            'type' => $typeLabel ?: 'contest',
+                            'url' => self::BASE_URL . '/contests/' . $contestId,
+                        ];
+                    } catch (\Throwable) {
+                        // Skip malformed row.
+                    }
+                });
+
+                if (count($all) === $countBefore) {
+                    break;
+                }
+            } catch (\Throwable $e) {
+                Log::warning("Failed to fetch AtCoder contest archive page {$page}: {$e->getMessage()}");
+                break;
+            }
+        }
+
+        return $all;
+    }
+
+    /**
+     * Fetch tasks (problems) from a contest tasks page.
+     */
+    public function fetchContestTasks(string $contestId): array
+    {
+        try {
+            $url = self::BASE_URL . '/contests/' . $contestId . '/tasks?lang=en';
+            $response = $this->get($url, [
+                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Language' => 'en-US,en;q=0.9',
+            ]);
+
+            if (! $response->ok()) {
+                return [];
+            }
+
+            $crawler = new Crawler($response->body());
+            $rows = $crawler->filter('table.table tbody tr');
+            if ($rows->count() === 0) {
+                return [];
+            }
+
+            $tasks = [];
+            $rows->each(function (Crawler $row) use ($contestId, &$tasks) {
+                try {
+                    $cells = $row->filter('td');
+                    if ($cells->count() < 2) {
+                        return;
+                    }
+
+                    $code = trim($cells->eq(0)->text(''));
+                    $problemLink = $cells->eq(1)->filter('a')->first();
+                    if ($problemLink->count() === 0) {
+                        return;
+                    }
+
+                    $href = (string) $problemLink->attr('href');
+                    if (! preg_match('#/contests/' . preg_quote($contestId, '#') . '/tasks/([A-Za-z0-9_-]+)$#', $href, $matches)) {
+                        return;
+                    }
+
+                    $taskId = $matches[1];
+                    $name = trim($problemLink->text(''));
+                    $problemUrl = self::BASE_URL . '/contests/' . $contestId . '/tasks/' . $taskId;
+
+                    $tasks[] = [
+                        'task_id' => $taskId,
+                        'name' => $name,
+                        'code' => $code !== '' ? $code : null,
+                        'url' => $problemUrl,
+                        'editorial_url' => self::BASE_URL . '/contests/' . $contestId . '/editorial',
+                    ];
+                } catch (\Throwable) {
+                    // Skip malformed task row.
+                }
+            });
+
+            return $tasks;
+        } catch (\Throwable $e) {
+            Log::warning("Failed to fetch AtCoder tasks for {$contestId}: {$e->getMessage()}");
+            return [];
+        }
+    }
+
+    private function parseDurationToSeconds(string $durationText): ?int
+    {
+        if ($durationText === '') {
+            return null;
+        }
+
+        if (preg_match('/^(\d{1,2}):(\d{2})$/', $durationText, $matches)) {
+            return ((int) $matches[1] * 3600) + ((int) $matches[2] * 60);
+        }
+
+        return null;
     }
 }

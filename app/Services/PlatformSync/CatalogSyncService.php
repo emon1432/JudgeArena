@@ -2,7 +2,9 @@
 
 namespace App\Services\PlatformSync;
 
+use App\Models\Problem;
 use App\Models\Platform;
+use App\Platforms\AtCoder\AtCoderClient;
 use App\Platforms\Codeforces\CodeforcesClient;
 use App\Platforms\LeetCode\LeetCodeClient;
 use App\Repositories\Global\ContestRepository;
@@ -18,6 +20,7 @@ class CatalogSyncService
         private readonly ProblemRepository $problemRepository,
         private readonly CodeforcesClient $codeforcesClient,
         private readonly LeetCodeClient $leetCodeClient,
+        private readonly AtCoderClient $atCoderClient,
     ) {
     }
 
@@ -33,6 +36,7 @@ class CatalogSyncService
                 return match ($platform->name) {
                     'codeforces' => $this->syncCodeforces($platform),
                     'leetcode' => $this->syncLeetCode($platform),
+                    'atcoder' => $this->syncAtCoder($platform),
                     default => [
                         'contests_synced' => 0,
                         'problems_synced' => 0,
@@ -282,5 +286,243 @@ class CatalogSyncService
         }
 
         return 'coding';
+    }
+
+    private function syncAtCoder(Platform $platform): array
+    {
+        $archivePages = max(1, (int) config('platforms.atcoder.catalog.archive_pages', 2));
+        $maxContestsForProblems = max(1, (int) config('platforms.atcoder.catalog.max_contests_for_problems', 120));
+        $taskDelayMs = max(0, (int) config('platforms.atcoder.catalog.task_delay_ms', 120));
+        $resourceModeEnabled = (bool) config('platforms.atcoder.catalog.resource_mode_enabled', true);
+
+        $contests = [];
+        $resourceProblems = [];
+        $resourcePairs = [];
+
+        if ($resourceModeEnabled) {
+            $resourceContests = $this->atCoderClient->fetchResourceContests();
+            $resourceProblems = $this->atCoderClient->fetchResourceMergedProblems();
+            $resourcePairs = $this->atCoderClient->fetchResourceContestProblemPairs();
+
+            if (! empty($resourceContests)) {
+                $contests = collect($resourceContests)
+                    ->map(function ($contest) {
+                        $contestId = (string) ($contest['id'] ?? '');
+                        if ($contestId === '') {
+                            return null;
+                        }
+
+                        $startEpoch = isset($contest['start_epoch_second']) ? (int) $contest['start_epoch_second'] : null;
+                        $durationSecond = isset($contest['duration_second']) ? (int) $contest['duration_second'] : null;
+                        $startTime = $startEpoch ? now()->setTimestamp($startEpoch) : null;
+                        $endTime = ($startTime && $durationSecond) ? (clone $startTime)->addSeconds($durationSecond) : null;
+
+                        return [
+                            'contest_id' => (string) $contestId,
+                            'name' => (string) ($contest['title'] ?? $contestId),
+                            'start_time' => $startTime?->toDateTimeString(),
+                            'end_time' => $endTime?->toDateTimeString(),
+                            'duration_seconds' => $durationSecond,
+                            'type' => 'contest',
+                            'url' => 'https://atcoder.jp/contests/' . $contestId,
+                        ];
+                    })
+                    ->filter()
+                    ->values()
+                    ->all();
+            }
+        }
+
+        if (empty($contests)) {
+            $contests = $this->atCoderClient->fetchContestArchive($archivePages);
+        }
+        $contestRows = [];
+
+        foreach ($contests as $contest) {
+            $contestId = (string) ($contest['contest_id'] ?? '');
+            if ($contestId === '') {
+                continue;
+            }
+
+            $name = trim((string) ($contest['name'] ?? 'AtCoder Contest'));
+
+            $contestRows[] = [
+                'platform_contest_id' => $contestId,
+                'slug' => $contestId,
+                'name' => $name,
+                'description' => null,
+                'type' => $this->normalizeContestType((string) ($contest['type'] ?? 'contest')),
+                'phase' => 'finished',
+                'duration_seconds' => $contest['duration_seconds'] ?? null,
+                'start_time' => $contest['start_time'] ?? null,
+                'end_time' => $contest['end_time'] ?? null,
+                'url' => (string) ($contest['url'] ?? ('https://atcoder.jp/contests/' . $contestId)),
+                'participant_count' => null,
+                'is_rated' => true,
+                'tags' => ['atcoder', (string) ($contest['type'] ?? 'contest')],
+                'raw' => $contest,
+                'status' => 'Active',
+            ];
+        }
+
+        $this->contestRepository->upsertMany($platform->id, $contestRows);
+
+        $contestMap = $platform->contests()->pluck('id', 'platform_contest_id')->toArray();
+
+        $problemRowsById = [];
+        if ($resourceModeEnabled && ! empty($resourcePairs)) {
+            $problemToContest = [];
+            foreach ($resourcePairs as $pair) {
+                $pid = (string) ($pair['problem_id'] ?? '');
+                $cid = (string) ($pair['contest_id'] ?? '');
+                if ($pid !== '' && $cid !== '' && ! isset($problemToContest[$pid])) {
+                    $problemToContest[$pid] = $cid;
+                }
+            }
+
+            $problemDetailsById = collect($resourceProblems)
+                ->filter(fn ($row) => isset($row['id']))
+                ->keyBy('id');
+
+            $problemIds = array_keys($problemToContest);
+
+            foreach ($problemIds as $problemId) {
+                $detail = $problemDetailsById->get($problemId, []);
+                $contestId = (string) ($problemToContest[$problemId] ?? '');
+                $title = trim((string) ($detail['title'] ?? ''));
+                $problemIndex = trim((string) ($detail['problem_index'] ?? $this->extractAtCoderProblemIndex($problemId) ?? ''));
+
+                $problemRowsById[$problemId] = [
+                    'contest_id' => ($contestId !== '' && isset($contestMap[$contestId])) ? $contestMap[$contestId] : null,
+                    'platform_problem_id' => $problemId,
+                    'slug' => $problemId,
+                    'name' => $title !== '' ? $title : ('Task ' . strtoupper($problemIndex !== '' ? $problemIndex : $problemId)),
+                    'code' => $problemIndex !== '' ? $problemIndex : null,
+                    'description' => null,
+                    'difficulty' => null,
+                    'rating' => isset($detail['difficulty']) && is_numeric($detail['difficulty']) ? (int) round((float) $detail['difficulty']) : null,
+                    'points' => null,
+                    'accuracy' => null,
+                    'acceptance_rate' => null,
+                    'time_limit_ms' => null,
+                    'memory_limit_mb' => null,
+                    'total_submissions' => 0,
+                    'accepted_submissions' => 0,
+                    'solved_count' => 0,
+                    'tags' => ['atcoder'],
+                    'topics' => ['atcoder'],
+                    'url' => 'https://atcoder.jp/contests/' . ($contestId !== '' ? $contestId : 'archive') . '/tasks/' . $problemId,
+                    'editorial_url' => $contestId !== '' ? ('https://atcoder.jp/contests/' . $contestId . '/editorial') : null,
+                    'raw' => [
+                        'problem' => $detail,
+                        'contest_id' => $contestId,
+                    ],
+                    'status' => 'Active',
+                    'is_premium' => false,
+                ];
+            }
+
+            Problem::where('platform_id', $platform->id)
+                ->whereNotIn('platform_problem_id', $problemIds)
+                ->delete();
+        }
+
+        if (empty($problemRowsById)) {
+            $contestModels = $platform->contests()
+                ->orderByDesc('start_time')
+                ->take($maxContestsForProblems)
+                ->get(['id', 'platform_contest_id', 'name'])
+                ->values();
+
+            foreach ($contestModels as $contestModel) {
+                $contestId = (string) $contestModel->platform_contest_id;
+                $tasks = $this->atCoderClient->fetchContestTasks($contestId);
+
+                foreach ($tasks as $task) {
+                    $taskId = (string) ($task['task_id'] ?? '');
+                    if ($taskId === '') {
+                        continue;
+                    }
+
+                    $name = trim((string) ($task['name'] ?? ''));
+                    $code = trim((string) ($task['code'] ?? ''));
+                    $platformProblemId = $taskId;
+
+                    $problemRowsById[$platformProblemId] = [
+                        'contest_id' => $contestModel->id,
+                        'platform_problem_id' => $platformProblemId,
+                        'slug' => $taskId,
+                        'name' => $name !== '' ? $name : ('Task ' . $taskId),
+                        'code' => $code !== '' ? $code : null,
+                        'description' => null,
+                        'difficulty' => null,
+                        'rating' => null,
+                        'points' => null,
+                        'accuracy' => null,
+                        'acceptance_rate' => null,
+                        'time_limit_ms' => null,
+                        'memory_limit_mb' => null,
+                        'total_submissions' => 0,
+                        'accepted_submissions' => 0,
+                        'solved_count' => 0,
+                        'tags' => ['atcoder'],
+                        'topics' => ['atcoder'],
+                        'url' => (string) ($task['url'] ?? ('https://atcoder.jp/contests/' . $contestId . '/tasks/' . $taskId)),
+                        'editorial_url' => (string) ($task['editorial_url'] ?? ('https://atcoder.jp/contests/' . $contestId . '/editorial')),
+                        'raw' => array_merge($task, ['contest_id' => $contestId]),
+                        'status' => 'Active',
+                        'is_premium' => false,
+                    ];
+                }
+
+                if ($taskDelayMs > 0) {
+                    usleep($taskDelayMs * 1000);
+                }
+            }
+        }
+
+        $problemRows = array_values($problemRowsById);
+
+        $this->problemRepository->upsertMany($platform->id, $problemRows);
+
+        Log::info('AtCoder catalog synced', [
+            'platform_id' => $platform->id,
+            'contests' => count($contestRows),
+            'problems' => count($problemRows),
+            'archive_pages' => $archivePages,
+            'max_contests_for_problems' => $maxContestsForProblems,
+            'resource_mode' => $resourceModeEnabled,
+        ]);
+
+        return [
+            'contests_synced' => count($contestRows),
+            'problems_synced' => count($problemRows),
+            'skipped' => false,
+        ];
+    }
+
+    private function normalizeContestType(string $type): string
+    {
+        $normalized = strtolower(trim($type));
+
+        return match ($normalized) {
+            'algorithm' => 'contest',
+            'heuristic' => 'challenge',
+            'virtual' => 'virtual',
+            'rated' => 'rated',
+            'unrated' => 'unrated',
+            'practice' => 'practice',
+            'challenge' => 'challenge',
+            default => 'contest',
+        };
+    }
+
+    private function extractAtCoderProblemIndex(string $problemId): ?string
+    {
+        if (preg_match('/_([a-z0-9]+)$/i', $problemId, $matches)) {
+            return strtoupper($matches[1]);
+        }
+
+        return null;
     }
 }
