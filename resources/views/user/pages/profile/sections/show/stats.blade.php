@@ -1,28 +1,3 @@
-@php
-    // Calculate total solved problems across all platforms
-    $totalSolved = $user->platformProfiles()->sum('total_solved');
-
-    // Calculate total rating (sum of all platform ratings)
-    $totalRating = $user->platformProfiles()->sum('rating');
-
-    // Calculate global rank based on total rating
-    $userRatings = \App\Models\User::query()
-        ->select('users.id')
-        ->where('users.role', 'user')
-        ->selectRaw('COALESCE(SUM(platform_profiles.rating), 0) as total_rating')
-        ->leftJoin('platform_profiles', 'users.id', '=', 'platform_profiles.user_id')
-        ->groupBy('users.id')
-        ->orderByDesc('total_rating')
-        ->pluck('id');
-
-    $globalRank = $totalRating > 0 ? $userRatings->search($user->id) + 1 : 'Unranked';
-
-    // Calculate unsolved problems (attempted but not solved)
-    // Note: This assumes you have a 'tried' or 'attempted' count field
-    // If not available, you may need to add this field to platform_profiles table
-    $unsolvedProblems = 0; // Placeholder - update when you have the data field
-@endphp
-
 <div class="row mb-5 g-3">
     <h4 class="mb-2">
         <i class="bi bi-bar-chart-fill"></i> Overall Statistics
@@ -38,7 +13,7 @@
                                 <p class="text-muted small mb-1">GLOBAL RANK</p>
                                 <h3 class="mb-0"
                                     style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 700;">
-                                    #{{ $globalRank }}
+                                    #1
                                 </h3>
                             </div>
                             <div style="font-size: 2rem; color: #fa709a;">
@@ -59,7 +34,7 @@
                                 <p class="text-muted small mb-1">TOTAL RATING</p>
                                 <h3 class="mb-0"
                                     style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 700;">
-                                    {{ $totalRating }}
+                                    1500
                                 </h3>
                             </div>
                             <div style="font-size: 2rem; color: #38f9d7;">
@@ -81,7 +56,7 @@
                                 <p class="text-muted small mb-1">TOTAL PROBLEMS SOLVED</p>
                                 <h3 class="mb-0"
                                     style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 700;">
-                                    {{ $totalSolved }}
+                                    150
                                 </h3>
                             </div>
                             <div style="font-size: 2rem; color: #667eea;">
@@ -102,7 +77,7 @@
                                 <p class="text-muted small mb-1">UNSOLVED PROBLEMS</p>
                                 <h3 class="mb-0"
                                     style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 700;">
-                                    {{ $unsolvedProblems }}
+                                    50
                                 </h3>
                             </div>
                             <div style="font-size: 2rem; color: #f5576c;">

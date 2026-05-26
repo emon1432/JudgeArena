@@ -8,9 +8,12 @@ class Platform extends Model
 {
     protected $fillable = [
         'name',
-        'display_name',
+        'slug',
+        'short_name',
         'base_url',
-        'image',
+        'icon',
+        'description',
+        'credentials',
         'status',
     ];
 

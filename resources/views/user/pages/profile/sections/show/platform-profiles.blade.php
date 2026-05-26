@@ -9,10 +9,6 @@
                     <tr style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
                         <th class="fw-600 text-white ps-4"><i class="bi bi-trophy me-2"></i>Platform</th>
                         <th class="fw-600 text-white"><i class="bi bi-person me-2"></i>Handle</th>
-                        <th class="fw-600 text-white"><i class="bi bi-bar-chart-line me-2"></i>Ranking</th>
-                        <th class="fw-600 text-white"><i class="bi bi-star-fill me-2"></i>Rating</th>
-                        <th class="fw-600 text-white"><i class="bi bi-check2-circle me-2"></i>Problems Solved
-                        </th>
                         <th class="fw-600 text-white text-center"><i class="bi bi-gear me-2"></i>Actions</th>
                     </tr>
                 </thead>
@@ -46,49 +42,6 @@
                                         style="font-size: 0.85rem; padding: 8px 12px; border-radius: 8px;">
                                         {{ $profile->handle }}
                                     </span>
-                                </td>
-                                <td class="py-4">
-                                    @if ($profile->ranking)
-                                        <span class="badge bg-light text-dark"
-                                            style="font-size: 0.85rem; padding: 8px 12px; border-radius: 8px;">
-                                            #{{ $profile->ranking }}
-                                        </span>
-                                    @else
-                                        <span class="text-muted gap-1">
-                                            <i class="bi bi-dash-circle"></i> N/A
-                                        </span>
-                                    @endif
-                                </td>
-                                <td class="py-4">
-                                    @if ($profile->rating)
-                                        <span class="badge bg-light text-dark"
-                                            style="font-size: 0.85rem; padding: 8px 12px; border-radius: 8px;">
-                                            {{ $profile->rating }}
-                                        </span>
-                                    @elseif ($platform->name === 'uva')
-                                        <span class="text-muted gap-1"
-                                            title="UVa Online Judge does not provide a public rating value.">
-                                            <i class="bi bi-info-circle"></i> Not provided by UVa
-                                        </span>
-                                    @else
-                                        <span class="text-muted gap-1">
-                                            <i class="bi bi-dash-circle"></i> N/A
-                                        </span>
-                                    @endif
-                                </td>
-                                <td class="py-4">
-                                    @if ($profile->total_solved)
-                                        <div>
-                                            <span class="badge bg-light text-dark"
-                                                style="font-size: 0.85rem; padding: 8px 12px; border-radius: 8px;">
-                                                {{ $profile->total_solved }}
-                                            </span>
-                                        </div>
-                                    @else
-                                        <span class="text-muted gap-1">
-                                            <i class="bi bi-dash-circle"></i> N/A
-                                        </span>
-                                    @endif
                                 </td>
                             @else
                                 <td class="py-4" colspan="4">

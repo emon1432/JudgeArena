@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\Admin\OthersController;
-use App\Http\Controllers\Web\LeaderboardController;
 use App\Http\Controllers\Web\WebsiteController;
 use Illuminate\Support\Facades\Route;
 
@@ -9,13 +8,11 @@ Route::controller(WebsiteController::class)->group(function () {
     Route::get('/', 'home')->name('home');
     Route::get('/contact-us', 'contactUs')->name('contact.us');
     Route::post('/contact-us', 'submitContact')->name('contact.submit');
+    Route::get('/platforms', 'platforms')->name('platforms');
     Route::get('/problems', 'problems')->name('problems');
     Route::get('/contests', 'contests')->name('contests');
+    Route::get('/leaderboard', 'leaderboard')->name('leaderboard');
     Route::get('/community', 'community')->name('community');
-});
-
-Route::controller(LeaderboardController::class)->group(function () {
-    Route::get('/leaderboard', 'index')->name('leaderboard');
 });
 
 Route::controller(OthersController::class)->group(function () {

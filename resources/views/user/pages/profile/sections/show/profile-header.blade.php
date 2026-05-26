@@ -107,41 +107,12 @@
                 <div class="mt-4 d-flex gap-2 flex-wrap justify-content-end">
                     @auth
                         @if (auth()->user()->id === $user->id)
-                            @php
-                                $hasActiveProfiles = $user->platformProfiles->where('status', 'Active')->isNotEmpty();
-                                $cooldownMinutes = (int) config('platforms.sync_cooldown_minutes', 120);
-                                $canSync = true;
-                                $remainingSeconds = 0;
-
-                                if ($user->last_synced_at) {
-                                    $nextAvailableAt = $user->last_synced_at->copy()->addMinutes($cooldownMinutes);
-                                    if (now()->lt($nextAvailableAt)) {
-                                        $canSync = false;
-                                        $remainingSeconds = now()->diffInSeconds($nextAvailableAt, false);
-                                    }
-                                }
-
-                                $syncDisabled = !$hasActiveProfiles || !$canSync;
-                            @endphp
-                            <form method="POST" action="{{ route('user.sync') }}" class="d-inline" id="syncForm">
-                                @csrf
-                                <button type="submit" class="btn btn-primary sync-button" id="syncButton"
-                                    data-can-sync="{{ $canSync ? 'true' : 'false' }}"
-                                    data-has-active-profiles="{{ $hasActiveProfiles ? 'true' : 'false' }}"
-                                    data-remaining-seconds="{{ $remainingSeconds }}"
-                                    data-cooldown-minutes="{{ $cooldownMinutes }}"
-                                    data-sync-status-url="{{ route('user.sync.status') }}"
-                                    {{ $syncDisabled ? 'disabled' : '' }}>
-                                    <i class="bi bi-arrow-repeat"></i>
-                                    <span id="syncButtonText">
-                                        @if ($canSync && $hasActiveProfiles)
-                                            Sync Now
-                                        @else
-                                            Loading...
-                                        @endif
-                                    </span>
-                                </button>
-                            </form>
+                            <button type="submit" class="btn btn-primary sync-button">
+                                <i class="bi bi-arrow-repeat"></i>
+                                <span id="syncButtonText">
+                                    Sync Now
+                                </span>
+                            </button>
                         @endif
                     @endauth
                 </div>

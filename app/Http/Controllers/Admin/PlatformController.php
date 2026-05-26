@@ -103,14 +103,14 @@ class PlatformController extends Controller
             $request,
             Platform::query(),
             [
-                'searchable' => ['name', 'display_name', 'base_url', 'status'],
+                'searchable' => ['name', 'name', 'base_url', 'status'],
                 'orderable' => [
-                    0 => 'display_name',
+                    0 => 'name',
                     1 => 'base_url',
                     2 => 'status',
                 ],
                 'defaultOrder' => [
-                    'column' => 'display_name',
+                    'column' => 'name',
                     'dir' => 'asc',
                 ],
             ],

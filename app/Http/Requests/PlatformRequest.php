@@ -18,7 +18,7 @@ class PlatformRequest extends FormRequest
 
         return [
             'name' => ['required', 'string', 'max:255', Rule::unique('platforms', 'name')->ignore($id)],
-            'display_name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255'],
             'base_url' => ['required', 'url', 'max:255', Rule::unique('platforms', 'base_url')->ignore($id)],
             'status' => ['required', 'in:Active,Inactive'],
             'image' => ['nullable', 'image', 'max:2048'],
@@ -30,7 +30,7 @@ class PlatformRequest extends FormRequest
         return [
             'name.required' => 'Please enter the platform name.',
             'name.unique' => 'This platform name is already in use.',
-            'display_name.required' => 'Please enter the display name.',
+            'name.required' => 'Please enter the display name.',
             'base_url.required' => 'Please enter the base URL.',
             'base_url.url' => 'Please enter a valid URL.',
             'base_url.unique' => 'This base URL is already in use.',

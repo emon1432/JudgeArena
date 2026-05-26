@@ -4,9 +4,21 @@
 <head>
     @php
         $seoTitle = trim($__env->yieldContent('title', config('app.name', 'JudgeArena') . ' - Profile'));
-        $seoDescription = trim($__env->yieldContent('description', 'Explore competitive programming profiles, ratings, and solved statistics on JudgeArena.'));
-        $seoKeywords = trim($__env->yieldContent('keywords', 'competitive programming profile, coding profile, coding ratings, programming stats'));
-        $seoRobots = trim($__env->yieldContent('robots', 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1'));
+        $seoDescription = trim(
+            $__env->yieldContent(
+                'description',
+                'Explore competitive programming profiles, ratings, and solved statistics on JudgeArena.',
+            ),
+        );
+        $seoKeywords = trim(
+            $__env->yieldContent(
+                'keywords',
+                'competitive programming profile, coding profile, coding ratings, programming stats',
+            ),
+        );
+        $seoRobots = trim(
+            $__env->yieldContent('robots', 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1'),
+        );
         $seoCanonical = trim($__env->yieldContent('canonical', url()->current()));
         $seoType = trim($__env->yieldContent('og_type', 'profile'));
         $seoImage = trim($__env->yieldContent('image', asset('favicon.ico')));

@@ -68,12 +68,12 @@ class ProblemController extends Controller
                     'problems.code',
                     'problems.difficulty',
                     'problems.rating',
-                    'platforms.display_name',
+                    'platforms.name',
                     'contests.name',
                 ],
                 'orderable' => [
                     0 => 'problems.name',
-                    1 => 'platforms.display_name',
+                    1 => 'platforms.name',
                     2 => 'problems.rating',
                     3 => 'contests.name',
                 ],
@@ -96,7 +96,7 @@ class ProblemController extends Controller
                 ]))->render()->render();
 
                 $problem->name = (new ProblemInfo($problem))->render()->render();
-                $problem->platformName = optional($problem->platform)->display_name ?? '-';
+                $problem->platformName = optional($problem->platform)->name ?? '-';
                 $problem->difficultyRating = ($problem->difficulty ? $problem->difficulty : '-') . ' / ' . ($problem->rating ? $problem->rating : '-');
                 $problem->contestName = (new ContestInfo($problem->contest))->render()->render();
 

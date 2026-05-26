@@ -43,11 +43,11 @@ class ContestController extends Controller
                     'contests.phase',
                     'contests.type',
                     'contests.status',
-                    'platforms.display_name',
+                    'platforms.name',
                 ],
                 'orderable' => [
                     0 => 'contests.name',
-                    1 => 'platforms.display_name',
+                    1 => 'platforms.name',
                     2 => 'contests.phase',
                     3 => 'contests.start_time',
                     4 => 'contests.status',
@@ -71,7 +71,7 @@ class ContestController extends Controller
                 ]))->render()->render();
 
                 $contest->name = (new ContestInfo($contest))->render()->render();
-                $contest->platformName = optional($contest->platform)->display_name ?? '-';
+                $contest->platformName = optional($contest->platform)->name ?? '-';
                 $contest->phase = ucfirst($contest->phase ?? 'Unknown');
                 $contest->startAt = $contest->start_time?->format('d M, Y h:i A') ?? '-';
                 $contest->status = (new StatusBadge((string) ($contest->status ?? 'Unknown')))->render()->render();

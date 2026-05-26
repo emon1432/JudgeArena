@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\User\SyncController;
 use App\Http\Controllers\User\UserProfileController;
 
 Route::get('/user/profile/{username}', [UserProfileController::class, 'show'])->name('user.profile.show');
@@ -19,9 +18,4 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified',
                 Route::put('/', 'update')->name('update');
                 Route::post('/institute-request', 'submitInstituteRequest')->name('institute.request');
             });
-
-        Route::controller(SyncController::class)->group(function () {
-            Route::post('/sync', 'sync')->name('sync');
-            Route::get('/sync-status', 'getSyncStatus')->name('sync.status');
-        });
     });

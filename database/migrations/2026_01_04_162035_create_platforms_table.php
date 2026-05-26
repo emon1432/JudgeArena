@@ -13,11 +13,13 @@ return new class extends Migration
     {
         Schema::create('platforms', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 50)->unique();
-            $table->string('display_name', 100);
+            $table->string('name');
+            $table->string('slug')->unique();
+            $table->string('short_name')->nullable();
             $table->string('base_url')->nullable();
-            $table->string('profile_url')->nullable();
-            $table->string('image')->nullable();
+            $table->string('icon')->nullable();
+            $table->longText('description')->nullable();
+            $table->json('credentials')->nullable();
             $table->enum('status', ['Active', 'Inactive'])->default('Active');
             $table->timestamps();
         });

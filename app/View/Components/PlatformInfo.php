@@ -15,7 +15,7 @@ class PlatformInfo extends Component
 
     public function __construct($platform)
     {
-        $this->displayName = $platform->display_name ?? $platform->title ?? ucwords(str_replace('_', ' ', $platform->key ?? '')) ?? 'N/A';
+        $this->displayName = $platform->name ?? $platform->title ?? ucwords(str_replace('_', ' ', $platform->key ?? '')) ?? 'N/A';
         $this->image = $platform->image ?? null;
         $this->name = $platform->name ?? null;
 
