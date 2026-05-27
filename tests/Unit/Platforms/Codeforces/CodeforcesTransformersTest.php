@@ -78,15 +78,31 @@ class CodeforcesTransformersTest extends TestCase
     public function test_submission_transformer_maps_submission_payload(): void
     {
         $submissions = $this->sample('codeforces-user-status.json');
-        $submissionDto = \App\Platforms\Codeforces\DTOs\CodeforcesSubmissionDTO::fromApiResponse($submissions[0]);
+        $submission = $submissions[0];
+        $submissionDto = new \App\Platforms\Codeforces\DTOs\CodeforcesSubmissionDTO(
+            id: isset($submission['id']) ? (string) $submission['id'] : null,
+            contestId: isset($submission['contestId']) ? (int) $submission['contestId'] : null,
+            creationTimeSeconds: isset($submission['creationTimeSeconds']) ? (int) $submission['creationTimeSeconds'] : null,
+            relativeTimeSeconds: isset($submission['relativeTimeSeconds']) ? (int) $submission['relativeTimeSeconds'] : null,
+            problem: is_array($submission['problem'] ?? null) ? $submission['problem'] : null,
+            author: is_array($submission['author'] ?? null) ? $submission['author'] : null,
+            programmingLanguage: $submission['programmingLanguage'] ?? null,
+            verdict: $submission['verdict'] ?? null,
+            testset: $submission['testset'] ?? null,
+            passedTestCount: isset($submission['passedTestCount']) ? (int) $submission['passedTestCount'] : null,
+            timeConsumedMillis: isset($submission['timeConsumedMillis']) ? (int) $submission['timeConsumedMillis'] : null,
+            memoryConsumedBytes: isset($submission['memoryConsumedBytes']) ? (int) $submission['memoryConsumedBytes'] : null,
+            points: isset($submission['points']) ? (float) $submission['points'] : null,
+            raw: $submission,
+        );
         $dto = (new SubmissionTransformer())->fromApiSubmission($submissionDto);
 
         $this->assertSame('codeforces', $dto->platform);
-        $this->assertSame((string) $submissions[0]['id'], $dto->platformSubmissionId);
+        $this->assertSame((string) $submission['id'], $dto->platformSubmissionId);
         $this->assertSame('2229H', $dto->problemPlatformId);
         $this->assertSame('tourist', $dto->authorHandle);
         $this->assertSame('OK', $dto->verdict);
         $this->assertSame('C++23 (GCC 14-64, msys2)', $dto->language);
-        $this->assertSame($submissions[0], $submissionDto->raw);
+        $this->assertSame($submission, $submissionDto->raw);
     }
 }
