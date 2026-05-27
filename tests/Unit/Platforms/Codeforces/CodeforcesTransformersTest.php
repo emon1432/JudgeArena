@@ -38,7 +38,18 @@ class CodeforcesTransformersTest extends TestCase
     public function test_problem_transformer_maps_problem_payload(): void
     {
         $standings = $this->sample('codeforces-contest-standings.json');
-        $problemDto = CodeforcesProblemDTO::fromApiResponse($standings['problems'][0]);
+        $problem = $standings['problems'][0];
+        $problemDto = new CodeforcesProblemDTO(
+            contestId: isset($problem['contestId']) ? (string) $problem['contestId'] : null,
+            problemsetName: $problem['problemsetName'] ?? null,
+            index: isset($problem['index']) ? (string) $problem['index'] : null,
+            name: $problem['name'] ?? null,
+            type: $problem['type'] ?? null,
+            points: isset($problem['points']) ? (int) $problem['points'] : null,
+            rating: isset($problem['rating']) ? (int) $problem['rating'] : null,
+            tags: is_array($problem['tags'] ?? null) ? $problem['tags'] : [],
+            raw: $problem,
+        );
         $dto = (new ProblemTransformer())->fromApiProblem($problemDto);
 
         $this->assertSame('codeforces', $dto->platform);

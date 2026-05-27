@@ -4,6 +4,7 @@ namespace App\Platforms\Codeforces\Services;
 
 use App\Platforms\Codeforces\Client\BaseClient;
 use App\Platforms\Codeforces\DTOs\CodeforcesProblemDTO;
+use App\Platforms\Codeforces\DTOs\CodeforcesSubmissionDTO;
 use App\Platforms\Codeforces\Support\ResponseNormalizer;
 use Illuminate\Support\Arr;
 
@@ -26,9 +27,22 @@ class Problems
         }
 
         $result = $this->client->requestApi('problemset.problems', $query);
+        $normalizedProblems = ResponseNormalizer::problems(Arr::get($result, 'problems', []));
 
         return [
-            'problems' => CodeforcesProblemDTO::fromApiResponses(ResponseNormalizer::problems(Arr::get($result, 'problems', []))),
+            'problems' => array_map(function (array $problem): CodeforcesProblemDTO {
+                return new CodeforcesProblemDTO(
+                    contestId: isset($problem['contestId']) ? (string) $problem['contestId'] : null,
+                    problemsetName: $problem['problemsetName'] ?? null,
+                    index: isset($problem['index']) ? (string) $problem['index'] : null,
+                    name: $problem['name'] ?? null,
+                    type: $problem['type'] ?? null,
+                    points: isset($problem['points']) ? (int) $problem['points'] : null,
+                    rating: isset($problem['rating']) ? (int) $problem['rating'] : null,
+                    tags: is_array($problem['tags'] ?? null) ? $problem['tags'] : [],
+                    raw: $problem,
+                );
+            }, $normalizedProblems),
             'problemStatistics' => ResponseNormalizer::problemStatisticsList(Arr::get($result, 'problemStatistics', [])),
         ];
     }
@@ -43,7 +57,7 @@ class Problems
             $query['problemsetName'] = $problemsetName;
         }
 
-        return \App\Platforms\Codeforces\DTOs\CodeforcesSubmissionDTO::fromApiResponses(
+        return CodeforcesSubmissionDTO::fromApiResponses(
             ResponseNormalizer::submissions($this->client->requestApi('problemset.recentStatus', $query))
         );
     }

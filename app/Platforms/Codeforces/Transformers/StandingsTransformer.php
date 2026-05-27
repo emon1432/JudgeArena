@@ -2,12 +2,12 @@
 
 namespace App\Platforms\Codeforces\Transformers;
 
-use App\Core\DTOs\ContestDTO;
 use App\Core\DTOs\ContestStandingsDTO;
 use App\Core\DTOs\ParticipantDTO;
 use App\Core\DTOs\ProblemResultDTO;
-use App\Platforms\Codeforces\Support\ResponseNormalizer;
 use App\Platforms\Codeforces\DTOs\CodeforcesContestDTO;
+use App\Platforms\Codeforces\DTOs\CodeforcesProblemDTO;
+use App\Platforms\Codeforces\Support\ResponseNormalizer;
 
 class StandingsTransformer
 {
@@ -26,7 +26,7 @@ class StandingsTransformer
         $contestDto = $this->contestTransformer->fromApiContest(
             CodeforcesContestDTO::fromApiResponse($normalized['contest'] ?? [])
         );
-        $problems = $this->problemTransformer->fromApiProblems($normalized['problems'] ?? []);
+        $problems = $this->problemTransformer->fromApiProblems($this->toProblemDtos($normalized['problems'] ?? []));
 
         $rows = [];
 
@@ -62,5 +62,23 @@ class StandingsTransformer
             rows: $rows,
             raw: $normalized,
         );
+    }
+
+    /** @return array<int, CodeforcesProblemDTO> */
+    private function toProblemDtos(array $problems): array
+    {
+        return array_map(function (array $problem): CodeforcesProblemDTO {
+            return new CodeforcesProblemDTO(
+                contestId: isset($problem['contestId']) ? (string) $problem['contestId'] : null,
+                problemsetName: $problem['problemsetName'] ?? null,
+                index: isset($problem['index']) ? (string) $problem['index'] : null,
+                name: $problem['name'] ?? null,
+                type: $problem['type'] ?? null,
+                points: isset($problem['points']) ? (int) $problem['points'] : null,
+                rating: isset($problem['rating']) ? (int) $problem['rating'] : null,
+                tags: is_array($problem['tags'] ?? null) ? $problem['tags'] : [],
+                raw: $problem,
+            );
+        }, ResponseNormalizer::problems($problems));
     }
 }

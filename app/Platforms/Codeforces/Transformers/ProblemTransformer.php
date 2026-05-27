@@ -7,30 +7,23 @@ use App\Platforms\Codeforces\DTOs\CodeforcesProblemDTO;
 
 class ProblemTransformer
 {
-    /**
-     * @param CodeforcesProblemDTO|array<string, mixed> $problem
-     */
-    public function fromApiProblem(CodeforcesProblemDTO|array $problem): ProblemDTO
+    public function fromApiProblem(CodeforcesProblemDTO $problem): ProblemDTO
     {
-        $dto = $problem instanceof CodeforcesProblemDTO
-            ? $problem
-            : CodeforcesProblemDTO::fromApiResponse($problem);
-
         return new ProblemDTO(
             platform: 'codeforces',
-            platformProblemId: $this->buildProblemId($dto),
-            title: (string) ($dto->name ?? ''),
-            contestPlatformId: $dto->contestId,
-            rating: $dto->rating,
-            tags: $dto->tags,
-            raw: $dto->raw,
+            platformProblemId: $this->buildProblemId($problem),
+            title: (string) ($problem->name ?? ''),
+            contestPlatformId: $problem->contestId,
+            rating: $problem->rating,
+            tags: $problem->tags,
+            raw: $problem->raw,
         );
     }
 
     /** @return array<int, ProblemDTO> */
     public function fromApiProblems(array $problems): array
     {
-        return array_map(fn (CodeforcesProblemDTO|array $problem): ProblemDTO => $this->fromApiProblem($problem), $problems);
+        return array_map(fn (CodeforcesProblemDTO $problem): ProblemDTO => $this->fromApiProblem($problem), $problems);
     }
 
     private function buildProblemId(CodeforcesProblemDTO $problem): string
