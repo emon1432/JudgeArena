@@ -12,10 +12,7 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        // Bind default platform adapter implementations
-        $this->app->bind(PlatformAdapter::class, function ($app) {
-            return new CodeforcesAdapter();
-        });
+        $this->app->bind(PlatformAdapter::class, CodeforcesAdapter::class);
     }
 
     public function boot(): void
