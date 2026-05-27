@@ -67,7 +67,8 @@ class CodeforcesTransformersTest extends TestCase
     public function test_submission_transformer_maps_submission_payload(): void
     {
         $submissions = $this->sample('codeforces-user-status.json');
-        $dto = (new SubmissionTransformer())->fromApiSubmission($submissions[0]);
+        $submissionDto = \App\Platforms\Codeforces\DTOs\CodeforcesSubmissionDTO::fromApiResponse($submissions[0]);
+        $dto = (new SubmissionTransformer())->fromApiSubmission($submissionDto);
 
         $this->assertSame('codeforces', $dto->platform);
         $this->assertSame((string) $submissions[0]['id'], $dto->platformSubmissionId);
@@ -75,5 +76,6 @@ class CodeforcesTransformersTest extends TestCase
         $this->assertSame('tourist', $dto->authorHandle);
         $this->assertSame('OK', $dto->verdict);
         $this->assertSame('C++23 (GCC 14-64, msys2)', $dto->language);
+        $this->assertSame($submissions[0], $submissionDto->raw);
     }
 }

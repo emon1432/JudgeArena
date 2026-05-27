@@ -52,7 +52,9 @@ class Users
             $query['count'] = max(1, $count);
         }
 
-        return ResponseNormalizer::submissions($this->client->requestApi('user.status', $query));
+        return \App\Platforms\Codeforces\DTOs\CodeforcesSubmissionDTO::fromApiResponses(
+            ResponseNormalizer::submissions($this->client->requestApi('user.status', $query))
+        );
     }
 
     public function rating(string $handle): array

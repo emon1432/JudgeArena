@@ -52,7 +52,9 @@ class Contests
             'contestId' => $contestId,
         ], $options);
 
-        return ResponseNormalizer::submissions($this->client->requestApi('contest.status', $query, $this->client->requiresSignedRequestPublic($options)));
+        return \App\Platforms\Codeforces\DTOs\CodeforcesSubmissionDTO::fromApiResponses(
+            ResponseNormalizer::submissions($this->client->requestApi('contest.status', $query, $this->client->requiresSignedRequestPublic($options)))
+        );
     }
 
     public function ratingChanges(int $contestId): array

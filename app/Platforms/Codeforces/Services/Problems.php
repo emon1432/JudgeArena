@@ -44,7 +44,9 @@ class Problems
             $query['problemsetName'] = $problemsetName;
         }
 
-        return ResponseNormalizer::submissions($this->client->requestApi('problemset.recentStatus', $query));
+        return \App\Platforms\Codeforces\DTOs\CodeforcesSubmissionDTO::fromApiResponses(
+            ResponseNormalizer::submissions($this->client->requestApi('problemset.recentStatus', $query))
+        );
     }
 
     public function buildProblemId(int $contestId, string $index): string

@@ -3,17 +3,23 @@
 namespace App\Platforms\Codeforces\Transformers;
 
 use App\Core\DTOs\SubmissionDTO;
-use App\Platforms\Codeforces\Support\ResponseNormalizer;
+use App\Platforms\Codeforces\DTOs\CodeforcesSubmissionDTO;
 
 class SubmissionTransformer
 {
-    public function fromApiSubmission(array $submission): SubmissionDTO
+    /**
+     * @param CodeforcesSubmissionDTO|array<string,mixed> $submission
+     */
+    public function fromApiSubmission(CodeforcesSubmissionDTO|array $submission): SubmissionDTO
     {
-        $normalized = ResponseNormalizer::submission($submission);
-        $problem = $normalized['problem'] ?? [];
-        $author = $normalized['author'] ?? [];
+        $dto = $submission instanceof CodeforcesSubmissionDTO
+            ? $submission
+            : CodeforcesSubmissionDTO::fromApiResponse($submission);
 
-        $contestId = (string) ($problem['contestId'] ?? $normalized['contestId'] ?? '0');
+        $problem = $dto->problem ?? [];
+        $author = $dto->author ?? [];
+
+        $contestId = (string) ($problem['contestId'] ?? $dto->contestId ?? '0');
         $index = strtoupper(trim((string) ($problem['index'] ?? '')));
 
         $members = $author['members'] ?? [];
@@ -21,21 +27,21 @@ class SubmissionTransformer
 
         return new SubmissionDTO(
             platform: 'codeforces',
-            platformSubmissionId: (string) ($normalized['id'] ?? ''),
+            platformSubmissionId: (string) ($dto->id ?? ''),
             problemPlatformId: $contestId . $index,
             authorHandle: $handle,
-            verdict: $normalized['verdict'] ?? null,
-            language: $normalized['programmingLanguage'] ?? null,
-            passedTestCount: isset($normalized['passedTestCount']) ? (int) $normalized['passedTestCount'] : null,
-            timeConsumedMillis: isset($normalized['timeConsumedMillis']) ? (int) $normalized['timeConsumedMillis'] : null,
-            createdAtSeconds: isset($normalized['creationTimeSeconds']) ? (int) $normalized['creationTimeSeconds'] : null,
-            raw: $normalized,
+            verdict: $dto->verdict ?? null,
+            language: $dto->programmingLanguage ?? null,
+            passedTestCount: $dto->passedTestCount,
+            timeConsumedMillis: $dto->timeConsumedMillis,
+            createdAtSeconds: $dto->creationTimeSeconds,
+            raw: $dto->raw,
         );
     }
 
     /** @return array<int, SubmissionDTO> */
     public function fromApiSubmissions(array $submissions): array
     {
-        return array_map(fn (array $submission): SubmissionDTO => $this->fromApiSubmission($submission), $submissions);
+        return array_map(fn (CodeforcesSubmissionDTO|array $submission): SubmissionDTO => $this->fromApiSubmission($submission), $submissions);
     }
 }
