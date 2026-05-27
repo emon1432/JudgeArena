@@ -7,19 +7,12 @@ use App\Platforms\Codeforces\DTOs\CodeforcesSubmissionDTO;
 
 class SubmissionTransformer
 {
-    /**
-     * @param CodeforcesSubmissionDTO|array<string,mixed> $submission
-     */
-    public function fromApiSubmission(CodeforcesSubmissionDTO|array $submission): SubmissionDTO
+    public function fromApiSubmission(CodeforcesSubmissionDTO $submission): SubmissionDTO
     {
-        $dto = $submission instanceof CodeforcesSubmissionDTO
-            ? $submission
-            : CodeforcesSubmissionDTO::fromApiResponse($submission);
+        $problem = $submission->problem ?? [];
+        $author = $submission->author ?? [];
 
-        $problem = $dto->problem ?? [];
-        $author = $dto->author ?? [];
-
-        $contestId = (string) ($problem['contestId'] ?? $dto->contestId ?? '0');
+        $contestId = (string) ($problem['contestId'] ?? $submission->contestId ?? '0');
         $index = strtoupper(trim((string) ($problem['index'] ?? '')));
 
         $members = $author['members'] ?? [];
@@ -27,21 +20,24 @@ class SubmissionTransformer
 
         return new SubmissionDTO(
             platform: 'codeforces',
-            platformSubmissionId: (string) ($dto->id ?? ''),
+            platformSubmissionId: (string) ($submission->id ?? ''),
             problemPlatformId: $contestId . $index,
             authorHandle: $handle,
-            verdict: $dto->verdict ?? null,
-            language: $dto->programmingLanguage ?? null,
-            passedTestCount: $dto->passedTestCount,
-            timeConsumedMillis: $dto->timeConsumedMillis,
-            createdAtSeconds: $dto->creationTimeSeconds,
-            raw: $dto->raw,
+            verdict: $submission->verdict ?? null,
+            language: $submission->programmingLanguage ?? null,
+            passedTestCount: $submission->passedTestCount,
+            timeConsumedMillis: $submission->timeConsumedMillis,
+            createdAtSeconds: $submission->creationTimeSeconds,
+            raw: $submission->raw,
         );
     }
 
-    /** @return array<int, SubmissionDTO> */
+    /**
+     * @param CodeforcesSubmissionDTO[] $submissions
+     * @return array<int, SubmissionDTO>
+     */
     public function fromApiSubmissions(array $submissions): array
     {
-        return array_map(fn (CodeforcesSubmissionDTO|array $submission): SubmissionDTO => $this->fromApiSubmission($submission), $submissions);
+        return array_map(fn (CodeforcesSubmissionDTO $submission): SubmissionDTO => $this->fromApiSubmission($submission), $submissions);
     }
 }
