@@ -11,10 +11,9 @@ use RuntimeException;
 class Users
 {
     public function __construct(
-        private ?BaseClient $client = null,
-    ) {
-        $this->client = $this->client ?? new BaseClient();
-    }
+        private readonly BaseClient $client,
+    ) {}
+
     public function info(string $handle, bool $checkHistoricHandles = true): CodeforcesUserDTO
     {
         $result = $this->client->requestApi('user.info', [

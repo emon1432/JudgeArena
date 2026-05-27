@@ -10,10 +10,9 @@ use Illuminate\Support\Arr;
 class Problems
 {
     public function __construct(
-        private ?BaseClient $client = null,
-    ) {
-        $this->client = $this->client ?? new BaseClient();
-    }
+        private readonly BaseClient $client,
+    ) {}
+
     public function list(?array $tags = null, ?string $problemsetName = null): array
     {
         $query = [];

@@ -9,10 +9,9 @@ use App\Platforms\Codeforces\Support\ResponseNormalizer;
 class Contests
 {
     public function __construct(
-        private ?BaseClient $client = null,
-    ) {
-        $this->client = $this->client ?? new BaseClient();
-    }
+        private readonly BaseClient $client,
+    ) {}
+
     public function list(bool $gym = false, ?string $groupCode = null): array
     {
         $query = [

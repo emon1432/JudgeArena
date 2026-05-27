@@ -2,7 +2,6 @@
 
 namespace App\Platforms\Codeforces\Client;
 
-use App\Models\Platform;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
@@ -11,37 +10,33 @@ use RuntimeException;
 
 class BaseClient
 {
-    protected $API_BASE_URL;
-    protected $WEB_BASE_URL;
-    protected $API_KEY;
-    protected $API_SECRET;
-    protected $HTTP_TIMEOUT_SECONDS = 25;
-    protected $HTTP_RETRY_ATTEMPTS = 3;
-    protected $HTTP_RETRY_SLEEP_MS = 300;
-    protected $USER_INFO_BATCH_CHAR_LIMIT = 2000;
-    protected $API_RATE_LIMIT_SECONDS = 2;
+    public $API_BASE_URL = '';
+    public $WEB_BASE_URL = '';
+    public $API_KEY = '';
+    public $API_SECRET = '';
+
+    protected const HTTP_TIMEOUT_SECONDS = 25;
+    protected const HTTP_RETRY_ATTEMPTS = 3;
+    protected const HTTP_RETRY_SLEEP_MS = 300;
+    protected const USER_INFO_BATCH_CHAR_LIMIT = 2000;
+    protected const API_RATE_LIMIT_SECONDS = 2;
 
     public function __construct()
     {
-        $platform = Platform::where('slug', 'codeforces')->first();
-        if ($platform === null) {
-            throw new RuntimeException('Codeforces platform not found in database');
-        }
-        $credentials = json_decode($platform->credentials, true);
-        $this->API_BASE_URL = $credentials['api_base_url'] ?? 'https://codeforces.com/api';
-        $this->WEB_BASE_URL = $credentials['base_url'] ?? 'https://codeforces.com';
-        $this->API_KEY = $credentials['api_key'] ?? '';
-        $this->API_SECRET = $credentials['api_secret'] ?? '';
+        $this->API_BASE_URL = config('platforms.codeforces.api_base_url', '');
+        $this->WEB_BASE_URL = config('platforms.codeforces.base_url', '');
+        $this->API_KEY = config('platforms.codeforces.credentials.api_key', '');
+        $this->API_SECRET = config('platforms.codeforces.credentials.api_secret', '');
     }
 
     protected function http(): PendingRequest
     {
         return Http::acceptJson()
             ->asJson()
-            ->timeout($this->HTTP_TIMEOUT_SECONDS)
+            ->timeout(self::HTTP_TIMEOUT_SECONDS)
             ->retry(
-                $this->HTTP_RETRY_ATTEMPTS,
-                $this->HTTP_RETRY_SLEEP_MS,
+                self::HTTP_RETRY_ATTEMPTS,
+                self::HTTP_RETRY_SLEEP_MS,
                 function (\Exception $exception): bool {
                     return true;
                 },
@@ -55,11 +50,11 @@ class BaseClient
         $lastRequestAt = (int) (cache()->get($cacheKey) ?? 0);
         $elapsed = time() - $lastRequestAt;
 
-        if ($lastRequestAt > 0 && $elapsed < $this->API_RATE_LIMIT_SECONDS) {
-            usleep(($this->API_RATE_LIMIT_SECONDS - $elapsed) * 1000000);
+        if ($lastRequestAt > 0 && $elapsed < self::API_RATE_LIMIT_SECONDS) {
+            usleep((self::API_RATE_LIMIT_SECONDS - $elapsed) * 1000000);
         }
 
-        cache()->put($cacheKey, time(), $this->API_RATE_LIMIT_SECONDS + 1);
+        cache()->put($cacheKey, time(), self::API_RATE_LIMIT_SECONDS + 1);
     }
 
     protected function sanitizeQuery(array $query): array
@@ -101,7 +96,7 @@ class BaseClient
         if ($status !== 'OK') {
             $comment = (string) ($payload['comment'] ?? 'Codeforces API error');
             if ($comment === 'Call limit exceeded') {
-                usleep($this->API_RATE_LIMIT_SECONDS * 1000000);
+                usleep(self::API_RATE_LIMIT_SECONDS * 1000000);
             }
 
             Log::notice('Codeforces API returned non-OK status', [
@@ -176,7 +171,7 @@ class BaseClient
 
     public function userInfoBatchCharLimit(): int
     {
-        return (int) $this->USER_INFO_BATCH_CHAR_LIMIT;
+        return (int) self::USER_INFO_BATCH_CHAR_LIMIT;
     }
 
     public function requestApi(string $method, array $query = [], bool $signed = false): array
