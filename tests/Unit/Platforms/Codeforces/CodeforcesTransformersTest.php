@@ -2,9 +2,9 @@
 
 namespace Tests\Unit\Platforms\Codeforces;
 
-use App\Platforms\Codeforces\DTOs\CodeforcesContestDTO;
 use App\Platforms\Codeforces\DTOs\CodeforcesProblemDTO;
-use App\Platforms\Codeforces\DTOs\CodeforcesUserDTO;
+use App\Platforms\Codeforces\Mappers\CodeforcesContestMapper;
+use App\Platforms\Codeforces\Mappers\CodeforcesUserMapper;
 use App\Platforms\Codeforces\Transformers\ContestTransformer;
 use App\Platforms\Codeforces\Transformers\ProblemTransformer;
 use App\Platforms\Codeforces\Transformers\SubmissionTransformer;
@@ -23,7 +23,7 @@ class CodeforcesTransformersTest extends TestCase
     public function test_contest_transformer_maps_standings_contest(): void
     {
         $standings = $this->sample('codeforces-contest-standings.json');
-        $contestDto = CodeforcesContestDTO::fromApiResponse($standings['contest']);
+        $contestDto = CodeforcesContestMapper::fromNormalized($standings['contest']);
         $dto = (new ContestTransformer())->fromApiContest($contestDto);
 
         $this->assertSame('codeforces', $dto->platform);
@@ -63,28 +63,7 @@ class CodeforcesTransformersTest extends TestCase
     public function test_user_transformer_maps_profile_payload(): void
     {
         $profile = $this->sample('codeforces-profile.json');
-        $userDto = new CodeforcesUserDTO(
-            handle: $profile['handle'] ?? null,
-            email: $profile['email'] ?? null,
-            vkId: $profile['vkId'] ?? null,
-            openId: $profile['openId'] ?? null,
-            firstName: $profile['firstName'] ?? null,
-            lastName: $profile['lastName'] ?? null,
-            country: $profile['country'] ?? null,
-            city: $profile['city'] ?? null,
-            organization: $profile['organization'] ?? null,
-            contribution: isset($profile['contribution']) ? (int) $profile['contribution'] : null,
-            rank: $profile['rank'] ?? null,
-            rating: isset($profile['rating']) ? (int) $profile['rating'] : null,
-            maxRank: $profile['maxRank'] ?? null,
-            maxRating: isset($profile['maxRating']) ? (int) $profile['maxRating'] : null,
-            lastOnlineTimeSeconds: isset($profile['lastOnlineTimeSeconds']) ? (int) $profile['lastOnlineTimeSeconds'] : null,
-            registrationTimeSeconds: isset($profile['registrationTimeSeconds']) ? (int) $profile['registrationTimeSeconds'] : null,
-            friendOfCount: isset($profile['friendOfCount']) ? (int) $profile['friendOfCount'] : null,
-            avatar: $profile['avatar'] ?? null,
-            titlePhoto: $profile['titlePhoto'] ?? null,
-            raw: $profile,
-        );
+        $userDto = CodeforcesUserMapper::fromNormalized($profile);
         $dto = (new UserTransformer())->fromApiUser($userDto);
 
         $this->assertSame('codeforces', $dto->platform);

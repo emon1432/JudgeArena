@@ -3,8 +3,8 @@
 namespace App\Platforms\Codeforces\Services;
 
 use App\Platforms\Codeforces\Client\BaseClient;
-use App\Platforms\Codeforces\DTOs\CodeforcesContestDTO;
 use App\Platforms\Codeforces\DTOs\CodeforcesSubmissionDTO;
+use App\Platforms\Codeforces\Mappers\CodeforcesContestMapper;
 use App\Platforms\Codeforces\Support\ResponseNormalizer;
 
 class Contests
@@ -23,7 +23,7 @@ class Contests
             $query['groupCode'] = $groupCode;
         }
 
-        return CodeforcesContestDTO::fromApiResponses(
+        return CodeforcesContestMapper::fromNormalizedList(
             ResponseNormalizer::contests($this->client->requestApi('contest.list', $query))
         );
     }
