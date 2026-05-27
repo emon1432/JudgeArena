@@ -3,6 +3,7 @@
 namespace App\Platforms\Codeforces\Services;
 
 use App\Platforms\Codeforces\Client\BaseClient;
+use App\Platforms\Codeforces\DTOs\CodeforcesContestDTO;
 use App\Platforms\Codeforces\Support\ResponseNormalizer;
 
 class Contests
@@ -22,7 +23,9 @@ class Contests
             $query['groupCode'] = $groupCode;
         }
 
-        return ResponseNormalizer::contests($this->client->requestApi('contest.list', $query));
+        return CodeforcesContestDTO::fromApiResponses(
+            ResponseNormalizer::contests($this->client->requestApi('contest.list', $query))
+        );
     }
 
     public function standings(int $contestId, array $options = []): array

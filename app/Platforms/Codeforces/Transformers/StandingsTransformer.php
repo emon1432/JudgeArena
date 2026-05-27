@@ -7,6 +7,7 @@ use App\Core\DTOs\ContestStandingsDTO;
 use App\Core\DTOs\ParticipantDTO;
 use App\Core\DTOs\ProblemResultDTO;
 use App\Platforms\Codeforces\Support\ResponseNormalizer;
+use App\Platforms\Codeforces\DTOs\CodeforcesContestDTO;
 
 class StandingsTransformer
 {
@@ -22,7 +23,9 @@ class StandingsTransformer
     {
         $normalized = ResponseNormalizer::standings($standings);
 
-        $contestDto = $this->contestTransformer->fromApiContest($normalized['contest'] ?? []);
+        $contestDto = $this->contestTransformer->fromApiContest(
+            CodeforcesContestDTO::fromApiResponse($normalized['contest'] ?? [])
+        );
         $problems = $this->problemTransformer->fromApiProblems($normalized['problems'] ?? []);
 
         $rows = [];

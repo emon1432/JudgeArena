@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Platforms\Codeforces;
 
+use App\Platforms\Codeforces\DTOs\CodeforcesContestDTO;
 use App\Platforms\Codeforces\Transformers\ContestTransformer;
 use App\Platforms\Codeforces\Transformers\ProblemTransformer;
 use App\Platforms\Codeforces\Transformers\SubmissionTransformer;
@@ -20,7 +21,8 @@ class CodeforcesTransformersTest extends TestCase
     public function test_contest_transformer_maps_standings_contest(): void
     {
         $standings = $this->sample('codeforces-contest-standings.json');
-        $dto = (new ContestTransformer())->fromApiContest($standings['contest']);
+        $contestDto = CodeforcesContestDTO::fromApiResponse($standings['contest']);
+        $dto = (new ContestTransformer())->fromApiContest($contestDto);
 
         $this->assertSame('codeforces', $dto->platform);
         $this->assertSame('2225', $dto->platformContestId);
@@ -28,6 +30,7 @@ class CodeforcesTransformersTest extends TestCase
         $this->assertSame('FINISHED', $dto->phase);
         $this->assertSame(7200, $dto->durationSeconds);
         $this->assertSame(1776782100, $dto->startedAt?->getTimestamp());
+        $this->assertSame($standings['contest'], $contestDto->raw);
     }
 
     public function test_problem_transformer_maps_problem_payload(): void
