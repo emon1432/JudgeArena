@@ -4,6 +4,7 @@ namespace Tests\Unit\Platforms\Codeforces;
 
 use App\Platforms\Codeforces\DTOs\CodeforcesContestDTO;
 use App\Platforms\Codeforces\DTOs\CodeforcesProblemDTO;
+use App\Platforms\Codeforces\DTOs\CodeforcesUserDTO;
 use App\Platforms\Codeforces\Transformers\ContestTransformer;
 use App\Platforms\Codeforces\Transformers\ProblemTransformer;
 use App\Platforms\Codeforces\Transformers\SubmissionTransformer;
@@ -51,7 +52,8 @@ class CodeforcesTransformersTest extends TestCase
     public function test_user_transformer_maps_profile_payload(): void
     {
         $profile = $this->sample('codeforces-profile.json');
-        $dto = (new UserTransformer())->fromApiUser($profile);
+        $userDto = CodeforcesUserDTO::fromApiResponse($profile);
+        $dto = (new UserTransformer())->fromApiUser($userDto);
 
         $this->assertSame('codeforces', $dto->platform);
         $this->assertSame('tourist', $dto->platformHandle);
@@ -59,6 +61,7 @@ class CodeforcesTransformersTest extends TestCase
         $this->assertSame('Korotkevich', $dto->lastName);
         $this->assertSame(3428, $dto->rating);
         $this->assertSame('Belarus', $dto->country);
+        $this->assertSame($profile, $userDto->raw);
     }
 
     public function test_submission_transformer_maps_submission_payload(): void

@@ -3,6 +3,7 @@
 namespace App\Platforms\Codeforces\Services;
 
 use App\Platforms\Codeforces\Client\BaseClient;
+use App\Platforms\Codeforces\DTOs\CodeforcesUserDTO;
 use App\Platforms\Codeforces\Support\ResponseNormalizer;
 use Illuminate\Support\Arr;
 use RuntimeException;
@@ -14,14 +15,14 @@ class Users
     ) {
         $this->client = $this->client ?? new BaseClient();
     }
-    public function info(string $handle, bool $checkHistoricHandles = true): array
+    public function info(string $handle, bool $checkHistoricHandles = true): CodeforcesUserDTO
     {
         $result = $this->client->requestApi('user.info', [
             'handles' => $handle,
             'checkHistoricHandles' => $checkHistoricHandles ? 'true' : 'false',
         ]);
 
-        return ResponseNormalizer::user(Arr::first($result, null, []));
+        return CodeforcesUserDTO::fromApiResponse(Arr::first($result, null, []));
     }
 
     public function infos(array $handles, bool $checkHistoricHandles = true): array
@@ -34,7 +35,7 @@ class Users
                 'checkHistoricHandles' => $checkHistoricHandles ? 'true' : 'false',
             ]);
 
-            array_push($results, ...ResponseNormalizer::users($batchResult));
+            array_push($results, ...CodeforcesUserDTO::fromApiResponses(ResponseNormalizer::users($batchResult)));
         }
 
         return $results;

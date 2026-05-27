@@ -3,22 +3,27 @@
 namespace App\Platforms\Codeforces\Transformers;
 
 use App\Core\DTOs\UserDTO;
-use App\Platforms\Codeforces\Support\ResponseNormalizer;
+use App\Platforms\Codeforces\DTOs\CodeforcesUserDTO;
 
 class UserTransformer
 {
-    public function fromApiUser(array $user): UserDTO
+    /**
+     * @param CodeforcesUserDTO|array<string, mixed> $user
+     */
+    public function fromApiUser(CodeforcesUserDTO|array $user): UserDTO
     {
-        $normalized = ResponseNormalizer::user($user);
+        $dto = $user instanceof CodeforcesUserDTO
+            ? $user
+            : CodeforcesUserDTO::fromApiResponse($user);
 
         return new UserDTO(
             platform: 'codeforces',
-            platformHandle: (string) ($normalized['handle'] ?? ''),
-            firstName: $normalized['firstName'] ?? null,
-            lastName: $normalized['lastName'] ?? null,
-            rating: isset($normalized['rating']) ? (int) $normalized['rating'] : null,
-            country: $normalized['country'] ?? null,
-            raw: $normalized,
+            platformHandle: (string) ($dto->handle ?? ''),
+            firstName: $dto->firstName,
+            lastName: $dto->lastName,
+            rating: $dto->rating,
+            country: $dto->country,
+            raw: $dto->raw,
         );
     }
 }
