@@ -90,12 +90,20 @@ class Problems
         return $this->client->webBaseUrl() . '/problemset/' . $section . '/' . $contestId . '/' . strtoupper(trim($index));
     }
 
+    /**
+     * @param CodeforcesSubmissionDTO[] $submissions
+     */
     public function acceptedProblemIds(array $submissions): array
     {
         return collect($submissions)
-            ->filter(fn(array $submission): bool => ($submission['verdict'] ?? null) === 'OK')
-            ->map(function (array $submission): ?string {
-                $problem = $submission['problem'] ?? [];
+            ->filter(fn (CodeforcesSubmissionDTO $submission): bool => $submission->verdict === 'OK')
+            ->map(function (CodeforcesSubmissionDTO $submission): ?string {
+                $problem = $submission->problem;
+
+                if (! is_array($problem)) {
+                    return null;
+                }
+
                 $contestId = Arr::get($problem, 'contestId');
                 $index = Arr::get($problem, 'index');
 
