@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Platforms\Codeforces;
 
+use App\Platforms\Codeforces\Mappers\CodeforcesStandingsMapper;
 use App\Platforms\Codeforces\Transformers\StandingsTransformer;
 use Tests\TestCase;
 
@@ -17,8 +18,9 @@ class StandingsTransformerTest extends TestCase
     public function test_standings_transformer_maps_rows_and_problems(): void
     {
         $standings = $this->sample('codeforces-contest-standings.json');
+        $standingsDto = CodeforcesStandingsMapper::fromApiResponse($standings);
 
-        $result = (new StandingsTransformer())->fromApiStandings($standings);
+        $result = (new StandingsTransformer())->fromApiStandings($standingsDto);
 
         $this->assertInstanceOf(\App\Core\DTOs\ContestStandingsDTO::class, $result);
 

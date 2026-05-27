@@ -4,7 +4,9 @@ namespace App\Platforms\Codeforces\Services;
 
 use App\Platforms\Codeforces\Client\BaseClient;
 use App\Platforms\Codeforces\DTOs\CodeforcesSubmissionDTO;
+use App\Platforms\Codeforces\DTOs\CodeforcesStandingsDTO;
 use App\Platforms\Codeforces\Mappers\CodeforcesContestMapper;
+use App\Platforms\Codeforces\Mappers\CodeforcesStandingsMapper;
 use App\Platforms\Codeforces\Support\ResponseNormalizer;
 
 class Contests
@@ -28,12 +30,12 @@ class Contests
         );
     }
 
-    public function standings(int $contestId, array $options = []): array
+    public function standings(int $contestId, array $options = []): CodeforcesStandingsDTO
     {
         $isGymContest = $contestId > 90000;
 
         if (! $isGymContest) {
-            return ResponseNormalizer::standings($this->client->requestApi('contest.standings', [
+            return CodeforcesStandingsMapper::fromApiResponse($this->client->requestApi('contest.standings', [
                 'contestId' => $contestId,
             ]));
         }
@@ -43,7 +45,7 @@ class Contests
             'contestId' => $contestId,
         ], $options);
 
-        return ResponseNormalizer::standings($this->client->requestApi('contest.standings', $query, $isSigned));
+        return CodeforcesStandingsMapper::fromApiResponse($this->client->requestApi('contest.standings', $query, $isSigned));
     }
 
     public function status(int $contestId, array $options = []): array
