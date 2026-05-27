@@ -3,35 +3,40 @@
 namespace App\Platforms\Codeforces\Transformers;
 
 use App\Core\DTOs\ProblemDTO;
-use App\Platforms\Codeforces\Support\ResponseNormalizer;
+use App\Platforms\Codeforces\DTOs\CodeforcesProblemDTO;
 
 class ProblemTransformer
 {
-    public function fromApiProblem(array $problem): ProblemDTO
+    /**
+     * @param CodeforcesProblemDTO|array<string, mixed> $problem
+     */
+    public function fromApiProblem(CodeforcesProblemDTO|array $problem): ProblemDTO
     {
-        $normalized = ResponseNormalizer::problem($problem);
+        $dto = $problem instanceof CodeforcesProblemDTO
+            ? $problem
+            : CodeforcesProblemDTO::fromApiResponse($problem);
 
         return new ProblemDTO(
             platform: 'codeforces',
-            platformProblemId: $this->buildProblemId($normalized),
-            title: (string) ($normalized['name'] ?? ''),
-            contestPlatformId: isset($normalized['contestId']) ? (string) $normalized['contestId'] : null,
-            rating: isset($normalized['rating']) ? (int) $normalized['rating'] : null,
-            tags: is_array($normalized['tags'] ?? null) ? $normalized['tags'] : [],
-            raw: $normalized,
+            platformProblemId: $this->buildProblemId($dto),
+            title: (string) ($dto->name ?? ''),
+            contestPlatformId: $dto->contestId,
+            rating: $dto->rating,
+            tags: $dto->tags,
+            raw: $dto->raw,
         );
     }
 
     /** @return array<int, ProblemDTO> */
     public function fromApiProblems(array $problems): array
     {
-        return array_map(fn (array $problem): ProblemDTO => $this->fromApiProblem($problem), $problems);
+        return array_map(fn (CodeforcesProblemDTO|array $problem): ProblemDTO => $this->fromApiProblem($problem), $problems);
     }
 
-    private function buildProblemId(array $problem): string
+    private function buildProblemId(CodeforcesProblemDTO $problem): string
     {
-        $contestId = (string) ($problem['contestId'] ?? '0');
-        $index = strtoupper(trim((string) ($problem['index'] ?? '')));
+        $contestId = (string) ($problem->contestId ?? '0');
+        $index = strtoupper(trim((string) ($problem->index ?? '')));
 
         return $contestId . $index;
     }

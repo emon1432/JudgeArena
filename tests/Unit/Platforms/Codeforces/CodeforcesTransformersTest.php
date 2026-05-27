@@ -3,6 +3,7 @@
 namespace Tests\Unit\Platforms\Codeforces;
 
 use App\Platforms\Codeforces\DTOs\CodeforcesContestDTO;
+use App\Platforms\Codeforces\DTOs\CodeforcesProblemDTO;
 use App\Platforms\Codeforces\Transformers\ContestTransformer;
 use App\Platforms\Codeforces\Transformers\ProblemTransformer;
 use App\Platforms\Codeforces\Transformers\SubmissionTransformer;
@@ -36,13 +37,15 @@ class CodeforcesTransformersTest extends TestCase
     public function test_problem_transformer_maps_problem_payload(): void
     {
         $standings = $this->sample('codeforces-contest-standings.json');
-        $dto = (new ProblemTransformer())->fromApiProblem($standings['problems'][0]);
+        $problemDto = CodeforcesProblemDTO::fromApiResponse($standings['problems'][0]);
+        $dto = (new ProblemTransformer())->fromApiProblem($problemDto);
 
         $this->assertSame('codeforces', $dto->platform);
         $this->assertSame('2225A', $dto->platformProblemId);
         $this->assertSame('A Number Between Two Others', $dto->title);
         $this->assertSame('2225', $dto->contestPlatformId);
         $this->assertSame(['greedy', 'math'], $dto->tags);
+        $this->assertSame($standings['problems'][0], $problemDto->raw);
     }
 
     public function test_user_transformer_maps_profile_payload(): void

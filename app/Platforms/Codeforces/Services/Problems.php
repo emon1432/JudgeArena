@@ -3,6 +3,7 @@
 namespace App\Platforms\Codeforces\Services;
 
 use App\Platforms\Codeforces\Client\BaseClient;
+use App\Platforms\Codeforces\DTOs\CodeforcesProblemDTO;
 use App\Platforms\Codeforces\Support\ResponseNormalizer;
 use Illuminate\Support\Arr;
 
@@ -28,7 +29,7 @@ class Problems
         $result = $this->client->requestApi('problemset.problems', $query);
 
         return [
-            'problems' => ResponseNormalizer::problems(Arr::get($result, 'problems', [])),
+            'problems' => CodeforcesProblemDTO::fromApiResponses(ResponseNormalizer::problems(Arr::get($result, 'problems', []))),
             'problemStatistics' => ResponseNormalizer::problemStatisticsList(Arr::get($result, 'problemStatistics', [])),
         ];
     }
