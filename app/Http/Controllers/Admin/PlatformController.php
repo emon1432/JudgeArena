@@ -29,9 +29,24 @@ class PlatformController extends Controller
     public function store(PlatformRequest $request)
     {
         try {
-            Platform::create($request->except(['_token', 'image']) + [
-                'image' => $request->file('image') ? imageUploadManager($request->file('image'), $request->name, 'platforms') : null,
-            ]);
+            $data = $request->except(['_token', 'icon', 'credential_keys', 'credential_values']);
+
+            $credentialKeys = $request->input('credential_keys', []);
+            $credentialValues = $request->input('credential_values', []);
+            $credentials = [];
+            foreach ($credentialKeys as $i => $key) {
+                if (is_null($key) || $key === '') {
+                    continue;
+                }
+                $credentials[$key] = $credentialValues[$i] ?? null;
+            }
+            if (!empty($credentials)) {
+                $data['credentials'] = $credentials;
+            }
+
+            $data['icon'] = $request->file('icon') ? imageUploadManager($request->file('icon'), $request->name, 'platforms') : null;
+
+            Platform::create($data);
             return response()->json([
                 'status' => 200,
                 'message' => __('Platform created successfully'),
@@ -48,7 +63,8 @@ class PlatformController extends Controller
 
     public function show(string $id)
     {
-        //
+        $platform = Platform::findOrFail($id);
+        return view('admin.pages.platforms.show', compact('platform'));
     }
 
     public function edit(Platform $platform)
@@ -59,9 +75,22 @@ class PlatformController extends Controller
     public function update(PlatformRequest $request, Platform $platform)
     {
         try {
-            $platform->update($request->except(['_token', 'image']) + [
-                'image' => $request->file('image') ? imageUpdateManager($request->file('image'), $request->name, 'platforms', $platform->image) : $platform->image,
-            ]);
+            $data = $request->except(['_token', 'icon', 'credential_keys', 'credential_values']);
+
+            $credentialKeys = $request->input('credential_keys', []);
+            $credentialValues = $request->input('credential_values', []);
+            $credentials = [];
+            foreach ($credentialKeys as $i => $key) {
+                if (is_null($key) || $key === '') {
+                    continue;
+                }
+                $credentials[$key] = $credentialValues[$i] ?? null;
+            }
+            $data['credentials'] = $credentials;
+
+            $data['icon'] = $request->file('icon') ? imageUpdateManager($request->file('icon'), $request->name, 'platforms', $platform->icon) : $platform->icon;
+
+            $platform->update($data);
 
             return response()->json([
                 'status' => 200,
@@ -80,7 +109,7 @@ class PlatformController extends Controller
     public function destroy(Platform $platform)
     {
         try {
-            imageDeleteManager($platform->image);
+            imageDeleteManager($platform->icon);
             $platform->delete();
 
             return response()->json([
@@ -127,7 +156,7 @@ class PlatformController extends Controller
                     ],
                 ]))->render()->render();
 
-                $platform->name = (new PlatformInfo($platform))->render()->render();
+                $platform->info = (new PlatformInfo($platform))->render()->render();
                 $platform->base_url = '<a href="' . e($platform->base_url) . '" target="_blank">' . e($platform->base_url) . '</a>';
                 $platform->status = (new StatusBadge($platform->status))->render()->render();
 

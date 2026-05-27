@@ -28,6 +28,8 @@ class StatusBadge extends Component
         return match ($this->status) {
             'Active' => 'success',
             'Inactive' => 'danger',
+            'Maintenance' => 'warning',
+            'Coming Soon' => 'info',
             'Pending' => 'warning',
             'Created' => 'success',
             'Updated' => 'info',

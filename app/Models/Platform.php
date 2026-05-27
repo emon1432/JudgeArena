@@ -17,6 +17,10 @@ class Platform extends Model
         'status',
     ];
 
+    protected $casts = [
+        'credentials' => 'array',
+    ];
+
     public function platformProfiles()
     {
         return $this->hasMany(PlatformProfile::class);

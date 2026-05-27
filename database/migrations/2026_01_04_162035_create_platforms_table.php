@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('icon')->nullable();
             $table->longText('description')->nullable();
             $table->json('credentials')->nullable();
-            $table->enum('status', ['Active', 'Inactive'])->default('Active');
+            $table->enum('status', ['Active', 'Inactive', 'Maintenance', 'Coming Soon'])->default('Active');
             $table->timestamps();
         });
     }
