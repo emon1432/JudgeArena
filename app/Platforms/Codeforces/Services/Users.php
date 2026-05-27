@@ -5,6 +5,7 @@ namespace App\Platforms\Codeforces\Services;
 use App\Platforms\Codeforces\Client\BaseClient;
 use App\Platforms\Codeforces\DTOs\CodeforcesUserDTO;
 use App\Platforms\Codeforces\DTOs\CodeforcesSubmissionDTO;
+use App\Platforms\Codeforces\Support\ResponseNormalizer as UserResponseNormalizer;
 use App\Platforms\Codeforces\Support\ResponseNormalizer;
 use Illuminate\Support\Arr;
 use RuntimeException;
@@ -22,7 +23,7 @@ class Users
             'checkHistoricHandles' => $checkHistoricHandles ? 'true' : 'false',
         ]);
 
-        return CodeforcesUserDTO::fromApiResponse(Arr::first($result, null, []));
+        return $this->buildUserDto(Arr::first($result, null, []));
     }
 
     public function infos(array $handles, bool $checkHistoricHandles = true): array
@@ -35,7 +36,7 @@ class Users
                 'checkHistoricHandles' => $checkHistoricHandles ? 'true' : 'false',
             ]);
 
-            array_push($results, ...CodeforcesUserDTO::fromApiResponses(ResponseNormalizer::users($batchResult)));
+            array_push($results, ...array_map(fn (array $user): CodeforcesUserDTO => $this->buildUserDto($user), ResponseNormalizer::users($batchResult)));
         }
 
         return $results;
@@ -140,6 +141,34 @@ class Users
     public function normalize(array $user): array
     {
         return ResponseNormalizer::user($user);
+    }
+
+    private function buildUserDto(array $user): CodeforcesUserDTO
+    {
+        $normalized = UserResponseNormalizer::user($user);
+
+        return new CodeforcesUserDTO(
+            handle: $normalized['handle'] ?? null,
+            email: $normalized['email'] ?? null,
+            vkId: $normalized['vkId'] ?? null,
+            openId: $normalized['openId'] ?? null,
+            firstName: $normalized['firstName'] ?? null,
+            lastName: $normalized['lastName'] ?? null,
+            country: $normalized['country'] ?? null,
+            city: $normalized['city'] ?? null,
+            organization: $normalized['organization'] ?? null,
+            contribution: isset($normalized['contribution']) ? (int) $normalized['contribution'] : null,
+            rank: $normalized['rank'] ?? null,
+            rating: isset($normalized['rating']) ? (int) $normalized['rating'] : null,
+            maxRank: $normalized['maxRank'] ?? null,
+            maxRating: isset($normalized['maxRating']) ? (int) $normalized['maxRating'] : null,
+            lastOnlineTimeSeconds: isset($normalized['lastOnlineTimeSeconds']) ? (int) $normalized['lastOnlineTimeSeconds'] : null,
+            registrationTimeSeconds: isset($normalized['registrationTimeSeconds']) ? (int) $normalized['registrationTimeSeconds'] : null,
+            friendOfCount: isset($normalized['friendOfCount']) ? (int) $normalized['friendOfCount'] : null,
+            avatar: $normalized['avatar'] ?? null,
+            titlePhoto: $normalized['titlePhoto'] ?? null,
+            raw: $user,
+        );
     }
 
     public function calculateMaxRating(array $userInfo): ?int

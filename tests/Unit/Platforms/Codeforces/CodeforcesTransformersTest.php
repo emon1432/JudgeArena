@@ -63,7 +63,28 @@ class CodeforcesTransformersTest extends TestCase
     public function test_user_transformer_maps_profile_payload(): void
     {
         $profile = $this->sample('codeforces-profile.json');
-        $userDto = CodeforcesUserDTO::fromApiResponse($profile);
+        $userDto = new CodeforcesUserDTO(
+            handle: $profile['handle'] ?? null,
+            email: $profile['email'] ?? null,
+            vkId: $profile['vkId'] ?? null,
+            openId: $profile['openId'] ?? null,
+            firstName: $profile['firstName'] ?? null,
+            lastName: $profile['lastName'] ?? null,
+            country: $profile['country'] ?? null,
+            city: $profile['city'] ?? null,
+            organization: $profile['organization'] ?? null,
+            contribution: isset($profile['contribution']) ? (int) $profile['contribution'] : null,
+            rank: $profile['rank'] ?? null,
+            rating: isset($profile['rating']) ? (int) $profile['rating'] : null,
+            maxRank: $profile['maxRank'] ?? null,
+            maxRating: isset($profile['maxRating']) ? (int) $profile['maxRating'] : null,
+            lastOnlineTimeSeconds: isset($profile['lastOnlineTimeSeconds']) ? (int) $profile['lastOnlineTimeSeconds'] : null,
+            registrationTimeSeconds: isset($profile['registrationTimeSeconds']) ? (int) $profile['registrationTimeSeconds'] : null,
+            friendOfCount: isset($profile['friendOfCount']) ? (int) $profile['friendOfCount'] : null,
+            avatar: $profile['avatar'] ?? null,
+            titlePhoto: $profile['titlePhoto'] ?? null,
+            raw: $profile,
+        );
         $dto = (new UserTransformer())->fromApiUser($userDto);
 
         $this->assertSame('codeforces', $dto->platform);

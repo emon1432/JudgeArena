@@ -7,23 +7,16 @@ use App\Platforms\Codeforces\DTOs\CodeforcesUserDTO;
 
 class UserTransformer
 {
-    /**
-     * @param CodeforcesUserDTO|array<string, mixed> $user
-     */
-    public function fromApiUser(CodeforcesUserDTO|array $user): UserDTO
+    public function fromApiUser(CodeforcesUserDTO $user): UserDTO
     {
-        $dto = $user instanceof CodeforcesUserDTO
-            ? $user
-            : CodeforcesUserDTO::fromApiResponse($user);
-
         return new UserDTO(
             platform: 'codeforces',
-            platformHandle: (string) ($dto->handle ?? ''),
-            firstName: $dto->firstName,
-            lastName: $dto->lastName,
-            rating: $dto->rating,
-            country: $dto->country,
-            raw: $dto->raw,
+            platformHandle: (string) ($user->handle ?? ''),
+            firstName: $user->firstName,
+            lastName: $user->lastName,
+            rating: $user->rating,
+            country: $user->country,
+            raw: $user->raw,
         );
     }
 }
