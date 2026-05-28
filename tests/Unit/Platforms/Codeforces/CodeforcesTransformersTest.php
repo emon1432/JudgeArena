@@ -3,6 +3,7 @@
 namespace Tests\Unit\Platforms\Codeforces;
 
 use App\Platforms\Codeforces\DTOs\CodeforcesProblemDTO;
+use App\Platforms\Codeforces\Mappers\CodeforcesSubmissionMapper;
 use App\Platforms\Codeforces\Mappers\CodeforcesContestMapper;
 use App\Platforms\Codeforces\Mappers\CodeforcesUserMapper;
 use App\Platforms\Codeforces\Transformers\ContestTransformer;
@@ -79,22 +80,7 @@ class CodeforcesTransformersTest extends TestCase
     {
         $submissions = $this->sample('codeforces-user-status.json');
         $submission = $submissions[0];
-        $submissionDto = new \App\Platforms\Codeforces\DTOs\CodeforcesSubmissionDTO(
-            id: isset($submission['id']) ? (string) $submission['id'] : null,
-            contestId: isset($submission['contestId']) ? (int) $submission['contestId'] : null,
-            creationTimeSeconds: isset($submission['creationTimeSeconds']) ? (int) $submission['creationTimeSeconds'] : null,
-            relativeTimeSeconds: isset($submission['relativeTimeSeconds']) ? (int) $submission['relativeTimeSeconds'] : null,
-            problem: is_array($submission['problem'] ?? null) ? $submission['problem'] : null,
-            author: is_array($submission['author'] ?? null) ? $submission['author'] : null,
-            programmingLanguage: $submission['programmingLanguage'] ?? null,
-            verdict: $submission['verdict'] ?? null,
-            testset: $submission['testset'] ?? null,
-            passedTestCount: isset($submission['passedTestCount']) ? (int) $submission['passedTestCount'] : null,
-            timeConsumedMillis: isset($submission['timeConsumedMillis']) ? (int) $submission['timeConsumedMillis'] : null,
-            memoryConsumedBytes: isset($submission['memoryConsumedBytes']) ? (int) $submission['memoryConsumedBytes'] : null,
-            points: isset($submission['points']) ? (float) $submission['points'] : null,
-            raw: $submission,
-        );
+        $submissionDto = CodeforcesSubmissionMapper::fromNormalized($submission);
         $dto = (new SubmissionTransformer())->fromApiSubmission($submissionDto);
 
         $this->assertSame('codeforces', $dto->platform);

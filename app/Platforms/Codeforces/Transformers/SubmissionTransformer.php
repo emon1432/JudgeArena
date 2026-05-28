@@ -9,13 +9,10 @@ class SubmissionTransformer
 {
     public function fromApiSubmission(CodeforcesSubmissionDTO $submission): SubmissionDTO
     {
-        $problem = $submission->problem ?? [];
-        $author = $submission->author ?? [];
+        $contestId = (string) ($submission->problem?->contestId ?? $submission->contestId ?? '0');
+        $index = strtoupper(trim((string) ($submission->problem?->index ?? '')));
 
-        $contestId = (string) ($problem['contestId'] ?? $submission->contestId ?? '0');
-        $index = strtoupper(trim((string) ($problem['index'] ?? '')));
-
-        $members = $author['members'] ?? [];
+        $members = $submission->author?->members ?? [];
         $handle = is_array($members) && isset($members[0]['handle']) ? (string) $members[0]['handle'] : '';
 
         return new SubmissionDTO(

@@ -5,6 +5,7 @@ namespace App\Platforms\Codeforces\Services;
 use App\Platforms\Codeforces\Client\BaseClient;
 use App\Platforms\Codeforces\DTOs\CodeforcesProblemDTO;
 use App\Platforms\Codeforces\DTOs\CodeforcesSubmissionDTO;
+use App\Platforms\Codeforces\Mappers\CodeforcesSubmissionMapper;
 use App\Platforms\Codeforces\Support\ResponseNormalizer;
 use Illuminate\Support\Arr;
 
@@ -57,8 +58,7 @@ class Problems
             $query['problemsetName'] = $problemsetName;
         }
 
-        return array_map(
-            fn (array $submission): CodeforcesSubmissionDTO => CodeforcesSubmissionDTO::fromNormalized($submission),
+        return CodeforcesSubmissionMapper::fromNormalizedList(
             ResponseNormalizer::submissions($this->client->requestApi('problemset.recentStatus', $query))
         );
     }
@@ -85,18 +85,11 @@ class Problems
             ->map(function (CodeforcesSubmissionDTO $submission): ?string {
                 $problem = $submission->problem;
 
-                if (! is_array($problem)) {
+                if ($problem === null || $problem->contestId === null || $problem->index === null) {
                     return null;
                 }
 
-                $contestId = Arr::get($problem, 'contestId');
-                $index = Arr::get($problem, 'index');
-
-                if ($contestId === null || $index === null) {
-                    return null;
-                }
-
-                return $this->buildProblemId((int) $contestId, (string) $index);
+                return $this->buildProblemId((int) $problem->contestId, (string) $problem->index);
             })
             ->filter()
             ->unique()

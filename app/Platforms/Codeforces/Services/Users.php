@@ -3,9 +3,9 @@
 namespace App\Platforms\Codeforces\Services;
 
 use App\Platforms\Codeforces\Client\BaseClient;
-use App\Platforms\Codeforces\DTOs\CodeforcesSubmissionDTO;
 use App\Platforms\Codeforces\DTOs\CodeforcesUserDTO;
 use App\Platforms\Codeforces\Mappers\CodeforcesUserMapper;
+use App\Platforms\Codeforces\Mappers\CodeforcesSubmissionMapper;
 use App\Platforms\Codeforces\Support\ResponseNormalizer;
 use Illuminate\Support\Arr;
 use RuntimeException;
@@ -53,8 +53,7 @@ class Users
             $query['count'] = max(1, $count);
         }
 
-        return array_map(
-            fn (array $submission): CodeforcesSubmissionDTO => CodeforcesSubmissionDTO::fromNormalized($submission),
+        return CodeforcesSubmissionMapper::fromNormalizedList(
             ResponseNormalizer::submissions($this->client->requestApi('user.status', $query))
         );
     }

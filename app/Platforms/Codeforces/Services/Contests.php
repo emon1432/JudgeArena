@@ -3,10 +3,10 @@
 namespace App\Platforms\Codeforces\Services;
 
 use App\Platforms\Codeforces\Client\BaseClient;
-use App\Platforms\Codeforces\DTOs\CodeforcesSubmissionDTO;
 use App\Platforms\Codeforces\DTOs\CodeforcesStandingsDTO;
 use App\Platforms\Codeforces\Mappers\CodeforcesContestMapper;
 use App\Platforms\Codeforces\Mappers\CodeforcesStandingsMapper;
+use App\Platforms\Codeforces\Mappers\CodeforcesSubmissionMapper;
 use App\Platforms\Codeforces\Support\ResponseNormalizer;
 
 class Contests
@@ -54,8 +54,7 @@ class Contests
             'contestId' => $contestId,
         ], $options);
 
-        return array_map(
-            fn (array $submission): CodeforcesSubmissionDTO => CodeforcesSubmissionDTO::fromNormalized($submission),
+        return CodeforcesSubmissionMapper::fromNormalizedList(
             ResponseNormalizer::submissions($this->client->requestApi('contest.status', $query, $this->client->requiresSignedRequestPublic($options)))
         );
     }
