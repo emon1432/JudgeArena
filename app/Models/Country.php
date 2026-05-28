@@ -18,11 +18,11 @@ class Country extends Model
 
     public function users(): HasMany
     {
-        return $this->hasMany(User::class);
+        return $this->hasMany(User::class, 'country_id');
     }
 
     public function institutes(): HasMany
     {
-        return $this->hasMany(Institute::class);
+        return $this->hasMany(Institute::class, 'country_id');
     }
 }

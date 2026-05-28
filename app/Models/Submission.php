@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Submission extends Model
 {
@@ -38,24 +39,29 @@ class Submission extends Model
         'status' => 'string',
     ];
 
-    public function platform()
+    public function platform(): BelongsTo
     {
-        return $this->belongsTo(Platform::class);
+        return $this->belongsTo(Platform::class, 'platform_id');
     }
 
-    public function contest()
+    public function contest(): BelongsTo
     {
-        return $this->belongsTo(Contest::class);
+        return $this->belongsTo(Contest::class, 'contest_id');
     }
 
-    public function problem()
+    public function problem(): BelongsTo
     {
-        return $this->belongsTo(Problem::class);
+        return $this->belongsTo(Problem::class, 'problem_id');
     }
 
-    public function profile()
+    public function platformProfile(): BelongsTo
     {
         return $this->belongsTo(PlatformProfile::class, 'platform_profile_id');
+    }
+
+    public function profile(): BelongsTo
+    {
+        return $this->platformProfile();
     }
 
     public function scopeActive($query)

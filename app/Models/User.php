@@ -5,6 +5,8 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
@@ -32,6 +34,8 @@ class User extends Authenticatable
         'country_id',
         'institute_id',
         'fav_quote',
+        'facebook',
+        'instagram',
         'website',
         'twitter',
         'github',
@@ -49,23 +53,29 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
+            'date_of_birth' => 'date',
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
     }
 
-    public function platformProfiles()
+    public function platformProfiles(): HasMany
     {
-        return $this->hasMany(PlatformProfile::class);
+        return $this->hasMany(PlatformProfile::class, 'user_id');
     }
 
-    public function country()
+    public function country(): BelongsTo
     {
-        return $this->belongsTo(Country::class);
+        return $this->belongsTo(Country::class, 'country_id');
     }
 
-    public function institute()
+    public function institute(): BelongsTo
     {
-        return $this->belongsTo(Institute::class);
+        return $this->belongsTo(Institute::class, 'institute_id');
+    }
+
+    public function contactMessages(): HasMany
+    {
+        return $this->hasMany(ContactMessage::class, 'user_id');
     }
 }

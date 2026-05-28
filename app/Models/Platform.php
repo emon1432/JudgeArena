@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Platform extends Model
 {
@@ -22,19 +23,29 @@ class Platform extends Model
         'status' => 'string',
     ];
 
-    public function platformProfiles()
+    public function platformProfiles(): HasMany
     {
-        return $this->hasMany(PlatformProfile::class);
+        return $this->hasMany(PlatformProfile::class, 'platform_id');
     }
 
-    public function contests()
+    public function contests(): HasMany
     {
-        return $this->hasMany(Contest::class);
+        return $this->hasMany(Contest::class, 'platform_id');
     }
 
-    public function problems()
+    public function problems(): HasMany
     {
-        return $this->hasMany(Problem::class);
+        return $this->hasMany(Problem::class, 'platform_id');
+    }
+
+    public function submissions(): HasMany
+    {
+        return $this->hasMany(Submission::class, 'platform_id');
+    }
+
+    public function standings(): HasMany
+    {
+        return $this->hasMany(Standing::class, 'platform_id');
     }
 
     public function scopeActive($query)

@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Problem extends Model
 {
@@ -44,13 +46,18 @@ class Problem extends Model
         'status' => 'string',
     ];
 
-    public function platform()
+    public function platform(): BelongsTo
     {
-        return $this->belongsTo(Platform::class);
+        return $this->belongsTo(Platform::class, 'platform_id');
     }
 
-    public function contest()
+    public function contest(): BelongsTo
     {
-        return $this->belongsTo(Contest::class);
+        return $this->belongsTo(Contest::class, 'contest_id');
+    }
+
+    public function submissions(): HasMany
+    {
+        return $this->hasMany(Submission::class, 'problem_id');
     }
 }
