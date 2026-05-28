@@ -23,7 +23,7 @@ class Users
             'checkHistoricHandles' => $checkHistoricHandles ? 'true' : 'false',
         ]);
 
-        return CodeforcesUserMapper::fromNormalized(Arr::first($result, null, []));
+        return CodeforcesUserMapper::fromNormalized(Arr::first(ResponseNormalizer::users($result), null, []));
     }
 
     /** @return CodeforcesUserDTO[] */

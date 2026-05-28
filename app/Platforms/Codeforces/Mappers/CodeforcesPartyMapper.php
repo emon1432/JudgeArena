@@ -3,7 +3,6 @@
 namespace App\Platforms\Codeforces\Mappers;
 
 use App\Platforms\Codeforces\DTOs\CodeforcesPartyDTO;
-use App\Platforms\Codeforces\Support\ResponseNormalizer;
 
 final class CodeforcesPartyMapper
 {
@@ -13,17 +12,15 @@ final class CodeforcesPartyMapper
             return null;
         }
 
-        $normalized = ResponseNormalizer::party($party);
-
         return new CodeforcesPartyDTO(
-            contestId: isset($normalized['contestId']) ? (int) $normalized['contestId'] : null,
-            members: is_array($normalized['members'] ?? null) ? $normalized['members'] : [],
-            participantType: $normalized['participantType'] ?? null,
-            teamId: isset($normalized['teamId']) ? (int) $normalized['teamId'] : null,
-            teamName: $normalized['teamName'] ?? null,
-            ghost: array_key_exists('ghost', $normalized) ? (bool) $normalized['ghost'] : null,
-            room: isset($normalized['room']) ? (int) $normalized['room'] : null,
-            startTimeSeconds: isset($normalized['startTimeSeconds']) ? (int) $normalized['startTimeSeconds'] : null,
+            contestId: isset($party['contestId']) ? (int) $party['contestId'] : null,
+            members: is_array($party['members'] ?? null) ? $party['members'] : [],
+            participantType: $party['participantType'] ?? null,
+            teamId: isset($party['teamId']) ? (int) $party['teamId'] : null,
+            teamName: $party['teamName'] ?? null,
+            ghost: array_key_exists('ghost', $party) ? (bool) $party['ghost'] : null,
+            room: isset($party['room']) ? (int) $party['room'] : null,
+            startTimeSeconds: isset($party['startTimeSeconds']) ? (int) $party['startTimeSeconds'] : null,
             raw: $party,
         );
     }

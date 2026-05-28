@@ -3,33 +3,30 @@
 namespace App\Platforms\Codeforces\Mappers;
 
 use App\Platforms\Codeforces\DTOs\CodeforcesContestDTO;
-use App\Platforms\Codeforces\Support\ResponseNormalizer;
 
 final class CodeforcesContestMapper
 {
     public static function fromNormalized(array $contest): CodeforcesContestDTO
     {
-        $normalized = ResponseNormalizer::contest($contest);
-
         return new CodeforcesContestDTO(
-            id: isset($normalized['id']) ? (string) $normalized['id'] : null,
-            name: $normalized['name'] ?? null,
-            type: $normalized['type'] ?? null,
-            phase: $normalized['phase'] ?? null,
-            frozen: array_key_exists('frozen', $normalized) ? (bool) $normalized['frozen'] : null,
-            durationSeconds: isset($normalized['durationSeconds']) ? (int) $normalized['durationSeconds'] : null,
-            freezeDurationSeconds: isset($normalized['freezeDurationSeconds']) ? (int) $normalized['freezeDurationSeconds'] : null,
-            startTimeSeconds: isset($normalized['startTimeSeconds']) ? (int) $normalized['startTimeSeconds'] : null,
-            relativeTimeSeconds: isset($normalized['relativeTimeSeconds']) ? (int) $normalized['relativeTimeSeconds'] : null,
-            preparedBy: $normalized['preparedBy'] ?? null,
-            websiteUrl: $normalized['websiteUrl'] ?? null,
-            description: $normalized['description'] ?? null,
-            difficulty: isset($normalized['difficulty']) ? (string) $normalized['difficulty'] : null,
-            kind: $normalized['kind'] ?? null,
-            icpcRegion: $normalized['icpcRegion'] ?? null,
-            country: $normalized['country'] ?? null,
-            city: $normalized['city'] ?? null,
-            season: $normalized['season'] ?? null,
+            id: isset($contest['id']) ? (string) $contest['id'] : null,
+            name: $contest['name'] ?? null,
+            type: $contest['type'] ?? null,
+            phase: $contest['phase'] ?? null,
+            frozen: array_key_exists('frozen', $contest) ? (bool) $contest['frozen'] : null,
+            durationSeconds: isset($contest['durationSeconds']) ? (int) $contest['durationSeconds'] : null,
+            freezeDurationSeconds: isset($contest['freezeDurationSeconds']) ? (int) $contest['freezeDurationSeconds'] : null,
+            startTimeSeconds: isset($contest['startTimeSeconds']) ? (int) $contest['startTimeSeconds'] : null,
+            relativeTimeSeconds: isset($contest['relativeTimeSeconds']) ? (int) $contest['relativeTimeSeconds'] : null,
+            preparedBy: $contest['preparedBy'] ?? null,
+            websiteUrl: $contest['websiteUrl'] ?? null,
+            description: $contest['description'] ?? null,
+            difficulty: isset($contest['difficulty']) ? (string) $contest['difficulty'] : null,
+            kind: $contest['kind'] ?? null,
+            icpcRegion: $contest['icpcRegion'] ?? null,
+            country: $contest['country'] ?? null,
+            city: $contest['city'] ?? null,
+            season: $contest['season'] ?? null,
             raw: $contest,
         );
     }

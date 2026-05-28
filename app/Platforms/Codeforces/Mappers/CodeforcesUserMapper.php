@@ -3,34 +3,31 @@
 namespace App\Platforms\Codeforces\Mappers;
 
 use App\Platforms\Codeforces\DTOs\CodeforcesUserDTO;
-use App\Platforms\Codeforces\Support\ResponseNormalizer;
 
 final class CodeforcesUserMapper
 {
     public static function fromNormalized(array $user): CodeforcesUserDTO
     {
-        $normalized = ResponseNormalizer::user($user);
-
         return new CodeforcesUserDTO(
-            handle: $normalized['handle'] ?? null,
-            email: $normalized['email'] ?? null,
-            vkId: $normalized['vkId'] ?? null,
-            openId: $normalized['openId'] ?? null,
-            firstName: $normalized['firstName'] ?? null,
-            lastName: $normalized['lastName'] ?? null,
-            country: $normalized['country'] ?? null,
-            city: $normalized['city'] ?? null,
-            organization: $normalized['organization'] ?? null,
-            contribution: isset($normalized['contribution']) ? (int) $normalized['contribution'] : null,
-            rank: $normalized['rank'] ?? null,
-            rating: isset($normalized['rating']) ? (int) $normalized['rating'] : null,
-            maxRank: $normalized['maxRank'] ?? null,
-            maxRating: isset($normalized['maxRating']) ? (int) $normalized['maxRating'] : null,
-            lastOnlineTimeSeconds: isset($normalized['lastOnlineTimeSeconds']) ? (int) $normalized['lastOnlineTimeSeconds'] : null,
-            registrationTimeSeconds: isset($normalized['registrationTimeSeconds']) ? (int) $normalized['registrationTimeSeconds'] : null,
-            friendOfCount: isset($normalized['friendOfCount']) ? (int) $normalized['friendOfCount'] : null,
-            avatar: $normalized['avatar'] ?? null,
-            titlePhoto: $normalized['titlePhoto'] ?? null,
+            handle: $user['handle'] ?? null,
+            email: $user['email'] ?? null,
+            vkId: $user['vkId'] ?? null,
+            openId: $user['openId'] ?? null,
+            firstName: $user['firstName'] ?? null,
+            lastName: $user['lastName'] ?? null,
+            country: $user['country'] ?? null,
+            city: $user['city'] ?? null,
+            organization: $user['organization'] ?? null,
+            contribution: isset($user['contribution']) ? (int) $user['contribution'] : null,
+            rank: $user['rank'] ?? null,
+            rating: isset($user['rating']) ? (int) $user['rating'] : null,
+            maxRank: $user['maxRank'] ?? null,
+            maxRating: isset($user['maxRating']) ? (int) $user['maxRating'] : null,
+            lastOnlineTimeSeconds: isset($user['lastOnlineTimeSeconds']) ? (int) $user['lastOnlineTimeSeconds'] : null,
+            registrationTimeSeconds: isset($user['registrationTimeSeconds']) ? (int) $user['registrationTimeSeconds'] : null,
+            friendOfCount: isset($user['friendOfCount']) ? (int) $user['friendOfCount'] : null,
+            avatar: $user['avatar'] ?? null,
+            titlePhoto: $user['titlePhoto'] ?? null,
             raw: $user,
         );
     }

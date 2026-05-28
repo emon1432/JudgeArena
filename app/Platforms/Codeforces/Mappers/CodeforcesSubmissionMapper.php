@@ -3,28 +3,25 @@
 namespace App\Platforms\Codeforces\Mappers;
 
 use App\Platforms\Codeforces\DTOs\CodeforcesSubmissionDTO;
-use App\Platforms\Codeforces\Support\ResponseNormalizer;
 
 final class CodeforcesSubmissionMapper
 {
     public static function fromNormalized(array $submission): CodeforcesSubmissionDTO
     {
-        $normalized = ResponseNormalizer::submission($submission);
-
         return new CodeforcesSubmissionDTO(
-            id: isset($normalized['id']) ? (string) $normalized['id'] : null,
-            contestId: isset($normalized['contestId']) ? (int) $normalized['contestId'] : null,
-            creationTimeSeconds: isset($normalized['creationTimeSeconds']) ? (int) $normalized['creationTimeSeconds'] : null,
-            relativeTimeSeconds: isset($normalized['relativeTimeSeconds']) ? (int) $normalized['relativeTimeSeconds'] : null,
-            problem: CodeforcesProblemMapper::fromNormalized(is_array($normalized['problem'] ?? null) ? $normalized['problem'] : null),
-            author: CodeforcesPartyMapper::fromNormalized(is_array($normalized['author'] ?? null) ? $normalized['author'] : null),
-            programmingLanguage: $normalized['programmingLanguage'] ?? null,
-            verdict: $normalized['verdict'] ?? null,
-            testset: $normalized['testset'] ?? null,
-            passedTestCount: isset($normalized['passedTestCount']) ? (int) $normalized['passedTestCount'] : null,
-            timeConsumedMillis: isset($normalized['timeConsumedMillis']) ? (int) $normalized['timeConsumedMillis'] : null,
-            memoryConsumedBytes: isset($normalized['memoryConsumedBytes']) ? (int) $normalized['memoryConsumedBytes'] : null,
-            points: isset($normalized['points']) ? (float) $normalized['points'] : null,
+            id: isset($submission['id']) ? (string) $submission['id'] : null,
+            contestId: isset($submission['contestId']) ? (int) $submission['contestId'] : null,
+            creationTimeSeconds: isset($submission['creationTimeSeconds']) ? (int) $submission['creationTimeSeconds'] : null,
+            relativeTimeSeconds: isset($submission['relativeTimeSeconds']) ? (int) $submission['relativeTimeSeconds'] : null,
+            problem: CodeforcesProblemMapper::fromNormalized(is_array($submission['problem'] ?? null) ? $submission['problem'] : null),
+            author: CodeforcesPartyMapper::fromNormalized(is_array($submission['author'] ?? null) ? $submission['author'] : null),
+            programmingLanguage: $submission['programmingLanguage'] ?? null,
+            verdict: $submission['verdict'] ?? null,
+            testset: $submission['testset'] ?? null,
+            passedTestCount: isset($submission['passedTestCount']) ? (int) $submission['passedTestCount'] : null,
+            timeConsumedMillis: isset($submission['timeConsumedMillis']) ? (int) $submission['timeConsumedMillis'] : null,
+            memoryConsumedBytes: isset($submission['memoryConsumedBytes']) ? (int) $submission['memoryConsumedBytes'] : null,
+            points: isset($submission['points']) ? (float) $submission['points'] : null,
             raw: $submission,
         );
     }

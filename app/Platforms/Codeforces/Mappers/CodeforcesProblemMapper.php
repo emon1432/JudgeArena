@@ -3,7 +3,6 @@
 namespace App\Platforms\Codeforces\Mappers;
 
 use App\Platforms\Codeforces\DTOs\CodeforcesProblemDTO;
-use App\Platforms\Codeforces\Support\ResponseNormalizer;
 
 final class CodeforcesProblemMapper
 {
@@ -13,17 +12,15 @@ final class CodeforcesProblemMapper
             return null;
         }
 
-        $normalized = ResponseNormalizer::problem($problem);
-
         return new CodeforcesProblemDTO(
-            contestId: isset($normalized['contestId']) ? (string) $normalized['contestId'] : null,
-            problemsetName: $normalized['problemsetName'] ?? null,
-            index: isset($normalized['index']) ? (string) $normalized['index'] : null,
-            name: $normalized['name'] ?? null,
-            type: $normalized['type'] ?? null,
-            points: isset($normalized['points']) ? (int) $normalized['points'] : null,
-            rating: isset($normalized['rating']) ? (int) $normalized['rating'] : null,
-            tags: is_array($normalized['tags'] ?? null) ? $normalized['tags'] : [],
+            contestId: isset($problem['contestId']) ? (string) $problem['contestId'] : null,
+            problemsetName: $problem['problemsetName'] ?? null,
+            index: isset($problem['index']) ? (string) $problem['index'] : null,
+            name: $problem['name'] ?? null,
+            type: $problem['type'] ?? null,
+            points: isset($problem['points']) ? (int) $problem['points'] : null,
+            rating: isset($problem['rating']) ? (int) $problem['rating'] : null,
+            tags: is_array($problem['tags'] ?? null) ? $problem['tags'] : [],
             raw: $problem,
         );
     }

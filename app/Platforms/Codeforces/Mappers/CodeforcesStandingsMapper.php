@@ -7,16 +7,13 @@ use App\Platforms\Codeforces\DTOs\CodeforcesProblemDTO;
 use App\Platforms\Codeforces\DTOs\CodeforcesProblemResultDTO;
 use App\Platforms\Codeforces\DTOs\CodeforcesRanklistRowDTO;
 use App\Platforms\Codeforces\DTOs\CodeforcesStandingsDTO;
-use App\Platforms\Codeforces\Support\ResponseNormalizer;
 
 final class CodeforcesStandingsMapper
 {
     public static function fromApiResponse(array $standings): CodeforcesStandingsDTO
     {
-        $normalized = ResponseNormalizer::standings($standings);
-
-        $contest = isset($normalized['contest']) && is_array($normalized['contest'])
-            ? CodeforcesContestMapper::fromNormalized($normalized['contest'])
+        $contest = isset($standings['contest']) && is_array($standings['contest'])
+            ? CodeforcesContestMapper::fromNormalized($standings['contest'])
             : null;
 
         $problems = array_map(
@@ -31,19 +28,19 @@ final class CodeforcesStandingsMapper
                 tags: is_array($problem['tags'] ?? null) ? $problem['tags'] : [],
                 raw: $problem,
             ),
-            ResponseNormalizer::problems($normalized['problems'] ?? [])
+            $standings['problems'] ?? []
         );
 
         $rows = array_map(
             fn (array $row): CodeforcesRanklistRowDTO => self::toRanklistRowDto($row),
-            ResponseNormalizer::ranklistRows($normalized['rows'] ?? [])
+            $standings['rows'] ?? []
         );
 
         return new CodeforcesStandingsDTO(
             contest: $contest,
             problems: $problems,
             rows: $rows,
-            raw: $normalized,
+            raw: $standings,
         );
     }
 

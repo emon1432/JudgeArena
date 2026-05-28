@@ -36,9 +36,9 @@ class Contests
         $isGymContest = $contestId > 90000;
 
         if (! $isGymContest) {
-            return CodeforcesStandingsMapper::fromApiResponse($this->client->requestApi('contest.standings', [
+            return CodeforcesStandingsMapper::fromApiResponse(ResponseNormalizer::standings($this->client->requestApi('contest.standings', [
                 'contestId' => $contestId,
-            ]));
+            ])));
         }
 
         $isSigned = $this->client->requiresSignedRequestPublic($options);
@@ -46,7 +46,7 @@ class Contests
             'contestId' => $contestId,
         ], $options);
 
-        return CodeforcesStandingsMapper::fromApiResponse($this->client->requestApi('contest.standings', $query, $isSigned));
+        return CodeforcesStandingsMapper::fromApiResponse(ResponseNormalizer::standings($this->client->requestApi('contest.standings', $query, $isSigned)));
     }
 
     public function status(int $contestId, array $options = []): array
