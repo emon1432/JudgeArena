@@ -3,8 +3,8 @@
 namespace App\Platforms\Codeforces\Services;
 
 use App\Platforms\Codeforces\Client\BaseClient;
-use App\Platforms\Codeforces\DTOs\CodeforcesProblemDTO;
 use App\Platforms\Codeforces\DTOs\CodeforcesSubmissionDTO;
+use App\Platforms\Codeforces\Mappers\CodeforcesProblemMapper;
 use App\Platforms\Codeforces\Mappers\CodeforcesSubmissionMapper;
 use App\Platforms\Codeforces\Support\ResponseNormalizer;
 use Illuminate\Support\Arr;
@@ -15,6 +15,9 @@ class Problems
         private readonly BaseClient $client,
     ) {}
 
+    /**
+        * @return array{problems: \App\Platforms\Codeforces\DTOs\CodeforcesProblemDTO[], problemStatistics: array<int, array<string, mixed>>}
+     */
     public function list(?array $tags = null, ?string $problemsetName = null): array
     {
         $query = [];
@@ -31,23 +34,12 @@ class Problems
         $normalizedProblems = ResponseNormalizer::problems(Arr::get($result, 'problems', []));
 
         return [
-            'problems' => array_map(function (array $problem): CodeforcesProblemDTO {
-                return new CodeforcesProblemDTO(
-                    contestId: isset($problem['contestId']) ? (string) $problem['contestId'] : null,
-                    problemsetName: $problem['problemsetName'] ?? null,
-                    index: isset($problem['index']) ? (string) $problem['index'] : null,
-                    name: $problem['name'] ?? null,
-                    type: $problem['type'] ?? null,
-                    points: isset($problem['points']) ? (int) $problem['points'] : null,
-                    rating: isset($problem['rating']) ? (int) $problem['rating'] : null,
-                    tags: is_array($problem['tags'] ?? null) ? $problem['tags'] : [],
-                    raw: $problem,
-                );
-            }, $normalizedProblems),
+            'problems' => CodeforcesProblemMapper::fromNormalizedList($normalizedProblems),
             'problemStatistics' => ResponseNormalizer::problemStatisticsList(Arr::get($result, 'problemStatistics', [])),
         ];
     }
 
+    /** @return CodeforcesSubmissionDTO[] */
     public function recentStatus(int $count, ?string $problemsetName = null): array
     {
         $query = [

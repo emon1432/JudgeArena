@@ -15,6 +15,7 @@ class Contests
         private readonly BaseClient $client,
     ) {}
 
+    /** @return \App\Platforms\Codeforces\DTOs\CodeforcesContestDTO[] */
     public function list(bool $gym = false, ?string $groupCode = null): array
     {
         $query = [
@@ -66,6 +67,7 @@ class Contests
         ]));
     }
 
+    /** @return array<int, array<string, mixed>> */
     public function hacks(int $contestId, bool $asManager = false): array
     {
         return ResponseNormalizer::hacks($this->client->requestApi('contest.hacks', [

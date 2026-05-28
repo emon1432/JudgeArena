@@ -26,6 +26,7 @@ class Users
         return CodeforcesUserMapper::fromNormalized(Arr::first($result, null, []));
     }
 
+    /** @return CodeforcesUserDTO[] */
     public function infos(array $handles, bool $checkHistoricHandles = true): array
     {
         $results = [];
@@ -42,6 +43,7 @@ class Users
         return $results;
     }
 
+    /** @return \App\Platforms\Codeforces\DTOs\CodeforcesSubmissionDTO[] */
     public function status(string $handle, int $from = 1, int $count = 0): array
     {
         $query = [
@@ -58,6 +60,7 @@ class Users
         );
     }
 
+    /** @return array<int, array<string, mixed>> */
     public function rating(string $handle): array
     {
         return ResponseNormalizer::ratingChanges($this->client->requestApi('user.rating', [
@@ -65,6 +68,7 @@ class Users
         ]));
     }
 
+    /** @return array<int, array<string, mixed>> */
     public function ratedList(bool $activeOnly = true, bool $includeRetired = false, ?int $contestId = null): array
     {
         $query = [
@@ -79,6 +83,7 @@ class Users
         return ResponseNormalizer::users($this->client->requestApi('user.ratedList', $query));
     }
 
+    /** @return array<int, array<string, mixed>> */
     public function blogEntries(string $handle): array
     {
         return ResponseNormalizer::blogEntries($this->client->requestApi('user.blogEntries', [
@@ -86,6 +91,7 @@ class Users
         ]));
     }
 
+    /** @return array<int, array<string, mixed>> */
     public function friends(bool $onlyOnline = false): array
     {
         return $this->client->requestApi('user.friends', [
