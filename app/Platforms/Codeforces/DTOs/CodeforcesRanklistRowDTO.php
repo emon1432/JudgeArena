@@ -6,6 +6,7 @@ readonly class CodeforcesRanklistRowDTO
 {
     /**
      * @param CodeforcesProblemResultDTO[] $problemResults
+     * @param array<string, mixed> $raw
      */
     public function __construct(
         public ?CodeforcesPartyDTO $party,

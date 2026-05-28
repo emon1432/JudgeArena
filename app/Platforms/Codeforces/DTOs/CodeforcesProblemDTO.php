@@ -4,6 +4,10 @@ namespace App\Platforms\Codeforces\DTOs;
 
 readonly class CodeforcesProblemDTO
 {
+    /**
+     * @param array<int, string> $tags
+     * @param array<string, mixed> $raw
+     */
     public function __construct(
         public ?string $contestId,
         public ?string $problemsetName,

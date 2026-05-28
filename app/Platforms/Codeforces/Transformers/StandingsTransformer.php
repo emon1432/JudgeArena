@@ -16,6 +16,8 @@ class StandingsTransformer
 
     /**
      * Transform Codeforces API standings payload into normalized DTOs
+     *
+     * @return ContestStandingsDTO
      */
     public function fromApiStandings(CodeforcesStandingsDTO $standings): ContestStandingsDTO
     {

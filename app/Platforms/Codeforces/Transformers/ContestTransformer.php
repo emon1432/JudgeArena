@@ -8,6 +8,9 @@ use DateTimeImmutable;
 
 class ContestTransformer
 {
+    /**
+     * @return ContestDTO
+     */
     public function fromApiContest(CodeforcesContestDTO $contest): ContestDTO
     {
         return new ContestDTO(

@@ -7,6 +7,7 @@ use App\Platforms\Codeforces\DTOs\CodeforcesProblemDTO;
 
 class ProblemTransformer
 {
+    /** @return ProblemDTO */
     public function fromApiProblem(CodeforcesProblemDTO $problem): ProblemDTO
     {
         return new ProblemDTO(

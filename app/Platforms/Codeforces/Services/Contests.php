@@ -49,6 +49,7 @@ class Contests
         return CodeforcesStandingsMapper::fromApiResponse(ResponseNormalizer::standings($this->client->requestApi('contest.standings', $query, $isSigned)));
     }
 
+    /** @return \App\Platforms\Codeforces\DTOs\CodeforcesSubmissionDTO[] */
     public function status(int $contestId, array $options = []): array
     {
         $query = array_merge([
@@ -60,6 +61,7 @@ class Contests
         );
     }
 
+    /** @return array<int, array<string, mixed>> */
     public function ratingChanges(int $contestId): array
     {
         return ResponseNormalizer::ratingChanges($this->client->requestApi('contest.ratingChanges', [

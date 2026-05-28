@@ -7,6 +7,7 @@ use App\Platforms\Codeforces\DTOs\CodeforcesSubmissionDTO;
 
 class SubmissionTransformer
 {
+    /** @return SubmissionDTO */
     public function fromApiSubmission(CodeforcesSubmissionDTO $submission): SubmissionDTO
     {
         $contestId = (string) ($submission->problem?->contestId ?? $submission->contestId ?? '0');

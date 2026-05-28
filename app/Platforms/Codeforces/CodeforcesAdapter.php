@@ -33,8 +33,6 @@ class CodeforcesAdapter implements PlatformAdapter
 
 	/**
 	 * @return array{problems: \App\Core\DTOs\ProblemDTO[], problemStatistics: array<int, array<string, mixed>>}
-	 *
-	 * Consider extracting a dedicated DTO for this mixed-shape response in a future pass.
 	 */
 	public function getProblems(): array
 	{

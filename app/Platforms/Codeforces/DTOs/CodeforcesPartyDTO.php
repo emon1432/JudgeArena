@@ -5,7 +5,8 @@ namespace App\Platforms\Codeforces\DTOs;
 readonly class CodeforcesPartyDTO
 {
     /**
-     * @param array<int, array<string, mixed>> $members
+     * @param array<int, array{handle: ?string, name: ?string}> $members
+     * @param array<string, mixed> $raw
      */
     public function __construct(
         public ?int $contestId,

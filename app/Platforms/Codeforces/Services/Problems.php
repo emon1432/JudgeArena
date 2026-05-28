@@ -16,7 +16,7 @@ class Problems
     ) {}
 
     /**
-        * @return array{problems: \App\Platforms\Codeforces\DTOs\CodeforcesProblemDTO[], problemStatistics: array<int, array<string, mixed>>}
+     * @return array{problems: \App\Platforms\Codeforces\DTOs\CodeforcesProblemDTO[], problemStatistics: array<int, array<string, mixed>>}
      */
     public function list(?array $tags = null, ?string $problemsetName = null): array
     {
@@ -69,6 +69,7 @@ class Problems
 
     /**
      * @param CodeforcesSubmissionDTO[] $submissions
+     * @return array<int, string>
      */
     public function acceptedProblemIds(array $submissions): array
     {

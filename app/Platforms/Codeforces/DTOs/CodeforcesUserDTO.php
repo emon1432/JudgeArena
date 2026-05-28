@@ -4,6 +4,9 @@ namespace App\Platforms\Codeforces\DTOs;
 
 readonly class CodeforcesUserDTO
 {
+    /**
+     * @param array<string, mixed> $raw
+     */
     public function __construct(
         public ?string $handle,
         public ?string $email,

@@ -16,6 +16,7 @@ class Users
         private readonly BaseClient $client,
     ) {}
 
+    /** @return CodeforcesUserDTO */
     public function info(string $handle, bool $checkHistoricHandles = true): CodeforcesUserDTO
     {
         $result = $this->client->requestApi('user.info', [
@@ -26,7 +27,10 @@ class Users
         return CodeforcesUserMapper::fromNormalized(Arr::first(ResponseNormalizer::users($result), null, []));
     }
 
-    /** @return CodeforcesUserDTO[] */
+    /**
+     * @param array<int, string> $handles
+     * @return CodeforcesUserDTO[]
+     */
     public function infos(array $handles, bool $checkHistoricHandles = true): array
     {
         $results = [];
@@ -68,7 +72,9 @@ class Users
         ]));
     }
 
-    /** @return array<int, CodeforcesUserDTO> */
+    /**
+     * @return CodeforcesUserDTO[]
+     */
     public function ratedList(bool $activeOnly = true, bool $includeRetired = false, ?int $contestId = null): array
     {
         $query = [
@@ -130,16 +136,27 @@ class Users
         return $this->client->webBaseUrl() . '/profile/' . urlencode($handle);
     }
 
+    /**
+     * @param array<string, mixed> $user
+     * @return array<string, mixed>
+     */
     public function normalize(array $user): array
     {
         return ResponseNormalizer::user($user);
     }
 
+    /**
+     * @param array<string, mixed> $userInfo
+     */
     public function calculateMaxRating(array $userInfo): ?int
     {
         return $userInfo['maxRating'] ?? $userInfo['rating'] ?? null;
     }
 
+    /**
+     * @param array<int, string> $handles
+     * @return array<int, array<int, string>>
+     */
     private function chunkHandlesForUserInfo(array $handles): array
     {
         $chunks = [];

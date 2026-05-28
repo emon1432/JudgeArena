@@ -4,6 +4,9 @@ namespace App\Platforms\Codeforces\DTOs;
 
 readonly class CodeforcesSubmissionDTO
 {
+    /**
+     * @param array<string, mixed> $raw
+     */
     public function __construct(
         public ?string $id,
         public ?int $contestId,
