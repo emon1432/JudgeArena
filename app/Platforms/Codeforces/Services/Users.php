@@ -68,7 +68,7 @@ class Users
         ]));
     }
 
-    /** @return array<int, array<string, mixed>> */
+    /** @return array<int, CodeforcesUserDTO> */
     public function ratedList(bool $activeOnly = true, bool $includeRetired = false, ?int $contestId = null): array
     {
         $query = [
@@ -80,7 +80,9 @@ class Users
             $query['contestId'] = $contestId;
         }
 
-        return ResponseNormalizer::users($this->client->requestApi('user.ratedList', $query));
+        return CodeforcesUserMapper::fromNormalizedList(
+            ResponseNormalizer::users($this->client->requestApi('user.ratedList', $query))
+        );
     }
 
     /** @return array<int, array<string, mixed>> */
@@ -115,7 +117,7 @@ class Users
         $target = strtolower($handle);
 
         foreach ($this->ratedList($activeOnly, $includeRetired) as $index => $user) {
-            if (strtolower((string) ($user['handle'] ?? '')) === $target) {
+            if (strtolower((string) ($user->handle ?? '')) === $target) {
                 return $index + 1;
             }
         }

@@ -10,10 +10,10 @@ use RuntimeException;
 
 class BaseClient
 {
-    public $API_BASE_URL = '';
-    public $WEB_BASE_URL = '';
-    public $API_KEY = '';
-    public $API_SECRET = '';
+    private readonly string $apiBaseUrl;
+    private readonly string $webBaseUrl;
+    private readonly string $apiKey;
+    private readonly string $apiSecret;
 
     protected const HTTP_TIMEOUT_SECONDS = 25;
     protected const HTTP_RETRY_ATTEMPTS = 3;
@@ -23,10 +23,10 @@ class BaseClient
 
     public function __construct()
     {
-        $this->API_BASE_URL = config('platforms.codeforces.api_base_url', '');
-        $this->WEB_BASE_URL = config('platforms.codeforces.base_url', '');
-        $this->API_KEY = config('platforms.codeforces.credentials.api_key', '');
-        $this->API_SECRET = config('platforms.codeforces.credentials.api_secret', '');
+        $this->apiBaseUrl = (string) config('platforms.codeforces.api_base_url', '');
+        $this->webBaseUrl = (string) config('platforms.codeforces.base_url', '');
+        $this->apiKey = (string) config('platforms.codeforces.credentials.api_key', '');
+        $this->apiSecret = (string) config('platforms.codeforces.credentials.api_secret', '');
     }
 
     protected function http(): PendingRequest
@@ -138,12 +138,12 @@ class BaseClient
 
     protected function apiKey(): string
     {
-        return $this->API_KEY;
+        return $this->apiKey;
     }
 
     protected function apiSecret(): string
     {
-        return $this->API_SECRET;
+        return $this->apiSecret;
     }
 
     protected function hasApiCredentials(): bool
@@ -166,7 +166,7 @@ class BaseClient
 
     public function webBaseUrl(): string
     {
-        return (string) $this->WEB_BASE_URL;
+        return $this->webBaseUrl;
     }
 
     public function userInfoBatchCharLimit(): int
@@ -185,7 +185,7 @@ class BaseClient
         $this->respectRateLimit($method, $finalQuery);
 
         $response = $this->http()
-            ->get($this->API_BASE_URL . '/' . $method, $finalQuery);
+            ->get($this->apiBaseUrl . '/' . $method, $finalQuery);
 
         return $this->decodeApiResponse($response, $method, $query);
     }
