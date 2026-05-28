@@ -35,7 +35,6 @@ return new class extends Migration
             $table->string('status', 50)
                 ->default('Active');
             $table->timestamps();
-            $table->softDeletes();
             $table->unique(
                 ['platform_id', 'platform_contest_id'],
                 'unique_platform_contest'
