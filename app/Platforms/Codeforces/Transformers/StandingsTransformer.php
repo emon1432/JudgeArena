@@ -4,6 +4,7 @@ namespace App\Platforms\Codeforces\Transformers;
 
 use App\Core\DTOs\ContestStandingsDTO;
 use App\Core\DTOs\ParticipantDTO;
+use App\Core\DTOs\ProblemResultDTO;
 use App\Platforms\Codeforces\DTOs\CodeforcesStandingsDTO;
 
 class StandingsTransformer
@@ -27,13 +28,13 @@ class StandingsTransformer
                 penalty: $row->penalty,
                 members: $row->party?->members ?? [],
                 problemResults: array_map(
-                    fn (\App\Platforms\Codeforces\DTOs\CodeforcesProblemResultDTO $problemResult): array => [
-                        'points' => $problemResult->points,
-                        'penalty' => $problemResult->penalty,
-                        'rejectedAttemptCount' => $problemResult->rejectedAttemptCount,
-                        'type' => $problemResult->type,
-                        'bestSubmissionTimeSeconds' => $problemResult->bestSubmissionTimeSeconds,
-                    ],
+                    fn (\App\Platforms\Codeforces\DTOs\CodeforcesProblemResultDTO $problemResult): ProblemResultDTO => new ProblemResultDTO(
+                        points: $problemResult->points,
+                        penalty: $problemResult->penalty,
+                        rejectedAttemptCount: $problemResult->rejectedAttemptCount,
+                        type: $problemResult->type,
+                        bestSubmissionTimeSeconds: $problemResult->bestSubmissionTimeSeconds,
+                    ),
                     $row->problemResults
                 ),
                 raw: $row->raw,
