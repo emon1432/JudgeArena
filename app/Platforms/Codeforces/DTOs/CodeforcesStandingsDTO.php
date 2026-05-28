@@ -10,7 +10,7 @@ readonly class CodeforcesStandingsDTO
      * @param array<string, mixed> $raw
      */
     public function __construct(
-        public ?CodeforcesContestDTO $contest,
+        public CodeforcesContestDTO $contest,
         public array $problems,
         public array $rows,
         public array $raw,

@@ -27,7 +27,7 @@ class CodeforcesAdapter implements PlatformAdapter
 	/** @return ContestStandingsDTO */
 	public function getContest(string $id): ContestStandingsDTO
 	{
-		return app(StandingsTransformer::class)
+		return $this->standingsTransformer
 			->fromApiStandings($this->contests->standings((int) $id));
 	}
 
@@ -71,6 +71,6 @@ class CodeforcesAdapter implements PlatformAdapter
 		private readonly ProblemTransformer $problemTransformer,
 		private readonly UserTransformer $userTransformer,
 		private readonly SubmissionTransformer $submissionTransformer,
+		private readonly StandingsTransformer $standingsTransformer,
 	) {}
 }
-

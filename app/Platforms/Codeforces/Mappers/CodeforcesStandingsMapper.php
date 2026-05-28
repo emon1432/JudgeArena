@@ -2,34 +2,22 @@
 
 namespace App\Platforms\Codeforces\Mappers;
 
-use App\Platforms\Codeforces\DTOs\CodeforcesPartyDTO;
-use App\Platforms\Codeforces\DTOs\CodeforcesProblemDTO;
 use App\Platforms\Codeforces\DTOs\CodeforcesProblemResultDTO;
 use App\Platforms\Codeforces\DTOs\CodeforcesRanklistRowDTO;
 use App\Platforms\Codeforces\DTOs\CodeforcesStandingsDTO;
+use RuntimeException;
 
 final class CodeforcesStandingsMapper
 {
     public static function fromApiResponse(array $standings): CodeforcesStandingsDTO
     {
-        $contest = isset($standings['contest']) && is_array($standings['contest'])
-            ? CodeforcesContestMapper::fromNormalized($standings['contest'])
-            : null;
+        if (! isset($standings['contest']) || ! is_array($standings['contest'])) {
+            throw new RuntimeException('Codeforces standings payload missing contest.');
+        }
 
-        $problems = array_map(
-            fn (array $problem): CodeforcesProblemDTO => new CodeforcesProblemDTO(
-                contestId: isset($problem['contestId']) ? (string) $problem['contestId'] : null,
-                problemsetName: $problem['problemsetName'] ?? null,
-                index: isset($problem['index']) ? (string) $problem['index'] : null,
-                name: $problem['name'] ?? null,
-                type: $problem['type'] ?? null,
-                points: isset($problem['points']) ? (int) $problem['points'] : null,
-                rating: isset($problem['rating']) ? (int) $problem['rating'] : null,
-                tags: is_array($problem['tags'] ?? null) ? $problem['tags'] : [],
-                raw: $problem,
-            ),
-            $standings['problems'] ?? []
-        );
+        $contest = CodeforcesContestMapper::fromNormalized($standings['contest']);
+
+        $problems = CodeforcesProblemMapper::fromNormalizedList($standings['problems'] ?? []);
 
         $rows = array_map(
             fn (array $row): CodeforcesRanklistRowDTO => self::toRanklistRowDto($row),
@@ -47,7 +35,7 @@ final class CodeforcesStandingsMapper
     private static function toRanklistRowDto(array $row): CodeforcesRanklistRowDTO
     {
         $party = $row['party'] ?? null;
-        $partyDto = is_array($party) ? self::toPartyDto($party) : null;
+        $partyDto = CodeforcesPartyMapper::fromNormalized(is_array($party) ? $party : null);
 
         $problemResults = [];
         foreach ($row['problemResults'] ?? [] as $problemResult) {
@@ -74,21 +62,6 @@ final class CodeforcesStandingsMapper
             problemResults: $problemResults,
             lastSubmissionTimeSeconds: isset($row['lastSubmissionTimeSeconds']) ? (int) $row['lastSubmissionTimeSeconds'] : null,
             raw: $row,
-        );
-    }
-
-    private static function toPartyDto(array $party): CodeforcesPartyDTO
-    {
-        return new CodeforcesPartyDTO(
-            contestId: isset($party['contestId']) ? (int) $party['contestId'] : null,
-            members: is_array($party['members'] ?? null) ? $party['members'] : [],
-            participantType: $party['participantType'] ?? null,
-            teamId: isset($party['teamId']) ? (int) $party['teamId'] : null,
-            teamName: $party['teamName'] ?? null,
-            ghost: array_key_exists('ghost', $party) ? (bool) $party['ghost'] : null,
-            room: isset($party['room']) ? (int) $party['room'] : null,
-            startTimeSeconds: isset($party['startTimeSeconds']) ? (int) $party['startTimeSeconds'] : null,
-            raw: $party,
         );
     }
 }
