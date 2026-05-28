@@ -17,10 +17,11 @@ return new class extends Migration
             $table->foreignId('platform_id')->constrained()->cascadeOnDelete();
             $table->string('handle', 100);
             $table->json('raw')->nullable();
+            $table->json('metadata')->nullable();
             $table->enum('status', ['Active', 'Inactive'])->default('Active');
             $table->timestamp('last_synced_at')->nullable();
             $table->timestamps();
-            $table->unique(['user_id', 'platform_id']);
+            $table->unique(['platform_id', 'handle']);
             $table->index(['user_id', 'platform_id']);
             $table->index('handle');
         });

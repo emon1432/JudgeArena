@@ -13,12 +13,13 @@ class Platform extends Model
         'base_url',
         'icon',
         'description',
-        'credentials',
+        'settings',
         'status',
     ];
 
     protected $casts = [
-        'credentials' => 'array',
+        'settings' => 'array',
+        'status' => 'string',
     ];
 
     public function platformProfiles()

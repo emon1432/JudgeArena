@@ -37,7 +37,6 @@ class User extends Authenticatable
         'github',
         'linkedin',
         'image',
-        'last_synced_at',
     ];
 
     protected $hidden = [
@@ -51,7 +50,6 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'last_synced_at' => 'datetime',
             'password' => 'hashed',
         ];
     }

@@ -14,12 +14,12 @@ class UsersTableSeeder extends Seeder
      */
     public function run()
     {
-        
+
 
         \DB::table('users')->delete();
-        
+
         \DB::table('users')->insert(array (
-            0 => 
+            0 =>
             array (
                 'id' => 1,
                 'name' => 'Emon Admin',
@@ -46,11 +46,10 @@ class UsersTableSeeder extends Seeder
                 'remember_token' => NULL,
                 'current_team_id' => NULL,
                 'image' => NULL,
-                'last_synced_at' => NULL,
                 'created_at' => NULL,
                 'updated_at' => NULL,
             ),
-            1 => 
+            1 =>
             array (
                 'id' => 2,
                 'name' => 'Top Users',
@@ -77,11 +76,10 @@ class UsersTableSeeder extends Seeder
                 'remember_token' => NULL,
                 'current_team_id' => NULL,
                 'image' => 'uploads/users/khairul-islam-emon1748759077683bf225059ea.jpg',
-                'last_synced_at' => NULL,
                 'created_at' => NULL,
                 'updated_at' => '2026-02-06 11:55:00',
             ),
-            2 => 
+            2 =>
             array (
                 'id' => 3,
                 'name' => 'Khairul Islam Emon',
@@ -108,12 +106,11 @@ class UsersTableSeeder extends Seeder
                 'remember_token' => NULL,
                 'current_team_id' => NULL,
                 'image' => 'uploads/users/khairul-islam-emon1748759077683bf225059ea.jpg',
-                'last_synced_at' => NULL,
                 'created_at' => NULL,
                 'updated_at' => '2026-02-09 08:28:34',
             ),
         ));
-        
-        
+
+
     }
 }

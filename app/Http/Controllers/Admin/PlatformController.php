@@ -33,15 +33,15 @@ class PlatformController extends Controller
 
             $credentialKeys = $request->input('credential_keys', []);
             $credentialValues = $request->input('credential_values', []);
-            $credentials = [];
+            $settings = [];
             foreach ($credentialKeys as $i => $key) {
                 if (is_null($key) || $key === '') {
                     continue;
                 }
-                $credentials[$key] = $credentialValues[$i] ?? null;
+                $settings[$key] = $credentialValues[$i] ?? null;
             }
-            if (!empty($credentials)) {
-                $data['credentials'] = $credentials;
+            if (!empty($settings)) {
+                $data['settings'] = $settings;
             }
 
             $data['icon'] = $request->file('icon') ? imageUploadManager($request->file('icon'), $request->name, 'platforms') : null;
@@ -79,14 +79,14 @@ class PlatformController extends Controller
 
             $credentialKeys = $request->input('credential_keys', []);
             $credentialValues = $request->input('credential_values', []);
-            $credentials = [];
+            $settings = [];
             foreach ($credentialKeys as $i => $key) {
                 if (is_null($key) || $key === '') {
                     continue;
                 }
-                $credentials[$key] = $credentialValues[$i] ?? null;
+                $settings[$key] = $credentialValues[$i] ?? null;
             }
-            $data['credentials'] = $credentials;
+            $data['settings'] = $settings;
 
             $data['icon'] = $request->file('icon') ? imageUpdateManager($request->file('icon'), $request->name, 'platforms', $platform->icon) : $platform->icon;
 

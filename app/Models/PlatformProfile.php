@@ -11,13 +11,16 @@ class PlatformProfile extends Model
         'platform_id',
         'handle',
         'raw',
+        'metadata',
         'status',
         'last_synced_at',
     ];
 
     protected $casts = [
         'raw' => 'array',
+        'metadata' => 'array',
         'last_synced_at' => 'datetime',
+        'status' => 'string',
     ];
 
     public function platform()

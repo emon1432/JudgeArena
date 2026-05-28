@@ -19,9 +19,10 @@ return new class extends Migration
             $table->string('base_url')->nullable();
             $table->string('icon')->nullable();
             $table->longText('description')->nullable();
-            $table->json('credentials')->nullable();
+            $table->json('settings')->nullable();
             $table->enum('status', ['Active', 'Inactive', 'Maintenance', 'Coming Soon'])->default('Active');
             $table->timestamps();
+            $table->index('status');
         });
     }
 

@@ -13,50 +13,48 @@ return new class extends Migration
     {
         Schema::create('contests', function (Blueprint $table) {
             $table->id();
-
-            // Foreign Keys
-            $table->foreignId('platform_id')->constrained()->onDelete('cascade');
-
-            // Contest Identification
-            $table->string('platform_contest_id', 150)->comment('Unique contest ID from platform');
-            $table->string('slug', 255)->nullable()->comment('URL-friendly contest identifier');
-            $table->string('name', 255);
-
-            // Contest Details
-            $table->text('description')->nullable();
-            $table->enum('type', ['contest', 'practice', 'challenge', 'virtual', 'rated', 'unrated'])->default('contest');
-            $table->string('phase', 50)->nullable()->comment('before, coding, finished, etc.');
-            $table->unsignedInteger('duration_seconds')->nullable()->comment('Contest duration in seconds');
-
-            // Timing
+            $table->foreignId('platform_id')
+                ->constrained()
+                ->cascadeOnDelete();
+            $table->string('platform_contest_id', 150);
+            $table->string('slug')->nullable();
+            $table->string('name');
+            $table->string('type', 50)->nullable();
+            $table->string('phase', 50)->nullable();
+            $table->boolean('is_rated')->default(false);
+            $table->unsignedInteger('duration_seconds')->nullable();
             $table->dateTime('start_time')->nullable();
             $table->dateTime('end_time')->nullable();
-
-            // Additional Information
-            $table->string('url', 500);
-            $table->unsignedInteger('participant_count')->nullable()->default(0);
-            $table->boolean('is_rated')->default(false);
-            $table->json('tags')->nullable()->comment('Contest tags/categories');
-            $table->json('raw')->nullable()->comment('Raw data from platform API');
-
-            // Status
-            $table->string('status', 50)->default('Active')->comment('active, inactive, archived');
-
-            // Indexes
-            $table->unique(['platform_id', 'platform_contest_id'], 'unique_platform_contest');
-            $table->unique(['platform_id', 'slug'], 'unique_platform_contest_slug');
-            $table->index('platform_id');
-            $table->index('start_time');
-            $table->index('end_time');
-            $table->index('phase');
-            $table->index('is_rated');
-            $table->index('type');
-            $table->index('status');
-            $table->index(['platform_id', 'start_time'], 'platform_start_time_index');
-            $table->index(['platform_id', 'status', 'start_time'], 'platform_status_start_time_index');
-
+            $table->string('url', 500)->nullable();
+            $table->unsignedInteger('participant_count')
+                ->nullable()
+                ->default(0);
+            $table->timestamp('last_synced_at')->nullable();
+            $table->json('metadata')->nullable();
+            $table->json('raw')->nullable();
+            $table->string('status', 50)
+                ->default('Active');
             $table->timestamps();
             $table->softDeletes();
+            $table->unique(
+                ['platform_id', 'platform_contest_id'],
+                'unique_platform_contest'
+            );
+            $table->index('slug');
+            $table->index('phase');
+            $table->index('status');
+            $table->index('is_rated');
+            $table->index('start_time');
+            $table->index('end_time');
+            $table->index('last_synced_at');
+            $table->index(
+                ['platform_id', 'start_time'],
+                'platform_start_time_index'
+            );
+            $table->index(
+                ['platform_id', 'status', 'start_time'],
+                'platform_status_start_time_index'
+            );
         });
     }
 
