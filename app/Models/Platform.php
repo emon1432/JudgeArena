@@ -48,6 +48,11 @@ class Platform extends Model
         return $this->hasMany(Standing::class, 'platform_id');
     }
 
+    public function syncStates(): HasMany
+    {
+        return $this->hasMany(PlatformSyncState::class, 'platform_id');
+    }
+
     public function scopeActive($query)
     {
         return $query->where('status', 'Active');
