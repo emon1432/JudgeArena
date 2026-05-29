@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PlatformProfile extends Model
 {
@@ -32,6 +33,11 @@ class PlatformProfile extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function contestRatingChanges(): HasMany
+    {
+        return $this->hasMany(ContestRatingChange::class, 'platform_profile_id');
     }
 
     public function scopeActive($query)

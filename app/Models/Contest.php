@@ -57,4 +57,9 @@ class Contest extends Model
     {
         return $this->hasMany(Standing::class, 'contest_id');
     }
+
+    public function contestRatingChanges(): HasMany
+    {
+        return $this->hasMany(ContestRatingChange::class, 'contest_id');
+    }
 }
