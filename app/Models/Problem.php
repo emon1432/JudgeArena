@@ -60,4 +60,9 @@ class Problem extends Model
     {
         return $this->hasMany(Submission::class, 'problem_id');
     }
+
+    public function standingTaskResults(): HasMany
+    {
+        return $this->hasMany(StandingTaskResult::class, 'problem_id');
+    }
 }

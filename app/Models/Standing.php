@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Standing extends Model
 {
@@ -52,5 +53,10 @@ class Standing extends Model
     public function platformProfile(): BelongsTo
     {
         return $this->belongsTo(PlatformProfile::class, 'platform_profile_id');
+    }
+
+    public function taskResults(): HasMany
+    {
+        return $this->hasMany(StandingTaskResult::class, 'standing_id');
     }
 }
