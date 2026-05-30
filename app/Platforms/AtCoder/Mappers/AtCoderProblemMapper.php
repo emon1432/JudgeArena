@@ -18,7 +18,7 @@ final class AtCoderProblemMapper
             title: $problem['title'] ?? null,
             position: $problem['position'] ?? null,
             fullTitle: $problem['fullTitle'] ?? null,
-            score: isset($problem['score']) && is_numeric($problem['score']) ? (int) $problem['score'] : null,
+            points: isset($problem['score']) && is_numeric($problem['score']) ? (float) $problem['score'] : null,
             timeLimit: $problem['timeLimit'] ?? null,
             memoryLimit: $problem['memoryLimit'] ?? null,
             url: $problem['url'] ?? null,

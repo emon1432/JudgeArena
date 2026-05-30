@@ -9,6 +9,7 @@ readonly class ProblemDTO
 		public string $platformProblemId,
 		public string $title,
 		public ?string $contestPlatformId = null,
+        public ?float $points = null,
 		public ?int $rating = null,
 		public array $tags = [],
 		public array $raw = [],

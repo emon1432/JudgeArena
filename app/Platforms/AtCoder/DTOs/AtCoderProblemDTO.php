@@ -13,7 +13,7 @@ readonly class AtCoderProblemDTO
         public ?string $title,
         public ?string $position,
         public ?string $fullTitle,
-        public ?int $score,
+        public ?float $points,
         public ?string $timeLimit,
         public ?string $memoryLimit,
         public ?string $url,

@@ -15,6 +15,7 @@ class ProblemTransformer
             platformProblemId: $this->buildProblemId($problem),
             title: (string) ($problem->name ?? ''),
             contestPlatformId: $problem->contestId,
+            points: $problem->points,
             rating: $problem->rating,
             tags: $problem->tags,
             raw: $problem->raw,

@@ -15,7 +15,7 @@ class ProblemTransformer
             platformProblemId: (string) ($problem->id ?? ''),
             title: (string) ($problem->fullTitle ?? $problem->title ?? ''),
             contestPlatformId: $problem->contestId,
-            rating: null,
+            points: $problem->points,
             tags: [],
             raw: $problem->raw,
         );
