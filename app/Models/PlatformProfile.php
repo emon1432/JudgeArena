@@ -40,6 +40,16 @@ class PlatformProfile extends Model
         return $this->hasMany(ContestRatingChange::class, 'platform_profile_id');
     }
 
+    public function submissions(): HasMany
+    {
+        return $this->hasMany(Submission::class);
+    }
+
+    public function standings(): HasMany
+    {
+        return $this->hasMany(Standing::class);
+    }
+
     public function scopeActive($query)
     {
         return $query->where('status', 'Active');

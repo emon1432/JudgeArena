@@ -29,7 +29,7 @@ class Standing extends Model
 
     protected $casts = [
         'rank' => 'integer',
-        'points' => 'float',
+        'points' => 'decimal:2',
         'penalty' => 'integer',
         'successful_hack_count' => 'integer',
         'unsuccessful_hack_count' => 'integer',

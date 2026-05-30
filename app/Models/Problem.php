@@ -65,9 +65,4 @@ class Problem extends Model
     {
         return $this->hasMany(StandingTaskResult::class, 'problem_id');
     }
-
-    public function contestRatingChanges(): HasMany
-    {
-        return $this->hasMany(ContestRatingChange::class, 'problem_id');
-    }
 }

@@ -10,7 +10,7 @@ return [
             'api_key' => env('CODEFORCES_API_KEY'),
             'api_secret' => env('CODEFORCES_API_SECRET'),
         ],
-        'status' => 'active',
+        'status' => 'Active',
     ],
 
     'atcoder' => [
@@ -21,6 +21,6 @@ return [
             'atcoder_password' => env('ATCODER_PASSWORD'),
             'atcoder_session_cookies' => env('ATCODER_SESSION_COOKIES'),
         ],
-        'status' => 'active',
+        'status' => 'Active',
     ],
 ];

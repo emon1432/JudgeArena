@@ -24,6 +24,11 @@ class ContestRatingChange extends Model
     ];
 
     protected $casts = [
+        'rank' => 'integer',
+        'old_rating' => 'integer',
+        'new_rating' => 'integer',
+        'rating_change' => 'integer',
+        'performance' => 'integer',
         'last_synced_at' => 'datetime',
         'metadata' => 'array',
         'raw' => 'array',

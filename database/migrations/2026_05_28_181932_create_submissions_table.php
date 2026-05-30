@@ -40,7 +40,7 @@ return new class extends Migration
             $table->timestamp('last_synced_at')->nullable();
             $table->json('metadata')->nullable();
             $table->json('raw')->nullable();
-            $table->string('status', 50)->default('active');
+            $table->string('status', 50)->default('Active');
             $table->timestamps();
             $table->unique(
                 ['platform_id', 'platform_submission_id'],
