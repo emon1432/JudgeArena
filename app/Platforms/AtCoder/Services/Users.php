@@ -2,9 +2,8 @@
 
 namespace App\Platforms\AtCoder\Services;
 
-use App\Platforms\AtCoder\Client\BaseClient;
+use App\Platforms\AtCoder\Services\AtCoderHtmlScraper;
 use App\Platforms\AtCoder\DTOs\AtCoderUserDTO;
-use App\Platforms\AtCoder\Mappers\AtCoderSubmissionMapper;
 use App\Platforms\AtCoder\Mappers\AtCoderUserMapper;
 use App\Platforms\AtCoder\Support\ResponseNormalizer;
 use RuntimeException;
@@ -12,23 +11,35 @@ use RuntimeException;
 class Users
 {
     public function __construct(
-        private readonly BaseClient $client,
+        private readonly AtCoderHtmlScraper $scraper,
+        private readonly Contests $contests,
     ) {}
 
     /** @return AtCoderUserDTO */
     public function info(string $handle): AtCoderUserDTO
     {
+        $payload = $this->scraper->getUserProfile($handle);
+
+        if (! is_array($payload['result'] ?? null)) {
+            throw new RuntimeException('AtCoder user request failed.');
+        }
+
         return AtCoderUserMapper::fromNormalized(
-            ResponseNormalizer::user($this->client->requestApi("user/info/{$handle}"))
+            ResponseNormalizer::user($payload)
         );
     }
 
     /** @return \App\Platforms\AtCoder\DTOs\AtCoderSubmissionDTO[] */
     public function submissions(string $handle, int $from = 1, int $count = 0): array
     {
-        $submissions = AtCoderSubmissionMapper::fromNormalizedList(
-            ResponseNormalizer::submissions($this->client->requestApi("user/{$handle}/submissions"))
-        );
+        $submissions = [];
+
+        foreach ($this->contests->list() as $contest) {
+            $submissions = array_merge(
+                $submissions,
+                $this->contests->submissions((string) $contest->id, $handle)
+            );
+        }
 
         $offset = max(0, $from - 1);
         if ($count > 0) {
@@ -46,7 +57,7 @@ class Users
     public function ratingHistory(string $handle): array
     {
         return ResponseNormalizer::ratingChanges(
-            $this->client->requestApi("user/{$handle}/rating-history")
+            $this->scraper->getUserRatingHistory($handle)
         );
     }
 

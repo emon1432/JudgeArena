@@ -2,7 +2,7 @@
 
 namespace App\Platforms\AtCoder\Services;
 
-use App\Platforms\AtCoder\Client\BaseClient;
+use App\Platforms\AtCoder\Services\AtCoderHtmlScraper;
 use App\Platforms\AtCoder\DTOs\AtCoderStandingsDTO;
 use App\Platforms\AtCoder\Mappers\AtCoderContestMapper;
 use App\Platforms\AtCoder\Mappers\AtCoderStandingsMapper;
@@ -12,34 +12,34 @@ use App\Platforms\AtCoder\Support\ResponseNormalizer;
 class Contests
 {
     public function __construct(
-        private readonly BaseClient $client,
+        private readonly AtCoderHtmlScraper $scraper,
     ) {}
 
     /** @return \App\Platforms\AtCoder\DTOs\AtCoderContestDTO[] */
     public function list(): array
     {
         return AtCoderContestMapper::fromNormalizedList(
-            ResponseNormalizer::contests($this->client->requestApi('contests'))
+            ResponseNormalizer::contests($this->scraper->getContests())
         );
     }
 
     public function standings(string $contestId, bool $virtual = false): AtCoderStandingsDTO
     {
-        $path = $virtual
-            ? "contests/{$contestId}/standings/virtual"
-            : "contests/{$contestId}/standings";
-
         $contest = $this->findContestNormalized($contestId);
-        $normalized = ResponseNormalizer::standings($this->client->requestApi($path), $contest, $contestId);
+        $normalized = ResponseNormalizer::standings(
+            $virtual ? $this->scraper->getStandingsVirtual($contestId) : $this->scraper->getStandings($contestId),
+            $contest,
+            $contestId,
+        );
 
         return AtCoderStandingsMapper::fromApiResponse($normalized);
     }
 
     /** @return \App\Platforms\AtCoder\DTOs\AtCoderSubmissionDTO[] */
-    public function submissions(string $contestId): array
+    public function submissions(string $contestId, ?string $user = null): array
     {
         return AtCoderSubmissionMapper::fromNormalizedList(
-            ResponseNormalizer::submissions($this->client->requestApi("contests/{$contestId}/submissions"))
+            ResponseNormalizer::submissions($this->scraper->getSubmissions($contestId, $user))
         );
     }
 
@@ -47,8 +47,14 @@ class Contests
     public function ratingChanges(string $contestId): array
     {
         return ResponseNormalizer::ratingChanges(
-            $this->client->requestApi("contests/{$contestId}/results")
+            $this->scraper->getResults($contestId)
         );
+    }
+
+    /** @return array<string, mixed> */
+    public function tasks(string $contestId): array
+    {
+        return $this->scraper->getTasks($contestId);
     }
 
     /**
@@ -56,7 +62,7 @@ class Contests
      */
     private function findContestNormalized(string $contestId): array
     {
-        $contests = ResponseNormalizer::contests($this->client->requestApi('contests'));
+        $contests = ResponseNormalizer::contests($this->scraper->getContests());
 
         foreach ($contests as $contest) {
             if (isset($contest['id']) && (string) $contest['id'] === $contestId) {

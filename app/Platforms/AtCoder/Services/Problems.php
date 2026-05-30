@@ -2,14 +2,13 @@
 
 namespace App\Platforms\AtCoder\Services;
 
-use App\Platforms\AtCoder\Client\BaseClient;
 use App\Platforms\AtCoder\Mappers\AtCoderProblemMapper;
 use App\Platforms\AtCoder\Support\ResponseNormalizer;
 
 class Problems
 {
     public function __construct(
-        private readonly BaseClient $client,
+        private readonly Contests $contests,
     ) {}
 
     /**
@@ -17,9 +16,17 @@ class Problems
      */
     public function list(): array
     {
-        $problems = AtCoderProblemMapper::fromNormalizedList(
-            ResponseNormalizer::problems($this->client->requestApi('problems'))
-        );
+        $problems = [];
+
+        foreach ($this->contests->list() as $contest) {
+            $tasks = $this->contests->tasks((string) $contest->id);
+            $problems = array_merge(
+                $problems,
+                AtCoderProblemMapper::fromNormalizedList(
+                    ResponseNormalizer::problems($tasks)
+                )
+            );
+        }
 
         return [
             'problems' => $problems,
