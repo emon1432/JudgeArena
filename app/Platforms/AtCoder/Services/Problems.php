@@ -12,6 +12,12 @@ class Problems
     ) {}
 
     /**
+     * Legacy whole-platform problem crawl.
+     *
+     * Prefer {@see getContestProblems()} for contest-scoped synchronization.
+     * This method remains for backward compatibility and should not be used
+     * for large-scale sync runs.
+     *
      * @return array{problems: \App\Platforms\AtCoder\DTOs\AtCoderProblemDTO[], problemStatistics: array<int, array<string, mixed>>}
      */
     public function list(): array
@@ -19,17 +25,29 @@ class Problems
         $problems = [];
 
         foreach ($this->contests->list() as $contest) {
-            $tasks = $this->contests->tasks((string) $contest->id);
-            $problems = array_merge(
-                $problems,
-                AtCoderProblemMapper::fromNormalizedList(
-                    ResponseNormalizer::problems($tasks)
-                )
-            );
+            $contestProblems = $this->getContestProblems((string) $contest->id);
+            $problems = array_merge($problems, $contestProblems['problems']);
         }
 
         return [
             'problems' => $problems,
+            'problemStatistics' => [],
+        ];
+    }
+
+    /**
+     * Contest-scoped problem synchronization path.
+     *
+     * @return array{problems: \App\Platforms\AtCoder\DTOs\AtCoderProblemDTO[], problemStatistics: array<int, array<string, mixed>>}
+     */
+    public function getContestProblems(string $contestId): array
+    {
+        $tasks = $this->contests->tasks($contestId);
+
+        return [
+            'problems' => AtCoderProblemMapper::fromNormalizedList(
+                ResponseNormalizer::problems($tasks)
+            ),
             'problemStatistics' => [],
         ];
     }

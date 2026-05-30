@@ -44,6 +44,19 @@ class CodeforcesAdapter implements PlatformAdapter
 		];
 	}
 
+	/**
+	 * @return array{problems: \App\Core\DTOs\ProblemDTO[], problemStatistics: array<int, array<string, mixed>>}
+	 */
+	public function getContestProblems(string $contestId): array
+	{
+		$contest = $this->contests->standings((int) $contestId);
+
+		return [
+			'problems' => $this->problemTransformer->fromApiProblems($contest->problems),
+			'problemStatistics' => [],
+		];
+	}
+
 	/** @return UserDTO */
 	public function getUser(string $username): UserDTO
 	{

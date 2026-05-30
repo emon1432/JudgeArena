@@ -44,6 +44,23 @@ class AtCoderAdapter implements PlatformAdapter
         ];
     }
 
+    /**
+     * @return array{problems: \App\Core\DTOs\ProblemDTO[], problemStatistics: array<int, array<string, mixed>>}
+     */
+    public function getContestProblems(string $contestId): array
+    {
+        $tasks = $this->contests->tasks($contestId);
+
+        return [
+            'problems' => $this->problemTransformer->fromApiProblems(
+                \App\Platforms\AtCoder\Mappers\AtCoderProblemMapper::fromNormalizedList(
+                    \App\Platforms\AtCoder\Support\ResponseNormalizer::problems($tasks)
+                )
+            ),
+            'problemStatistics' => [],
+        ];
+    }
+
     /** @return UserDTO */
     public function getUser(string $username): UserDTO
     {
