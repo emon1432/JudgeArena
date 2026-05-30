@@ -21,7 +21,7 @@
                             <h6>{{ __('Platform Information') }}</h6>
                             <hr class="mt-0" />
                         </div>
-                        <div class="col-md-12 form-control-validation">
+                        <div class="col-md-8 form-control-validation">
                             <label class="form-label" for="name">{{ __('Name') }}<span
                                     class="text-danger">*</span></label>
                             <input type="text" name="name" id="name" class="form-control"
@@ -33,11 +33,16 @@
                             <input type="text" name="short_name" id="short_name" class="form-control"
                                 placeholder="{{ __('Enter short name') }}" required />
                         </div>
-                        <div class="col-md-8 form-control-validation">
+                        <div class="col-md-6 form-control-validation">
                             <label class="form-label" for="base_url">{{ __('Base URL') }}<span
                                     class="text-danger">*</span></label>
                             <input type="url" name="base_url" id="base_url" class="form-control"
                                 placeholder="{{ __('Enter base URL') }}" required />
+                        </div>
+                        <div class="col-md-6 form-control-validation">
+                            <label class="form-label" for="profile_url">{{ __('Profile URL') }}</label>
+                            <input type="url" name="profile_url" id="profile_url" class="form-control"
+                                placeholder="{{ __('Enter profile URL') }}" />
                         </div>
                         <div class="col-md-5 form-control-validation align-self-center">
                             <label class="form-label" for="icon">{{ __('Icon') }}</label>

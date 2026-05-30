@@ -4,6 +4,7 @@ return [
 
     'codeforces' => [
         'base_url' => 'https://codeforces.com/',
+        'profile_url' => 'https://codeforces.com/profile/',
         'api_base_url' => 'https://codeforces.com/api/',
         'credentials' => [
             'api_key' => env('CODEFORCES_API_KEY'),
@@ -14,6 +15,7 @@ return [
 
     'atcoder' => [
         'base_url' => 'https://atcoder.jp/',
+        'profile_url' => 'https://atcoder.jp/users/',
         'credentials' => [
             'atcoder_username' => env('ATCODER_USERNAME'),
             'atcoder_password' => env('ATCODER_PASSWORD'),

@@ -12,14 +12,15 @@ class Platform extends Model
         'slug',
         'short_name',
         'base_url',
+        'profile_url',
         'icon',
         'description',
-        'settings',
+        'credentials',
         'status',
     ];
 
     protected $casts = [
-        'settings' => 'array',
+        'credentials' => 'array',
         'status' => 'string',
     ];
 

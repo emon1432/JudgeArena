@@ -17,9 +17,10 @@ return new class extends Migration
             $table->string('slug')->unique();
             $table->string('short_name')->nullable();
             $table->string('base_url')->nullable();
+            $table->string('profile_url')->nullable();
             $table->string('icon')->nullable();
             $table->longText('description')->nullable();
-            $table->json('settings')->nullable();
+            $table->json('credentials')->nullable();
             $table->enum('status', ['Active', 'Inactive', 'Maintenance', 'Coming Soon'])->default('Active');
             $table->timestamps();
             $table->index('status');
