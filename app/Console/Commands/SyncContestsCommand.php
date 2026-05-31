@@ -36,7 +36,18 @@ class SyncContestsCommand extends Command
             return self::FAILURE;
         }
 
+        $this->info('Fetching contests...');
+        $progressBar = $this->output->createProgressBar(1);
+        $progressBar->setFormat(' %current%/%max% [%bar%] %percent:3s%% %message%');
+        $progressBar->setMessage('Loading contest list');
+        $progressBar->start();
+
         $contests = $adapter->getContests();
+        $progressBar->setMessage('Contest list loaded');
+        $progressBar->advance();
+        $progressBar->finish();
+        $this->newLine(2);
+
         $firstContest = $contests[0] ?? null;
 
         $this->info('Platform: ' . $platform);

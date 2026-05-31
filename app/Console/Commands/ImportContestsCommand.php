@@ -42,11 +42,30 @@ class ImportContestsCommand extends Command
             return self::FAILURE;
         }
 
+        $this->info('Fetching contests...');
+        $progressBar = $this->output->createProgressBar(1);
+        $progressBar->setFormat(' %current%/%max% [%bar%] %percent:3s%% %message%');
+        $progressBar->setMessage('Loading contest list');
+        $progressBar->start();
+
         $contests = $adapter->getContests();
+        $progressBar->setMessage('Contest list loaded');
+        $progressBar->advance();
+        $progressBar->finish();
+        $this->newLine(2);
+
         $created = 0;
         $updated = 0;
 
+        $this->line('Importing contests...');
+        $importProgressBar = $this->output->createProgressBar(count($contests));
+        $importProgressBar->setFormat(' %current%/%max% [%bar%] %percent:3s%% %message%');
+        $importProgressBar->setMessage('Preparing contest import');
+        $importProgressBar->start();
+
         foreach ($contests as $contestDto) {
+            $importProgressBar->setMessage('Syncing ' . $contestDto->title);
+
             $contest = Contest::query()->updateOrCreate(
                 [
                     'platform_id' => $platform->id,
@@ -67,11 +86,18 @@ class ImportContestsCommand extends Command
 
             if ($contest->wasRecentlyCreated) {
                 $created++;
+                $importProgressBar->advance();
+
                 continue;
             }
 
             $updated++;
+            $importProgressBar->advance();
         }
+
+        $importProgressBar->setMessage('Contest import finished');
+        $importProgressBar->finish();
+        $this->newLine(2);
 
         $this->line('Platform: ' . $platformSlug);
         $this->line('Total fetched: ' . count($contests));

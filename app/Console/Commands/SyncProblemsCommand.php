@@ -6,10 +6,11 @@ use App\Core\Contracts\Platforms\PlatformAdapter;
 use App\Platforms\AtCoder\AtCoderAdapter;
 use App\Platforms\Codeforces\CodeforcesAdapter;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class SyncProblemsCommand extends Command
 {
-    protected $signature = 'judgearena:sync-problems {platform} {contestId?}';
+    protected $signature = 'judgearena:sync-problems {platform}';
 
     protected $description = 'Validate problem adapters by fetching problem lists.';
 
@@ -23,42 +24,45 @@ class SyncProblemsCommand extends Command
     public function handle(): int
     {
         $platform = strtolower((string) $this->argument('platform'));
-        $contestId = trim((string) $this->argument('contestId'));
         $adapter = $this->resolveAdapter($platform);
 
+        Log::info('Problem sync validation started', [
+            'platform' => $platform,
+        ]);
+
         if ($adapter === null) {
+            Log::warning('Problem sync validation skipped: unsupported platform', [
+                'platform' => $platform,
+            ]);
+
             $this->error('Unsupported platform: ' . $platform);
             $this->line('Supported platforms: codeforces, atcoder');
 
             return self::FAILURE;
         }
 
-        // Prevent accidental whole-platform crawl for AtCoder
-        if ($platform === 'atcoder' && $contestId === '') {
-            $this->warn(
-                'Whole-platform problem validation is not recommended for AtCoder.'
-            );
-
-            $this->line(
-                'Example: php artisan judgearena:sync-problems atcoder abc460'
-            );
-
-            return self::FAILURE;
-        }
+        $this->info('Fetching problem list...');
+        $progressBar = $this->output->createProgressBar(1);
+        $progressBar->setFormat(' %current%/%max% [%bar%] %percent:3s%% %message%');
+        $progressBar->setMessage('Loading problem list');
+        $progressBar->start();
 
         try {
-            $result = $contestId !== ''
-                ? $adapter->getContestProblems($contestId)
-                : $adapter->getProblems();
+            $result = $adapter->getProblems();
         } catch (\Throwable $e) {
-            if ($contestId !== '') {
-                $this->error('Contest not found or unavailable.');
-                $this->line('Contest ID: ' . $contestId);
-            } else {
-                $this->error('Problem synchronization failed.');
-            }
+            $progressBar->setMessage('Problem list request failed');
+            $progressBar->finish();
+            $this->newLine(2);
 
-            $this->line($e->getMessage());
+            Log::error('Problem sync validation failed', [
+                'platform' => $platform,
+                'message' => $e->getMessage(),
+                'exception' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+
+            $this->error('Error fetching problems: ' . $e->getMessage());
 
             return self::FAILURE;
         }
@@ -66,23 +70,35 @@ class SyncProblemsCommand extends Command
         $problems = $result['problems'] ?? [];
         $firstProblem = $problems[0] ?? null;
 
+    $progressBar->setMessage('Problem list loaded');
+    $progressBar->advance();
+    $progressBar->finish();
+    $this->newLine(2);
+
         $this->info('Platform: ' . $platform);
-
-        if ($contestId !== '') {
-            $this->info('Contest ID: ' . $contestId);
-        }
-
         $this->info('Total problems: ' . count($problems));
 
         if ($firstProblem === null) {
             $this->warn('No problems found.');
 
+            Log::warning('Problem sync validation returned no problems', [
+                'platform' => $platform,
+            ]);
+
             return self::SUCCESS;
         }
 
         $this->info('First problem title: ' . $firstProblem->title);
+        $this->info('First problem contestId: ' . ($firstProblem->contestPlatformId ?? 'N/A'));
         $this->info('First platformProblemId: ' . $firstProblem->platformProblemId);
         $this->info('First contestPlatformId: ' . ($firstProblem->contestPlatformId ?? 'N/A'));
+
+        Log::info('Problem sync validation completed', [
+            'platform' => $platform,
+            'problem_count' => count($problems),
+            'first_problem_platform_problem_id' => $firstProblem->platformProblemId,
+            'first_problem_contest_platform_id' => $firstProblem->contestPlatformId ?? null,
+        ]);
 
         return self::SUCCESS;
     }
