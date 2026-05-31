@@ -7,6 +7,7 @@ use App\Platforms\Codeforces\DTOs\CodeforcesUserDTO;
 use App\Platforms\Codeforces\Mappers\CodeforcesUserMapper;
 use App\Platforms\Codeforces\Mappers\CodeforcesSubmissionMapper;
 use App\Platforms\Codeforces\Support\ResponseNormalizer;
+use App\Services\ApplicationLogger;
 use Illuminate\Support\Arr;
 use RuntimeException;
 
@@ -114,6 +115,13 @@ class Users
 
             return true;
         } catch (RuntimeException $e) {
+            app(ApplicationLogger::class)->warning('Codeforces user lookup failed', [
+                'category' => 'api',
+                'platform' => 'codeforces',
+                'source' => self::class,
+                'user_handle' => $handle,
+            ], $e);
+
             return ! str_contains(strtolower($e->getMessage()), 'not found');
         }
     }

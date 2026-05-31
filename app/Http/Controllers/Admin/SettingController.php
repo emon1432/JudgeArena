@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Currency;
 use App\Models\Setting;
+use App\Services\ApplicationLogger;
 use Illuminate\Http\Request;
 
 class SettingController extends Controller
@@ -59,6 +60,12 @@ class SettingController extends Controller
                 'redirect' => null,
             ]);
         } catch (\Exception $e) {
+            app(ApplicationLogger::class)->error('Setting update failed', [
+                'category' => 'admin',
+                'source' => self::class,
+                'setting_key' => $key,
+            ], $e);
+
             return response()->json([
                 'status' => 500,
                 'message' => __('Whoops! Something went wrong. Please try again later. Error: ') . $e->getMessage(),

@@ -2,10 +2,10 @@
 
 namespace App\Platforms\Codeforces\Client;
 
+use App\Services\ApplicationLogger;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 use RuntimeException;
 
 class BaseClient
@@ -75,7 +75,10 @@ class BaseClient
     protected function decodeApiResponse(Response $response, string $method, array $query): array
     {
         if (! $response->ok()) {
-            Log::warning('Codeforces HTTP request failed', [
+            app(ApplicationLogger::class)->warning('Codeforces HTTP request failed', [
+                'category' => 'api',
+                'platform' => 'codeforces',
+                'source' => self::class,
                 'method' => $method,
                 'status' => $response->status(),
                 'query' => $query,
@@ -99,7 +102,10 @@ class BaseClient
                 usleep(self::API_RATE_LIMIT_SECONDS * 1000000);
             }
 
-            Log::notice('Codeforces API returned non-OK status', [
+            app(ApplicationLogger::class)->warning('Codeforces API returned non-OK status', [
+                'category' => 'api',
+                'platform' => 'codeforces',
+                'source' => self::class,
                 'method' => $method,
                 'query' => $query,
                 'comment' => $comment,

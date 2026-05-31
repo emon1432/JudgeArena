@@ -19,6 +19,9 @@
                             data-columns='[
                                             { "data": "info" },
                                             { "data": "base_url" },
+                                            { "data": "total_contests" },
+                                            { "data": "total_problems" },
+                                            { "data": "total_users" },
                                             { "data": "status" },
                                             { "data": "actions" }
                                         ]'>
@@ -26,6 +29,9 @@
                                 <tr>
                                     <th>{{ __('Info') }}</th>
                                     <th>{{ __('Base URL') }}</th>
+                                    <th>{{ __('Total Contests') }}</th>
+                                    <th>{{ __('Total Problems') }}</th>
+                                    <th>{{ __('Total Users') }}</th>
                                     <th>{{ __('Status') }}</th>
                                     <th>{{ __('Actions') }}</th>
                                 </tr>

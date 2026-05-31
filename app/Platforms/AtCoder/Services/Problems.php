@@ -5,7 +5,7 @@ namespace App\Platforms\AtCoder\Services;
 use App\Models\Contest;
 use App\Platforms\AtCoder\Mappers\AtCoderProblemMapper;
 use App\Platforms\AtCoder\Support\ResponseNormalizer;
-use Illuminate\Support\Facades\Log;
+use App\Services\ApplicationLogger;
 
 class Problems
 {
@@ -28,7 +28,10 @@ class Problems
      */
     public function list(): array
     {
-        Log::warning('AtCoder whole-platform problem crawl invoked', [
+        app(ApplicationLogger::class)->warning('AtCoder whole-platform problem crawl invoked', [
+            'category' => 'scraper',
+            'platform' => 'atcoder',
+            'source' => self::class,
             'purpose' => 'validation-only',
         ]);
 
@@ -44,7 +47,10 @@ class Problems
             $problems = array_merge($problems, $contestProblems['problems']);
         }
 
-        Log::info('AtCoder whole-platform problem crawl completed', [
+        app(ApplicationLogger::class)->info('AtCoder whole-platform problem crawl completed', [
+            'category' => 'scraper',
+            'platform' => 'atcoder',
+            'source' => self::class,
             'contest_count' => $contests->count(),
             'problem_count' => count($problems),
         ]);

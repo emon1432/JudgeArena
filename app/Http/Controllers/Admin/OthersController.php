@@ -7,6 +7,7 @@ use App\Mail\TestMail;
 use App\Models\Country;
 use App\Models\Institute;
 use App\Models\User;
+use App\Services\ApplicationLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;
@@ -166,6 +167,12 @@ class OthersController extends Controller
                 'redirect' => null,
             ]);
         } catch (\Exception $e) {
+            app(ApplicationLogger::class)->error('Admin test mail send failed', [
+                'category' => 'admin',
+                'source' => self::class,
+                'recipient' => $request->test_email,
+            ], $e);
+
             return response()->json([
                 'status' => 500,
                 'message' => __('Failed to send test email: ') . $e->getMessage(),

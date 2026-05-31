@@ -7,6 +7,7 @@ use App\Models\Contest;
 use App\Models\Platform;
 use App\Platforms\AtCoder\AtCoderAdapter;
 use App\Platforms\Codeforces\CodeforcesAdapter;
+use App\Services\ApplicationLogger;
 use Illuminate\Console\Command;
 
 class ImportContestsCommand extends Command
@@ -28,6 +29,12 @@ class ImportContestsCommand extends Command
         $adapter = $this->resolveAdapter($platformSlug);
 
         if ($adapter === null) {
+            app(ApplicationLogger::class)->warning('Contest import skipped: unsupported platform', [
+                'category' => 'import',
+                'platform' => $platformSlug,
+                'source' => self::class,
+            ]);
+
             $this->error('Unsupported platform: ' . $platformSlug);
             $this->line('Supported platforms: codeforces, atcoder');
 
@@ -37,74 +44,113 @@ class ImportContestsCommand extends Command
         $platform = Platform::query()->where('slug', $platformSlug)->first();
 
         if ($platform === null) {
+            app(ApplicationLogger::class)->warning('Contest import skipped: platform record not found', [
+                'category' => 'import',
+                'platform' => $platformSlug,
+                'source' => self::class,
+            ]);
+
             $this->error('Platform record not found for slug: ' . $platformSlug);
 
             return self::FAILURE;
         }
 
-        $this->info('Fetching contests...');
-        $progressBar = $this->output->createProgressBar(1);
-        $progressBar->setFormat(' %current%/%max% [%bar%] %percent:3s%% %message%');
-        $progressBar->setMessage('Loading contest list');
-        $progressBar->start();
+        app(ApplicationLogger::class)->info('Contest import started', [
+            'category' => 'import',
+            'platform' => $platformSlug,
+            'source' => self::class,
+        ]);
 
-        $contests = $adapter->getContests();
-        $progressBar->setMessage('Contest list loaded');
-        $progressBar->advance();
-        $progressBar->finish();
-        $this->newLine(2);
+        try {
+            $this->info('Fetching contests...');
+            $progressBar = $this->output->createProgressBar(1);
+            $progressBar->setFormat(' %current%/%max% [%bar%] %percent:3s%% %message%');
+            $progressBar->setMessage('Loading contest list');
+            $progressBar->start();
 
-        $created = 0;
-        $updated = 0;
+            $contests = $adapter->getContests();
+            $progressBar->setMessage('Contest list loaded');
+            $progressBar->advance();
+            $progressBar->finish();
+            $this->newLine(2);
 
-        $this->line('Importing contests...');
-        $importProgressBar = $this->output->createProgressBar(count($contests));
-        $importProgressBar->setFormat(' %current%/%max% [%bar%] %percent:3s%% %message%');
-        $importProgressBar->setMessage('Preparing contest import');
-        $importProgressBar->start();
+            $created = 0;
+            $updated = 0;
 
-        foreach ($contests as $contestDto) {
-            $importProgressBar->setMessage('Syncing ' . $contestDto->title);
+            $this->line('Importing contests...');
+            $importProgressBar = $this->output->createProgressBar(count($contests));
+            $importProgressBar->setFormat(' %current%/%max% [%bar%] %percent:3s%% %message%');
+            $importProgressBar->setMessage('Preparing contest import');
+            $importProgressBar->start();
 
-            $contest = Contest::query()->updateOrCreate(
-                [
-                    'platform_id' => $platform->id,
-                    'platform_contest_id' => $contestDto->platformContestId,
-                ],
-                [
-                    'name' => $contestDto->title,
-                    'phase' => $contestDto->phase,
-                    'duration_seconds' => $contestDto->durationSeconds,
-                    'start_time' => $contestDto->startedAt,
-                    'metadata' => [
-                        'source' => 'adapter',
-                        'imported_at' => now(),
+            foreach ($contests as $contestDto) {
+                $importProgressBar->setMessage('Syncing ' . $contestDto->title);
+
+                $contest = Contest::query()->updateOrCreate(
+                    [
+                        'platform_id' => $platform->id,
+                        'platform_contest_id' => $contestDto->platformContestId,
                     ],
-                    'raw' => $contestDto->raw,
-                ],
-            );
+                    [
+                        'name' => $contestDto->title,
+                        'phase' => $contestDto->phase,
+                        'duration_seconds' => $contestDto->durationSeconds,
+                        'start_time' => $contestDto->startedAt,
+                        'metadata' => [
+                            'source' => 'adapter',
+                            'imported_at' => now(),
+                        ],
+                        'raw' => $contestDto->raw,
+                    ],
+                );
 
-            if ($contest->wasRecentlyCreated) {
-                $created++;
+                if ($contest->wasRecentlyCreated) {
+                    $created++;
+                    $importProgressBar->advance();
+
+                    continue;
+                }
+
+                $updated++;
                 $importProgressBar->advance();
-
-                continue;
             }
 
-            $updated++;
-            $importProgressBar->advance();
+            $importProgressBar->setMessage('Contest import finished');
+            $importProgressBar->finish();
+            $this->newLine(2);
+
+            $this->line('Platform: ' . $platformSlug);
+            $this->line('Total fetched: ' . count($contests));
+            $this->line('Created: ' . $created);
+            $this->line('Updated: ' . $updated);
+
+            app(ApplicationLogger::class)->info('Contest import completed', [
+                'category' => 'import',
+                'platform' => $platformSlug,
+                'source' => self::class,
+                'total_fetched' => count($contests),
+                'created' => $created,
+                'updated' => $updated,
+            ]);
+
+            return self::SUCCESS;
+        } catch (\Throwable $e) {
+            app(ApplicationLogger::class)->error('Contest import failed', [
+                'category' => 'import',
+                'platform' => $platformSlug,
+                'platform_id' => $platform->id,
+                'source' => self::class,
+                'message' => $e->getMessage(),
+                'exception' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ], $e);
+
+            $this->error('Contest import failed.');
+            $this->line($e->getMessage());
+
+            return self::FAILURE;
         }
-
-        $importProgressBar->setMessage('Contest import finished');
-        $importProgressBar->finish();
-        $this->newLine(2);
-
-        $this->line('Platform: ' . $platformSlug);
-        $this->line('Total fetched: ' . count($contests));
-        $this->line('Created: ' . $created);
-        $this->line('Updated: ' . $updated);
-
-        return self::SUCCESS;
     }
 
     private function resolveAdapter(string $platformSlug): ?PlatformAdapter

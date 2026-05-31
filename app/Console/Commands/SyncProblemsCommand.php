@@ -5,8 +5,8 @@ namespace App\Console\Commands;
 use App\Core\Contracts\Platforms\PlatformAdapter;
 use App\Platforms\AtCoder\AtCoderAdapter;
 use App\Platforms\Codeforces\CodeforcesAdapter;
+use App\Services\ApplicationLogger;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Log;
 
 class SyncProblemsCommand extends Command
 {
@@ -26,13 +26,17 @@ class SyncProblemsCommand extends Command
         $platform = strtolower((string) $this->argument('platform'));
         $adapter = $this->resolveAdapter($platform);
 
-        Log::info('Problem sync validation started', [
+        app(ApplicationLogger::class)->info('Problem sync validation started', [
+            'category' => 'sync',
             'platform' => $platform,
+            'source' => self::class,
         ]);
 
         if ($adapter === null) {
-            Log::warning('Problem sync validation skipped: unsupported platform', [
+            app(ApplicationLogger::class)->warning('Problem sync validation skipped: unsupported platform', [
+                'category' => 'sync',
                 'platform' => $platform,
+                'source' => self::class,
             ]);
 
             $this->error('Unsupported platform: ' . $platform);
@@ -54,13 +58,15 @@ class SyncProblemsCommand extends Command
             $progressBar->finish();
             $this->newLine(2);
 
-            Log::error('Problem sync validation failed', [
+            app(ApplicationLogger::class)->error('Problem sync validation failed', [
+                'category' => 'sync',
                 'platform' => $platform,
+                'source' => self::class,
                 'message' => $e->getMessage(),
                 'exception' => get_class($e),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
-            ]);
+            ], $e);
 
             $this->error('Error fetching problems: ' . $e->getMessage());
 
@@ -81,8 +87,10 @@ class SyncProblemsCommand extends Command
         if ($firstProblem === null) {
             $this->warn('No problems found.');
 
-            Log::warning('Problem sync validation returned no problems', [
+            app(ApplicationLogger::class)->warning('Problem sync validation returned no problems', [
+                'category' => 'sync',
                 'platform' => $platform,
+                'source' => self::class,
             ]);
 
             return self::SUCCESS;
@@ -93,8 +101,10 @@ class SyncProblemsCommand extends Command
         $this->info('First platformProblemId: ' . $firstProblem->platformProblemId);
         $this->info('First contestPlatformId: ' . ($firstProblem->contestPlatformId ?? 'N/A'));
 
-        Log::info('Problem sync validation completed', [
+        app(ApplicationLogger::class)->info('Problem sync validation completed', [
+            'category' => 'sync',
             'platform' => $platform,
+            'source' => self::class,
             'problem_count' => count($problems),
             'first_problem_platform_problem_id' => $firstProblem->platformProblemId,
             'first_problem_contest_platform_id' => $firstProblem->contestPlatformId ?? null,

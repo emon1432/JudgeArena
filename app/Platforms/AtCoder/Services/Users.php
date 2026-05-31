@@ -6,6 +6,7 @@ use App\Platforms\AtCoder\Services\AtCoderHtmlScraper;
 use App\Platforms\AtCoder\DTOs\AtCoderUserDTO;
 use App\Platforms\AtCoder\Mappers\AtCoderUserMapper;
 use App\Platforms\AtCoder\Support\ResponseNormalizer;
+use App\Services\ApplicationLogger;
 use RuntimeException;
 
 class Users
@@ -68,6 +69,13 @@ class Users
 
             return true;
         } catch (RuntimeException $e) {
+            app(ApplicationLogger::class)->warning('AtCoder user lookup failed', [
+                'category' => 'api',
+                'platform' => 'atcoder',
+                'source' => self::class,
+                'user_handle' => $handle,
+            ], $e);
+
             return false;
         }
     }

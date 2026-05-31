@@ -2,10 +2,10 @@
 
 namespace App\Platforms\AtCoder\Client;
 
+use App\Services\ApplicationLogger;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 use RuntimeException;
 
 class BaseClient
@@ -79,7 +79,10 @@ class BaseClient
     protected function decodeApiResponse(Response $response, string $method, array $query): array
     {
         if (! $response->ok()) {
-            Log::warning('AtCoder HTTP request failed', [
+            app(ApplicationLogger::class)->warning('AtCoder HTTP request failed', [
+                'category' => 'api',
+                'platform' => 'atcoder',
+                'source' => self::class,
                 'method' => $method,
                 'status' => $response->status(),
                 'query' => $query,

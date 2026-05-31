@@ -7,6 +7,7 @@ use App\Http\Requests\ContactRequest;
 use App\Mail\ContactMessageMail;
 use App\Models\ContactMessage;
 use App\Models\Platform;
+use App\Services\ApplicationLogger;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 
@@ -64,6 +65,13 @@ class WebsiteController extends Controller
             try {
                 Mail::to($recipientEmail)->send(new ContactMessageMail($contactMessage));
             } catch (\Throwable $e) {
+                app(ApplicationLogger::class)->error('Website contact mail send failed', [
+                    'category' => 'user',
+                    'source' => self::class,
+                    'recipient' => $recipientEmail,
+                    'contact_message_id' => $contactMessage->id,
+                ], $e);
+
                 report($e);
             }
         }

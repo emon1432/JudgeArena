@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Platforms\AtCoder\AtCoderAdapter;
 use App\Platforms\Codeforces\CodeforcesAdapter;
+use App\Services\ApplicationLogger;
 use Illuminate\Console\Command;
 
 class SyncContestsCommand extends Command
@@ -30,6 +31,12 @@ class SyncContestsCommand extends Command
         };
 
         if ($adapter === null) {
+            app(ApplicationLogger::class)->warning('Contest sync validation skipped: unsupported platform', [
+                'category' => 'sync',
+                'platform' => $platform,
+                'source' => self::class,
+            ]);
+
             $this->error('Unsupported platform: ' . $platform);
             $this->line('Supported platforms: codeforces, atcoder');
 
@@ -42,19 +49,47 @@ class SyncContestsCommand extends Command
         $progressBar->setMessage('Loading contest list');
         $progressBar->start();
 
-        $contests = $adapter->getContests();
-        $progressBar->setMessage('Contest list loaded');
-        $progressBar->advance();
-        $progressBar->finish();
-        $this->newLine(2);
+        try {
+            $contests = $adapter->getContests();
+            $progressBar->setMessage('Contest list loaded');
+            $progressBar->advance();
+            $progressBar->finish();
+            $this->newLine(2);
 
-        $firstContest = $contests[0] ?? null;
+            $firstContest = $contests[0] ?? null;
 
-        $this->info('Platform: ' . $platform);
-        $this->info('Total contests: ' . count($contests));
-        $this->info('First contest title: ' . ($firstContest?->title ?? 'N/A'));
-        $this->info('First contest platformContestId: ' . ($firstContest?->platformContestId ?? 'N/A'));
+            $this->info('Platform: ' . $platform);
+            $this->info('Total contests: ' . count($contests));
+            $this->info('First contest title: ' . ($firstContest?->title ?? 'N/A'));
+            $this->info('First contest platformContestId: ' . ($firstContest?->platformContestId ?? 'N/A'));
 
-        return self::SUCCESS;
+            app(ApplicationLogger::class)->info('Contest sync validation completed', [
+                'category' => 'sync',
+                'platform' => $platform,
+                'source' => self::class,
+                'contest_count' => count($contests),
+                'first_contest_platform_contest_id' => $firstContest?->platformContestId ?? null,
+            ]);
+
+            return self::SUCCESS;
+        } catch (\Throwable $e) {
+            $progressBar->setMessage('Contest list request failed');
+            $progressBar->finish();
+            $this->newLine(2);
+
+            app(ApplicationLogger::class)->error('Contest sync validation failed', [
+                'category' => 'sync',
+                'platform' => $platform,
+                'source' => self::class,
+                'message' => $e->getMessage(),
+                'exception' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ], $e);
+
+            $this->error('Error fetching contests: ' . $e->getMessage());
+
+            return self::FAILURE;
+        }
     }
 }

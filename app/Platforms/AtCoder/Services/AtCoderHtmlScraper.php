@@ -2,10 +2,10 @@
 
 namespace App\Platforms\AtCoder\Services;
 
+use App\Services\ApplicationLogger;
 use DOMDocument;
 use DOMXPath;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 use RuntimeException;
 
 class AtCoderHtmlScraper
@@ -347,7 +347,12 @@ class AtCoderHtmlScraper
         $password = (string) config('platforms.atcoder.credentials.atcoder_password', '');
 
         if ($username === '' || $password === '') {
-            Log::info('AtCoderHtmlScraper: no credentials or session cookie configured, skipping authentication');
+            app(ApplicationLogger::class)->info('AtCoder authentication skipped', [
+                'category' => 'authentication',
+                'platform' => 'atcoder',
+                'source' => self::class,
+                'reason' => 'no credentials or session cookie configured',
+            ]);
 
             return;
         }
@@ -358,14 +363,23 @@ class AtCoderHtmlScraper
                 ->get(self::LOGIN_URL);
 
             if (! $getResp->successful()) {
-                Log::warning('AtCoderHtmlScraper: failed to fetch login page, status ' . $getResp->status());
+                app(ApplicationLogger::class)->warning('AtCoder login page request failed', [
+                    'category' => 'scraper',
+                    'platform' => 'atcoder',
+                    'source' => self::class,
+                    'status' => $getResp->status(),
+                ]);
 
                 return;
             }
 
             $csrf = $this->extractCsrfToken($getResp->body());
             if ($csrf === null) {
-                Log::warning('AtCoderHtmlScraper: csrf token not found on login page');
+                app(ApplicationLogger::class)->warning('AtCoder login page missing csrf token', [
+                    'category' => 'scraper',
+                    'platform' => 'atcoder',
+                    'source' => self::class,
+                ]);
 
                 return;
             }
@@ -407,7 +421,11 @@ class AtCoderHtmlScraper
             $cookiePairs = array_values(array_unique($cookiePairs));
             $this->sessionCookies = implode('; ', $cookiePairs);
         } catch (\Exception $exception) {
-            Log::error('AtCoderHtmlScraper: authentication error - ' . $exception->getMessage());
+            app(ApplicationLogger::class)->error('AtCoder authentication failed', [
+                'category' => 'authentication',
+                'platform' => 'atcoder',
+                'source' => self::class,
+            ], $exception);
         }
     }
 
@@ -519,7 +537,14 @@ class AtCoderHtmlScraper
             }
 
             return $maxPage;
-        } catch (\Exception) {
+        } catch (\Exception $exception) {
+            app(ApplicationLogger::class)->warning('AtCoder scraper failed to detect max pages', [
+                'category' => 'scraper',
+                'platform' => 'atcoder',
+                'source' => self::class,
+                'operation' => 'extractMaxPages',
+            ], $exception);
+
             return 100;
         }
     }
@@ -586,7 +611,13 @@ class AtCoderHtmlScraper
             }
 
             $this->respectRateLimit();
-        } catch (\Exception) {
+        } catch (\Exception $exception) {
+            app(ApplicationLogger::class)->warning('AtCoder scraper failed while reading permanent contests', [
+                'category' => 'scraper',
+                'platform' => 'atcoder',
+                'source' => self::class,
+                'operation' => 'getPermanentContests',
+            ], $exception);
         }
 
         return $contests;
@@ -633,7 +664,13 @@ class AtCoderHtmlScraper
                     'type' => 'hidden',
                 ];
             }
-        } catch (\Exception) {
+        } catch (\Exception $exception) {
+            app(ApplicationLogger::class)->warning('AtCoder scraper failed while reading hidden contests', [
+                'category' => 'scraper',
+                'platform' => 'atcoder',
+                'source' => self::class,
+                'operation' => 'getHiddenContests',
+            ], $exception);
         }
 
         return $contests;
@@ -680,7 +717,13 @@ class AtCoderHtmlScraper
                     'type' => 'historical',
                 ];
             }
-        } catch (\Exception) {
+        } catch (\Exception $exception) {
+            app(ApplicationLogger::class)->warning('AtCoder scraper failed while reading historical contests', [
+                'category' => 'scraper',
+                'platform' => 'atcoder',
+                'source' => self::class,
+                'operation' => 'getHistoricalContests',
+            ], $exception);
         }
 
         return $contests;

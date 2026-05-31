@@ -67,6 +67,12 @@
             <span class="menu-header-text">{{ __('System') }}</span>
         </li>
         <li class="menu-item">
+            <a href="{{ route('logs.index') }}" class="menu-link">
+                <i class="menu-icon icon-base ti tabler-list-details"></i>
+                <div>{{ __('Logs') }}</div>
+            </a>
+        </li>
+        <li class="menu-item">
             <a href="{{ route('admins.index') }}" class="menu-link">
                 <i class="menu-icon icon-base ti tabler-shield-check"></i>
                 <div>{{ __('Admins') }}</div>

@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PlatformRequest;
 use App\Models\Platform;
+use App\Services\ApplicationLogger;
 use App\Support\Datatable\ServerSideDatatable;
 use App\View\Components\Actions;
 use App\View\Components\PlatformInfo;
 use App\View\Components\StatusBadge;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PlatformController extends Controller
 {
@@ -53,6 +55,13 @@ class PlatformController extends Controller
                 'redirect' => route('platforms.index'),
             ]);
         } catch (\Exception $e) {
+            app(ApplicationLogger::class)->error('Platform create failed', [
+                'category' => 'admin',
+                'source' => self::class,
+                'resource' => 'platforms',
+                'platform_name' => $request->name,
+            ], $e);
+
             return response()->json([
                 'status' => 500,
                 'message' => __('Whoops! Something went wrong. Please try again later. Error: ') . $e->getMessage(),
@@ -98,6 +107,13 @@ class PlatformController extends Controller
                 'redirect' => route('platforms.index'),
             ]);
         } catch (\Exception $e) {
+            app(ApplicationLogger::class)->error('Platform update failed', [
+                'category' => 'admin',
+                'source' => self::class,
+                'resource' => 'platforms',
+                'platform_id' => $platform->id,
+            ], $e);
+
             return response()->json([
                 'status' => 500,
                 'message' => __('Whoops! Something went wrong. Please try again later. Error: ') . $e->getMessage(),
@@ -118,6 +134,13 @@ class PlatformController extends Controller
                 'redirect' => route('platforms.index'),
             ]);
         } catch (\Exception $e) {
+            app(ApplicationLogger::class)->error('Platform delete failed', [
+                'category' => 'admin',
+                'source' => self::class,
+                'resource' => 'platforms',
+                'platform_id' => $platform->id,
+            ], $e);
+
             return response()->json([
                 'status' => 500,
                 'message' => __('Whoops! Something went wrong. Please try again later. Error: ') . $e->getMessage(),
@@ -158,6 +181,9 @@ class PlatformController extends Controller
 
                 $platform->info = (new PlatformInfo($platform))->render()->render();
                 $platform->base_url = '<a href="' . e($platform->base_url) . '" target="_blank">' . e($platform->base_url) . '</a>';
+                $platform->total_contests = $platform->contests()->count();
+                $platform->total_problems = $platform->problems()->count();
+                $platform->total_users = $platform->platformProfiles()->count();
                 $platform->status = (new StatusBadge($platform->status))->render()->render();
 
                 return $platform;

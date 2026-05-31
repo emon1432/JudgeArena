@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserRequest;
 use App\Models\User;
+use App\Services\ApplicationLogger;
 use App\Support\Datatable\ServerSideDatatable;
 use App\View\Components\Actions;
 use App\View\Components\UserInfo;
@@ -39,6 +40,13 @@ class AdminController extends Controller
                 'redirect' => route('admins.index'),
             ]);
         } catch (\Exception $e) {
+            app(ApplicationLogger::class)->error('Admin create failed', [
+                'category' => 'admin',
+                'source' => self::class,
+                'resource' => 'admins',
+                'admin_email' => $request->email,
+            ], $e);
+
             return response()->json([
                 'status' => 500,
                 'message' => __('Whoops! Something went wrong. Please try again later. Error: ') . $e->getMessage(),
@@ -71,6 +79,13 @@ class AdminController extends Controller
                 'redirect' => route('admins.index'),
             ]);
         } catch (\Exception $e) {
+            app(ApplicationLogger::class)->error('Admin update failed', [
+                'category' => 'admin',
+                'source' => self::class,
+                'resource' => 'admins',
+                'admin_id' => $admin->id,
+            ], $e);
+
             return response()->json([
                 'status' => 500,
                 'message' => __('Whoops! Something went wrong. Please try again later. Error: ') . $e->getMessage(),
@@ -90,6 +105,13 @@ class AdminController extends Controller
                 'redirect' => route('admins.index'),
             ]);
         } catch (\Exception $e) {
+            app(ApplicationLogger::class)->error('Admin delete failed', [
+                'category' => 'admin',
+                'source' => self::class,
+                'resource' => 'admins',
+                'admin_id' => $admin->id,
+            ], $e);
+
             return response()->json([
                 'status' => 500,
                 'message' => __('Whoops! Something went wrong. Please try again later. Error: ') . $e->getMessage(),

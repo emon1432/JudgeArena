@@ -6,9 +6,9 @@ use App\Models\Contest;
 use App\Models\Problem;
 use App\Platforms\AtCoder\AtCoderAdapter;
 use App\Platforms\Codeforces\CodeforcesAdapter;
+use App\Services\ApplicationLogger;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class ImportProblemsCommand extends Command
@@ -32,8 +32,10 @@ class ImportProblemsCommand extends Command
         $platformSlug = is_string($platform) ? strtolower(trim($platform)) : null;
         $platformLabel = $platformSlug !== null && $platformSlug !== '' ? $platformSlug : 'all';
 
-        Log::info('Problem import started', [
+        app(ApplicationLogger::class)->info('Problem import started', [
+            'category' => 'import',
             'platform' => $platformLabel,
+            'source' => self::class,
         ]);
 
         try {
@@ -41,13 +43,15 @@ class ImportProblemsCommand extends Command
                 $platformLabel === 'all' ? null : $platformLabel
             );
         } catch (Throwable $e) {
-            Log::error('Problem import failed', [
+            app(ApplicationLogger::class)->error('Problem import failed', [
+                'category' => 'import',
                 'platform' => $platformLabel,
+                'source' => self::class,
                 'message' => $e->getMessage(),
                 'exception' => get_class($e),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
-            ]);
+            ], $e);
 
             $this->error('Problem import failed.');
             $this->line($e->getMessage());
@@ -66,8 +70,10 @@ class ImportProblemsCommand extends Command
         $this->line('Problems Updated: ' . ($stats['problems_updated'] ?? 0));
         $this->info('Problem import completed successfully.');
 
-        Log::info('Problem import completed', [
+        app(ApplicationLogger::class)->info('Problem import completed', [
+            'category' => 'import',
             'platform' => $platformLabel,
+            'source' => self::class,
             'contests_checked' => $stats['contests_checked'] ?? 0,
             'contests_synced' => $stats['contests_synced'] ?? 0,
             'contests_already_synced' => $stats['contests_already_synced'] ?? 0,
@@ -136,8 +142,10 @@ class ImportProblemsCommand extends Command
             if ($adapter === null) {
                 $stats['contests_unsupported_platform'] += $platformContests->count();
 
-                Log::warning('Skipping contests for unsupported platform', [
+                app(ApplicationLogger::class)->warning('Skipping contests for unsupported platform', [
+                    'category' => 'sync',
                     'platform' => $platformSlugKey,
+                    'source' => self::class,
                     'contest_count' => $platformContests->count(),
                 ]);
 
@@ -205,8 +213,10 @@ class ImportProblemsCommand extends Command
                 } catch (Throwable $e) {
                     $stats['contests_failed']++;
 
-                    Log::error('Problem sync failed', [
+                    app(ApplicationLogger::class)->error('Problem sync failed', [
+                        'category' => 'sync',
                         'platform' => $platformSlugKey,
+                        'source' => self::class,
                         'contest_id' => $contest->id,
                         'platform_contest_id' => $contest->platform_contest_id,
                         'contest_name' => $contest->name,
@@ -214,7 +224,7 @@ class ImportProblemsCommand extends Command
                         'exception' => get_class($e),
                         'file' => $e->getFile(),
                         'line' => $e->getLine(),
-                    ]);
+                    ], $e);
                 } finally {
                     if ($progressBar !== null) {
                         $progressBar->advance();

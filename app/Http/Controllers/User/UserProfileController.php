@@ -9,6 +9,7 @@ use App\Models\Country;
 use App\Models\Platform;
 use App\Models\PlatformProfile;
 use App\Models\User;
+use App\Services\ApplicationLogger;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -118,6 +119,14 @@ class UserProfileController extends Controller
             try {
                 Mail::to($recipientEmail)->send(new ContactMessageMail($contactMessage));
             } catch (\Throwable $e) {
+                app(ApplicationLogger::class)->error('Institute request mail send failed', [
+                    'category' => 'user',
+                    'source' => self::class,
+                    'recipient' => $recipientEmail,
+                    'user_id' => $user->id,
+                    'institute_name' => $validated['name'],
+                ], $e);
+
                 report($e);
             }
         }
