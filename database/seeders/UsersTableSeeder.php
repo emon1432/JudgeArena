@@ -14,12 +14,12 @@ class UsersTableSeeder extends Seeder
      */
     public function run()
     {
-
+        
 
         \DB::table('users')->delete();
-
+        
         \DB::table('users')->insert(array (
-            0 =>
+            0 => 
             array (
                 'id' => 1,
                 'name' => 'Emon Admin',
@@ -49,7 +49,7 @@ class UsersTableSeeder extends Seeder
                 'created_at' => NULL,
                 'updated_at' => NULL,
             ),
-            1 =>
+            1 => 
             array (
                 'id' => 2,
                 'name' => 'Top Users',
@@ -79,7 +79,7 @@ class UsersTableSeeder extends Seeder
                 'created_at' => NULL,
                 'updated_at' => '2026-02-06 11:55:00',
             ),
-            2 =>
+            2 => 
             array (
                 'id' => 3,
                 'name' => 'Khairul Islam Emon',
@@ -110,7 +110,7 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2026-02-09 08:28:34',
             ),
         ));
-
-
+        
+        
     }
 }

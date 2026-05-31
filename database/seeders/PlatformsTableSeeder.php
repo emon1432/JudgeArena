@@ -14,12 +14,12 @@ class PlatformsTableSeeder extends Seeder
      */
     public function run()
     {
-
+        
 
         \DB::table('platforms')->delete();
-
+        
         \DB::table('platforms')->insert(array (
-            0 =>
+            0 => 
             array (
                 'id' => 1,
                 'name' => 'Codeforces',
@@ -34,7 +34,7 @@ class PlatformsTableSeeder extends Seeder
                 'created_at' => '2026-05-27 09:43:28',
                 'updated_at' => '2026-05-30 12:06:00',
             ),
-            1 =>
+            1 => 
             array (
                 'id' => 2,
                 'name' => 'AtCoder',
@@ -50,7 +50,7 @@ class PlatformsTableSeeder extends Seeder
                 'updated_at' => '2026-05-30 12:05:25',
             ),
         ));
-
-
+        
+        
     }
 }

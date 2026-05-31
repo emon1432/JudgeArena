@@ -14,12 +14,12 @@
                 @forelse ($platforms as $key => $platform)
                     <div class="mb-4">
                         <label for="{{ $platform->name }}" class="form-label fw-600">
-                            <img src="{{ imageShow($platform->image) }}" alt="{{ $platform->display_name }}"
+                            <img src="{{ imageShow($platform->icon) }}" alt="{{ $platform->name }}"
                                 width="24" height="24" class="me-2">
-                            {{ $platform->display_name }}
+                            {{ $platform->name }}
                             @if ($platform->name === 'uva')
                                 <span data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="top"
-                                    title="<img src='{{ asset('web/img/uva-user-id.png') }}' alt='{{ $platform->display_name }}' width='500'>">
+                                    title="<img src='{{ asset('web/img/uva-user-id.png') }}' alt='{{ $platform->name }}' width='500'>">
                                     (<p class="d-inline-block ms-1 mb-0 text-muted" style="font-size: 0.9em;">
                                         See example
                                     </p>

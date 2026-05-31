@@ -23,16 +23,16 @@
                                 <div class="d-flex align-items-center gap-3">
                                     <div class="platform-icon-bg"
                                         style="width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%); font-size: 1.5rem;">
-                                        @if ($platform->image && imageExists($platform->image))
-                                            <img src="{{ imageShow($platform->image) }}"
-                                                alt="{{ $platform->display_name }} Logo"
+                                        @if ($platform->icon && imageExists($platform->icon))
+                                            <img src="{{ imageShow($platform->icon) }}"
+                                                alt="{{ $platform->name }} Logo"
                                                 style="width: 30px; height: 30px;">
                                         @else
                                             {{ '🏆' }}
                                         @endif
                                     </div>
                                     <div>
-                                        <p class="mb-0 fw-600">{{ $platform->display_name }}</p>
+                                        <p class="mb-0 fw-600">{{ $platform->name }}</p>
                                     </div>
                                 </div>
                             </td>

@@ -24,5 +24,11 @@ class DatabaseSeeder extends Seeder
         $this->call(PlatformProfilesTableSeeder::class);
         $this->call(ContestsTableSeeder::class);
         $this->call(ProblemsTableSeeder::class);
+        $this->call(ContestRatingChangesTableSeeder::class);
+        $this->call(PlatformSyncStatesTableSeeder::class);
+        $this->call(StandingTaskResultsTableSeeder::class);
+        $this->call(StandingsTableSeeder::class);
+        $this->call(SubmissionsTableSeeder::class);
+        $this->call(ApplicationLogsTableSeeder::class);
     }
 }
