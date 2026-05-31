@@ -10,7 +10,6 @@ readonly class CodeforcesProblemDTO
      */
     public function __construct(
         public ?string $contestId,
-        public ?string $problemsetName,
         public ?string $index,
         public ?string $name,
         public ?string $type,
@@ -18,5 +17,6 @@ readonly class CodeforcesProblemDTO
         public ?int $rating,
         public array $tags,
         public array $raw,
+        public ?int $solvedCount = null,
     ) {}
 }

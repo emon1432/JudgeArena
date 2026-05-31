@@ -14,6 +14,7 @@ readonly class ProblemDTO
 		public ?int $rating = null,
 		public array $tags = [],
 		public array $raw = [],
+        public ?int $solvedCount = null,
 	) {
 	}
 }

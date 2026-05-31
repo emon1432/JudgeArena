@@ -182,7 +182,6 @@ final class ResponseNormalizer
     {
         return array_merge([
             'contestId' => null,
-            'problemsetName' => null,
             'index' => null,
             'name' => null,
             'type' => null,

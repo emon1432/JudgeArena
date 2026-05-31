@@ -16,9 +16,9 @@ class Problems
     ) {}
 
     /**
-     * @return array{problems: \App\Platforms\Codeforces\DTOs\CodeforcesProblemDTO[], problemStatistics: array<int, array<string, mixed>>}
+     * @return array{problems: \App\Platforms\Codeforces\DTOs\CodeforcesProblemDTO[]}
      */
-    public function list(?array $tags = null, ?string $problemsetName = null): array
+    public function list(?array $tags = null): array
     {
         $query = [];
 
@@ -26,29 +26,43 @@ class Problems
             $query['tags'] = implode(';', $tags);
         }
 
-        if ($problemsetName !== null && $problemsetName !== '') {
-            $query['problemsetName'] = $problemsetName;
-        }
-
         $result = $this->client->requestApi('problemset.problems', $query);
         $normalizedProblems = ResponseNormalizer::problems(Arr::get($result, 'problems', []));
+        $normalizedStatistics = ResponseNormalizer::problemStatisticsList(Arr::get($result, 'problemStatistics', []));
+
+        //merge problems and statistics by contestId and index, add new key 'solvedCount' to problem
+        $problemsWithStatistics = collect($normalizedProblems)->map(function (array $problem) use ($normalizedStatistics) {
+            $contestId = Arr::get($problem, 'contestId');
+            $index = Arr::get($problem, 'index');
+
+            if ($contestId === null || $index === null) {
+                return $problem;
+            }
+
+            $matchingStatistics = collect($normalizedStatistics)->firstWhere(function (array $statistic) use ($contestId, $index) {
+                return Arr::get($statistic, 'contestId') === $contestId && Arr::get($statistic, 'index') === $index;
+            });
+
+            if ($matchingStatistics !== null) {
+                $problem['solvedCount'] = Arr::get($matchingStatistics, 'solvedCount', 0);
+            } else {
+                $problem['solvedCount'] = 0;
+            }
+
+            return $problem;
+        })->all();
 
         return [
-            'problems' => CodeforcesProblemMapper::fromNormalizedList($normalizedProblems),
-            'problemStatistics' => ResponseNormalizer::problemStatisticsList(Arr::get($result, 'problemStatistics', [])),
+            'problems' => CodeforcesProblemMapper::fromNormalizedList($problemsWithStatistics),
         ];
     }
 
     /** @return CodeforcesSubmissionDTO[] */
-    public function recentStatus(int $count, ?string $problemsetName = null): array
+    public function recentStatus(int $count): array
     {
         $query = [
             'count' => max(1, min(1000, $count)),
         ];
-
-        if ($problemsetName !== null && $problemsetName !== '') {
-            $query['problemsetName'] = $problemsetName;
-        }
 
         return CodeforcesSubmissionMapper::fromNormalizedList(
             ResponseNormalizer::submissions($this->client->requestApi('problemset.recentStatus', $query))
@@ -74,7 +88,7 @@ class Problems
     public function acceptedProblemIds(array $submissions): array
     {
         return collect($submissions)
-            ->filter(fn (CodeforcesSubmissionDTO $submission): bool => $submission->verdict === 'OK')
+            ->filter(fn(CodeforcesSubmissionDTO $submission): bool => $submission->verdict === 'OK')
             ->map(function (CodeforcesSubmissionDTO $submission): ?string {
                 $problem = $submission->problem;
 

@@ -42,7 +42,6 @@ class CodeforcesTransformersTest extends TestCase
         $problem = $standings['problems'][0];
         $problemDto = new CodeforcesProblemDTO(
             contestId: isset($problem['contestId']) ? (string) $problem['contestId'] : null,
-            problemsetName: $problem['problemsetName'] ?? null,
             index: isset($problem['index']) ? (string) $problem['index'] : null,
             name: $problem['name'] ?? null,
             type: $problem['type'] ?? null,

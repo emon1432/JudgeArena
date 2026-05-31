@@ -40,7 +40,6 @@ class CodeforcesAdapter implements PlatformAdapter
 
 		return [
 			'problems' => $this->problemTransformer->fromApiProblems($result['problems'] ?? []),
-			'problemStatistics' => $result['problemStatistics'] ?? [],
 		];
 	}
 

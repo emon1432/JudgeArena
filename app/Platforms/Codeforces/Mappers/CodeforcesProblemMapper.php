@@ -14,7 +14,6 @@ final class CodeforcesProblemMapper
 
         return new CodeforcesProblemDTO(
             contestId: isset($problem['contestId']) ? (string) $problem['contestId'] : null,
-            problemsetName: $problem['problemsetName'] ?? null,
             index: isset($problem['index']) ? (string) $problem['index'] : null,
             name: $problem['name'] ?? null,
             type: $problem['type'] ?? null,
@@ -22,6 +21,7 @@ final class CodeforcesProblemMapper
             rating: isset($problem['rating']) ? (int) $problem['rating'] : null,
             tags: is_array($problem['tags'] ?? null) ? $problem['tags'] : [],
             raw: $problem,
+            solvedCount: isset($problem['solvedCount']) ? (int) $problem['solvedCount'] : null,
         );
     }
 

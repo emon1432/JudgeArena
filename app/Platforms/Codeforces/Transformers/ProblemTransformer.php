@@ -20,6 +20,7 @@ class ProblemTransformer
             rating: $problem->rating,
             tags: $problem->tags,
             raw: $problem->raw,
+            solvedCount: $problem->solvedCount,
         );
     }
 
