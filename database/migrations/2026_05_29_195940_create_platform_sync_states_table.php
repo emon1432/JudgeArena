@@ -16,27 +16,26 @@ return new class extends Migration
             $table->foreignId('platform_id')
                 ->constrained('platforms')
                 ->cascadeOnDelete();
-            $table->string('resource', 100);
-            $table->text('cursor')->nullable();
+            $table->string('entity_type', 50);
+            $table->string('entity_platform_id', 191)->nullable();
+            $table->string('sync_status', 20)->default('pending');
             $table->timestamp('last_synced_at')->nullable();
-            $table->timestamp('next_allowed_at')->nullable();
+            $table->timestamp('last_attempted_at')->nullable();
             $table->text('last_error')->nullable();
-            $table->unsignedInteger('retry_count')->default(0);
             $table->json('metadata')->nullable();
-            $table->string('status', 50)->default('Active');
             $table->timestamps();
             $table->unique(
-                ['platform_id', 'resource'],
-                'unique_platform_resource_sync_state'
+                ['platform_id', 'entity_type', 'entity_platform_id'],
+                'unique_platform_entity_sync_state'
             );
             $table->index('platform_id');
-            $table->index('resource');
-            $table->index('status');
+            $table->index('entity_type');
+            $table->index('sync_status');
             $table->index('last_synced_at');
-            $table->index('next_allowed_at');
+            $table->index('last_attempted_at');
             $table->index(
-                ['status', 'next_allowed_at'],
-                'status_next_allowed_index'
+                ['platform_id', 'entity_type', 'sync_status'],
+                'platform_entity_status_index'
             );
         });
     }

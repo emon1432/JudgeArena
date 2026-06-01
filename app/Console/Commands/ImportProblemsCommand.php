@@ -2,11 +2,13 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\PlatformSyncEntityType;
 use App\Models\Contest;
 use App\Models\Problem;
 use App\Platforms\AtCoder\AtCoderAdapter;
 use App\Platforms\Codeforces\CodeforcesAdapter;
 use App\Services\ApplicationLogger;
+use App\Services\PlatformSyncStateService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use Throwable;
@@ -20,6 +22,7 @@ class ImportProblemsCommand extends Command
     public function __construct(
         private readonly Contest $contestModel,
         private readonly Problem $problemModel,
+        private readonly PlatformSyncStateService $platformSyncStateService,
         private readonly CodeforcesAdapter $codeforcesAdapter,
         private readonly AtCoderAdapter $atCoderAdapter,
     ) {
@@ -90,8 +93,7 @@ class ImportProblemsCommand extends Command
     private function sync(?string $platformSlug = null): array
     {
         $query = $this->contestModel->newQuery()
-            ->with('platform')
-            ->withCount('problems');
+            ->with('platform');
 
         $normalizedPlatformSlug = $this->normalizePlatformSlug($platformSlug);
         if ($normalizedPlatformSlug !== null) {
@@ -101,11 +103,24 @@ class ImportProblemsCommand extends Command
         }
 
         $contests = $query->get();
-        // TODO: Replace problems_count heuristic with explicit sync tracking using platform_sync_states.
-        // Reason: A contest may contain some imported problems while still being incomplete.
-        $pendingContests = $contests->filter(
-            fn(Contest $contest): bool => (int) ($contest->problems_count ?? 0) === 0
-        );
+        // ContestProblem sync is independent from contest sync. A contest may
+        // already have some problems imported and still be incomplete, so the
+        // sync state is the only reliable source of truth here.
+        $pendingContests = $contests->filter(function (Contest $contest): bool {
+            $platform = $contest->platform;
+
+            if ($platform === null || $contest->platform_contest_id === null || $contest->platform_contest_id === '') {
+                return false;
+            }
+
+            $syncState = $this->platformSyncStateService->findState(
+                $platform,
+                PlatformSyncEntityType::ContestProblems,
+                (string) $contest->platform_contest_id
+            );
+
+            return $this->platformSyncStateService->canBeRetried($syncState);
+        });
         $pendingContestCount = $pendingContests->count();
 
         $progressBar = null;
@@ -122,7 +137,19 @@ class ImportProblemsCommand extends Command
             'contests_checked' => $contests->count(),
             'contests_synced' => 0,
             'contests_already_synced' => $contests->filter(
-                fn(Contest $contest): bool => (int) ($contest->problems_count ?? 0) > 0
+                function (Contest $contest): bool {
+                    $platform = $contest->platform;
+
+                    if ($platform === null || $contest->platform_contest_id === null || $contest->platform_contest_id === '') {
+                        return false;
+                    }
+
+                    return $this->platformSyncStateService->isSynced(
+                        $platform,
+                        PlatformSyncEntityType::ContestProblems,
+                        (string) $contest->platform_contest_id
+                    );
+                }
             )->count(),
             'contests_failed' => 0,
             'contests_unsupported_platform' => 0,
@@ -158,6 +185,23 @@ class ImportProblemsCommand extends Command
             }
 
             foreach ($platformContests as $contest) {
+                // Mark the row as syncing before we fetch data so retries stay
+                // idempotent and concurrent runs do not double-process it.
+                $syncState = $this->platformSyncStateService->markSyncing(
+                    $contest->platform,
+                    PlatformSyncEntityType::ContestProblems,
+                    (string) $contest->platform_contest_id,
+                    [
+                        'contest_id' => $contest->id,
+                        'contest_name' => $contest->name,
+                        'platform_slug' => $platformSlugKey,
+                    ]
+                );
+
+                if ($syncState === null) {
+                    continue;
+                }
+
                 if ($progressBar !== null) {
                     $progressBar->setMessage(sprintf(
                         'Syncing contest %s',
@@ -209,9 +253,17 @@ class ImportProblemsCommand extends Command
                         $stats['problems_updated']++;
                     }
 
+                    $this->platformSyncStateService->markSynced($syncState, [
+                        'problem_count' => count($problems),
+                    ]);
                     $stats['contests_synced']++;
                 } catch (Throwable $e) {
                     $stats['contests_failed']++;
+
+                    $this->platformSyncStateService->markFailed($syncState, $e, [
+                        'contest_id' => $contest->id,
+                        'contest_name' => $contest->name,
+                    ]);
 
                     app(ApplicationLogger::class)->error('Problem sync failed', [
                         'category' => 'sync',

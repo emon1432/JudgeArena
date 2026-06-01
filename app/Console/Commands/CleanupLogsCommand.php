@@ -14,8 +14,8 @@ class CleanupLogsCommand extends Command
 
     public function handle(): int
     {
-        $retentionDays = (int) ($this->option('retention-days') ?: config('application_logs.retention_days', 90));
-        $criticalRetentionDays = (int) ($this->option('critical-retention-days') ?: config('application_logs.critical_retention_days', 365));
+        $retentionDays = (int) ($this->option('retention-days') ?: config('app.application_logs.retention_days', 90));
+        $criticalRetentionDays = (int) ($this->option('critical-retention-days') ?: config('app.application_logs.critical_retention_days', 365));
 
         $logger = app(ApplicationLogger::class);
         $logger->info('Application log cleanup started', [

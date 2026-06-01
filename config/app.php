@@ -123,4 +123,13 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'application_logs' => [
+        'retention_days' => env('APPLICATION_LOG_RETENTION_DAYS', 90),
+        'critical_retention_days' => env('APPLICATION_LOG_CRITICAL_RETENTION_DAYS', 365),
+    ],
+
+    'platform_sync' => [
+        'stale_sync_timeout_minutes' => (int) env('PLATFORM_SYNC_STALE_TIMEOUT_MINUTES', 120),
+    ],
+
 ];
