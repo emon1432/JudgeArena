@@ -2,12 +2,15 @@
 
 namespace App\Platforms\AtCoder\Services;
 
+use App\Core\DTOs\RatingChangeDTO;
 use App\Platforms\AtCoder\Services\AtCoderHtmlScraper;
 use App\Platforms\AtCoder\DTOs\AtCoderStandingsDTO;
 use App\Platforms\AtCoder\Mappers\AtCoderContestMapper;
+use App\Platforms\AtCoder\Mappers\AtCoderRatingChangeMapper;
 use App\Platforms\AtCoder\Mappers\AtCoderStandingsMapper;
 use App\Platforms\AtCoder\Mappers\AtCoderSubmissionMapper;
 use App\Platforms\AtCoder\Support\ResponseNormalizer;
+use App\Platforms\AtCoder\Transformers\AtCoderRatingChangeTransformer;
 
 class Contests
 {
@@ -43,12 +46,16 @@ class Contests
         );
     }
 
-    /** @return array<int, array<string, mixed>> */
+    /** @return RatingChangeDTO[] */
     public function ratingChanges(string $contestId): array
     {
-        return ResponseNormalizer::ratingChanges(
+        $normalized = ResponseNormalizer::ratingChanges(
             $this->scraper->getResults($contestId)
         );
+
+        $platformDtos = AtCoderRatingChangeMapper::fromNormalizedList($normalized);
+
+        return AtCoderRatingChangeTransformer::fromApiRatingChanges($platformDtos, $contestId);
     }
 
     /** @return array<string, mixed> */

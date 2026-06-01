@@ -3,6 +3,7 @@
 namespace App\Core\Contracts\Platforms;
 
 use App\Core\DTOs\ContestStandingsDTO;
+use App\Core\DTOs\RatingChangeDTO;
 use App\Core\DTOs\UserDTO;
 
 interface PlatformAdapter
@@ -24,6 +25,6 @@ interface PlatformAdapter
     /** @return \App\Core\DTOs\SubmissionDTO[] */
     public function getSubmissions(string $username, int $from = 1, int $count = 100): array;
 
-    /** @return array<int, array<string, mixed>> */
-    public function getRatingChanges(int $contestId): array;
+    /** @return RatingChangeDTO[] */
+    public function getRatingChanges(string $contestId): array;
 }

@@ -2,12 +2,15 @@
 
 namespace App\Platforms\Codeforces\Services;
 
+use App\Core\DTOs\RatingChangeDTO;
 use App\Platforms\Codeforces\Client\BaseClient;
 use App\Platforms\Codeforces\DTOs\CodeforcesStandingsDTO;
 use App\Platforms\Codeforces\Mappers\CodeforcesContestMapper;
+use App\Platforms\Codeforces\Mappers\CodeforcesRatingChangeMapper;
 use App\Platforms\Codeforces\Mappers\CodeforcesStandingsMapper;
 use App\Platforms\Codeforces\Mappers\CodeforcesSubmissionMapper;
 use App\Platforms\Codeforces\Support\ResponseNormalizer;
+use App\Platforms\Codeforces\Transformers\CodeforcesRatingChangeTransformer;
 
 class Contests
 {
@@ -61,12 +64,16 @@ class Contests
         );
     }
 
-    /** @return array<int, array<string, mixed>> */
-    public function ratingChanges(int $contestId): array
+    /** @return RatingChangeDTO[] */
+    public function ratingChanges(string $contestId): array
     {
-        return ResponseNormalizer::ratingChanges($this->client->requestApi('contest.ratingChanges', [
-            'contestId' => $contestId,
+        $normalized = ResponseNormalizer::ratingChanges($this->client->requestApi('contest.ratingChanges', [
+            'contestId' => (int) $contestId,
         ]));
+
+        $platformDtos = CodeforcesRatingChangeMapper::fromNormalizedList($normalized);
+
+        return CodeforcesRatingChangeTransformer::fromApiRatingChanges($platformDtos, $contestId);
     }
 
     /** @return array<int, array<string, mixed>> */

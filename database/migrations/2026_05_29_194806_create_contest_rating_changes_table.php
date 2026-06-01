@@ -24,6 +24,7 @@ return new class extends Migration
                 ->constrained('platform_profiles')
                 ->nullOnDelete();
             $table->string('handle', 100);
+            $table->boolean('is_rated')->nullable();
             $table->unsignedInteger('rank')->nullable();
             $table->integer('old_rating')->nullable();
             $table->integer('new_rating')->nullable();
@@ -47,6 +48,10 @@ return new class extends Migration
             $table->index(
                 ['platform_profile_id', 'new_rating'],
                 'profile_rating_index'
+            );
+            $table->index(
+                ['platform_id', 'handle'],
+                'platform_handle_index'
             );
         });
     }

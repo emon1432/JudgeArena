@@ -4,6 +4,7 @@ namespace App\Platforms\AtCoder;
 
 use App\Core\Contracts\Platforms\PlatformAdapter;
 use App\Core\DTOs\ContestStandingsDTO;
+use App\Core\DTOs\RatingChangeDTO;
 use App\Core\DTOs\UserDTO;
 use App\Platforms\AtCoder\Services\Contests;
 use App\Platforms\AtCoder\Services\Problems;
@@ -75,8 +76,8 @@ class AtCoderAdapter implements PlatformAdapter
         );
     }
 
-    /** @return array<int, array<string, mixed>> */
-    public function getRatingChanges(int $contestId): array
+    /** @return RatingChangeDTO[] */
+    public function getRatingChanges(string $contestId): array
     {
         return $this->contests->ratingChanges((string) $contestId);
     }
@@ -92,4 +93,3 @@ class AtCoderAdapter implements PlatformAdapter
         private readonly StandingsTransformer $standingsTransformer,
     ) {}
 }
-
