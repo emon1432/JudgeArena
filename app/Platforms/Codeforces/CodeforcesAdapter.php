@@ -17,73 +17,80 @@ use App\Platforms\Codeforces\Transformers\StandingsTransformer;
 
 class CodeforcesAdapter implements PlatformAdapter
 {
-	/** @return \App\Core\DTOs\ContestDTO[] */
-	public function getContests(): array
-	{
-		return $this->contestTransformer->fromApiContests(
-			$this->contests->list(),
-		);
-	}
+    /** @return \App\Core\DTOs\ContestDTO[] */
+    public function getContests(): array
+    {
+        return $this->contestTransformer->fromApiContests(
+            $this->contests->list(),
+        );
+    }
 
-	/** @return ContestStandingsDTO */
-	public function getContest(string $id): ContestStandingsDTO
-	{
-		return $this->standingsTransformer
-			->fromApiStandings($this->contests->standings((int) $id));
-	}
+    /** @return ContestStandingsDTO */
+    public function getContest(string $id): ContestStandingsDTO
+    {
+        return $this->standingsTransformer
+            ->fromApiStandings($this->contests->standings((int) $id));
+    }
 
-	/**
-	 * @return array{problems: \App\Core\DTOs\ProblemDTO[], problemStatistics: array<int, array<string, mixed>>}
-	 */
-	public function getProblems(): array
-	{
-		$result = $this->problems->list();
+    /**
+     * @return array{problems: \App\Core\DTOs\ProblemDTO[], problemStatistics: array<int, array<string, mixed>>}
+     */
+    public function getProblems(): array
+    {
+        $result = $this->problems->list();
 
-		return [
-			'problems' => $this->problemTransformer->fromApiProblems($result['problems'] ?? []),
-		];
-	}
+        return [
+            'problems' => $this->problemTransformer->fromApiProblems($result['problems'] ?? []),
+        ];
+    }
 
-	/**
-	 * @return array{problems: \App\Core\DTOs\ProblemDTO[], problemStatistics: array<int, array<string, mixed>>}
-	 */
-	public function getContestProblems(string $contestId): array
-	{
-		$contest = $this->contests->standings((int) $contestId);
+    /**
+     * @return array{problems: \App\Core\DTOs\ProblemDTO[], problemStatistics: array<int, array<string, mixed>>}
+     */
+    public function getContestProblems(string $contestId): array
+    {
+        $contest = $this->contests->standings((int) $contestId);
 
-		return [
-			'problems' => $this->problemTransformer->fromApiProblems($contest->problems),
-			'problemStatistics' => [],
-		];
-	}
+        return [
+            'problems' => $this->problemTransformer->fromApiProblems($contest->problems),
+            'problemStatistics' => [],
+        ];
+    }
 
-	/** @return UserDTO */
-	public function getUser(string $username): UserDTO
-	{
-		return $this->userTransformer->fromApiUser($this->users->info($username));
-	}
+    /** @return UserDTO */
+    public function getUser(string $username): UserDTO
+    {
+        return $this->userTransformer->fromApiUser($this->users->info($username));
+    }
 
-	/** @return \App\Core\DTOs\SubmissionDTO[] */
-	public function getSubmissions(string $username, int $from = 1, int $count = 100): array
-	{
-		return $this->submissionTransformer->fromApiSubmissions(
-			$this->users->status($username, $from, $count),
-		);
-	}
+    /** @return \App\Core\DTOs\SubmissionDTO[] */
+    public function getSubmissions(string $username, int $from = 1, int $count = 100): array
+    {
+        return $this->submissionTransformer->fromApiSubmissions(
+            $this->users->status($username, $from, $count),
+        );
+    }
 
-	/** @return RatingChangeDTO[] */
-	public function getRatingChanges(string $contestId): array
-	{
-		return $this->contests->ratingChanges($contestId);
-	}
-	public function __construct(
-		private readonly Contests $contests,
-		private readonly Problems $problems,
-		private readonly Users $users,
-		private readonly ContestTransformer $contestTransformer,
-		private readonly ProblemTransformer $problemTransformer,
-		private readonly UserTransformer $userTransformer,
-		private readonly SubmissionTransformer $submissionTransformer,
-		private readonly StandingsTransformer $standingsTransformer,
-	) {}
+    /** @return RatingChangeDTO[] */
+    public function getRatingChanges(string $contestId): array
+    {
+        return $this->contests->ratingChanges($contestId);
+    }
+
+    /** @return RatingChangeDTO[] */
+    public function getUserRatingHistory(string $handle): array
+    {
+        return $this->users->ratingHistory($handle);
+    }
+
+    public function __construct(
+        private readonly Contests $contests,
+        private readonly Problems $problems,
+        private readonly Users $users,
+        private readonly ContestTransformer $contestTransformer,
+        private readonly ProblemTransformer $problemTransformer,
+        private readonly UserTransformer $userTransformer,
+        private readonly SubmissionTransformer $submissionTransformer,
+        private readonly StandingsTransformer $standingsTransformer,
+    ) {}
 }

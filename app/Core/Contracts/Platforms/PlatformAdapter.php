@@ -27,4 +27,7 @@ interface PlatformAdapter
 
     /** @return RatingChangeDTO[] */
     public function getRatingChanges(string $contestId): array;
+
+    /** @return RatingChangeDTO[] */
+    public function getUserRatingHistory(string $handle): array;
 }

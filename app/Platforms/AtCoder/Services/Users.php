@@ -2,10 +2,13 @@
 
 namespace App\Platforms\AtCoder\Services;
 
+use App\Core\DTOs\RatingChangeDTO;
 use App\Platforms\AtCoder\Services\AtCoderHtmlScraper;
 use App\Platforms\AtCoder\DTOs\AtCoderUserDTO;
+use App\Platforms\AtCoder\Mappers\AtCoderRatingChangeMapper;
 use App\Platforms\AtCoder\Mappers\AtCoderUserMapper;
 use App\Platforms\AtCoder\Support\ResponseNormalizer;
+use App\Platforms\AtCoder\Transformers\AtCoderRatingChangeTransformer;
 use App\Services\ApplicationLogger;
 use RuntimeException;
 
@@ -54,11 +57,16 @@ class Users
         return $submissions;
     }
 
-    /** @return array<int, array<string, mixed>> */
+    /** @return RatingChangeDTO[] */
     public function ratingHistory(string $handle): array
     {
-        return ResponseNormalizer::ratingChanges(
-            $this->scraper->getUserRatingHistory($handle)
+        return AtCoderRatingChangeTransformer::fromApiRatingChanges(
+            AtCoderRatingChangeMapper::fromNormalizedList(
+                ResponseNormalizer::ratingChanges(
+                    $this->scraper->getUserRatingHistory($handle)
+                )
+            ),
+            $handle,
         );
     }
 
@@ -80,4 +88,3 @@ class Users
         }
     }
 }
-

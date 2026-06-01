@@ -21,6 +21,7 @@ final class AtCoderRatingChangeMapper
     public static function fromNormalized(array $normalized): AtCoderRatingChangeDTO
     {
         return new AtCoderRatingChangeDTO(
+            contestPlatformId: (string) explode('.', $normalized['contestScreenName'] ?? '')[0] ?? '',
             isRated: $normalized['isRated'] ?? null,
             place: $normalized['place'] ?? null,
             oldRating: $normalized['oldRating'] ?? null,

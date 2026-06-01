@@ -14,7 +14,7 @@ final class CodeforcesRatingChangeTransformer
     public static function fromApiRatingChanges(array $ratingChanges, string $platformContestId): array
     {
         return array_map(
-            fn (CodeforcesRatingChangeDTO $ratingChange): RatingChangeDTO => self::toCore($ratingChange, $platformContestId),
+            fn(CodeforcesRatingChangeDTO $ratingChange): RatingChangeDTO => self::toCore($ratingChange, $platformContestId),
             $ratingChanges
         );
     }
@@ -24,6 +24,7 @@ final class CodeforcesRatingChangeTransformer
         $oldRating = $ratingChange->oldRating;
         $newRating = $ratingChange->newRating;
         $ratingChangeDelta = null;
+        $contestPlatformId = trim((string) ($ratingChange->contestPlatformId ?? $platformContestId));
 
         if ($oldRating !== null && $newRating !== null) {
             $ratingChangeDelta = $newRating - $oldRating;
@@ -31,9 +32,9 @@ final class CodeforcesRatingChangeTransformer
 
         return new RatingChangeDTO(
             platform: 'codeforces',
-            contestPlatformId: $platformContestId,
+            contestPlatformId: $contestPlatformId,
             handle: (string) ($ratingChange->handle ?? ''),
-            isRated: null,
+            isRated: true,
             rank: $ratingChange->rank,
             oldRating: $ratingChange->oldRating,
             newRating: $ratingChange->newRating,

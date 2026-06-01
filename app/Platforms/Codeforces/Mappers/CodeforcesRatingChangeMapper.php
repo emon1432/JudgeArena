@@ -21,13 +21,14 @@ final class CodeforcesRatingChangeMapper
     public static function fromNormalized(array $normalized): CodeforcesRatingChangeDTO
     {
         return new CodeforcesRatingChangeDTO(
-            contestId: $normalized['contestId'] ?? null,
+            contestPlatformId: isset($normalized['contestId']) ? (string) $normalized['contestId'] : null,
             contestName: $normalized['contestName'] ?? null,
             handle: $normalized['handle'] ?? null,
             rank: $normalized['rank'] ?? null,
             ratingUpdateTimeSeconds: $normalized['ratingUpdateTimeSeconds'] ?? null,
             oldRating: $normalized['oldRating'] ?? null,
             newRating: $normalized['newRating'] ?? null,
+            isRated: 1,
             raw: $normalized,
         );
     }

@@ -5,6 +5,7 @@ namespace App\Platforms\AtCoder\DTOs;
 readonly class AtCoderRatingChangeDTO
 {
     public function __construct(
+        public ?string $contestPlatformId = null,
         public ?bool $isRated = null,
         public ?int $place = null,
         public ?int $oldRating = null,
@@ -24,6 +25,5 @@ readonly class AtCoderRatingChangeDTO
         public ?int $competitions = null,
         public ?string $atCoderRank = null,
         public array $raw = [],
-    ) {
-    }
+    ) {}
 }

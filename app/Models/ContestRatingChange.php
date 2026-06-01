@@ -12,6 +12,7 @@ class ContestRatingChange extends Model
         'contest_id',
         'platform_profile_id',
         'handle',
+        'is_rated',
         'rank',
         'old_rating',
         'new_rating',
@@ -24,6 +25,7 @@ class ContestRatingChange extends Model
     ];
 
     protected $casts = [
+        'is_rated' => 'boolean',
         'rank' => 'integer',
         'old_rating' => 'integer',
         'new_rating' => 'integer',

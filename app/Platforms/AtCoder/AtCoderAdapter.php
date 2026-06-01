@@ -82,6 +82,12 @@ class AtCoderAdapter implements PlatformAdapter
         return $this->contests->ratingChanges((string) $contestId);
     }
 
+    /** @return RatingChangeDTO[] */
+    public function getUserRatingHistory(string $handle): array
+    {
+        return $this->users->ratingHistory($handle);
+    }
+
     public function __construct(
         private readonly Contests $contests,
         private readonly Problems $problems,
