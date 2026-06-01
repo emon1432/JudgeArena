@@ -23,7 +23,7 @@ interface PlatformAdapter
     public function getUser(string $username): UserDTO;
 
     /** @return \App\Core\DTOs\SubmissionDTO[] */
-    public function getSubmissions(string $username, int $from = 1, int $count = 100): array;
+    public function getSubmissions(string $contestId, string $username): array;
 
     /** @return RatingChangeDTO[] */
     public function getRatingChanges(string $contestId): array;

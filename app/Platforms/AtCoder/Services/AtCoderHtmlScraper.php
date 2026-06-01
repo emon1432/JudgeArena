@@ -69,6 +69,9 @@ class AtCoderHtmlScraper
             }
 
             $html = $this->fetchPage($url);
+            if($html === "") {
+                break;
+            }
 
             $doc = new DOMDocument;
             @$doc->loadHTML($html);
@@ -739,7 +742,8 @@ class AtCoderHtmlScraper
             : $request->get($url);
 
         if (! $response->successful()) {
-            throw new RuntimeException('AtCoder page request failed with HTTP ' . $response->status());
+            return '';
+            // throw new RuntimeException('AtCoder page request failed with HTTP ' . $response->status());
         }
 
         return $response->body();

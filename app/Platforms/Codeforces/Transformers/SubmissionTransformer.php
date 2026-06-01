@@ -27,6 +27,10 @@ class SubmissionTransformer
             timeConsumedMillis: $submission->timeConsumedMillis,
             createdAtSeconds: $submission->creationTimeSeconds,
             raw: $submission->raw,
+            contestPlatformId: $contestId !== '0' ? $contestId : null,
+            points: $submission->points,
+            testset: $submission->testset,
+            memoryConsumedBytes: $submission->memoryConsumedBytes,
         );
     }
 

@@ -45,6 +45,32 @@ class PlatformProfilesTableSeeder extends Seeder
                 'created_at' => '2026-05-31 14:49:48',
                 'updated_at' => '2026-05-31 14:49:48',
             ),
+            2 => 
+            array (
+                'id' => 3,
+                'user_id' => 3,
+                'platform_id' => 2,
+                'handle' => 'e_mon',
+                'raw' => NULL,
+                'metadata' => NULL,
+                'status' => 'Active',
+                'last_synced_at' => NULL,
+                'created_at' => '2026-06-01 12:40:13',
+                'updated_at' => '2026-06-01 12:40:13',
+            ),
+            3 => 
+            array (
+                'id' => 4,
+                'user_id' => 3,
+                'platform_id' => 1,
+                'handle' => 'emon_mon',
+                'raw' => NULL,
+                'metadata' => NULL,
+                'status' => 'Active',
+                'last_synced_at' => NULL,
+                'created_at' => '2026-06-01 12:40:13',
+                'updated_at' => '2026-06-01 12:40:13',
+            ),
         ));
         
         

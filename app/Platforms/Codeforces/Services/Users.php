@@ -52,19 +52,21 @@ class Users
     }
 
     /** @return \App\Platforms\Codeforces\DTOs\CodeforcesSubmissionDTO[] */
-    public function status(string $handle, int $from = 1, int $count = 0): array
+    public function status(string $contestId, string $handle): array
     {
         $query = [
             'handle' => $handle,
-            'from' => max(1, $from),
         ];
 
-        if ($count !== 0) {
-            $query['count'] = max(1, $count);
-        }
+        $submissions = $this->client->requestApi('user.status', array_merge($query));
+
+        // get only submissions for the specified contest
+        $submissions = array_filter($submissions, function ($submission) use ($contestId) {
+            return isset($submission['contestId']) && (string) $submission['contestId'] === $contestId;
+        });
 
         return CodeforcesSubmissionMapper::fromNormalizedList(
-            ResponseNormalizer::submissions($this->client->requestApi('user.status', $query))
+            ResponseNormalizer::submissions($submissions)
         );
     }
 

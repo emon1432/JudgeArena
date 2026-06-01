@@ -26,6 +26,10 @@ class SubmissionTransformer
             timeConsumedMillis: $submission->timeConsumedMillis,
             createdAtSeconds: $submission->creationTimeSeconds,
             raw: $submission->raw,
+            contestPlatformId: $submission->contestId,
+            points: $submission->points,
+            testset: $submission->testset,
+            memoryConsumedBytes: $submission->memoryConsumedBytes,
         );
     }
 
@@ -38,4 +42,3 @@ class SubmissionTransformer
         return array_map(fn (AtCoderSubmissionDTO $submission): SubmissionDTO => $this->fromApiSubmission($submission), $submissions);
     }
 }
-

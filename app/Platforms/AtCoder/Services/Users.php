@@ -3,6 +3,7 @@
 namespace App\Platforms\AtCoder\Services;
 
 use App\Core\DTOs\RatingChangeDTO;
+use App\Models\Contest;
 use App\Platforms\AtCoder\Services\AtCoderHtmlScraper;
 use App\Platforms\AtCoder\DTOs\AtCoderUserDTO;
 use App\Platforms\AtCoder\Mappers\AtCoderRatingChangeMapper;
@@ -17,6 +18,7 @@ class Users
     public function __construct(
         private readonly AtCoderHtmlScraper $scraper,
         private readonly Contests $contests,
+        private readonly Contest $contestModel,
     ) {}
 
     /** @return AtCoderUserDTO */
@@ -34,27 +36,9 @@ class Users
     }
 
     /** @return \App\Platforms\AtCoder\DTOs\AtCoderSubmissionDTO[] */
-    public function submissions(string $handle, int $from = 1, int $count = 0): array
+    public function submissions(string $contestId, string $handle): array
     {
-        $submissions = [];
-
-        foreach ($this->contests->list() as $contest) {
-            $submissions = array_merge(
-                $submissions,
-                $this->contests->submissions((string) $contest->id, $handle)
-            );
-        }
-
-        $offset = max(0, $from - 1);
-        if ($count > 0) {
-            return array_slice($submissions, $offset, $count);
-        }
-
-        if ($offset > 0) {
-            return array_slice($submissions, $offset);
-        }
-
-        return $submissions;
+        return $this->contests->submissions($contestId, $handle);
     }
 
     /** @return RatingChangeDTO[] */

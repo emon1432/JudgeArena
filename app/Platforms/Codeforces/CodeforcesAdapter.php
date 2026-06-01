@@ -64,10 +64,10 @@ class CodeforcesAdapter implements PlatformAdapter
     }
 
     /** @return \App\Core\DTOs\SubmissionDTO[] */
-    public function getSubmissions(string $username, int $from = 1, int $count = 100): array
+    public function getSubmissions(string $contestId, string $username): array
     {
         return $this->submissionTransformer->fromApiSubmissions(
-            $this->users->status($username, $from, $count),
+            $this->users->status($contestId, $username)
         );
     }
 

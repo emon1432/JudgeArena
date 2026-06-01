@@ -14,6 +14,7 @@ enum PlatformSyncEntityType: string
 {
     case Contest = 'contest';
     case ContestProblems = 'contest_problems';
+    case ContestSubmissions = 'contest_submissions';
     case Problem = 'problem';
     case User = 'user';
     case Submission = 'submission';
