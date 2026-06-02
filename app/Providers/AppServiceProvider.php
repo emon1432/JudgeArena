@@ -5,14 +5,12 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use App\Core\Contracts\Platforms\PlatformAdapter;
-use App\Platforms\Codeforces\CodeforcesAdapter;
 
 class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->app->bind(PlatformAdapter::class, CodeforcesAdapter::class);
+        //
     }
 
     public function boot(): void
