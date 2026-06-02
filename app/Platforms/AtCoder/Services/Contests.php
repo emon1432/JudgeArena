@@ -28,11 +28,8 @@ class Contests
 
     public function standings(string $contestId, bool $virtual = false): AtCoderStandingsDTO
     {
-        $contest = $this->findContestNormalized($contestId);
         $normalized = ResponseNormalizer::standings(
             $virtual ? $this->scraper->getStandingsVirtual($contestId) : $this->scraper->getStandings($contestId),
-            $contest,
-            $contestId,
         );
 
         return AtCoderStandingsMapper::fromApiResponse($normalized);
