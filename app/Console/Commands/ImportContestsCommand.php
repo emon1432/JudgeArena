@@ -8,6 +8,7 @@ use App\Models\Platform;
 use App\Platforms\AtCoder\AtCoderAdapter;
 use App\Platforms\Codeforces\CodeforcesAdapter;
 use App\Services\ApplicationLogger;
+use App\Services\PlatformSyncStateService;
 use Illuminate\Console\Command;
 
 class ImportContestsCommand extends Command
@@ -19,6 +20,7 @@ class ImportContestsCommand extends Command
     public function __construct(
         private readonly CodeforcesAdapter $codeforcesAdapter,
         private readonly AtCoderAdapter $atCoderAdapter,
+        private readonly PlatformSyncStateService $platformSyncStateService,
     ) {
         parent::__construct();
     }

@@ -22,7 +22,7 @@
                 <div class="mb-6 form-control-validation fv-plugins-icon-container">
                     <label for="email" class="form-label">{{ __('Email or Username') }}</label>
                     <input type="text" class="form-control" id="email" name="email"
-                        placeholder="{{ __('Enter your email or username') }}" autofocus="" value="admin@verticasoft.com">
+                        placeholder="{{ __('Enter your email or username') }}" autofocus="" value="admin@judgearena.com">
                     <div class="fv-plugins-message-container fv-plugins-message-container--enabled invalid-feedback">
                     </div>
                 </div>

@@ -73,6 +73,12 @@
             </a>
         </li>
         <li class="menu-item">
+            <a href="{{ route('sync-monitor.index') }}" class="menu-link">
+                <i class="menu-icon icon-base ti tabler-activity-heartbeat"></i>
+                <div>{{ __('Sync Monitor') }}</div>
+            </a>
+        </li>
+        <li class="menu-item">
             <a href="{{ route('admins.index') }}" class="menu-link">
                 <i class="menu-icon icon-base ti tabler-shield-check"></i>
                 <div>{{ __('Admins') }}</div>

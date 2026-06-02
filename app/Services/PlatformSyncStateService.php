@@ -151,6 +151,24 @@ class PlatformSyncStateService
         return $state->refresh();
     }
 
+    public function resetForRetry(PlatformSyncState $state, array $metadata = []): PlatformSyncState
+    {
+        $existingMetadata = is_array($state->metadata) ? $state->metadata : [];
+        $retryCount = (int) ($existingMetadata['retry_count'] ?? 0);
+
+        $state->forceFill([
+            'sync_status' => PlatformSyncStatus::Pending->value,
+            'last_attempted_at' => null,
+            'last_error' => null,
+            'metadata' => $this->mergeMetadata($existingMetadata, array_merge([
+                'retry_count' => $retryCount + 1,
+                'retry_reset_at' => now(),
+            ], $metadata)),
+        ])->save();
+
+        return $state->refresh();
+    }
+
     public function shouldSync(
         Platform $platform,
         PlatformSyncEntityType|string $entityType,
