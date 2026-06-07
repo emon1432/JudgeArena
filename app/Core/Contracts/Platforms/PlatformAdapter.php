@@ -19,6 +19,11 @@ interface PlatformAdapter
      */
     public function getProblems(): array;
 
+    /**
+     * @return array{problems: \App\Core\DTOs\ProblemDTO[], problemStatistics: array<int, array<string, mixed>>}
+     */
+    public function getContestProblems(string $contestId): array;
+
     /** @return UserDTO */
     public function getUser(string $username): UserDTO;
 

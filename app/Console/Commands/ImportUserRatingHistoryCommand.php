@@ -2,14 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\Core\Contracts\Platforms\PlatformAdapter;
 use App\Core\DTOs\RatingChangeDTO;
+use App\Core\Platforms\PlatformRegistry;
 use App\Enums\PlatformSyncEntityType;
 use App\Models\Contest;
 use App\Models\ContestRatingChange;
 use App\Models\PlatformProfile;
-use App\Platforms\AtCoder\AtCoderAdapter;
-use App\Platforms\Codeforces\CodeforcesAdapter;
 use App\Services\ApplicationLogger;
 use App\Services\PlatformSyncStateService;
 use Illuminate\Console\Command;
@@ -26,8 +24,7 @@ class ImportUserRatingHistoryCommand extends Command
         private readonly Contest $contestModel,
         private readonly ContestRatingChange $contestRatingChangeModel,
         private readonly PlatformSyncStateService $platformSyncStateService,
-        private readonly CodeforcesAdapter $codeforcesAdapter,
-        private readonly AtCoderAdapter $atCoderAdapter,
+        private readonly PlatformRegistry $platformRegistry,
     ) {
         parent::__construct();
     }
@@ -36,7 +33,7 @@ class ImportUserRatingHistoryCommand extends Command
     {
         $platformSlug = strtolower(trim((string) $this->argument('platform')));
         $handle = trim((string) $this->argument('handle'));
-        $adapter = $this->resolveAdapter($platformSlug);
+        $adapter = $this->platformRegistry->resolve($platformSlug);
 
         app(ApplicationLogger::class)->info('User rating history import started', [
             'category' => 'import',
@@ -263,15 +260,6 @@ class ImportUserRatingHistoryCommand extends Command
 
             return self::FAILURE;
         }
-    }
-
-    private function resolveAdapter(string $platformSlug): ?PlatformAdapter
-    {
-        return match ($platformSlug) {
-            'codeforces' => $this->codeforcesAdapter,
-            'atcoder' => $this->atCoderAdapter,
-            default => null,
-        };
     }
 
     private function findPlatformProfile(string $platformSlug, string $handle): ?PlatformProfile

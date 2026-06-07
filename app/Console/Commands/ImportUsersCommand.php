@@ -2,11 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Core\Contracts\Platforms\PlatformAdapter;
+use App\Core\Platforms\PlatformRegistry;
 use App\Enums\PlatformSyncEntityType;
 use App\Models\PlatformProfile;
-use App\Platforms\AtCoder\AtCoderAdapter;
-use App\Platforms\Codeforces\CodeforcesAdapter;
 use App\Services\ApplicationLogger;
 use App\Services\PlatformSyncStateService;
 use Illuminate\Console\Command;
@@ -22,8 +20,7 @@ class ImportUsersCommand extends Command
     public function __construct(
         private readonly PlatformProfile $platformProfileModel,
         private readonly PlatformSyncStateService $platformSyncStateService,
-        private readonly CodeforcesAdapter $codeforcesAdapter,
-        private readonly AtCoderAdapter $atCoderAdapter,
+        private readonly PlatformRegistry $platformRegistry,
     ) {
         parent::__construct();
     }
@@ -174,7 +171,7 @@ class ImportUsersCommand extends Command
         });
 
         foreach ($profilesByPlatform as $platformSlugKey => $platformProfiles) {
-            $adapter = $this->resolveAdapter($platformSlugKey);
+            $adapter = $this->platformRegistry->resolve($platformSlugKey);
 
             if ($adapter === null) {
                 $stats['profiles_unsupported_platform'] += $platformProfiles->count();
@@ -288,15 +285,6 @@ class ImportUsersCommand extends Command
         }
 
         return $stats;
-    }
-
-    private function resolveAdapter(string $platformSlug): ?PlatformAdapter
-    {
-        return match (strtolower(trim($platformSlug))) {
-            'codeforces' => $this->codeforcesAdapter,
-            'atcoder' => $this->atCoderAdapter,
-            default => null,
-        };
     }
 
     private function normalizePlatformSlug(?string $platformSlug): ?string

@@ -2,11 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Core\Contracts\Platforms\PlatformAdapter;
+use App\Core\Platforms\PlatformRegistry;
 use App\Models\Contest;
 use App\Models\Platform;
-use App\Platforms\AtCoder\AtCoderAdapter;
-use App\Platforms\Codeforces\CodeforcesAdapter;
 use App\Services\ApplicationLogger;
 use App\Services\PlatformSyncStateService;
 use Illuminate\Console\Command;
@@ -18,8 +16,7 @@ class ImportContestsCommand extends Command
     protected $description = 'Import contests from a supported platform into the contests table.';
 
     public function __construct(
-        private readonly CodeforcesAdapter $codeforcesAdapter,
-        private readonly AtCoderAdapter $atCoderAdapter,
+        private readonly PlatformRegistry $platformRegistry,
         private readonly PlatformSyncStateService $platformSyncStateService,
     ) {
         parent::__construct();
@@ -28,7 +25,7 @@ class ImportContestsCommand extends Command
     public function handle(): int
     {
         $platformSlug = strtolower((string) $this->argument('platform'));
-        $adapter = $this->resolveAdapter($platformSlug);
+        $adapter = $this->platformRegistry->resolve($platformSlug);
 
         if ($adapter === null) {
             app(ApplicationLogger::class)->warning('Contest import skipped: unsupported platform', [
@@ -38,7 +35,7 @@ class ImportContestsCommand extends Command
             ]);
 
             $this->error('Unsupported platform: ' . $platformSlug);
-            $this->line('Supported platforms: codeforces, atcoder');
+            $this->line('Supported platforms: ' . implode(', ', $this->platformRegistry->supportedPlatforms()));
 
             return self::FAILURE;
         }
@@ -153,14 +150,5 @@ class ImportContestsCommand extends Command
 
             return self::FAILURE;
         }
-    }
-
-    private function resolveAdapter(string $platformSlug): ?PlatformAdapter
-    {
-        return match ($platformSlug) {
-            'codeforces' => $this->codeforcesAdapter,
-            'atcoder' => $this->atCoderAdapter,
-            default => null,
-        };
     }
 }

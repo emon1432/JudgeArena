@@ -5,14 +5,13 @@ namespace App\Console\Commands;
 use App\Core\DTOs\ContestStandingsDTO;
 use App\Core\DTOs\ParticipantDTO;
 use App\Core\DTOs\ProblemResultDTO;
+use App\Core\Platforms\PlatformRegistry;
 use App\Enums\PlatformSyncEntityType;
 use App\Models\Contest;
 use App\Models\PlatformProfile;
 use App\Models\Problem;
 use App\Models\Standing;
 use App\Models\StandingTaskResult;
-use App\Platforms\AtCoder\AtCoderAdapter;
-use App\Platforms\Codeforces\CodeforcesAdapter;
 use App\Services\ApplicationLogger;
 use App\Services\PlatformSyncStateService;
 use Illuminate\Console\Command;
@@ -32,8 +31,7 @@ class ImportStandingsCommand extends Command
         private readonly Problem $problemModel,
         private readonly PlatformProfile $platformProfileModel,
         private readonly PlatformSyncStateService $platformSyncStateService,
-        private readonly CodeforcesAdapter $codeforcesAdapter,
-        private readonly AtCoderAdapter $atCoderAdapter,
+        private readonly PlatformRegistry $platformRegistry,
     ) {
         parent::__construct();
     }
@@ -199,7 +197,7 @@ class ImportStandingsCommand extends Command
         });
 
         foreach ($contestsByPlatform as $platformSlugKey => $platformContests) {
-            $adapter = $this->resolveAdapter($platformSlugKey);
+            $adapter = $this->platformRegistry->resolve($platformSlugKey);
 
             if ($adapter === null) {
                 $stats['contests_unsupported_platform'] += $platformContests->count();
@@ -395,10 +393,6 @@ class ImportStandingsCommand extends Command
         return $stats;
     }
 
-    /**
-     * @param array<string, Problem> $contestProblemsByPlatformProblemId
-     * @param array<string, int> $stats
-     */
     private function persistTaskResults(
         Standing $standing,
         Contest $contest,
@@ -470,15 +464,6 @@ class ImportStandingsCommand extends Command
         }
     }
 
-    private function resolveAdapter(string $platformSlug): CodeforcesAdapter|AtCoderAdapter|null
-    {
-        return match (strtolower(trim($platformSlug))) {
-            'codeforces' => $this->codeforcesAdapter,
-            'atcoder' => $this->atCoderAdapter,
-            default => null,
-        };
-    }
-
     private function normalizePlatformSlug(?string $platformSlug): ?string
     {
         $platformSlug = trim((string) $platformSlug);
@@ -486,9 +471,6 @@ class ImportStandingsCommand extends Command
         return $platformSlug === '' ? null : strtolower($platformSlug);
     }
 
-    /**
-     * @return array<string, PlatformProfile>
-     */
     private function platformProfilesByHandle(int $platformId): array
     {
         $profiles = $this->platformProfileModel->newQuery()
@@ -510,9 +492,6 @@ class ImportStandingsCommand extends Command
         return $indexedProfiles;
     }
 
-    /**
-     * @return array<string, Problem>
-     */
     private function contestProblemsByPlatformProblemId(int $contestId): array
     {
         $problems = $this->problemModel->newQuery()
@@ -534,9 +513,6 @@ class ImportStandingsCommand extends Command
         return $indexedProblems;
     }
 
-    /**
-     * @return array{key: string, type: ?string, name: ?string, handle: ?string}
-     */
     private function participantIdentity(ParticipantDTO $participant): array
     {
         $raw = $participant->raw;

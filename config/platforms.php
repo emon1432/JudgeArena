@@ -1,5 +1,8 @@
 <?php
 
+use App\Platforms\AtCoder\AtCoderAdapter;
+use App\Platforms\Codeforces\CodeforcesAdapter;
+
 return [
 
     'codeforces' => [
@@ -11,6 +14,7 @@ return [
             'api_secret' => env('CODEFORCES_API_SECRET'),
         ],
         'status' => 'Active',
+        'adapter' => CodeforcesAdapter::class,
     ],
 
     'atcoder' => [
@@ -22,5 +26,6 @@ return [
             'atcoder_session_cookies' => env('ATCODER_SESSION_COOKIES'),
         ],
         'status' => 'Active',
+        'adapter' => AtCoderAdapter::class,
     ],
 ];

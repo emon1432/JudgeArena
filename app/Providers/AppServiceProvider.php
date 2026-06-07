@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Core\Platforms\PlatformRegistry;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -10,7 +11,7 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        $this->app->singleton(PlatformRegistry::class);
     }
 
     public function boot(): void

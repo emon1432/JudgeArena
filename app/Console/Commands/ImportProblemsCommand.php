@@ -2,11 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Core\Platforms\PlatformRegistry;
 use App\Enums\PlatformSyncEntityType;
 use App\Models\Contest;
 use App\Models\Problem;
-use App\Platforms\AtCoder\AtCoderAdapter;
-use App\Platforms\Codeforces\CodeforcesAdapter;
 use App\Services\ApplicationLogger;
 use App\Services\PlatformSyncStateService;
 use Illuminate\Console\Command;
@@ -23,8 +22,7 @@ class ImportProblemsCommand extends Command
         private readonly Contest $contestModel,
         private readonly Problem $problemModel,
         private readonly PlatformSyncStateService $platformSyncStateService,
-        private readonly CodeforcesAdapter $codeforcesAdapter,
-        private readonly AtCoderAdapter $atCoderAdapter,
+        private readonly PlatformRegistry $platformRegistry,
     ) {
         parent::__construct();
     }
@@ -164,7 +162,7 @@ class ImportProblemsCommand extends Command
         });
 
         foreach ($contestsByPlatform as $platformSlugKey => $platformContests) {
-            $adapter = $this->resolveAdapter($platformSlugKey);
+            $adapter = $this->platformRegistry->resolve($platformSlugKey);
 
             if ($adapter === null) {
                 $stats['contests_unsupported_platform'] += $platformContests->count();
@@ -292,15 +290,6 @@ class ImportProblemsCommand extends Command
         }
 
         return $stats;
-    }
-
-    private function resolveAdapter(string $platformSlug): CodeforcesAdapter|AtCoderAdapter|null
-    {
-        return match (strtolower(trim($platformSlug))) {
-            'codeforces' => $this->codeforcesAdapter,
-            'atcoder' => $this->atCoderAdapter,
-            default => null,
-        };
     }
 
     private function normalizePlatformSlug(?string $platformSlug): ?string

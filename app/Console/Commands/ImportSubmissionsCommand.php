@@ -2,15 +2,13 @@
 
 namespace App\Console\Commands;
 
-use App\Core\Contracts\Platforms\PlatformAdapter;
 use App\Core\DTOs\SubmissionDTO;
+use App\Core\Platforms\PlatformRegistry;
 use App\Enums\PlatformSyncEntityType;
 use App\Models\Contest;
 use App\Models\PlatformProfile;
 use App\Models\Problem;
 use App\Models\Submission;
-use App\Platforms\AtCoder\AtCoderAdapter;
-use App\Platforms\Codeforces\CodeforcesAdapter;
 use App\Services\ApplicationLogger;
 use App\Services\PlatformSyncStateService;
 use Illuminate\Console\Command;
@@ -24,8 +22,7 @@ class ImportSubmissionsCommand extends Command
     protected $description = 'Import user submissions and persist them into the submissions table.';
 
     public function __construct(
-        private readonly CodeforcesAdapter $codeforcesAdapter,
-        private readonly AtCoderAdapter $atCoderAdapter,
+        private readonly PlatformRegistry $platformRegistry,
         private readonly PlatformProfile $platformProfileModel,
         private readonly Contest $contestModel,
         private readonly Problem $problemModel,
@@ -39,7 +36,7 @@ class ImportSubmissionsCommand extends Command
     {
         $platformSlug = strtolower(trim((string) $this->argument('platform')));
         $handle = trim((string) $this->argument('handle'));
-        $adapter = $this->resolveAdapter($platformSlug);
+        $adapter = $this->platformRegistry->resolve($platformSlug);
 
         app(ApplicationLogger::class)->info('Submission import started', [
             'category' => 'import',
@@ -57,7 +54,7 @@ class ImportSubmissionsCommand extends Command
             ]);
 
             $this->error('Unsupported platform: ' . $platformSlug);
-            $this->line('Supported platforms: codeforces, atcoder');
+            $this->line('Supported platforms: ' . implode(', ', $this->platformRegistry->supportedPlatforms()));
 
             return self::FAILURE;
         }
@@ -294,15 +291,6 @@ class ImportSubmissionsCommand extends Command
 
         return $stats['contests_failed'] > 0 ? self::FAILURE : self::SUCCESS;
 
-    }
-
-    private function resolveAdapter(string $platformSlug): ?PlatformAdapter
-    {
-        return match ($platformSlug) {
-            'codeforces' => $this->codeforcesAdapter,
-            'atcoder' => $this->atCoderAdapter,
-            default => null,
-        };
     }
 
     private function findPlatformProfile(string $platformSlug, string $handle): ?PlatformProfile
