@@ -12,7 +12,10 @@ readonly class ProblemDTO
         public ?string $code = null,
         public ?float $points = null,
 		public ?int $rating = null,
+        public ?int $timeLimit = null,
+        public ?int $memoryLimit = null,
 		public array $tags = [],
+        public ?string $url = null,
 		public array $raw = [],
         public ?int $solvedCount = null,
 	) {

@@ -7,7 +7,6 @@ use App\Platforms\Codeforces\DTOs\CodeforcesProblemDTO;
 
 class ProblemTransformer
 {
-    /** @return ProblemDTO */
     public function fromApiProblem(CodeforcesProblemDTO $problem): ProblemDTO
     {
         return new ProblemDTO(
@@ -18,16 +17,16 @@ class ProblemTransformer
             code: $problem->index,
             points: $problem->points,
             rating: $problem->rating,
-            tags: $problem->tags,
-            raw: $problem->raw,
             solvedCount: $problem->solvedCount,
+            tags: $problem->tags,
+            url: $this->buildProblemUrl($problem),
+            raw: $problem->raw,
         );
     }
 
-    /** @return array<int, ProblemDTO> */
     public function fromApiProblems(array $problems): array
     {
-        return array_map(fn (CodeforcesProblemDTO $problem): ProblemDTO => $this->fromApiProblem($problem), $problems);
+        return array_map(fn(CodeforcesProblemDTO $problem): ProblemDTO => $this->fromApiProblem($problem), $problems);
     }
 
     private function buildProblemId(CodeforcesProblemDTO $problem): string
@@ -36,5 +35,14 @@ class ProblemTransformer
         $index = strtoupper(trim((string) ($problem->index ?? '')));
 
         return $contestId . $index;
+    }
+
+    private function buildProblemUrl(CodeforcesProblemDTO $problem): ?string
+    {
+        if (isset($problem->contestId) && isset($problem->index)) {
+            return "https://codeforces.com/contest/{$problem->contestId}/problem/{$problem->index}";
+        }
+
+        return null;
     }
 }

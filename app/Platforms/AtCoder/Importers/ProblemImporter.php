@@ -128,7 +128,10 @@ class ProblemImporter implements ProblemImporterContract
                                 'code' => $problemDto->code,
                                 'points' => $problemDto->points,
                                 'rating' => $problemDto->rating,
+                                'time_limit_ms' => $problemDto->timeLimit,
+                                'memory_limit_mb' => $problemDto->memoryLimit,
                                 'tags' => $problemDto->tags,
+                                'url' => $problemDto->url,
                                 'last_synced_at' => now(),
                                 'metadata' => [
                                     'source' => 'contest-scoped-sync',
