@@ -26,7 +26,7 @@ return new class extends Migration
             $table->string('code', 64)->nullable();
             $table->integer('rating')->nullable();
             $table->float('points', 8, 2)->nullable();
-            $table->unsignedInteger('time_limit_ms')->nullable();
+            $table->unsignedBigInteger('time_limit_ms')->nullable();
             $table->unsignedInteger('memory_limit_mb')->nullable();
             $table->unsignedInteger('total_submissions')->default(0);
             $table->unsignedInteger('accepted_submissions')->default(0);

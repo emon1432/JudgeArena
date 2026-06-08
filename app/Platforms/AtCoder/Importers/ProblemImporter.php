@@ -25,10 +25,10 @@ class ProblemImporter implements ProblemImporterContract
     public function import(): array
     {
         $stats = [
-            'problems_fetched' => 0,
-            'problems_created' => 0,
-            'problems_updated' => 0,
-            'problems_failed' => 0,
+            'fetched' => 0,
+            'created' => 0,
+            'updated' => 0,
+            'failed' => 0,
         ];
 
         $platform = $this->platformModel->newQuery()
@@ -79,10 +79,10 @@ class ProblemImporter implements ProblemImporterContract
             )->count(),
             'contests_failed' => 0,
             'contests_unsupported_platform' => 0,
-            'problems_fetched' => 0,
-            'problems_created' => 0,
-            'problems_updated' => 0,
-            'problems_failed' => 0,
+            'fetched' => 0,
+            'created' => 0,
+            'updated' => 0,
+            'failed' => 0,
         ];
 
         $contestsByPlatform = $pendingContests->groupBy(function (Contest $contest): string {
@@ -113,7 +113,7 @@ class ProblemImporter implements ProblemImporterContract
                         $problems = [];
                     }
 
-                    $stats['problems_fetched'] += count($problems);
+                    $stats['fetched'] += count($problems);
 
                     foreach ($problems as $problemDto) {
                         $problem = $this->problemModel->newQuery()->updateOrCreate(
@@ -144,12 +144,12 @@ class ProblemImporter implements ProblemImporterContract
                         );
 
                         if ($problem->wasRecentlyCreated) {
-                            $stats['problems_created']++;
+                            $stats['created']++;
 
                             continue;
                         }
 
-                        $stats['problems_updated']++;
+                        $stats['updated']++;
                     }
 
                     $this->platformSyncStateService->markSynced($syncState, [
