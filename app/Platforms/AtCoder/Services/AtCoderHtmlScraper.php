@@ -25,7 +25,7 @@ class AtCoderHtmlScraper
         $this->authenticate();
     }
 
-    /** @return array<int, array<string, mixed>> */
+    //used
     public function getContests(): array
     {
         $contests = [];
@@ -174,7 +174,7 @@ class AtCoderHtmlScraper
         return ['result' => $submissions];
     }
 
-    /** @return array<string, mixed> */
+    //used
     public function getTasks(string $contestId): array
     {
         $response = $this->httpRequest()->get(self::ATCODER_BASE_URL . '/contests/' . $contestId . '/tasks');
@@ -449,7 +449,7 @@ class AtCoderHtmlScraper
         return null;
     }
 
-    /** @return array<int, array<string, mixed>> */
+    //used
     private function getNormalContests(): array
     {
         $contests = [];
@@ -516,6 +516,7 @@ class AtCoderHtmlScraper
         return $contests;
     }
 
+    //used
     private function extractMaxPages(string $html): int
     {
         try {
@@ -552,7 +553,7 @@ class AtCoderHtmlScraper
         }
     }
 
-    /** @return array<int, array<string, mixed>> */
+    //used
     private function getPermanentContests(): array
     {
         $contests = [];
@@ -626,7 +627,7 @@ class AtCoderHtmlScraper
         return $contests;
     }
 
-    /** @return array<int, array<string, mixed>> */
+    //used
     private function getHiddenContests(): array
     {
         $contests = [];
@@ -679,7 +680,7 @@ class AtCoderHtmlScraper
         return $contests;
     }
 
-    /** @return array<int, array<string, mixed>> */
+    //used
     private function getHistoricalContests(): array
     {
         $contests = [];
@@ -732,6 +733,7 @@ class AtCoderHtmlScraper
         return $contests;
     }
 
+    //used
     private function fetchPage(string $url): string
     {
         $this->respectRateLimit();
@@ -777,12 +779,14 @@ class AtCoderHtmlScraper
         return $payload;
     }
 
+    //used
     private function httpRequest()
     {
         return Http::timeout(15)
             ->withHeaders(['User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36']);
     }
 
+    //used
     private function respectRateLimit(): void
     {
         if (self::$lastRequestTime > 0) {

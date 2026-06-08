@@ -3,11 +3,13 @@
 namespace App\Platforms\Codeforces;
 
 use App\Core\Contracts\Importers\ContestImporter as ContestImporterContract;
+use App\Core\Contracts\Importers\ProblemImporter as ProblemImporterContract;
 use App\Core\Contracts\Platforms\PlatformAdapter;
 use App\Core\DTOs\ContestStandingsDTO;
 use App\Core\DTOs\RatingChangeDTO;
 use App\Core\DTOs\UserDTO;
 use App\Platforms\Codeforces\Importers\ContestImporter;
+use App\Platforms\Codeforces\Importers\ProblemImporter;
 use App\Platforms\Codeforces\Services\Contests;
 use App\Platforms\Codeforces\Services\Problems;
 use App\Platforms\Codeforces\Services\Users;
@@ -19,9 +21,7 @@ use App\Platforms\Codeforces\Transformers\StandingsTransformer;
 
 class CodeforcesAdapter implements PlatformAdapter
 {
-    /**
-     * @return \App\Core\DTOs\ContestDTO[]
-     */
+    //used
     public function getContests(): array
     {
         return $this->contestTransformer->fromApiContests(
@@ -29,12 +29,32 @@ class CodeforcesAdapter implements PlatformAdapter
         );
     }
 
+    //used
     public function contestImporter(): ContestImporterContract
     {
         return app(ContestImporter::class);
     }
 
-    /** @return ContestStandingsDTO */
+    //used
+    public function getProblems(): array
+    {
+        return $this->problemTransformer->fromApiProblems($this->problems->list());
+    }
+
+    //used
+    public function problemImporter(): ProblemImporterContract
+    {
+        return app(ProblemImporter::class);
+    }
+
+
+
+
+
+
+    /**
+     * @return \App\Core\DTOs\ContestStandingsDTO
+     */
     public function getContest(string $id): ContestStandingsDTO
     {
         return $this->standingsTransformer
@@ -42,19 +62,7 @@ class CodeforcesAdapter implements PlatformAdapter
     }
 
     /**
-     * @return array{problems: \App\Core\DTOs\ProblemDTO[], problemStatistics: array<int, array<string, mixed>>}
-     */
-    public function getProblems(): array
-    {
-        $result = $this->problems->list();
-
-        return [
-            'problems' => $this->problemTransformer->fromApiProblems($result['problems'] ?? []),
-        ];
-    }
-
-    /**
-     * @return array{problems: \App\Core\DTOs\ProblemDTO[], problemStatistics: array<int, array<string, mixed>>}
+     * @return \App\Core\DTOs\ProblemDTO[]
      */
     public function getContestProblems(string $contestId): array
     {

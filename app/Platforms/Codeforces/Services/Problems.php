@@ -15,9 +15,7 @@ class Problems
         private readonly BaseClient $client,
     ) {}
 
-    /**
-     * @return array{problems: \App\Platforms\Codeforces\DTOs\CodeforcesProblemDTO[]}
-     */
+    //used
     public function list(?array $tags = null): array
     {
         $query = [];
@@ -52,9 +50,7 @@ class Problems
             return $problem;
         })->all();
 
-        return [
-            'problems' => CodeforcesProblemMapper::fromNormalizedList($problemsWithStatistics),
-        ];
+        return CodeforcesProblemMapper::fromNormalizedList($problemsWithStatistics);
     }
 
     /** @return CodeforcesSubmissionDTO[] */

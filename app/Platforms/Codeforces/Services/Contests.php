@@ -18,7 +18,7 @@ class Contests
         private readonly BaseClient $client,
     ) {}
 
-    /** @return \App\Platforms\Codeforces\DTOs\CodeforcesContestDTO[] */
+    //used
     public function list(bool $gym = false, ?string $groupCode = null): array
     {
         $query = [

@@ -18,7 +18,7 @@ class Contests
         private readonly AtCoderHtmlScraper $scraper,
     ) {}
 
-    /** @return \App\Platforms\AtCoder\DTOs\AtCoderContestDTO[] */
+    //used
     public function list(): array
     {
         return AtCoderContestMapper::fromNormalizedList(
@@ -55,7 +55,7 @@ class Contests
         return AtCoderRatingChangeTransformer::fromApiRatingChanges($platformDtos, $contestId);
     }
 
-    /** @return array<string, mixed> */
+    //used
     public function tasks(string $contestId): array
     {
         return $this->scraper->getTasks($contestId);
