@@ -2,10 +2,12 @@
 
 namespace App\Platforms\Codeforces;
 
+use App\Core\Contracts\Importers\ContestImporter as ContestImporterContract;
 use App\Core\Contracts\Platforms\PlatformAdapter;
 use App\Core\DTOs\ContestStandingsDTO;
 use App\Core\DTOs\RatingChangeDTO;
 use App\Core\DTOs\UserDTO;
+use App\Platforms\Codeforces\Importers\ContestImporter;
 use App\Platforms\Codeforces\Services\Contests;
 use App\Platforms\Codeforces\Services\Problems;
 use App\Platforms\Codeforces\Services\Users;
@@ -17,12 +19,19 @@ use App\Platforms\Codeforces\Transformers\StandingsTransformer;
 
 class CodeforcesAdapter implements PlatformAdapter
 {
-    /** @return \App\Core\DTOs\ContestDTO[] */
+    /**
+     * @return \App\Core\DTOs\ContestDTO[]
+     */
     public function getContests(): array
     {
         return $this->contestTransformer->fromApiContests(
             $this->contests->list(),
         );
+    }
+
+    public function contestImporter(): ContestImporterContract
+    {
+        return app(ContestImporter::class);
     }
 
     /** @return ContestStandingsDTO */

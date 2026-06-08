@@ -2,10 +2,12 @@
 
 namespace App\Platforms\AtCoder;
 
+use App\Core\Contracts\Importers\ContestImporter as ContestImporterContract;
 use App\Core\Contracts\Platforms\PlatformAdapter;
 use App\Core\DTOs\ContestStandingsDTO;
 use App\Core\DTOs\RatingChangeDTO;
 use App\Core\DTOs\UserDTO;
+use App\Platforms\AtCoder\Importers\ContestImporter;
 use App\Platforms\AtCoder\Services\Contests;
 use App\Platforms\AtCoder\Services\Problems;
 use App\Platforms\AtCoder\Services\Users;
@@ -23,6 +25,11 @@ class AtCoderAdapter implements PlatformAdapter
         return $this->contestTransformer->fromApiContests(
             $this->contests->list(),
         );
+    }
+
+    public function contestImporter(): ContestImporterContract
+    {
+        return app(ContestImporter::class);
     }
 
     /** @return ContestStandingsDTO */
