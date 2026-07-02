@@ -61,6 +61,10 @@ class ImportContestsCommand extends Command
                 ->import();
 
             $this->line('Platform: ' . $platformSlug);
+            $this->line('Contests Checked: ' . ($stats['contests_checked'] ?? 0));
+            $this->line('Contests Synced: ' . ($stats['contests_synced'] ?? 0));
+            $this->line('Contests Already Synced: ' . ($stats['contests_already_synced'] ?? 0));
+            $this->line('Contests Failed: ' . ($stats['contests_failed'] ?? 0));
             $this->line('Fetched: ' . ($stats['fetched'] ?? 0));
             $this->line('Created: ' . ($stats['created'] ?? 0));
             $this->line('Updated: ' . ($stats['updated'] ?? 0));
@@ -74,6 +78,10 @@ class ImportContestsCommand extends Command
                     'category' => 'import',
                     'platform' => $platformSlug,
                     'source' => self::class,
+                    'contests_checked' => $stats['contests_checked'] ?? 0,
+                    'contests_synced' => $stats['contests_synced'] ?? 0,
+                    'contests_already_synced' => $stats['contests_already_synced'] ?? 0,
+                    'contests_failed' => $stats['contests_failed'] ?? 0,
                     'fetched' => $stats['fetched'] ?? 0,
                     'created' => $stats['created'] ?? 0,
                     'updated' => $stats['updated'] ?? 0,
