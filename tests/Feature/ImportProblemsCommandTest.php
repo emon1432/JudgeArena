@@ -3,12 +3,14 @@
 namespace Tests\Feature;
 
 use App\Core\DTOs\ProblemDTO;
-use App\Enums\PlatformSyncEntityType;
+use App\Core\Platforms\PlatformRegistry;
 use App\Enums\PlatformSyncStatus;
 use App\Platforms\AtCoder\AtCoderAdapter;
+use App\Platforms\Codeforces\Importers\ProblemImporter as CodeforcesProblemImporter;
 use App\Platforms\Codeforces\CodeforcesAdapter;
 use App\Services\ApplicationLogger;
 use App\Services\PlatformSyncStateService;
+use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;
 
 /**
@@ -34,6 +36,13 @@ class ImportProblemsCommandTest extends TestCase
         $realContest->name = 'Round 2000';
         $realContest->platform = $platform;
 
+        $platformQuery = new class($platform) {
+            private $platform;
+            public function __construct($platform) { $this->platform = $platform; }
+            public function where($column, $value) { return $this; }
+            public function first() { return $this->platform; }
+        };
+
         // Prepare DTOs that the adapter will return
         $problems = collect(range('A', 'H'))->map(function (string $suffix) use ($platform, $realContest): ProblemDTO {
             return new ProblemDTO(
@@ -51,14 +60,33 @@ class ImportProblemsCommandTest extends TestCase
 
         // Mock the adapters
         $this->mock(CodeforcesAdapter::class, function ($mock) use ($realContest, $problems): void {
-            $mock->shouldReceive('getContestProblems')
+            $mock->shouldReceive('getProblems')
                 ->once()
-                ->with($realContest->platform_contest_id)
-                ->andReturn(['problems' => $problems]);
+                ->andReturn($problems);
+
+            $mock->shouldReceive('problemImporter')
+                ->once()
+                ->andReturnUsing(function () {
+                    return app(CodeforcesProblemImporter::class);
+                });
         });
 
         $this->mock(AtCoderAdapter::class, function ($mock): void {
-            $mock->shouldNotReceive('getContestProblems');
+            $mock->shouldNotReceive('getProblems');
+        });
+
+        $this->mock(
+            \App\Models\Platform::class,
+            function ($mock) use ($platformQuery): void {
+                $mock->shouldReceive('newQuery')->andReturn($platformQuery);
+            }
+        );
+
+        $this->mock(PlatformRegistry::class, function ($mock): void {
+            $mock->shouldReceive('resolve')
+                ->once()
+                ->with('codeforces')
+                ->andReturn(app(CodeforcesAdapter::class));
         });
 
         // Bind a no-op application logger to avoid DB writes from ApplicationLogger
@@ -149,8 +177,8 @@ class ImportProblemsCommandTest extends TestCase
         $this->assertInstanceOf(\App\Models\Contest::class, $contests->first());
 
         // Run the command and capture output for debugging if it fails
-        $exitCode = \Artisan::call('judgearena:import-problems', ['platform' => 'codeforces']);
-        $output = \Artisan::output();
+        $exitCode = Artisan::call('judgearena:import-problems', ['platform' => 'codeforces']);
+        $output = Artisan::output();
         $this->assertSame(0, $exitCode, "Import command failed with output:\n" . $output . (isset($caughtException) ? "\nException: " . $caughtException->getMessage() : ''));
 
         // The command ran; adapter and service mocks verify orchestration.
