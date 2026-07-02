@@ -31,6 +31,7 @@ class AtCoderHtmlScraper
         $contests = [];
 
         $contests = array_merge($contests, $this->getNormalContests());
+        $contests = array_merge($contests, $this->getWeekDayContests());
         $contests = array_merge($contests, $this->getPermanentContests());
         $contests = array_merge($contests, $this->getHiddenContests());
         $contests = array_merge($contests, $this->getHistoricalContests());
@@ -496,6 +497,73 @@ class AtCoderHtmlScraper
                     'duration' => $duration,
                     'rate_change' => $rateChange,
                     'type' => 'normal',
+                ];
+
+                $pageHasContests = true;
+            }
+
+            if (! $pageHasContests) {
+                break;
+            }
+
+            if ($maxPages !== null && $page >= $maxPages) {
+                break;
+            }
+
+            $page++;
+            $this->respectRateLimit();
+        }
+
+        return $contests;
+    }
+
+    //used
+    private function getWeekDayContests(): array
+    {
+        $contests = [];
+        $page = 1;
+        $maxPages = null;
+
+        while (true) {
+            $html = $this->fetchPage(self::ATCODER_BASE_URL . '/contests/archive?category=20&page=' . $page);
+
+            if ($maxPages === null) {
+                $maxPages = $this->extractMaxPages($html);
+            }
+
+            $doc = new DOMDocument;
+            @$doc->loadHTML($html);
+            $xpath = new DOMXPath($doc);
+
+            $rows = $xpath->query('//table//tbody//tr');
+            $pageHasContests = false;
+
+            foreach ($rows as $row) {
+                $cells = $xpath->query('.//td', $row);
+                if ($cells->length < 4) {
+                    continue;
+                }
+
+                $startText = trim($cells->item(0)?->nodeValue ?? '');
+                $link = $xpath->query('.//a', $cells->item(1))->item(0);
+                if (! $link instanceof \DOMElement) {
+                    continue;
+                }
+
+                $href = $link->getAttribute('href');
+                $contestId = basename($href);
+                $title = $link->nodeValue;
+                $duration = trim($cells->item(2)?->nodeValue ?? '');
+                $rateChange = trim($cells->item(3)?->nodeValue ?? '');
+
+                $contests[] = [
+                    'id' => $contestId,
+                    'title' => $title,
+                    'url' => self::ATCODER_BASE_URL . $href,
+                    'date' => $startText,
+                    'duration' => $duration,
+                    'rate_change' => $rateChange,
+                    'type' => 'weekday',
                 ];
 
                 $pageHasContests = true;
