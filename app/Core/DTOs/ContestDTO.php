@@ -13,6 +13,7 @@ readonly class ContestDTO
 		public ?string $phase = null,
 		public ?DateTimeImmutable $startedAt = null,
 		public ?int $durationSeconds = null,
+        public ?DateTimeImmutable $endedAt = null,
 		public array $raw = [],
 	) {
 	}

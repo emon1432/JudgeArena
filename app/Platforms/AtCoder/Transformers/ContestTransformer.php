@@ -20,6 +20,9 @@ class ContestTransformer
             phase: null,
             startedAt: $this->parseStartTime($contest->date),
             durationSeconds: $this->parseDurationSeconds($contest->duration),
+            endedAt: isset($contest->date, $contest->duration)
+                ? $this->parseStartTime($contest->date)?->add(new \DateInterval('PT' . $this->parseDurationSeconds($contest->duration) . 'S'))
+                : null,
             raw: $contest->raw,
         );
     }

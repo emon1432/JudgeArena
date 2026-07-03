@@ -108,6 +108,7 @@ class ContestImporter implements ContestImporterContract
                         'phase' => $contestDto->phase,
                         'duration_seconds' => $contestDto->durationSeconds,
                         'start_time' => $contestDto->startedAt,
+                        'end_time' => $contestDto->endedAt,
                         'metadata' => [
                             'source' => 'adapter',
                             'imported_at' => now(),

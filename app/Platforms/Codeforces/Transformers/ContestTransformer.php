@@ -22,6 +22,9 @@ class ContestTransformer
                 ? (new DateTimeImmutable())->setTimestamp((int) $contest->startTimeSeconds)
                 : null,
             durationSeconds: $contest->durationSeconds,
+            endedAt: isset($contest->startTimeSeconds, $contest->durationSeconds)
+                ? (new DateTimeImmutable())->setTimestamp((int) $contest->startTimeSeconds + (int) $contest->durationSeconds)
+                : null,
             raw: $contest->raw,
         );
     }
