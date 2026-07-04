@@ -4,6 +4,7 @@ namespace App\Core\Contracts\Platforms;
 
 use App\Core\Contracts\Importers\ContestImporter;
 use App\Core\Contracts\Importers\ProblemImporter;
+use App\Core\Contracts\Importers\RatingChangeImporter;
 use App\Core\DTOs\ContestStandingsDTO;
 use App\Core\DTOs\RatingChangeDTO;
 use App\Core\DTOs\UserDTO;
@@ -34,4 +35,5 @@ interface PlatformAdapter
     // Importers
     public function contestImporter(): ContestImporter;
     public function problemImporter(): ProblemImporter;
+    public function ratingChangeImporter(): RatingChangeImporter;
 }

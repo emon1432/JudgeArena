@@ -4,11 +4,13 @@ namespace App\Platforms\Codeforces;
 
 use App\Core\Contracts\Importers\ContestImporter as ContestImporterContract;
 use App\Core\Contracts\Importers\ProblemImporter as ProblemImporterContract;
+use App\Core\Contracts\Importers\RatingChangeImporter as RatingChangeImporterContract;
 use App\Core\Contracts\Platforms\PlatformAdapter;
 use App\Core\DTOs\ContestStandingsDTO;
 use App\Core\DTOs\RatingChangeDTO;
 use App\Core\DTOs\UserDTO;
 use App\Platforms\Codeforces\Importers\ContestImporter;
+use App\Platforms\Codeforces\Importers\RatingChangeImporter;
 use App\Platforms\Codeforces\Importers\ProblemImporter;
 use App\Platforms\Codeforces\Services\Contests;
 use App\Platforms\Codeforces\Services\Problems;
@@ -45,6 +47,11 @@ class CodeforcesAdapter implements PlatformAdapter
     public function problemImporter(): ProblemImporterContract
     {
         return app(ProblemImporter::class);
+    }
+
+    public function ratingChangeImporter(): RatingChangeImporterContract
+    {
+        return app(RatingChangeImporter::class);
     }
 
 
