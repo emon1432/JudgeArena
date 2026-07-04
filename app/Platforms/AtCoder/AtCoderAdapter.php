@@ -5,6 +5,7 @@ namespace App\Platforms\AtCoder;
 use App\Core\Contracts\Importers\ContestImporter as ContestImporterContract;
 use App\Core\Contracts\Importers\ProblemImporter as ProblemImporterContract;
 use App\Core\Contracts\Importers\RatingChangeImporter as RatingChangeImporterContract;
+use App\Core\Contracts\Importers\StandingsImporter as StandingsImporterContract;
 use App\Core\Contracts\Platforms\PlatformAdapter;
 use App\Core\DTOs\ContestStandingsDTO;
 use App\Core\DTOs\RatingChangeDTO;
@@ -12,6 +13,7 @@ use App\Core\DTOs\UserDTO;
 use App\Platforms\AtCoder\Importers\ContestImporter;
 use App\Platforms\AtCoder\Importers\RatingChangeImporter;
 use App\Platforms\AtCoder\Importers\ProblemImporter;
+use App\Platforms\AtCoder\Importers\StandingsImporter;
 use App\Platforms\AtCoder\Mappers\AtCoderProblemMapper;
 use App\Platforms\AtCoder\Services\Contests;
 use App\Platforms\AtCoder\Services\Problems;
@@ -58,6 +60,11 @@ class AtCoderAdapter implements PlatformAdapter
     public function ratingChangeImporter(): RatingChangeImporterContract
     {
         return app(RatingChangeImporter::class);
+    }
+
+    public function standingsImporter(): StandingsImporterContract
+    {
+        return app(StandingsImporter::class);
     }
 
 
