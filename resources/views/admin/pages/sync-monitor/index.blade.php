@@ -15,7 +15,7 @@
 
         $retryCount = function ($state) {
             $metadata = is_array($state->metadata) ? $state->metadata : [];
-            return $metadata['retry_count'] ?? $metadata['attempt_count'] ?? 'N/A';
+            return $metadata['retry_count'] ?? ($metadata['attempt_count'] ?? 'N/A');
         };
     @endphp
 
@@ -110,7 +110,8 @@
                             <tbody>
                                 @foreach ($platform['entities'] as $entityType => $counts)
                                     <tr>
-                                        <td>{{ $entityLabels[$entityType] ?? str($entityType)->replace('_', ' ')->title() }}</td>
+                                        <td>{{ $entityLabels[$entityType] ?? str($entityType)->replace('_', ' ')->title() }}
+                                        </td>
                                         <td>{{ $counts['total'] }}</td>
                                         <td>{{ $counts['synced'] }}</td>
                                         <td>{{ $counts['failed'] }}</td>
@@ -161,19 +162,23 @@
                                 <td>
                                     <form method="POST" action="{{ route('sync-monitor.retry', $state) }}">
                                         @csrf
-                                        <button type="submit" class="btn btn-sm btn-label-warning">{{ __('Retry Sync') }}</button>
+                                        <button type="submit"
+                                            class="btn btn-sm btn-label-warning">{{ __('Retry Sync') }}</button>
                                     </form>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center text-muted py-5">{{ __('No failed sync states found.') }}</td>
+                                <td colspan="7" class="text-center text-muted py-5">
+                                    {{ __('No failed sync states found.') }}</td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
-            {{ $recentFailures->links() }}
+            <div class="row mt-5 justify-content-between">
+                {{ $recentFailures->links('pagination::bootstrap-5') }}
+            </div>
         </div>
     </div>
 
@@ -204,7 +209,8 @@
                                 <td>{{ $entityLabels[$entityType] ?? str($entityType)->replace('_', ' ')->title() }}</td>
                                 <td>{{ $state->entity_platform_id ?? '-' }}</td>
                                 <td>
-                                    <span class="badge bg-label-{{ $statusColors[$status] ?? 'secondary' }} text-uppercase">
+                                    <span
+                                        class="badge bg-label-{{ $statusColors[$status] ?? 'secondary' }} text-uppercase">
                                         {{ $status }}
                                     </span>
                                 </td>
@@ -212,13 +218,16 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="text-center text-muted py-5">{{ __('No sync activity found.') }}</td>
+                                <td colspan="5" class="text-center text-muted py-5">
+                                    {{ __('No sync activity found.') }}</td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
-            {{ $recentActivity->links() }}
+            <div class="row mt-5 justify-content-between">
+                {{ $recentActivity->links('pagination::bootstrap-5') }}
+            </div>
         </div>
     </div>
 @endsection

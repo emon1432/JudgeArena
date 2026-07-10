@@ -37,6 +37,7 @@ class AtCoderAdapter implements PlatformAdapter
         );
     }
 
+    //used
     public function contestImporter(): ContestImporterContract
     {
         return app(ContestImporter::class);
@@ -54,10 +55,15 @@ class AtCoderAdapter implements PlatformAdapter
         );
     }
 
+    //used
     public function problemImporter(): ProblemImporterContract
     {
         return app(ProblemImporter::class);
     }
+
+
+
+
 
     public function submissionImporter(): SubmissionImporterContract
     {

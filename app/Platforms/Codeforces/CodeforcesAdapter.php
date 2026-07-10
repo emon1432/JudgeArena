@@ -42,9 +42,10 @@ class CodeforcesAdapter implements PlatformAdapter
     }
 
     //used
-    public function getProblems(): array
+    public function getContestProblems(string $contestId): array
     {
-        return $this->problemTransformer->fromApiProblems($this->problems->list());
+        $contest = $this->contests->standings((int) $contestId);
+        return $this->problemTransformer->fromApiProblems($contest->problems);
     }
 
     //used
@@ -52,6 +53,10 @@ class CodeforcesAdapter implements PlatformAdapter
     {
         return app(ProblemImporter::class);
     }
+
+
+
+
 
     public function submissionImporter(): SubmissionImporterContract
     {
@@ -85,14 +90,9 @@ class CodeforcesAdapter implements PlatformAdapter
     /**
      * @return \App\Core\DTOs\ProblemDTO[]
      */
-    public function getContestProblems(string $contestId): array
+    public function getProblems(): array
     {
-        $contest = $this->contests->standings((int) $contestId);
-
-        return [
-            'problems' => $this->problemTransformer->fromApiProblems($contest->problems),
-            'problemStatistics' => [],
-        ];
+        return $this->problemTransformer->fromApiProblems($this->problems->list());
     }
 
     /** @return UserDTO */

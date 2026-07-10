@@ -14,7 +14,6 @@ use App\Core\DTOs\UserDTO;
 interface PlatformAdapter
 {
     public function getContests(): array;
-    public function getProblems(): array;
     public function getContestProblems(string $contestId): array;
 
 

@@ -190,7 +190,7 @@ class SyncMonitorController extends Controller
         ]))
             ->with('platform')
             ->latest('updated_at')
-            ->simplePaginate(50, ['*'], 'failures_page')
+            ->paginate(10, ['*'], 'failures_page')
             ->withQueryString();
     }
 
@@ -199,7 +199,7 @@ class SyncMonitorController extends Controller
         return $this->filteredQuery($filters)
             ->with('platform')
             ->latest('updated_at')
-            ->simplePaginate(100, ['*'], 'activity_page')
+            ->paginate(10, ['*'], 'activity_page')
             ->withQueryString();
     }
 

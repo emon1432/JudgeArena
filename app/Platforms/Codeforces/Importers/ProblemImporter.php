@@ -12,12 +12,11 @@ use App\Services\ApplicationLogger;
 use App\Services\PlatformSyncStateService;
 use Throwable;
 
-
 class ProblemImporter implements ProblemImporterContract
 {
     public function __construct(
-        private readonly Problem $problemModel,
         private readonly Contest $contestModel,
+        private readonly Problem $problemModel,
         private readonly Platform $platformModel,
         private readonly CodeforcesAdapter $adapter,
         private readonly PlatformSyncStateService $platformSyncStateService,
@@ -50,123 +49,135 @@ class ProblemImporter implements ProblemImporterContract
             return $stats;
         }
 
-        $problems = $this->adapter->getProblems();
+        $contests = $this->contestModel->newQuery()
+            ->where('platform_id', $platform->id)
+            ->whereNotNull('platform_contest_id')
+            ->with('platform')
+            ->get();
 
-        if (! is_array($problems)) {
-            $problems = [];
-        }
-
-        $pendingProblems = collect($problems)->filter(function ($problemDto) use ($platform): bool {
+        $pendingContests = $contests->filter(function (Contest $contest): bool {
             $syncState = $this->platformSyncStateService->findState(
-                $platform,
+                $contest->platform,
                 PlatformSyncEntityType::ContestProblems,
-                (string) $problemDto->platformProblemId
+                (string) $contest->platform_contest_id
             );
 
             return $this->platformSyncStateService->canBeRetried($syncState);
         });
 
         $stats = [
-            'problems_checked' => count($problems),
-            'problems_synced' => 0,
-            'problems_already_synced' => collect($problems)->filter(function ($problemDto) use ($platform): bool {
-                return $this->platformSyncStateService->isSynced(
-                    $platform,
-                    PlatformSyncEntityType::ContestProblems,
-                    (string) $problemDto->platformProblemId
-                );
-            })->count(),
-            'problems_failed' => 0,
-            'fetched' => count($problems),
+            'contests_checked' => $contests->count(),
+            'contests_synced' => 0,
+            'contests_already_synced' => $contests->filter(
+                function (Contest $contest): bool {
+                    return $this->platformSyncStateService->isSynced(
+                        $contest->platform,
+                        PlatformSyncEntityType::ContestProblems,
+                        (string) $contest->platform_contest_id
+                    );
+                }
+            )->count(),
+            'contests_failed' => 0,
+            'contests_unsupported_platform' => 0,
+            'fetched' => 0,
             'created' => 0,
             'updated' => 0,
             'failed' => 0,
         ];
 
-        foreach ($pendingProblems as $problemDto) {
-            $syncState = $this->platformSyncStateService->markSyncing(
-                $platform,
-                PlatformSyncEntityType::ContestProblems,
-                (string) $problemDto->platformProblemId,
-                [
-                    'platform_slug' => $platform->slug,
-                    'problem_title' => $problemDto->title,
-                    'contest_platform_id' => $problemDto->contestPlatformId,
-                ]
-            );
+        $contestsByPlatform = $pendingContests->groupBy(function (Contest $contest): string {
+            return (string) ($contest->platform?->slug ?? '');
+        });
 
-            if ($syncState === null) {
-                continue;
-            }
-
-            try {
-                $problem = $this->problemModel->newQuery()->updateOrCreate(
+        foreach ($contestsByPlatform as $platformSlugKey => $platformContests) {
+            foreach ($platformContests as $contest) {
+                $syncState = $this->platformSyncStateService->markSyncing(
+                    $contest->platform,
+                    PlatformSyncEntityType::ContestProblems,
+                    (string) $contest->platform_contest_id,
                     [
-                        'platform_id' => $platform->id,
-                        'platform_problem_id' => $problemDto->platformProblemId,
-                    ],
-                    [
-                        'contest_id' => $problemDto->contestPlatformId === null || $problemDto->contestPlatformId === ''
-                            ? null
-                            : $this->contestModel->newQuery()
-                                ->where('platform_id', $platform->id)
-                                ->where('platform_contest_id', $problemDto->contestPlatformId)
-                                ->first()?->id,
-                        'slug' => slugify($problemDto->title),
-                        'name' => $problemDto->title,
-                        'code' => $problemDto->code,
-                        'points' => $problemDto->points,
-                        'rating' => $problemDto->rating,
-                        'solved_count' => $problemDto->solvedCount,
-                        'tags' => $problemDto->tags,
-                        'url' => $problemDto->url,
-                        'last_synced_at' => now(),
-                        'metadata' => [
-                            'source' => 'contest-scoped-sync',
-                            'platform' => $problemDto->platform,
-                            'contest_platform_id' => $problemDto->contestPlatformId,
-                        ],
-                        'raw' => $problemDto->raw,
-                        'status' => 'Active',
+                        'contest_id' => $contest->id,
+                        'contest_name' => $contest->name,
+                        'platform_slug' => $platformSlugKey,
                     ]
                 );
 
-                if ($problem->wasRecentlyCreated) {
-                    $stats['created']++;
-                } else {
-                    $stats['updated']++;
+                if ($syncState === null) {
+                    continue;
                 }
 
-                $this->platformSyncStateService->markSynced($syncState, [
-                    'problem_id' => $problem->id ?? null,
-                    'problem_platform_id' => $problemDto->platformProblemId,
-                    'contest_platform_id' => $problemDto->contestPlatformId,
-                ]);
+                try {
+                    $problems = $this->adapter->getContestProblems((string) $contest->platform_contest_id);
 
-                $stats['problems_synced']++;
-            } catch (Throwable $e) {
-                $stats['failed']++;
+                    if (! is_array($problems)) {
+                        $problems = [];
+                    }
 
-                $stats['problems_failed']++;
+                    $stats['fetched'] += count($problems);
 
-                $this->platformSyncStateService->markFailed($syncState, $e, [
-                    'problem_platform_id' => $problemDto->platformProblemId,
-                    'contest_platform_id' => $problemDto->contestPlatformId,
-                ]);
+                    foreach ($problems as $problemDto) {
+                        $problem = $this->problemModel->newQuery()->updateOrCreate(
+                            [
+                                'platform_id' => $contest->platform_id,
+                                'platform_problem_id' => $problemDto->platformProblemId,
+                            ],
+                            [
+                                'contest_id' => $contest->id,
+                                'slug' => slugify($problemDto->title),
+                                'name' => $problemDto->title,
+                                'code' => $problemDto->code,
+                                'points' => $problemDto->points,
+                                'rating' => $problemDto->rating,
+                                'time_limit_ms' => $problemDto->timeLimit,
+                                'memory_limit_mb' => $problemDto->memoryLimit,
+                                'solved_count' => $problemDto->solvedCount,
+                                'tags' => $problemDto->tags,
+                                'url' => $problemDto->url,
+                                'last_synced_at' => now(),
+                                'metadata' => [
+                                    'source' => 'contest-scoped-sync',
+                                    'platform' => $problemDto->platform,
+                                    'contest_platform_id' => $contest->platform_contest_id,
+                                ],
+                                'raw' => $problemDto->raw,
+                                'status' => 'Active',
+                            ]
+                        );
 
-                app(ApplicationLogger::class)->error(
-                    'Problem import failed',
-                    [
-                        'category' => 'import',
-                        'platform' => 'codeforces',
+                        if ($problem->wasRecentlyCreated) {
+                            $stats['created']++;
+
+                            continue;
+                        }
+
+                        $stats['updated']++;
+                    }
+
+                    $this->platformSyncStateService->markSynced($syncState, [
+                        'problem_count' => count($problems),
+                    ]);
+                    $stats['contests_synced']++;
+                } catch (Throwable $e) {
+                    $stats['contests_failed']++;
+
+                    $this->platformSyncStateService->markFailed($syncState, $e, [
+                        'contest_id' => $contest->id,
+                        'contest_name' => $contest->name,
+                    ]);
+
+                    app(ApplicationLogger::class)->error('Problem sync failed', [
+                        'category' => 'sync',
+                        'platform' => $platformSlugKey,
                         'source' => self::class,
+                        'contest_id' => $contest->id,
+                        'platform_contest_id' => $contest->platform_contest_id,
+                        'contest_name' => $contest->name,
                         'message' => $e->getMessage(),
                         'exception' => get_class($e),
                         'file' => $e->getFile(),
                         'line' => $e->getLine(),
-                    ],
-                    $e
-                );
+                    ], $e);
+                }
             }
         }
 
