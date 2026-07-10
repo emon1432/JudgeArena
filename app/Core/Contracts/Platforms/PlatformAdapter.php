@@ -4,6 +4,7 @@ namespace App\Core\Contracts\Platforms;
 
 use App\Core\Contracts\Importers\ContestImporter;
 use App\Core\Contracts\Importers\ProblemImporter;
+use App\Core\Contracts\Importers\SubmissionImporter;
 use App\Core\Contracts\Importers\RatingChangeImporter;
 use App\Core\Contracts\Importers\StandingsImporter;
 use App\Core\DTOs\ContestStandingsDTO;
@@ -24,7 +25,7 @@ interface PlatformAdapter
     public function getUser(string $username): UserDTO;
 
     /** @return \App\Core\DTOs\SubmissionDTO[] */
-    public function getSubmissions(string $contestId, string $username): array;
+    public function getSubmissions(string $contestId): array;
 
     /** @return RatingChangeDTO[] */
     public function getRatingChanges(string $contestId): array;
@@ -36,6 +37,7 @@ interface PlatformAdapter
     // Importers
     public function contestImporter(): ContestImporter;
     public function problemImporter(): ProblemImporter;
+    public function submissionImporter(): SubmissionImporter;
     public function ratingChangeImporter(): RatingChangeImporter;
     public function standingsImporter(): StandingsImporter;
 }

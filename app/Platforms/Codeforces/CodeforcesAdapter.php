@@ -4,6 +4,7 @@ namespace App\Platforms\Codeforces;
 
 use App\Core\Contracts\Importers\ContestImporter as ContestImporterContract;
 use App\Core\Contracts\Importers\ProblemImporter as ProblemImporterContract;
+use App\Core\Contracts\Importers\SubmissionImporter as SubmissionImporterContract;
 use App\Core\Contracts\Importers\RatingChangeImporter as RatingChangeImporterContract;
 use App\Core\Contracts\Importers\StandingsImporter as StandingsImporterContract;
 use App\Core\Contracts\Platforms\PlatformAdapter;
@@ -13,6 +14,7 @@ use App\Core\DTOs\UserDTO;
 use App\Platforms\Codeforces\Importers\ContestImporter;
 use App\Platforms\Codeforces\Importers\RatingChangeImporter;
 use App\Platforms\Codeforces\Importers\ProblemImporter;
+use App\Platforms\Codeforces\Importers\SubmissionImporter;
 use App\Platforms\Codeforces\Importers\StandingsImporter;
 use App\Platforms\Codeforces\Services\Contests;
 use App\Platforms\Codeforces\Services\Problems;
@@ -49,6 +51,11 @@ class CodeforcesAdapter implements PlatformAdapter
     public function problemImporter(): ProblemImporterContract
     {
         return app(ProblemImporter::class);
+    }
+
+    public function submissionImporter(): SubmissionImporterContract
+    {
+        return app(SubmissionImporter::class);
     }
 
     public function ratingChangeImporter(): RatingChangeImporterContract
@@ -95,10 +102,10 @@ class CodeforcesAdapter implements PlatformAdapter
     }
 
     /** @return \App\Core\DTOs\SubmissionDTO[] */
-    public function getSubmissions(string $contestId, string $username): array
+    public function getSubmissions(string $contestId): array
     {
         return $this->submissionTransformer->fromApiSubmissions(
-            $this->users->status($contestId, $username)
+            $this->contests->status((int) $contestId)
         );
     }
 
