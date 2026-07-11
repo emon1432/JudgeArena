@@ -28,9 +28,9 @@ return new class extends Migration
             $table->float('points', 8, 2)->nullable();
             $table->bigInteger('time_limit_ms')->nullable();
             $table->unsignedInteger('memory_limit_mb')->nullable();
-            $table->unsignedInteger('total_submissions')->default(0);
-            $table->unsignedInteger('accepted_submissions')->default(0);
-            $table->unsignedInteger('solved_count')->default(0);
+            $table->unsignedInteger('total_submissions')->nullable()->default(0);
+            $table->unsignedInteger('accepted_submissions')->nullable()->default(0);
+            $table->unsignedInteger('solved_count')->nullable()->default(0);
             $table->json('tags')->nullable();
             $table->string('url', 500)->nullable();
             $table->string('editorial_url', 500)->nullable();
@@ -38,6 +38,7 @@ return new class extends Migration
             $table->json('metadata')->nullable();
             $table->json('raw')->nullable();
             $table->string('status', 50)
+                ->nullable()
                 ->default('Active');
             $table->timestamps();
             $table->unique(

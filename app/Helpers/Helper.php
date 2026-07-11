@@ -1,11 +1,7 @@
 <?php
 
-use App\Models\Currency;
-use App\View\Components\StatusBadge;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
 
 if (!function_exists('slugify')) {
     function slugify(string $text): string

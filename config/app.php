@@ -129,7 +129,6 @@ return [
     ],
 
     'platform_sync' => [
-        'stale_sync_timeout_minutes' => (int) env('PLATFORM_SYNC_STALE_TIMEOUT_MINUTES', 120),
         'lock_timeout_seconds' => (int) env('PLATFORM_SYNC_LOCK_TIMEOUT_SECONDS', 600),
     ],
 
