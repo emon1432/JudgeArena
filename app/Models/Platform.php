@@ -49,14 +49,19 @@ class Platform extends Model
         return $this->hasMany(Standing::class, 'platform_id');
     }
 
+    public function contestRatingChanges(): HasMany
+    {
+        return $this->hasMany(ContestRatingChange::class);
+    }
+
     public function syncStates(): HasMany
     {
         return $this->hasMany(PlatformSyncState::class, 'platform_id');
     }
 
-    public function contestRatingChanges(): HasMany
+    public function syncJobs(): HasMany
     {
-        return $this->hasMany(ContestRatingChange::class);
+        return $this->hasMany(PlatformSyncJob::class, 'platform_id');
     }
 
     public function scopeActive($query)

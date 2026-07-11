@@ -32,9 +32,9 @@ class AtCoderHtmlScraper
 
         $contests = array_merge($contests, $this->getNormalContests());
         $contests = array_merge($contests, $this->getWeekDayContests());
+        $contests = array_merge($contests, $this->getDailyTrainingContests());
         $contests = array_merge($contests, $this->getPermanentContests());
         $contests = array_merge($contests, $this->getHiddenContests());
-        $contests = array_merge($contests, $this->getHistoricalContests());
 
         return $contests;
     }
@@ -70,7 +70,7 @@ class AtCoderHtmlScraper
             }
 
             $html = $this->fetchPage($url);
-            if($html === "") {
+            if ($html === "") {
                 break;
             }
 
@@ -749,53 +749,67 @@ class AtCoderHtmlScraper
     }
 
     //used
-    private function getHistoricalContests(): array
+    private function getDailyTrainingContests(): array
     {
         $contests = [];
+        $page = 1;
+        $maxPages = null;
 
-        try {
-            $filePath = storage_path('app/atcoder_historical_contests.json');
-            if (! file_exists($filePath)) {
-                return $contests;
+        while (true) {
+            $html = $this->fetchPage(self::ATCODER_BASE_URL . '/contests/archive?category=60&lang=ja&page=' . $page);
+
+            if ($maxPages === null) {
+                $maxPages = $this->extractMaxPages($html);
             }
 
-            $json = file_get_contents($filePath);
-            $historicalContests = json_decode($json ?: '[]', true) ?? [];
+            $doc = new DOMDocument;
+            @$doc->loadHTML($html);
+            $xpath = new DOMXPath($doc);
 
-            foreach ($historicalContests as $contest) {
-                if (! isset($contest['id'])) {
+            $rows = $xpath->query('//table//tbody//tr');
+            $pageHasContests = false;
+
+            foreach ($rows as $row) {
+                $cells = $xpath->query('.//td', $row);
+                if ($cells->length < 4) {
                     continue;
                 }
 
-                $startTime = '';
-                if (isset($contest['start_epoch_second']) && $contest['start_epoch_second'] > 0) {
-                    $startTime = date('Y-m-d H:i:s', $contest['start_epoch_second']);
+                $startText = trim($cells->item(0)?->nodeValue ?? '');
+                $link = $xpath->query('.//a', $cells->item(1))->item(0);
+                if (! $link instanceof \DOMElement) {
+                    continue;
                 }
 
-                $duration = '';
-                if (isset($contest['duration_second'])) {
-                    $hours = (int) ($contest['duration_second'] / 3600);
-                    $minutes = (int) (($contest['duration_second'] % 3600) / 60);
-                    $duration = sprintf('%02d:%02d', $hours, $minutes);
-                }
+                $href = $link->getAttribute('href');
+                $contestId = basename($href);
+                $title = $link->nodeValue;
+                $duration = trim($cells->item(2)?->nodeValue ?? '');
+                $rateChange = trim($cells->item(3)?->nodeValue ?? '');
 
                 $contests[] = [
-                    'id' => $contest['id'],
-                    'title' => $contest['title'] ?? $contest['id'],
-                    'url' => self::ATCODER_BASE_URL . '/contests/' . $contest['id'],
-                    'date' => $startTime,
-                    'duration' => $duration ?: 'Archived',
-                    'rate_change' => $contest['rate_change'] ?? '-',
-                    'type' => 'historical',
+                    'id' => $contestId,
+                    'title' => $title,
+                    'url' => self::ATCODER_BASE_URL . $href,
+                    'date' => $startText,
+                    'duration' => $duration,
+                    'rate_change' => $rateChange,
+                    'type' => 'weekday',
                 ];
+
+                $pageHasContests = true;
             }
-        } catch (\Exception $exception) {
-            app(ApplicationLogger::class)->warning('AtCoder scraper failed while reading historical contests', [
-                'category' => 'scraper',
-                'platform' => 'atcoder',
-                'source' => self::class,
-                'operation' => 'getHistoricalContests',
-            ], $exception);
+
+            if (! $pageHasContests) {
+                break;
+            }
+
+            if ($maxPages !== null && $page >= $maxPages) {
+                break;
+            }
+
+            $page++;
+            $this->respectRateLimit();
         }
 
         return $contests;

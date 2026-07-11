@@ -30,5 +30,6 @@ class DatabaseSeeder extends Seeder
         $this->call(StandingsTableSeeder::class);
         $this->call(SubmissionsTableSeeder::class);
         $this->call(ApplicationLogsTableSeeder::class);
+        $this->call(PlatformSyncJobsTableSeeder::class);
     }
 }
