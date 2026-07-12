@@ -56,19 +56,18 @@ class ImportContestsCommand extends Command
         $this->info('Starting contest import for platform: ' . $platformSlug);
 
         try {
-            $stats = $adapter
+            $result = $adapter
                 ->contestImporter()
                 ->import();
 
             $this->line('Platform: ' . $platformSlug);
-            $this->line('Contests Checked: ' . ($stats['contests_checked'] ?? 0));
-            $this->line('Contests Synced: ' . ($stats['contests_synced'] ?? 0));
-            $this->line('Contests Already Synced: ' . ($stats['contests_already_synced'] ?? 0));
-            $this->line('Contests Failed: ' . ($stats['contests_failed'] ?? 0));
-            $this->line('Fetched: ' . ($stats['fetched'] ?? 0));
-            $this->line('Created: ' . ($stats['created'] ?? 0));
-            $this->line('Updated: ' . ($stats['updated'] ?? 0));
-            $this->line('Failed: ' . ($stats['failed'] ?? 0));
+            $this->line('Checked: ' . $result->checked);
+            $this->line('Fetched: ' . $result->fetched);
+            $this->line('Created: ' . $result->created);
+            $this->line('Updated: ' . $result->updated);
+            $this->line('Skipped: ' . $result->skipped);
+            $this->line('Failed: ' . $result->failed);
+            $this->line('Synced: ' . $result->synced());
 
             $this->info('Contest import completed successfully.');
 
@@ -78,14 +77,7 @@ class ImportContestsCommand extends Command
                     'category' => 'import',
                     'platform' => $platformSlug,
                     'source' => self::class,
-                    'contests_checked' => $stats['contests_checked'] ?? 0,
-                    'contests_synced' => $stats['contests_synced'] ?? 0,
-                    'contests_already_synced' => $stats['contests_already_synced'] ?? 0,
-                    'contests_failed' => $stats['contests_failed'] ?? 0,
-                    'fetched' => $stats['fetched'] ?? 0,
-                    'created' => $stats['created'] ?? 0,
-                    'updated' => $stats['updated'] ?? 0,
-                    'failed' => $stats['failed'] ?? 0,
+                    'result' => $result->toArray(),
                 ]
             );
 

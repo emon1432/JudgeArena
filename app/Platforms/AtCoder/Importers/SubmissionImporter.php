@@ -4,6 +4,7 @@ namespace App\Platforms\AtCoder\Importers;
 
 use App\Core\Contracts\Importers\SubmissionImporter as SubmissionImporterContract;
 use App\Core\DTOs\SubmissionDTO;
+use App\Core\Results\ImportResult;
 use App\Enums\PlatformSyncEntityType;
 use App\Models\Contest;
 use App\Models\Problem;
@@ -24,21 +25,11 @@ class SubmissionImporter implements SubmissionImporterContract
         private readonly PlatformSyncStateService $platformSyncStateService,
     ) {}
 
-    public function import(): array
+    public function import(): ImportResult
     {
         $platformSlug = 'atcoder';
 
-        $stats = [
-            'contests_checked' => 0,
-            'contests_synced' => 0,
-            'contests_already_synced' => 0,
-            'contests_skipped' => 0,
-            'contests_failed' => 0,
-            'submissions_fetched' => 0,
-            'submissions_created' => 0,
-            'submissions_updated' => 0,
-            'submissions_skipped' => 0,
-        ];
+        $result = new ImportResult();
 
         $contests = $this->contestModel->newQuery()
             ->with('platform')
@@ -49,48 +40,9 @@ class SubmissionImporter implements SubmissionImporterContract
             ->orderBy('start_time')
             ->get();
 
-        $pendingContests = $contests->filter(function (Contest $contest) use ($platformSlug): bool {
-            if ($contest->platform_contest_id === null || $contest->platform_contest_id === '') {
-                app(ApplicationLogger::class)->warning('Submission import skipped: contest missing platform contest id', $this->contestLogContext(
-                    $platformSlug,
-                    $contest
-                ));
+        $result->incrementChecked($contests->count());
 
-                return false;
-            }
-
-            $syncState = $this->platformSyncStateService->findState(
-                $contest->platform,
-                PlatformSyncEntityType::ContestSubmissions,
-                (string) $contest->platform_contest_id
-            );
-
-            $canBeRetried = $this->platformSyncStateService->canBeRetried($syncState);
-
-            if (! $canBeRetried) {
-                app(ApplicationLogger::class)->info('Submission import skipped: contest sync state not retryable', $this->contestLogContext(
-                    $platformSlug,
-                    $contest
-                ));
-            }
-
-            return $canBeRetried;
-        });
-
-        $stats['contests_checked'] = $contests->count();
-        $stats['contests_already_synced'] = $contests->filter(function (Contest $contest) use ($platformSlug): bool {
-            if ($contest->platform_contest_id === null || $contest->platform_contest_id === '') {
-                return false;
-            }
-
-            return $this->platformSyncStateService->isSynced(
-                $contest->platform,
-                PlatformSyncEntityType::ContestSubmissions,
-                (string) $contest->platform_contest_id
-            );
-        })->count();
-
-        foreach ($pendingContests as $contest) {
+        foreach ($contests as $contest) {
             $context = $this->contestLogContext($platformSlug, $contest);
 
             $syncState = $this->platformSyncStateService->markSyncing(
@@ -106,7 +58,7 @@ class SubmissionImporter implements SubmissionImporterContract
             );
 
             if ($syncState === null) {
-                $stats['contests_skipped']++;
+                $result->incrementSkipped();
                 continue;
             }
 
@@ -117,27 +69,29 @@ class SubmissionImporter implements SubmissionImporterContract
                     $submissions = [];
                 }
 
-                $stats['submissions_fetched'] += count($submissions);
+                $result->incrementFetched(count($submissions));
+
+                $problemsByPlatformId = $this->contestProblemsByPlatformProblemId($contest->id);
 
                 foreach ($submissions as $submissionDto) {
                     if (! $submissionDto instanceof SubmissionDTO) {
-                        $stats['submissions_skipped']++;
+                        $result->incrementMetadata('submissions_skipped');
                         continue;
                     }
 
                     $submission = $this->persistSubmission(
                         $contest,
                         $submissionDto,
-                        $platformSlug
+                        $platformSlug,
+                        $problemsByPlatformId,
                     );
 
                     if ($submission->wasRecentlyCreated) {
-                        $stats['submissions_created']++;
-
+                        $result->incrementCreated();
                         continue;
                     }
 
-                    $stats['submissions_updated']++;
+                    $result->incrementUpdated();
                 }
 
                 $this->platformSyncStateService->markSynced($syncState, [
@@ -147,10 +101,8 @@ class SubmissionImporter implements SubmissionImporterContract
                     'contest_name' => $contest->name,
                     'submissions_fetched' => count($submissions),
                 ]);
-
-                $stats['contests_synced']++;
             } catch (Throwable $e) {
-                $stats['contests_failed']++;
+                $result->incrementFailed();
 
                 $this->platformSyncStateService->markFailed($syncState, $e, [
                     'platform_slug' => $platformSlug,
@@ -168,15 +120,25 @@ class SubmissionImporter implements SubmissionImporterContract
             }
         }
 
-        return $stats;
+        $result->metadata = array_merge(
+            $result->metadata,
+            [
+                'platform' => 'atcoder',
+                'entity' => 'submission',
+            ]
+        );
+
+        return $result;
     }
 
     private function persistSubmission(
         Contest $contest,
         SubmissionDTO $submissionDto,
         string $platformSlug,
+        array $problemsByPlatformId,
     ): Submission {
-        $problem = $this->findProblem((int) $contest->platform_id, $submissionDto->problemPlatformId);
+
+        $problem = $problemsByPlatformId[$submissionDto->problemPlatformId] ?? null;
 
         if ($problem === null) {
             app(ApplicationLogger::class)->warning('Submission import problem mapping missing', [
@@ -225,18 +187,14 @@ class SubmissionImporter implements SubmissionImporterContract
         );
     }
 
-    private function findProblem(int $platformId, string $problemPlatformId): ?Problem
+    private function contestProblemsByPlatformProblemId(int $contestId): array
     {
-        $problemPlatformId = trim($problemPlatformId);
-
-        if ($problemPlatformId === '') {
-            return null;
-        }
-
-        return $this->problemModel->newQuery()
-            ->where('platform_id', $platformId)
-            ->where('platform_problem_id', $problemPlatformId)
-            ->first();
+        return $this->problemModel
+            ->newQuery()
+            ->where('contest_id', $contestId)
+            ->get()
+            ->keyBy('platform_problem_id')
+            ->all();
     }
 
     private function contestLogContext(string $platformSlug, Contest $contest): array

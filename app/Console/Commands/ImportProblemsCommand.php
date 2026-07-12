@@ -56,15 +56,16 @@ class ImportProblemsCommand extends Command
         $this->info('Starting problem import for platform: ' . $platformSlug);
 
         try {
-            $stats = $adapter
+            $result = $adapter
                 ->problemImporter()
                 ->import();
 
             $this->line('Platform: ' . $platformSlug);
-            $this->line('Fetched: ' . ($stats['fetched'] ?? 0));
-            $this->line('Created: ' . ($stats['created'] ?? 0));
-            $this->line('Updated: ' . ($stats['updated'] ?? 0));
-            $this->line('Failed: ' . ($stats['failed'] ?? 0));
+            $this->line('Fetched: ' . ($result->fetched ?? 0));
+            $this->line('Created: ' . ($result->created ?? 0));
+            $this->line('Updated: ' . ($result->updated ?? 0));
+            $this->line('Failed: ' . ($result->failed ?? 0));
+            $this->line('Synced: ' . $result->synced());
 
             $this->info('Problem import completed successfully.');
 
@@ -74,10 +75,7 @@ class ImportProblemsCommand extends Command
                     'category' => 'import',
                     'platform' => $platformSlug,
                     'source' => self::class,
-                    'fetched' => $stats['fetched'] ?? 0,
-                    'created' => $stats['created'] ?? 0,
-                    'updated' => $stats['updated'] ?? 0,
-                    'failed' => $stats['failed'] ?? 0,
+                    'result' => $result->toArray(),
                 ]
             );
 

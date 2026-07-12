@@ -45,33 +45,37 @@ class ImportRatingChangesCommand extends Command
         }
 
         try {
-            $stats = $adapter->ratingChangeImporter()->import();
+            $result = $adapter->ratingChangeImporter()->import();
 
             $this->line('Platform: ' . $platformSlug);
-            $this->line('Contests Checked: ' . ($stats['contests_checked'] ?? 0));
-            $this->line('Contests Synced: ' . ($stats['contests_synced'] ?? 0));
-            $this->line('Contests Already Synced: ' . ($stats['contests_already_synced'] ?? 0));
-            $this->line('Contests Failed: ' . ($stats['contests_failed'] ?? 0));
-            $this->line('Unsupported Platform Contests: ' . ($stats['contests_unsupported_platform'] ?? 0));
-            $this->line('Rating Changes Fetched: ' . ($stats['rating_changes_fetched'] ?? 0));
-            $this->line('Rating Changes Created: ' . ($stats['rating_changes_created'] ?? 0));
-            $this->line('Rating Changes Updated: ' . ($stats['rating_changes_updated'] ?? 0));
+            $this->line('Checked: ' . $result->checked);
+            $this->line('Fetched: ' . $result->fetched);
+            $this->line('Created: ' . $result->created);
+            $this->line('Updated: ' . $result->updated);
+            $this->line('Skipped: ' . $result->skipped);
+            $this->line('Failed: ' . $result->failed);
+            $this->line('Synced: ' . ($result->synced ?? 0));
             $this->info('Rating change import completed successfully.');
 
-            app(ApplicationLogger::class)->info('Rating change import completed', [
-                'category' => 'import',
-                'platform' => $platformSlug,
-                'source' => self::class,
-                'contests_checked' => $stats['contests_checked'] ?? 0,
-                'contests_synced' => $stats['contests_synced'] ?? 0,
-                'contests_already_synced' => $stats['contests_already_synced'] ?? 0,
-                'contests_failed' => $stats['contests_failed'] ?? 0,
-                'contests_unsupported_platform' => $stats['contests_unsupported_platform'] ?? 0,
-                'rating_changes_fetched' => $stats['rating_changes_fetched'] ?? 0,
-                'rating_changes_created' => $stats['rating_changes_created'] ?? 0,
-                'rating_changes_updated' => $stats['rating_changes_updated'] ?? 0,
-            ]);
-
+            app(ApplicationLogger::class)->info(
+                'Rating change import completed',
+                [
+                    'category' => 'import',
+                    'platform' => $platformSlug,
+                    'source' => self::class,
+                    'result' => $result->toArray(),
+                ]
+            );
+            if (! empty($result->metadata)) {
+                $this->newLine();
+                $this->table(
+                    ['Key', 'Value'],
+                    collect($result->metadata)
+                        ->map(fn($value, $key) => [$key, is_scalar($value) ? $value : json_encode($value)])
+                        ->values()
+                        ->all()
+                );
+            }
             return self::SUCCESS;
         } catch (Throwable $e) {
             app(ApplicationLogger::class)->error('Rating change import failed', [
@@ -91,4 +95,3 @@ class ImportRatingChangesCommand extends Command
         }
     }
 }
-

@@ -6,8 +6,10 @@ use App\Core\Contracts\Importers\StandingsImporter as StandingsImporterContract;
 use App\Core\DTOs\ContestStandingsDTO;
 use App\Core\DTOs\ParticipantDTO;
 use App\Core\DTOs\ProblemResultDTO;
+use App\Core\Results\ImportResult;
 use App\Enums\PlatformSyncEntityType;
 use App\Models\Contest;
+use App\Models\Platform;
 use App\Models\PlatformProfile;
 use App\Models\Problem;
 use App\Models\Standing;
@@ -15,6 +17,7 @@ use App\Models\StandingTaskResult;
 use App\Platforms\AtCoder\AtCoderAdapter;
 use App\Services\ApplicationLogger;
 use App\Services\PlatformSyncStateService;
+use RuntimeException;
 use Throwable;
 
 class StandingsImporter implements StandingsImporterContract
@@ -24,27 +27,17 @@ class StandingsImporter implements StandingsImporterContract
         private readonly Standing $standingModel,
         private readonly StandingTaskResult $standingTaskResultModel,
         private readonly Problem $problemModel,
+        private readonly Platform $platformModel,
         private readonly PlatformProfile $platformProfileModel,
         private readonly PlatformSyncStateService $platformSyncStateService,
         private readonly AtCoderAdapter $adapter,
     ) {}
 
-    public function import(): array
+    public function import(): ImportResult
     {
         $platformSlug = 'atcoder';
-        $stats = [
-            'contests_checked' => 0,
-            'contests_synced' => 0,
-            'contests_already_synced' => 0,
-            'contests_failed' => 0,
-            'contests_unsupported_platform' => 0,
-            'standings_fetched' => 0,
-            'standings_created' => 0,
-            'standings_updated' => 0,
-            'task_results_created' => 0,
-            'task_results_updated' => 0,
-            'task_results_skipped' => 0,
-        ];
+
+        $result = new ImportResult();
 
         $platform = $this->contestPlatform();
 
@@ -56,7 +49,7 @@ class StandingsImporter implements StandingsImporterContract
                 'message' => 'Platform "' . $platformSlug . '" not found in database',
             ]);
 
-            return $stats;
+            return $result;
         }
 
         $contests = $this->contestModel->newQuery()
@@ -65,62 +58,11 @@ class StandingsImporter implements StandingsImporterContract
             ->whereNotNull('platform_contest_id')
             ->get();
 
-        $pendingContests = $contests->filter(function (Contest $contest): bool {
-            $platform = $contest->platform;
-
-            if ($platform === null || $contest->platform_contest_id === null || $contest->platform_contest_id === '') {
-                app(ApplicationLogger::class)->warning('Standings sync skipped: contest missing platform context', [
-                    'category' => 'import',
-                    'platform' => $platform?->slug,
-                    'source' => self::class,
-                    'contest_id' => $contest->id,
-                    'platform_contest_id' => $contest->platform_contest_id,
-                    'contest_name' => $contest->name,
-                ]);
-
-                return false;
-            }
-
-            $syncState = $this->platformSyncStateService->findState(
-                $platform,
-                PlatformSyncEntityType::ContestStandings,
-                (string) $contest->platform_contest_id
-            );
-
-            $canBeRetried = $this->platformSyncStateService->canBeRetried($syncState);
-
-            if (! $canBeRetried) {
-                app(ApplicationLogger::class)->info('Standings sync skipped: contest sync state not retryable', [
-                    'category' => 'import',
-                    'platform' => $platform->slug,
-                    'source' => self::class,
-                    'contest_id' => $contest->id,
-                    'platform_contest_id' => $contest->platform_contest_id,
-                    'contest_name' => $contest->name,
-                ]);
-            }
-
-            return $canBeRetried;
-        });
-
-        $stats['contests_checked'] = $contests->count();
-        $stats['contests_already_synced'] = $contests->filter(function (Contest $contest): bool {
-            $platform = $contest->platform;
-
-            if ($platform === null || $contest->platform_contest_id === null || $contest->platform_contest_id === '') {
-                return false;
-            }
-
-            return $this->platformSyncStateService->isSynced(
-                $platform,
-                PlatformSyncEntityType::ContestStandings,
-                (string) $contest->platform_contest_id
-            );
-        })->count();
+        $result->incrementChecked($contests->count());
 
         $platformProfilesByHandle = $this->platformProfilesByHandle((int) $platform->id);
 
-        foreach ($pendingContests as $contest) {
+        foreach ($contests as $contest) {
             $syncState = $this->platformSyncStateService->markSyncing(
                 $contest->platform,
                 PlatformSyncEntityType::ContestStandings,
@@ -134,15 +76,7 @@ class StandingsImporter implements StandingsImporterContract
             );
 
             if ($syncState === null) {
-                app(ApplicationLogger::class)->info('Standings sync skipped: contest already claimed', [
-                    'category' => 'import',
-                    'platform' => $platformSlug,
-                    'source' => self::class,
-                    'contest_id' => $contest->id,
-                    'platform_contest_id' => $contest->platform_contest_id,
-                    'contest_name' => $contest->name,
-                ]);
-
+                $result->incrementSkipped();
                 continue;
             }
 
@@ -150,10 +84,10 @@ class StandingsImporter implements StandingsImporterContract
                 $standings = $this->adapter->getContest((string) $contest->platform_contest_id);
 
                 if (! $standings instanceof ContestStandingsDTO) {
-                    throw new \RuntimeException('Adapter returned invalid standings payload.');
+                    throw new RuntimeException('Adapter returned invalid standings payload.');
                 }
 
-                $stats['standings_fetched'] += count($standings->rows);
+                $result->incrementFetched(count($standings->rows));
                 $contestProblemsByPlatformProblemId = $this->contestProblemsByPlatformProblemId((int) $contest->id);
 
                 foreach ($standings->rows as $participant) {
@@ -197,9 +131,9 @@ class StandingsImporter implements StandingsImporterContract
                     );
 
                     if ($standing->wasRecentlyCreated) {
-                        $stats['standings_created']++;
+                        $result->incrementCreated();
                     } else {
-                        $stats['standings_updated']++;
+                        $result->incrementUpdated();
                     }
 
                     $this->persistTaskResults(
@@ -209,7 +143,7 @@ class StandingsImporter implements StandingsImporterContract
                         $participant,
                         $contestProblemsByPlatformProblemId,
                         $platformSlug,
-                        $stats
+                        $result
                     );
                 }
 
@@ -221,10 +155,8 @@ class StandingsImporter implements StandingsImporterContract
                     'standing_count' => count($standings->rows),
                     'problem_count' => count($standings->problems),
                 ]);
-
-                $stats['contests_synced']++;
             } catch (Throwable $e) {
-                $stats['contests_failed']++;
+                $result->incrementFailed();
 
                 $this->platformSyncStateService->markFailed($syncState, $e, [
                     'contest_id' => $contest->id,
@@ -248,17 +180,23 @@ class StandingsImporter implements StandingsImporterContract
             }
         }
 
-        return $stats;
+        $result->metadata = array_merge(
+            $result->metadata,
+            [
+                'platform' => 'atcoder',
+                'entity' => 'standing',
+            ]
+        );
+
+        return $result;
     }
 
-    private function contestPlatform(): ?\App\Models\Platform
+    private function contestPlatform(): ?Platform
     {
-        return $this->contestModel->newQuery()
-            ->whereHas('platform', function ($platformQuery): void {
-                $platformQuery->where('slug', 'atcoder');
-            })
-            ->with('platform')
-            ->first()?->platform;
+        return $this->platformModel
+            ->newQuery()
+            ->where('slug', 'atcoder')
+            ->first();
     }
 
     private function persistTaskResults(
@@ -268,7 +206,7 @@ class StandingsImporter implements StandingsImporterContract
         ParticipantDTO $participant,
         array $contestProblemsByPlatformProblemId,
         string $platformSlug,
-        array &$stats,
+        ImportResult $result
     ): void {
         foreach ($participant->problemResults as $index => $problemResult) {
             if (! $problemResult instanceof ProblemResultDTO) {
@@ -282,7 +220,7 @@ class StandingsImporter implements StandingsImporterContract
                 : null;
 
             if ($problem === null) {
-                $stats['task_results_skipped']++;
+                $result->incrementMetadata('task_results_skipped');
 
                 app(ApplicationLogger::class)->warning('Standing task result skipped: problem mapping missing', [
                     'category' => 'import',
@@ -323,12 +261,12 @@ class StandingsImporter implements StandingsImporterContract
             );
 
             if ($taskResult->wasRecentlyCreated) {
-                $stats['task_results_created']++;
+                $result->incrementMetadata('task_results_created');
 
                 continue;
             }
 
-            $stats['task_results_updated']++;
+            $result->incrementMetadata('task_results_updated');
         }
     }
 

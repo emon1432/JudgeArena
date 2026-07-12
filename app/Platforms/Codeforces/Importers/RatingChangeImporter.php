@@ -4,6 +4,7 @@ namespace App\Platforms\Codeforces\Importers;
 
 use App\Core\Contracts\Importers\RatingChangeImporter as RatingChangeImporterContract;
 use App\Core\DTOs\RatingChangeDTO;
+use App\Core\Results\ImportResult;
 use App\Enums\PlatformSyncEntityType;
 use App\Models\Contest;
 use App\Models\ContestRatingChange;
@@ -25,18 +26,9 @@ class RatingChangeImporter implements RatingChangeImporterContract
         private readonly PlatformSyncStateService $platformSyncStateService,
     ) {}
 
-    public function import(): array
+    public function import(): ImportResult
     {
-        $stats = [
-            'contests_checked' => 0,
-            'contests_synced' => 0,
-            'contests_already_synced' => 0,
-            'contests_failed' => 0,
-            'contests_unsupported_platform' => 0,
-            'rating_changes_fetched' => 0,
-            'rating_changes_created' => 0,
-            'rating_changes_updated' => 0,
-        ];
+        $result = new ImportResult();
 
         $platform = $this->platformModel->newQuery()
             ->where('slug', 'codeforces')
@@ -53,7 +45,7 @@ class RatingChangeImporter implements RatingChangeImporterContract
                 ]
             );
 
-            return $stats;
+            return $result;
         }
 
         $contests = $this->contestModel->newQuery()
@@ -62,38 +54,9 @@ class RatingChangeImporter implements RatingChangeImporterContract
             ->whereNotNull('platform_contest_id')
             ->get();
 
-        $pendingContests = $contests->filter(function (Contest $contest): bool {
-            $platform = $contest->platform;
+        $result->incrementChecked($contests->count());
 
-            if ($platform === null || $contest->platform_contest_id === null || $contest->platform_contest_id === '') {
-                return false;
-            }
-
-            $syncState = $this->platformSyncStateService->findState(
-                $platform,
-                PlatformSyncEntityType::RatingChange,
-                (string) $contest->platform_contest_id
-            );
-
-            return $this->platformSyncStateService->canBeRetried($syncState);
-        });
-
-        $stats['contests_checked'] = $contests->count();
-        $stats['contests_already_synced'] = $contests->filter(function (Contest $contest): bool {
-            $platform = $contest->platform;
-
-            if ($platform === null || $contest->platform_contest_id === null || $contest->platform_contest_id === '') {
-                return false;
-            }
-
-            return $this->platformSyncStateService->isSynced(
-                $platform,
-                PlatformSyncEntityType::RatingChange,
-                (string) $contest->platform_contest_id
-            );
-        })->count();
-
-        foreach ($pendingContests as $contest) {
+        foreach ($contests as $contest) {
             $syncState = $this->platformSyncStateService->markSyncing(
                 $contest->platform,
                 PlatformSyncEntityType::RatingChange,
@@ -107,6 +70,7 @@ class RatingChangeImporter implements RatingChangeImporterContract
             );
 
             if ($syncState === null) {
+                $result->incrementSkipped();
                 continue;
             }
 
@@ -117,9 +81,9 @@ class RatingChangeImporter implements RatingChangeImporterContract
                     $ratingChanges = [];
                 }
 
-                $stats['rating_changes_fetched'] += count($ratingChanges);
+                $result->incrementFetched(count($ratingChanges));
 
-                $platformProfilesByHandle = $this->platformProfilesByHandle((int) $contest->platform_id);
+                $platformProfilesByHandle = $this->platformProfilesByHandle((int) $platform->id);
 
                 foreach ($ratingChanges as $ratingChange) {
                     if (! ($ratingChange instanceof RatingChangeDTO)) {
@@ -176,12 +140,11 @@ class RatingChangeImporter implements RatingChangeImporterContract
                     );
 
                     if ($contestRatingChange->wasRecentlyCreated) {
-                        $stats['rating_changes_created']++;
-
+                        $result->incrementCreated();
                         continue;
                     }
 
-                    $stats['rating_changes_updated']++;
+                    $result->incrementUpdated();
                 }
 
                 $this->platformSyncStateService->markSynced($syncState, [
@@ -191,9 +154,8 @@ class RatingChangeImporter implements RatingChangeImporterContract
                     'platform_contest_id' => $contest->platform_contest_id,
                     'rating_changes_fetched' => count($ratingChanges),
                 ]);
-                $stats['contests_synced']++;
             } catch (Throwable $e) {
-                $stats['contests_failed']++;
+                $result->incrementFailed();
 
                 $this->platformSyncStateService->markFailed($syncState, $e, [
                     'contest_id' => $contest->id,
@@ -217,7 +179,15 @@ class RatingChangeImporter implements RatingChangeImporterContract
             }
         }
 
-        return $stats;
+        $result->metadata = array_merge(
+            $result->metadata,
+            [
+                'platform' => 'codeforces',
+                'entity' => 'rating_change',
+            ]
+        );
+
+        return $result;
     }
 
     /**

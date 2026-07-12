@@ -3,6 +3,7 @@
 namespace App\Platforms\Codeforces\Importers;
 
 use App\Core\Contracts\Importers\ContestImporter as ContestImporterContract;
+use App\Core\Results\ImportResult;
 use App\Enums\PlatformSyncEntityType;
 use App\Models\Contest;
 use App\Models\Platform;
@@ -21,14 +22,9 @@ class ContestImporter implements ContestImporterContract
         private readonly PlatformSyncStateService $platformSyncStateService,
     ) {}
 
-    public function import(): array
+    public function import(): ImportResult
     {
-        $stats = [
-            'fetched' => 0,
-            'created' => 0,
-            'updated' => 0,
-            'failed' => 0,
-        ];
+        $result = new ImportResult();
 
         $platform = $this->platformModel->newQuery()
             ->where('slug', 'codeforces')
@@ -45,7 +41,7 @@ class ContestImporter implements ContestImporterContract
                 ]
             );
 
-            return $stats;
+            return $result;
         }
 
         $contests = $this->adapter->getContests();
@@ -54,34 +50,18 @@ class ContestImporter implements ContestImporterContract
             $contests = [];
         }
 
-        $pendingContests = collect($contests)->filter(function ($contestDto) use ($platform): bool {
-            $syncState = $this->platformSyncStateService->findState(
+        $result->incrementFetched(count($contests));
+        $result->incrementChecked(count($contests));
+
+        foreach ($contests as $contestDto) {
+            if ($this->platformSyncStateService->isSynced(
                 $platform,
                 PlatformSyncEntityType::Contest,
                 (string) $contestDto->platformContestId
-            );
-
-            return $this->platformSyncStateService->canBeRetried($syncState);
-        });
-
-        $stats = [
-            'contests_checked' => count($contests),
-            'contests_synced' => 0,
-            'contests_already_synced' => collect($contests)->filter(function ($contestDto) use ($platform): bool {
-                return $this->platformSyncStateService->isSynced(
-                    $platform,
-                    PlatformSyncEntityType::Contest,
-                    (string) $contestDto->platformContestId
-                );
-            })->count(),
-            'contests_failed' => 0,
-            'fetched' => count($contests),
-            'created' => 0,
-            'updated' => 0,
-            'failed' => 0,
-        ];
-
-        foreach ($pendingContests as $contestDto) {
+            )) {
+                $result->incrementSkipped();
+                continue;
+            }
             $syncState = $this->platformSyncStateService->markSyncing(
                 $platform,
                 PlatformSyncEntityType::Contest,
@@ -94,6 +74,7 @@ class ContestImporter implements ContestImporterContract
             );
 
             if ($syncState === null) {
+                $result->incrementSkipped();
                 continue;
             }
 
@@ -117,21 +98,18 @@ class ContestImporter implements ContestImporterContract
                     ],
                 );
 
-                if ($contest->wasRecentlyCreated) {
-                    $stats['created']++;
-                } else {
-                    $stats['updated']++;
-                }
-
                 $this->platformSyncStateService->markSynced($syncState, [
                     'contest_id' => $contest->id,
                     'contest_platform_id' => $contestDto->platformContestId,
                 ]);
 
-                $stats['contests_synced']++;
+                if ($contest->wasRecentlyCreated) {
+                    $result->incrementCreated();
+                } else {
+                    $result->incrementUpdated();
+                }
             } catch (Throwable $e) {
-                $stats['failed']++;
-                $stats['contests_failed']++;
+                $result->incrementFailed();
 
                 $this->platformSyncStateService->markFailed($syncState, $e, [
                     'contest_platform_id' => $contestDto->platformContestId,
@@ -154,6 +132,14 @@ class ContestImporter implements ContestImporterContract
             }
         }
 
-        return $stats;
+        $result->metadata = array_merge(
+            $result->metadata,
+            [
+                'platform' => 'codeforces',
+                'entity' => 'contest',
+            ]
+        );
+
+        return $result;
     }
 }

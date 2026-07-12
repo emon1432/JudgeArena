@@ -7,6 +7,7 @@ use App\Core\Contracts\Importers\ProblemImporter;
 use App\Core\Contracts\Importers\SubmissionImporter;
 use App\Core\Contracts\Importers\RatingChangeImporter;
 use App\Core\Contracts\Importers\StandingsImporter;
+use App\Core\Contracts\Importers\UserImporter;
 use App\Core\DTOs\ContestStandingsDTO;
 use App\Core\DTOs\RatingChangeDTO;
 use App\Core\DTOs\UserDTO;
@@ -39,4 +40,5 @@ interface PlatformAdapter
     public function submissionImporter(): SubmissionImporter;
     public function ratingChangeImporter(): RatingChangeImporter;
     public function standingsImporter(): StandingsImporter;
+    public function userImporter(): UserImporter;
 }

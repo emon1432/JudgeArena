@@ -32,63 +32,76 @@ class ImportStandingsCommand extends Command
         $adapter = $this->platformRegistry->resolve($platformSlug);
 
         if ($adapter === null) {
-            app(ApplicationLogger::class)->warning('Standings import skipped: unsupported platform', [
-                'category' => 'import',
-                'platform' => $platformSlug,
-                'source' => self::class,
-            ]);
+            app(ApplicationLogger::class)->warning(
+                'Standings import skipped: unsupported platform',
+                [
+                    'category' => 'import',
+                    'platform' => $platformSlug,
+                    'source' => self::class,
+                ]
+            );
 
             $this->error('Unsupported platform: ' . $platformSlug);
-            $this->line('Supported platforms: ' . implode(', ', $this->platformRegistry->supportedPlatforms()));
+            $this->line(
+                'Supported platforms: ' . implode(', ', $this->platformRegistry->supportedPlatforms())
+            );
 
             return self::FAILURE;
         }
 
         try {
-            $stats = $adapter->standingsImporter()->import();
+            $result = $adapter->standingsImporter()->import();
 
             $this->line('Platform: ' . $platformSlug);
-            $this->line('Contests Checked: ' . ($stats['contests_checked'] ?? 0));
-            $this->line('Contests Synced: ' . ($stats['contests_synced'] ?? 0));
-            $this->line('Contests Already Synced: ' . ($stats['contests_already_synced'] ?? 0));
-            $this->line('Contests Failed: ' . ($stats['contests_failed'] ?? 0));
-            $this->line('Unsupported Platform Contests: ' . ($stats['contests_unsupported_platform'] ?? 0));
-            $this->line('Standings Fetched: ' . ($stats['standings_fetched'] ?? 0));
-            $this->line('Standings Created: ' . ($stats['standings_created'] ?? 0));
-            $this->line('Standings Updated: ' . ($stats['standings_updated'] ?? 0));
-            $this->line('Task Results Created: ' . ($stats['task_results_created'] ?? 0));
-            $this->line('Task Results Updated: ' . ($stats['task_results_updated'] ?? 0));
-            $this->line('Task Results Skipped: ' . ($stats['task_results_skipped'] ?? 0));
+            $this->line('Checked: ' . $result->checked);
+            $this->line('Fetched: ' . $result->fetched);
+            $this->line('Created: ' . $result->created);
+            $this->line('Updated: ' . $result->updated);
+            $this->line('Skipped: ' . $result->skipped);
+            $this->line('Failed: ' . $result->failed);
+
+            if (! empty($result->metadata)) {
+                $this->newLine();
+
+                $this->table(
+                    ['Metric', 'Value'],
+                    collect($result->metadata)
+                        ->map(fn($value, $key) => [
+                            $key,
+                            is_scalar($value) ? $value : json_encode($value),
+                        ])
+                        ->values()
+                        ->all()
+                );
+            }
+
             $this->info('Standings import completed successfully.');
 
-            app(ApplicationLogger::class)->info('Standings import completed', [
-                'category' => 'import',
-                'platform' => $platformSlug,
-                'source' => self::class,
-                'contests_checked' => $stats['contests_checked'] ?? 0,
-                'contests_synced' => $stats['contests_synced'] ?? 0,
-                'contests_already_synced' => $stats['contests_already_synced'] ?? 0,
-                'contests_failed' => $stats['contests_failed'] ?? 0,
-                'contests_unsupported_platform' => $stats['contests_unsupported_platform'] ?? 0,
-                'standings_fetched' => $stats['standings_fetched'] ?? 0,
-                'standings_created' => $stats['standings_created'] ?? 0,
-                'standings_updated' => $stats['standings_updated'] ?? 0,
-                'task_results_created' => $stats['task_results_created'] ?? 0,
-                'task_results_updated' => $stats['task_results_updated'] ?? 0,
-                'task_results_skipped' => $stats['task_results_skipped'] ?? 0,
-            ]);
+            app(ApplicationLogger::class)->info(
+                'Standings import completed',
+                [
+                    'category' => 'import',
+                    'platform' => $platformSlug,
+                    'source' => self::class,
+                    'result' => $result->toArray(),
+                ]
+            );
 
             return self::SUCCESS;
         } catch (Throwable $e) {
-            app(ApplicationLogger::class)->error('Standings import failed', [
-                'category' => 'import',
-                'platform' => $platformSlug,
-                'source' => self::class,
-                'message' => $e->getMessage(),
-                'exception' => get_class($e),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-            ], $e);
+            app(ApplicationLogger::class)->error(
+                'Standings import failed',
+                [
+                    'category' => 'import',
+                    'platform' => $platformSlug,
+                    'source' => self::class,
+                    'message' => $e->getMessage(),
+                    'exception' => $e::class,
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                ],
+                $e
+            );
 
             $this->error('Standings import failed.');
             $this->line($e->getMessage());

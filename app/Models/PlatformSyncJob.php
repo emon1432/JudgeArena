@@ -27,6 +27,8 @@ class PlatformSyncJob extends Model
         'enabled' => 'boolean',
         'entity' => PlatformSyncJobEntity::class,
         'metadata' => 'array',
+        'priority' => 'integer',
+        'interval_minutes' => 'integer',
         'last_started_at' => 'datetime',
         'last_finished_at' => 'datetime',
         'last_failed_at' => 'datetime',
@@ -52,7 +54,7 @@ class PlatformSyncJob extends Model
 
         return $this->last_success_at
             ->copy()
-            ->addMinutes($this->interval_minutes)
+            ->addMinutes((int) $this->interval_minutes)
             ->lte($now);
     }
 

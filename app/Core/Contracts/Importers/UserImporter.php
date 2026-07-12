@@ -4,7 +4,7 @@ namespace App\Core\Contracts\Importers;
 
 use App\Core\Results\ImportResult;
 
-interface ContestImporter
+interface UserImporter
 {
     public function import(): ImportResult;
 }

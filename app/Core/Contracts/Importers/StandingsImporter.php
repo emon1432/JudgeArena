@@ -2,7 +2,9 @@
 
 namespace App\Core\Contracts\Importers;
 
+use App\Core\Results\ImportResult;
+
 interface StandingsImporter
 {
-    public function import(): array;
+    public function import(): ImportResult;
 }

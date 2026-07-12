@@ -3,6 +3,7 @@
 namespace App\Platforms\AtCoder\Importers;
 
 use App\Core\Contracts\Importers\ProblemImporter as ProblemImporterContract;
+use App\Core\Results\ImportResult;
 use App\Enums\PlatformSyncEntityType;
 use App\Models\Contest;
 use App\Models\Platform;
@@ -22,14 +23,9 @@ class ProblemImporter implements ProblemImporterContract
         private readonly PlatformSyncStateService $platformSyncStateService,
     ) {}
 
-    public function import(): array
+    public function import(): ImportResult
     {
-        $stats = [
-            'fetched' => 0,
-            'created' => 0,
-            'updated' => 0,
-            'failed' => 0,
-        ];
+        $result = new ImportResult();
 
         $platform = $this->platformModel->newQuery()
             ->where('slug', 'atcoder')
@@ -46,7 +42,7 @@ class ProblemImporter implements ProblemImporterContract
                 ]
             );
 
-            return $stats;
+            return $result;
         }
 
         $contests = $this->contestModel->newQuery()
@@ -55,37 +51,9 @@ class ProblemImporter implements ProblemImporterContract
             ->with('platform')
             ->get();
 
-        $pendingContests = $contests->filter(function (Contest $contest): bool {
-            $syncState = $this->platformSyncStateService->findState(
-                $contest->platform,
-                PlatformSyncEntityType::ContestProblems,
-                (string) $contest->platform_contest_id
-            );
+        $result->incrementChecked($contests->count());
 
-            return $this->platformSyncStateService->canBeRetried($syncState);
-        });
-
-        $stats = [
-            'contests_checked' => $contests->count(),
-            'contests_synced' => 0,
-            'contests_already_synced' => $contests->filter(
-                function (Contest $contest): bool {
-                    return $this->platformSyncStateService->isSynced(
-                        $contest->platform,
-                        PlatformSyncEntityType::ContestProblems,
-                        (string) $contest->platform_contest_id
-                    );
-                }
-            )->count(),
-            'contests_failed' => 0,
-            'contests_unsupported_platform' => 0,
-            'fetched' => 0,
-            'created' => 0,
-            'updated' => 0,
-            'failed' => 0,
-        ];
-
-        $contestsByPlatform = $pendingContests->groupBy(function (Contest $contest): string {
+        $contestsByPlatform = $contests->groupBy(function (Contest $contest): string {
             return (string) ($contest->platform?->slug ?? '');
         });
 
@@ -103,6 +71,7 @@ class ProblemImporter implements ProblemImporterContract
                 );
 
                 if ($syncState === null) {
+                    $result->incrementSkipped();
                     continue;
                 }
 
@@ -113,7 +82,7 @@ class ProblemImporter implements ProblemImporterContract
                         $problems = [];
                     }
 
-                    $stats['fetched'] += count($problems);
+                    $result->incrementFetched(count($problems));
 
                     foreach ($problems as $problemDto) {
                         $problem = $this->problemModel->newQuery()->updateOrCreate(
@@ -144,20 +113,18 @@ class ProblemImporter implements ProblemImporterContract
                         );
 
                         if ($problem->wasRecentlyCreated) {
-                            $stats['created']++;
-
+                            $result->incrementCreated();
                             continue;
                         }
 
-                        $stats['updated']++;
+                        $result->incrementUpdated();
                     }
 
                     $this->platformSyncStateService->markSynced($syncState, [
                         'problem_count' => count($problems),
                     ]);
-                    $stats['contests_synced']++;
                 } catch (Throwable $e) {
-                    $stats['contests_failed']++;
+                    $result->incrementFailed();
 
                     $this->platformSyncStateService->markFailed($syncState, $e, [
                         'contest_id' => $contest->id,
@@ -180,6 +147,14 @@ class ProblemImporter implements ProblemImporterContract
             }
         }
 
-        return $stats;
+        $result->metadata = array_merge(
+            $result->metadata,
+            [
+                'platform' => 'atcoder',
+                'entity' => 'problem',
+            ]
+        );
+
+        return $result;
     }
 }
