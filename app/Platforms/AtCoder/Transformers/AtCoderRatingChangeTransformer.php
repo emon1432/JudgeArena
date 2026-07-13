@@ -11,15 +11,15 @@ final class AtCoderRatingChangeTransformer
      * @param AtCoderRatingChangeDTO[] $ratingChanges
      * @return RatingChangeDTO[]
      */
-    public static function fromApiRatingChanges(array $ratingChanges, string $platformContestId): array
+    public static function fromApiRatingChanges(array $ratingChanges, ?string $platformContestId = null, ?string $handle = null): array
     {
         return array_map(
-            fn(AtCoderRatingChangeDTO $ratingChange): RatingChangeDTO => self::toCore($ratingChange, $platformContestId),
+            fn(AtCoderRatingChangeDTO $ratingChange): RatingChangeDTO => self::toCore($ratingChange, $platformContestId, $handle),
             $ratingChanges
         );
     }
 
-    private static function toCore(AtCoderRatingChangeDTO $ratingChange, string $platformContestId): RatingChangeDTO
+    private static function toCore(AtCoderRatingChangeDTO $ratingChange, ?string $platformContestId, ?string $handle): RatingChangeDTO
     {
         $oldRating = $ratingChange->oldRating;
         $newRating = $ratingChange->newRating;
@@ -30,7 +30,7 @@ final class AtCoderRatingChangeTransformer
             $ratingChangeDelta = $newRating - $oldRating;
         }
 
-        $handle = $ratingChange->userScreenName ?? $ratingChange->userName ?? '';
+        $handle = $ratingChange->userScreenName ?? $ratingChange->userName ?? $handle ?? '';
 
         return new RatingChangeDTO(
             platform: 'atcoder',

@@ -39,6 +39,7 @@ class Users
         return $this->contests->submissions($contestId, $handle);
     }
 
+    //used
     public function ratingHistory(string $handle): array
     {
         return AtCoderRatingChangeTransformer::fromApiRatingChanges(
@@ -47,6 +48,7 @@ class Users
                     $this->scraper->getUserRatingHistory($handle)
                 )
             ),
+            null,
             $handle,
         );
     }

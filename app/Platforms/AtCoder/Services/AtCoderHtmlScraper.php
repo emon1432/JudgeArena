@@ -319,6 +319,7 @@ class AtCoderHtmlScraper
         return ['result' => $result];
     }
 
+    //used
     public function getUserRatingHistory(string $username): array
     {
         $types = ['algo', 'heuristic'];

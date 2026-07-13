@@ -8,6 +8,7 @@ use App\Core\Contracts\Importers\SubmissionImporter as SubmissionImporterContrac
 use App\Core\Contracts\Importers\RatingChangeImporter as RatingChangeImporterContract;
 use App\Core\Contracts\Importers\StandingsImporter as StandingsImporterContract;
 use App\Core\Contracts\Importers\UserImporter as UserImporterContract;
+use App\Core\Contracts\Importers\UserRatingHistoryImporter as UserRatingHistoryImporterContract;
 use App\Core\Contracts\Platforms\PlatformAdapter;
 use App\Core\DTOs\ContestStandingsDTO;
 use App\Core\DTOs\UserDTO;
@@ -17,6 +18,7 @@ use App\Platforms\AtCoder\Importers\ProblemImporter;
 use App\Platforms\AtCoder\Importers\SubmissionImporter;
 use App\Platforms\AtCoder\Importers\StandingsImporter;
 use App\Platforms\AtCoder\Importers\UserImporter;
+use App\Platforms\AtCoder\Importers\UserRatingHistoryImporter;
 use App\Platforms\AtCoder\Services\Contests;
 use App\Platforms\AtCoder\Services\Problems;
 use App\Platforms\AtCoder\Services\Users;
@@ -74,6 +76,11 @@ class AtCoderAdapter implements PlatformAdapter
             ->fromApiStandings($this->contests->standings($id));
     }
 
+    public function getUserRatingHistory(string $handle): array
+    {
+        return $this->users->ratingHistory($handle);
+    }
+
     public function getUser(string $username): UserDTO
     {
         return $this->userTransformer->fromApiUser($this->users->info($username));
@@ -105,6 +112,11 @@ class AtCoderAdapter implements PlatformAdapter
         return app(StandingsImporter::class);
     }
 
+    public function userRatingHistoryImporter(): UserRatingHistoryImporterContract
+    {
+        return app(UserRatingHistoryImporter::class);
+    }
+
     public function userImporter(): UserImporterContract
     {
         return app(UserImporter::class);
@@ -120,10 +132,5 @@ class AtCoderAdapter implements PlatformAdapter
     public function getProblems(): array
     {
         return [];
-    }
-
-    public function getUserRatingHistory(string $handle): array
-    {
-        return $this->users->ratingHistory($handle);
     }
 }

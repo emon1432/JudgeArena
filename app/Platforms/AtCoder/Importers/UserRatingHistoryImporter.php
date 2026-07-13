@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Platforms\Codeforces\Importers;
+namespace App\Platforms\AtCoder\Importers;
 
-use App\Core\Contracts\Importers\RatingChangeImporter as RatingChangeImporterContract;
+use App\Core\Contracts\Importers\UserRatingHistoryImporter as UserRatingHistoryImporterContract;
 use App\Core\DTOs\RatingChangeDTO;
 use App\Core\Results\ImportResult;
 use App\Enums\PlatformSyncEntityType;
@@ -10,62 +10,85 @@ use App\Models\Contest;
 use App\Models\ContestRatingChange;
 use App\Models\Platform;
 use App\Models\PlatformProfile;
-use App\Platforms\Codeforces\CodeforcesAdapter;
+use App\Platforms\AtCoder\AtCoderAdapter;
 use App\Services\ApplicationLogger;
 use App\Services\PlatformSyncStateService;
 use Throwable;
 
-class RatingChangeImporter implements RatingChangeImporterContract
+class UserRatingHistoryImporter implements UserRatingHistoryImporterContract
 {
+
+    private object $contest;
+
     public function __construct(
         private readonly Contest $contestModel,
         private readonly ContestRatingChange $contestRatingChangeModel,
-        private readonly PlatformProfile $platformProfileModel,
         private readonly Platform $platformModel,
-        private readonly CodeforcesAdapter $adapter,
+        private readonly PlatformProfile $platformProfileModel,
+        private readonly AtCoderAdapter $adapter,
         private readonly PlatformSyncStateService $platformSyncStateService,
-    ) {}
+    ) {
+        $this->contest = new Contest();
+    }
 
-    public function import(): ImportResult
+    public function import(?string $handle = null): ImportResult
     {
         $result = new ImportResult();
 
         $platform = $this->platformModel->newQuery()
-            ->where('slug', 'codeforces')
+            ->where('slug', 'atcoder')
             ->first();
 
         if ($platform === null) {
             app(ApplicationLogger::class)->error(
-                'Rating change import failed: platform not found',
+                'User rating history import failed: platform not found',
                 [
                     'category' => 'import',
-                    'platform' => 'codeforces',
+                    'platform' => 'atcoder',
                     'source' => self::class,
-                    'message' => 'Platform "codeforces" not found in database',
+                    'message' => 'Platform "atcoder" not found in database',
                 ]
             );
 
             return $result;
         }
 
-        $contests = $this->contestModel->newQuery()
-            ->with('platform')
+        $query = $this->platformProfileModel
+            ->newQuery()
             ->where('platform_id', $platform->id)
-            ->whereNotNull('platform_contest_id')
-            ->get();
+            ->active();
 
-        $result->incrementChecked($contests->count());
+        if ($handle !== null) {
+            $query->whereRaw(
+                'LOWER(handle) = ?',
+                [mb_strtolower(trim($handle))]
+            );
+        }
 
-        foreach ($contests as $contest) {
+        $profiles = $query->get();
+
+        $result->incrementChecked($profiles->count());
+
+        foreach ($profiles as $profile) {
+
+            $normalizedHandle = mb_strtolower(
+                trim((string) $profile->handle)
+            );
+
+            if ($normalizedHandle === '') {
+                $result->incrementSkipped();
+
+                continue;
+            }
+
             $syncState = $this->platformSyncStateService->markSyncing(
-                $contest->platform,
-                PlatformSyncEntityType::RatingChange,
-                (string) $contest->platform_contest_id,
+                $platform,
+                PlatformSyncEntityType::User,
+                $normalizedHandle,
                 [
-                    'contest_id' => $contest->id,
-                    'contest_name' => $contest->name,
-                    'platform_slug' => 'codeforces',
-                    'platform_contest_id' => $contest->platform_contest_id,
+                    'profile_id' => $profile->id,
+                    'handle' => $profile->handle,
+                    'platform_slug' => 'atcoder',
                 ]
             );
 
@@ -75,7 +98,7 @@ class RatingChangeImporter implements RatingChangeImporterContract
             }
 
             try {
-                $ratingChanges = $this->adapter->getRatingChanges((string) $contest->platform_contest_id);
+                $ratingChanges = $this->adapter->getUserRatingHistory($normalizedHandle);
 
                 if (! is_array($ratingChanges)) {
                     $ratingChanges = [];
@@ -86,20 +109,23 @@ class RatingChangeImporter implements RatingChangeImporterContract
                 $platformProfilesByHandle = $this->platformProfilesByHandle((int) $platform->id);
 
                 foreach ($ratingChanges as $ratingChange) {
+
                     if (! ($ratingChange instanceof RatingChangeDTO)) {
                         continue;
                     }
 
                     $handle = trim($ratingChange->handle);
 
+                    $this->contest = $this->contestModel->newQuery()->where('platform_contest_id', $ratingChange->contestPlatformId)->first();
+
                     if ($handle === '') {
                         app(ApplicationLogger::class)->warning('Skipping rating change with missing handle', [
                             'category' => 'import',
-                            'platform' => 'codeforces',
+                            'platform' => 'atcoder',
                             'source' => self::class,
-                            'contest_id' => $contest->id,
-                            'platform_contest_id' => $contest->platform_contest_id,
-                            'contest_name' => $contest->name,
+                            'contest_id' => $this->contest->id,
+                            'platform_contest_id' => $this->contest->platform_contest_id,
+                            'contest_name' => $this->contest->name,
                             'raw' => $ratingChange->raw,
                         ]);
 
@@ -110,11 +136,11 @@ class RatingChangeImporter implements RatingChangeImporterContract
 
                     $contestRatingChange = $this->contestRatingChangeModel->newQuery()->updateOrCreate(
                         [
-                            'contest_id' => $contest->id,
+                            'contest_id' => $this->contest->id,
                             'handle' => $handle,
                         ],
                         [
-                            'platform_id' => $contest->platform_id,
+                            'platform_id' => $this->contest->platform_id,
                             'platform_profile_id' => $platformProfile?->id,
                             'is_rated' => $ratingChange->isRated,
                             'rank' => $ratingChange->rank,
@@ -126,9 +152,9 @@ class RatingChangeImporter implements RatingChangeImporterContract
                             'metadata' => array_merge(
                                 [
                                     'source' => 'rating-change-import',
-                                    'platform' => 'codeforces',
-                                    'contest_platform_id' => $contest->platform_contest_id,
-                                    'contest_name' => $contest->name,
+                                    'platform' => 'atcoder',
+                                    'contest_platform_id' => $this->contest->platform_contest_id,
+                                    'contest_name' => $this->contest->name,
                                     'handle' => $handle,
                                     'synced_at' => now(),
                                 ],
@@ -148,29 +174,29 @@ class RatingChangeImporter implements RatingChangeImporterContract
                 }
 
                 $this->platformSyncStateService->markSynced($syncState, [
-                    'contest_id' => $contest->id,
-                    'contest_name' => $contest->name,
-                    'platform_slug' => 'codeforces',
-                    'platform_contest_id' => $contest->platform_contest_id,
+                    'contest_id' => $this->contest->id,
+                    'contest_name' => $this->contest->name,
+                    'platform_slug' => 'atcoder',
+                    'platform_contest_id' => $this->contest->platform_contest_id,
                     'rating_changes_fetched' => count($ratingChanges),
                 ]);
             } catch (Throwable $e) {
                 $result->incrementFailed();
 
                 $this->platformSyncStateService->markFailed($syncState, $e, [
-                    'contest_id' => $contest->id,
-                    'contest_name' => $contest->name,
-                    'platform_slug' => 'codeforces',
-                    'platform_contest_id' => $contest->platform_contest_id,
+                    'contest_id' => $this->contest->id,
+                    'contest_name' => $this->contest->name,
+                    'platform_slug' => 'atcoder',
+                    'platform_contest_id' => $this->contest->platform_contest_id,
                 ]);
 
                 app(ApplicationLogger::class)->error('Rating change sync failed', [
                     'category' => 'import',
-                    'platform' => 'codeforces',
+                    'platform' => 'atcoder',
                     'source' => self::class,
-                    'contest_id' => $contest->id,
-                    'platform_contest_id' => $contest->platform_contest_id,
-                    'contest_name' => $contest->name,
+                    'contest_id' => $this->contest->id,
+                    'platform_contest_id' => $this->contest->platform_contest_id,
+                    'contest_name' => $this->contest->name,
                     'message' => $e->getMessage(),
                     'exception' => get_class($e),
                     'file' => $e->getFile(),
@@ -182,8 +208,8 @@ class RatingChangeImporter implements RatingChangeImporterContract
         $result->metadata = array_merge(
             $result->metadata,
             [
-                'platform' => 'codeforces',
-                'entity' => 'rating_change',
+                'platform' => 'atcoder',
+                'entity' => 'user_rating_history',
             ]
         );
 

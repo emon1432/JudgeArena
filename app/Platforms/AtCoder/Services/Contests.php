@@ -46,13 +46,15 @@ class Contests
     //used
     public function ratingChanges(string $contestId): array
     {
-        $normalized = ResponseNormalizer::ratingChanges(
-            $this->scraper->getResults($contestId)
+        return AtCoderRatingChangeTransformer::fromApiRatingChanges(
+            AtCoderRatingChangeMapper::fromNormalizedList(
+                ResponseNormalizer::ratingChanges(
+                    $this->scraper->getResults($contestId)
+                )
+            ),
+            $contestId,
+            null
         );
-
-        $platformDtos = AtCoderRatingChangeMapper::fromNormalizedList($normalized);
-
-        return AtCoderRatingChangeTransformer::fromApiRatingChanges($platformDtos, $contestId);
     }
 
     //used
@@ -61,4 +63,3 @@ class Contests
         return $this->scraper->getTasks($contestId);
     }
 }
-
