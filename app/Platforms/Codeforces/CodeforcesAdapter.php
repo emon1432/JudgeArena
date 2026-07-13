@@ -7,6 +7,7 @@ use App\Core\Contracts\Importers\ProblemImporter as ProblemImporterContract;
 use App\Core\Contracts\Importers\SubmissionImporter as SubmissionImporterContract;
 use App\Core\Contracts\Importers\RatingChangeImporter as RatingChangeImporterContract;
 use App\Core\Contracts\Importers\StandingsImporter as StandingsImporterContract;
+use App\Core\Contracts\Importers\UserImporter as UserImporterContract;
 use App\Core\Contracts\Platforms\PlatformAdapter;
 use App\Core\DTOs\ContestStandingsDTO;
 use App\Core\DTOs\RatingChangeDTO;
@@ -16,6 +17,7 @@ use App\Platforms\Codeforces\Importers\RatingChangeImporter;
 use App\Platforms\Codeforces\Importers\ProblemImporter;
 use App\Platforms\Codeforces\Importers\SubmissionImporter;
 use App\Platforms\Codeforces\Importers\StandingsImporter;
+use App\Platforms\Codeforces\Importers\UserImporter;
 use App\Platforms\Codeforces\Services\Contests;
 use App\Platforms\Codeforces\Services\Problems;
 use App\Platforms\Codeforces\Services\Users;
@@ -99,6 +101,11 @@ class CodeforcesAdapter implements PlatformAdapter
     public function getUser(string $username): UserDTO
     {
         return $this->userTransformer->fromApiUser($this->users->info($username));
+    }
+
+    public function userImporter(): UserImporterContract
+    {
+        return app(UserImporter::class);
     }
 
     /** @return \App\Core\DTOs\SubmissionDTO[] */

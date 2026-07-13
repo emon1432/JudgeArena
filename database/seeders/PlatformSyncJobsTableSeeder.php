@@ -14,12 +14,12 @@ class PlatformSyncJobsTableSeeder extends Seeder
      */
     public function run()
     {
-
+        
 
         \DB::table('platform_sync_jobs')->delete();
-
+        
         \DB::table('platform_sync_jobs')->insert(array (
-            0 =>
+            0 => 
             array (
                 'id' => 1,
                 'platform_id' => 1,
@@ -33,10 +33,10 @@ class PlatformSyncJobsTableSeeder extends Seeder
                 'last_success_at' => NULL,
                 'last_error' => NULL,
                 'metadata' => NULL,
-                'created_at' => '2026-07-10 17:59:47',
-                'updated_at' => '2026-07-10 17:59:47',
+                'created_at' => '2026-07-11 17:44:29',
+                'updated_at' => '2026-07-11 17:44:29',
             ),
-            1 =>
+            1 => 
             array (
                 'id' => 2,
                 'platform_id' => 1,
@@ -50,12 +50,80 @@ class PlatformSyncJobsTableSeeder extends Seeder
                 'last_success_at' => NULL,
                 'last_error' => NULL,
                 'metadata' => NULL,
-                'created_at' => '2026-07-10 17:59:47',
-                'updated_at' => '2026-07-10 17:59:47',
+                'created_at' => '2026-07-11 17:44:29',
+                'updated_at' => '2026-07-11 17:44:29',
             ),
-            2 =>
+            2 => 
             array (
                 'id' => 3,
+                'platform_id' => 1,
+                'entity' => 'user',
+                'enabled' => 1,
+                'priority' => 80,
+                'interval_minutes' => 60,
+                'last_started_at' => NULL,
+                'last_finished_at' => NULL,
+                'last_failed_at' => NULL,
+                'last_success_at' => NULL,
+                'last_error' => NULL,
+                'metadata' => NULL,
+                'created_at' => '2026-07-11 17:44:29',
+                'updated_at' => '2026-07-11 17:44:29',
+            ),
+            3 => 
+            array (
+                'id' => 4,
+                'platform_id' => 1,
+                'entity' => 'submission',
+                'enabled' => 1,
+                'priority' => 95,
+                'interval_minutes' => 15,
+                'last_started_at' => NULL,
+                'last_finished_at' => NULL,
+                'last_failed_at' => NULL,
+                'last_success_at' => NULL,
+                'last_error' => NULL,
+                'metadata' => NULL,
+                'created_at' => '2026-07-11 17:44:29',
+                'updated_at' => '2026-07-11 17:44:29',
+            ),
+            4 => 
+            array (
+                'id' => 5,
+                'platform_id' => 1,
+                'entity' => 'standing',
+                'enabled' => 1,
+                'priority' => 90,
+                'interval_minutes' => 30,
+                'last_started_at' => NULL,
+                'last_finished_at' => NULL,
+                'last_failed_at' => NULL,
+                'last_success_at' => NULL,
+                'last_error' => NULL,
+                'metadata' => NULL,
+                'created_at' => '2026-07-11 17:44:29',
+                'updated_at' => '2026-07-11 17:44:29',
+            ),
+            5 => 
+            array (
+                'id' => 6,
+                'platform_id' => 1,
+                'entity' => 'rating_change',
+                'enabled' => 1,
+                'priority' => 90,
+                'interval_minutes' => 30,
+                'last_started_at' => NULL,
+                'last_finished_at' => NULL,
+                'last_failed_at' => NULL,
+                'last_success_at' => NULL,
+                'last_error' => NULL,
+                'metadata' => NULL,
+                'created_at' => '2026-07-11 17:44:29',
+                'updated_at' => '2026-07-11 17:44:29',
+            ),
+            6 => 
+            array (
+                'id' => 7,
                 'platform_id' => 2,
                 'entity' => 'contest',
                 'enabled' => 1,
@@ -67,12 +135,12 @@ class PlatformSyncJobsTableSeeder extends Seeder
                 'last_success_at' => NULL,
                 'last_error' => NULL,
                 'metadata' => NULL,
-                'created_at' => '2026-07-10 17:59:47',
-                'updated_at' => '2026-07-10 17:59:47',
+                'created_at' => '2026-07-11 17:44:29',
+                'updated_at' => '2026-07-11 17:44:29',
             ),
-            3 =>
+            7 => 
             array (
-                'id' => 4,
+                'id' => 8,
                 'platform_id' => 2,
                 'entity' => 'problem',
                 'enabled' => 1,
@@ -84,11 +152,79 @@ class PlatformSyncJobsTableSeeder extends Seeder
                 'last_success_at' => NULL,
                 'last_error' => NULL,
                 'metadata' => NULL,
-                'created_at' => '2026-07-10 17:59:47',
-                'updated_at' => '2026-07-10 17:59:47',
+                'created_at' => '2026-07-11 17:44:29',
+                'updated_at' => '2026-07-11 17:44:29',
+            ),
+            8 => 
+            array (
+                'id' => 9,
+                'platform_id' => 2,
+                'entity' => 'user',
+                'enabled' => 1,
+                'priority' => 80,
+                'interval_minutes' => 60,
+                'last_started_at' => NULL,
+                'last_finished_at' => NULL,
+                'last_failed_at' => NULL,
+                'last_success_at' => NULL,
+                'last_error' => NULL,
+                'metadata' => NULL,
+                'created_at' => '2026-07-11 17:44:29',
+                'updated_at' => '2026-07-11 17:44:29',
+            ),
+            9 => 
+            array (
+                'id' => 10,
+                'platform_id' => 2,
+                'entity' => 'submission',
+                'enabled' => 1,
+                'priority' => 95,
+                'interval_minutes' => 30,
+                'last_started_at' => NULL,
+                'last_finished_at' => NULL,
+                'last_failed_at' => NULL,
+                'last_success_at' => NULL,
+                'last_error' => NULL,
+                'metadata' => NULL,
+                'created_at' => '2026-07-11 17:44:29',
+                'updated_at' => '2026-07-11 17:44:29',
+            ),
+            10 => 
+            array (
+                'id' => 11,
+                'platform_id' => 2,
+                'entity' => 'standing',
+                'enabled' => 1,
+                'priority' => 90,
+                'interval_minutes' => 30,
+                'last_started_at' => NULL,
+                'last_finished_at' => NULL,
+                'last_failed_at' => NULL,
+                'last_success_at' => NULL,
+                'last_error' => NULL,
+                'metadata' => NULL,
+                'created_at' => '2026-07-11 17:44:29',
+                'updated_at' => '2026-07-11 17:44:29',
+            ),
+            11 => 
+            array (
+                'id' => 12,
+                'platform_id' => 2,
+                'entity' => 'rating_change',
+                'enabled' => 1,
+                'priority' => 90,
+                'interval_minutes' => 30,
+                'last_started_at' => NULL,
+                'last_finished_at' => NULL,
+                'last_failed_at' => NULL,
+                'last_success_at' => NULL,
+                'last_error' => NULL,
+                'metadata' => NULL,
+                'created_at' => '2026-07-11 17:44:29',
+                'updated_at' => '2026-07-11 17:44:29',
             ),
         ));
-
-
+        
+        
     }
 }

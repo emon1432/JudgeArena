@@ -6,5 +6,5 @@ use App\Core\Results\ImportResult;
 
 interface UserImporter
 {
-    public function import(): ImportResult;
+    public function import(?string $handle = null): ImportResult;
 }

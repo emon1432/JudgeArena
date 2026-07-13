@@ -7,6 +7,7 @@ use App\Core\Contracts\Importers\ProblemImporter as ProblemImporterContract;
 use App\Core\Contracts\Importers\SubmissionImporter as SubmissionImporterContract;
 use App\Core\Contracts\Importers\RatingChangeImporter as RatingChangeImporterContract;
 use App\Core\Contracts\Importers\StandingsImporter as StandingsImporterContract;
+use App\Core\Contracts\Importers\UserImporter as UserImporterContract;
 use App\Core\Contracts\Platforms\PlatformAdapter;
 use App\Core\DTOs\ContestStandingsDTO;
 use App\Core\DTOs\RatingChangeDTO;
@@ -16,6 +17,7 @@ use App\Platforms\AtCoder\Importers\RatingChangeImporter;
 use App\Platforms\AtCoder\Importers\ProblemImporter;
 use App\Platforms\AtCoder\Importers\SubmissionImporter;
 use App\Platforms\AtCoder\Importers\StandingsImporter;
+use App\Platforms\AtCoder\Importers\UserImporter;
 use App\Platforms\AtCoder\Mappers\AtCoderProblemMapper;
 use App\Platforms\AtCoder\Services\Contests;
 use App\Platforms\AtCoder\Services\Problems;
@@ -100,6 +102,11 @@ class AtCoderAdapter implements PlatformAdapter
     public function getUser(string $username): UserDTO
     {
         return $this->userTransformer->fromApiUser($this->users->info($username));
+    }
+
+    public function userImporter(): UserImporterContract
+    {
+        return app(UserImporter::class);
     }
 
     /** @return \App\Core\DTOs\SubmissionDTO[] */
