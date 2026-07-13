@@ -158,6 +158,7 @@ class SubmissionImporter implements SubmissionImporterContract
                 'platform_submission_id' => $submissionDto->platformSubmissionId,
             ],
             [
+                'platform_id' => $contest->platform_id,
                 'contest_id' => $contest->id,
                 'problem_id' => $problem?->id,
                 'platform_profile_id' => null,

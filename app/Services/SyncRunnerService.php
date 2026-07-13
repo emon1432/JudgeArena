@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Core\Contracts\Platforms\PlatformAdapter;
 use App\Core\Platforms\PlatformRegistry;
-use App\Enums\PlatformSyncJobEntity;
+use App\Core\Results\ImportResult;
 use App\Enums\SyncRunStatus;
 use App\Models\PlatformSyncJob;
 use Illuminate\Contracts\Cache\Lock;
@@ -50,7 +50,7 @@ class SyncRunnerService
     private function execute(
         PlatformAdapter $adapter,
         PlatformSyncJob $job
-    ): array {
+    ): ImportResult {
         $method = $job->entity->importerMethod();
         return $adapter->{$method}()->import();
     }
@@ -91,7 +91,7 @@ class SyncRunnerService
 
     private function markSuccess(
         PlatformSyncJob $job,
-        array $stats
+        ImportResult $stats
     ): void {
         $job->forceFill([
             'last_finished_at' => now(),

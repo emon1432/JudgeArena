@@ -47,11 +47,13 @@ class ImportSubmissionsCommand extends Command
             $this->error('Unsupported platform: ' . $platformSlug);
             $this->line(
                 'Supported platforms: ' .
-                implode(', ', $this->platformRegistry->supportedPlatforms())
+                    implode(', ', $this->platformRegistry->supportedPlatforms())
             );
 
             return self::FAILURE;
         }
+
+        $this->info('Starting submission import for platform: ' . $platformSlug);
 
         try {
             $result = $adapter->submissionImporter()->import();
@@ -70,7 +72,7 @@ class ImportSubmissionsCommand extends Command
                 $this->table(
                     ['Metric', 'Value'],
                     collect($result->metadata)
-                        ->map(fn ($value, $key) => [
+                        ->map(fn($value, $key) => [
                             $key,
                             is_scalar($value) ? $value : json_encode($value),
                         ])
