@@ -39,25 +39,25 @@ class AtCoderHtmlScraper
         return $contests;
     }
 
-    /** @return array<string, mixed> */
+    //used
     public function getStandings(string $contestId): array
     {
         return $this->fetchJson(self::ATCODER_BASE_URL . '/contests/' . $contestId . '/standings/json');
     }
 
-    /** @return array<string, mixed> */
+    //used
     public function getStandingsVirtual(string $contestId): array
     {
         return $this->fetchJson(self::ATCODER_BASE_URL . '/contests/' . $contestId . '/standings/virtual/json');
     }
 
-    /** @return array<string, mixed> */
+    //used
     public function getResults(string $contestId): array
     {
         return $this->fetchJson(self::ATCODER_BASE_URL . '/contests/' . $contestId . '/results/json');
     }
 
-    /** @return array<string, mixed> */
+    //used
     public function getSubmissions(string $contestId, ?string $user = null): array
     {
         $submissions = [];
@@ -245,7 +245,7 @@ class AtCoderHtmlScraper
         return ['result' => $tasks];
     }
 
-    /** @return array<string, mixed> */
+    //used
     public function getUserProfile(string $username): array
     {
         $types = ['algo', 'heuristic'];
@@ -319,7 +319,6 @@ class AtCoderHtmlScraper
         return ['result' => $result];
     }
 
-    /** @return array<string, mixed> */
     public function getUserRatingHistory(string $username): array
     {
         $types = ['algo', 'heuristic'];
@@ -585,43 +584,6 @@ class AtCoderHtmlScraper
     }
 
     //used
-    private function extractMaxPages(string $html): int
-    {
-        try {
-            $doc = new DOMDocument;
-            @$doc->loadHTML($html);
-            $xpath = new DOMXPath($doc);
-
-            $paginationLinks = $xpath->query('//ul[contains(@class, "pagination")]//li//a');
-            if ($paginationLinks->length === 0) {
-                return 100;
-            }
-
-            $maxPage = 1;
-            foreach ($paginationLinks as $link) {
-                $href = $link instanceof \DOMElement ? $link->getAttribute('href') : '';
-                if (preg_match('/page=(\d+)/', $href, $matches)) {
-                    $pageNum = (int) $matches[1];
-                    if ($pageNum > $maxPage) {
-                        $maxPage = $pageNum;
-                    }
-                }
-            }
-
-            return $maxPage;
-        } catch (\Exception $exception) {
-            app(ApplicationLogger::class)->warning('AtCoder scraper failed to detect max pages', [
-                'category' => 'scraper',
-                'platform' => 'atcoder',
-                'source' => self::class,
-                'operation' => 'extractMaxPages',
-            ], $exception);
-
-            return 100;
-        }
-    }
-
-    //used
     private function getPermanentContests(): array
     {
         $contests = [];
@@ -833,6 +795,7 @@ class AtCoderHtmlScraper
         return $response->body();
     }
 
+    //used
     private function fetchJson(string $url): array
     {
         $this->respectRateLimit();
@@ -859,6 +822,43 @@ class AtCoderHtmlScraper
         }
 
         return $payload;
+    }
+
+    //used
+    private function extractMaxPages(string $html): int
+    {
+        try {
+            $doc = new DOMDocument;
+            @$doc->loadHTML($html);
+            $xpath = new DOMXPath($doc);
+
+            $paginationLinks = $xpath->query('//ul[contains(@class, "pagination")]//li//a');
+            if ($paginationLinks->length === 0) {
+                return 100;
+            }
+
+            $maxPage = 1;
+            foreach ($paginationLinks as $link) {
+                $href = $link instanceof \DOMElement ? $link->getAttribute('href') : '';
+                if (preg_match('/page=(\d+)/', $href, $matches)) {
+                    $pageNum = (int) $matches[1];
+                    if ($pageNum > $maxPage) {
+                        $maxPage = $pageNum;
+                    }
+                }
+            }
+
+            return $maxPage;
+        } catch (\Exception $exception) {
+            app(ApplicationLogger::class)->warning('AtCoder scraper failed to detect max pages', [
+                'category' => 'scraper',
+                'platform' => 'atcoder',
+                'source' => self::class,
+                'operation' => 'extractMaxPages',
+            ], $exception);
+
+            return 100;
+        }
     }
 
     //used

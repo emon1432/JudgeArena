@@ -2,7 +2,6 @@
 
 namespace App\Platforms\AtCoder\Services;
 
-use App\Core\DTOs\RatingChangeDTO;
 use App\Platforms\AtCoder\Services\AtCoderHtmlScraper;
 use App\Platforms\AtCoder\DTOs\AtCoderStandingsDTO;
 use App\Platforms\AtCoder\Mappers\AtCoderContestMapper;
@@ -26,6 +25,7 @@ class Contests
         );
     }
 
+    //used
     public function standings(string $contestId, bool $virtual = false): AtCoderStandingsDTO
     {
         $normalized = ResponseNormalizer::standings(
@@ -35,7 +35,7 @@ class Contests
         return AtCoderStandingsMapper::fromApiResponse($normalized);
     }
 
-    /** @return \App\Platforms\AtCoder\DTOs\AtCoderSubmissionDTO[] */
+    //used
     public function submissions(string $contestId, ?string $user = null): array
     {
         return AtCoderSubmissionMapper::fromNormalizedList(
@@ -43,7 +43,7 @@ class Contests
         );
     }
 
-    /** @return RatingChangeDTO[] */
+    //used
     public function ratingChanges(string $contestId): array
     {
         $normalized = ResponseNormalizer::ratingChanges(
@@ -59,25 +59,6 @@ class Contests
     public function tasks(string $contestId): array
     {
         return $this->scraper->getTasks($contestId);
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function findContestNormalized(string $contestId): array
-    {
-        $contests = ResponseNormalizer::contests($this->scraper->getContests());
-
-        foreach ($contests as $contest) {
-            if (isset($contest['id']) && (string) $contest['id'] === $contestId) {
-                return $contest;
-            }
-        }
-
-        return [
-            'id' => $contestId,
-            'title' => $contestId,
-        ];
     }
 }
 

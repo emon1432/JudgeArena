@@ -53,7 +53,6 @@ class Problems
         return CodeforcesProblemMapper::fromNormalizedList($problemsWithStatistics);
     }
 
-    /** @return CodeforcesSubmissionDTO[] */
     public function recentStatus(int $count): array
     {
         $query = [
@@ -77,10 +76,6 @@ class Problems
         return $this->client->webBaseUrl() . '/problemset/' . $section . '/' . $contestId . '/' . strtoupper(trim($index));
     }
 
-    /**
-     * @param CodeforcesSubmissionDTO[] $submissions
-     * @return array<int, string>
-     */
     public function acceptedProblemIds(array $submissions): array
     {
         return collect($submissions)

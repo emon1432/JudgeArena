@@ -29,7 +29,6 @@ class ContestTransformer
         );
     }
 
-    /** @return array<int, ContestDTO> */
     public function fromApiContests(array $contests): array
     {
         return array_map(fn(CodeforcesContestDTO $contest): ContestDTO => $this->fromApiContest($contest), $contests);

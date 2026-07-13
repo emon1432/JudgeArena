@@ -9,30 +9,18 @@ use App\Core\Contracts\Importers\RatingChangeImporter;
 use App\Core\Contracts\Importers\StandingsImporter;
 use App\Core\Contracts\Importers\UserImporter;
 use App\Core\DTOs\ContestStandingsDTO;
-use App\Core\DTOs\RatingChangeDTO;
 use App\Core\DTOs\UserDTO;
 
 interface PlatformAdapter
 {
+    //==================================Used==================================
+    // Getters
     public function getContests(): array;
     public function getContestProblems(string $contestId): array;
-
-
-
-    public function getContest(string $id): ContestStandingsDTO;
-
-    /** @return UserDTO */
-    public function getUser(string $username): UserDTO;
-
-    /** @return \App\Core\DTOs\SubmissionDTO[] */
     public function getSubmissions(string $contestId): array;
-
-    /** @return RatingChangeDTO[] */
     public function getRatingChanges(string $contestId): array;
-
-    /** @return RatingChangeDTO[] */
-    public function getUserRatingHistory(string $handle): array;
-
+    public function getStandings(string $id): ContestStandingsDTO;
+    public function getUser(string $username): UserDTO;
 
     // Importers
     public function contestImporter(): ContestImporter;
@@ -41,4 +29,10 @@ interface PlatformAdapter
     public function ratingChangeImporter(): RatingChangeImporter;
     public function standingsImporter(): StandingsImporter;
     public function userImporter(): UserImporter;
+
+
+    //==================================Unused==================================
+    public function getContest(string $id): ContestStandingsDTO;
+    public function getProblems(): array;
+    public function getUserRatingHistory(string $handle): array;
 }

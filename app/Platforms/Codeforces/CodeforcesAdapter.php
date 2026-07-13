@@ -10,7 +10,6 @@ use App\Core\Contracts\Importers\StandingsImporter as StandingsImporterContract;
 use App\Core\Contracts\Importers\UserImporter as UserImporterContract;
 use App\Core\Contracts\Platforms\PlatformAdapter;
 use App\Core\DTOs\ContestStandingsDTO;
-use App\Core\DTOs\RatingChangeDTO;
 use App\Core\DTOs\UserDTO;
 use App\Platforms\Codeforces\Importers\ContestImporter;
 use App\Platforms\Codeforces\Importers\RatingChangeImporter;
@@ -29,7 +28,20 @@ use App\Platforms\Codeforces\Transformers\StandingsTransformer;
 
 class CodeforcesAdapter implements PlatformAdapter
 {
-    //used
+    public function __construct(
+        private readonly Contests $contests,
+        private readonly Problems $problems,
+        private readonly Users $users,
+        private readonly ContestTransformer $contestTransformer,
+        private readonly ProblemTransformer $problemTransformer,
+        private readonly UserTransformer $userTransformer,
+        private readonly SubmissionTransformer $submissionTransformer,
+        private readonly StandingsTransformer $standingsTransformer,
+    ) {}
+
+    //==================================Used==================================
+
+    //===============================Getters==================================
     public function getContests(): array
     {
         return $this->contestTransformer->fromApiContests(
@@ -37,28 +49,45 @@ class CodeforcesAdapter implements PlatformAdapter
         );
     }
 
-    //used
-    public function contestImporter(): ContestImporterContract
-    {
-        return app(ContestImporter::class);
-    }
-
-    //used
     public function getContestProblems(string $contestId): array
     {
         $contest = $this->contests->standings((int) $contestId);
         return $this->problemTransformer->fromApiProblems($contest->problems);
     }
 
-    //used
+    public function getSubmissions(string $contestId): array
+    {
+        return $this->submissionTransformer->fromApiSubmissions(
+            $this->contests->status((int) $contestId)
+        );
+    }
+
+    public function getRatingChanges(string $contestId): array
+    {
+        return $this->contests->ratingChanges($contestId);
+    }
+
+    public function getStandings(string $id): ContestStandingsDTO
+    {
+        return $this->standingsTransformer
+            ->fromApiStandings($this->contests->standings((int) $id));
+    }
+
+    public function getUser(string $username): UserDTO
+    {
+        return $this->userTransformer->fromApiUser($this->users->info($username));
+    }
+
+    //===============================Importers==================================
+    public function contestImporter(): ContestImporterContract
+    {
+        return app(ContestImporter::class);
+    }
+
     public function problemImporter(): ProblemImporterContract
     {
         return app(ProblemImporter::class);
     }
-
-
-
-
 
     public function submissionImporter(): SubmissionImporterContract
     {
@@ -75,67 +104,26 @@ class CodeforcesAdapter implements PlatformAdapter
         return app(StandingsImporter::class);
     }
 
+    public function userImporter(): UserImporterContract
+    {
+        return app(UserImporter::class);
+    }
 
 
-
-
-
-    /**
-     * @return \App\Core\DTOs\ContestStandingsDTO
-     */
+    //==================================Unused==================================
     public function getContest(string $id): ContestStandingsDTO
     {
         return $this->standingsTransformer
             ->fromApiStandings($this->contests->standings((int) $id));
     }
 
-    /**
-     * @return \App\Core\DTOs\ProblemDTO[]
-     */
     public function getProblems(): array
     {
         return $this->problemTransformer->fromApiProblems($this->problems->list());
     }
 
-    /** @return UserDTO */
-    public function getUser(string $username): UserDTO
-    {
-        return $this->userTransformer->fromApiUser($this->users->info($username));
-    }
-
-    public function userImporter(): UserImporterContract
-    {
-        return app(UserImporter::class);
-    }
-
-    /** @return \App\Core\DTOs\SubmissionDTO[] */
-    public function getSubmissions(string $contestId): array
-    {
-        return $this->submissionTransformer->fromApiSubmissions(
-            $this->contests->status((int) $contestId)
-        );
-    }
-
-    /** @return RatingChangeDTO[] */
-    public function getRatingChanges(string $contestId): array
-    {
-        return $this->contests->ratingChanges($contestId);
-    }
-
-    /** @return RatingChangeDTO[] */
     public function getUserRatingHistory(string $handle): array
     {
         return $this->users->ratingHistory($handle);
     }
-
-    public function __construct(
-        private readonly Contests $contests,
-        private readonly Problems $problems,
-        private readonly Users $users,
-        private readonly ContestTransformer $contestTransformer,
-        private readonly ProblemTransformer $problemTransformer,
-        private readonly UserTransformer $userTransformer,
-        private readonly SubmissionTransformer $submissionTransformer,
-        private readonly StandingsTransformer $standingsTransformer,
-    ) {}
 }

@@ -2,7 +2,6 @@
 
 namespace App\Platforms\Codeforces\Services;
 
-use App\Core\DTOs\RatingChangeDTO;
 use App\Platforms\Codeforces\Client\BaseClient;
 use App\Platforms\Codeforces\DTOs\CodeforcesStandingsDTO;
 use App\Platforms\Codeforces\Mappers\CodeforcesContestMapper;
@@ -34,6 +33,7 @@ class Contests
         );
     }
 
+    //used
     public function standings(int $contestId, array $options = []): CodeforcesStandingsDTO
     {
         $isGymContest = $contestId > 90000;
@@ -52,7 +52,7 @@ class Contests
         return CodeforcesStandingsMapper::fromApiResponse(ResponseNormalizer::standings($this->client->requestApi('contest.standings', $query, $isSigned)));
     }
 
-    /** @return \App\Platforms\Codeforces\DTOs\CodeforcesSubmissionDTO[] */
+    //used
     public function status(int $contestId, array $options = []): array
     {
         $query = array_merge([
@@ -64,7 +64,7 @@ class Contests
         );
     }
 
-    /** @return RatingChangeDTO[] */
+    //used
     public function ratingChanges(string $contestId): array
     {
         $normalized = ResponseNormalizer::ratingChanges($this->client->requestApi('contest.ratingChanges', [
@@ -76,7 +76,6 @@ class Contests
         return CodeforcesRatingChangeTransformer::fromApiRatingChanges($platformDtos, $contestId);
     }
 
-    /** @return array<int, array<string, mixed>> */
     public function hacks(int $contestId, bool $asManager = false): array
     {
         return ResponseNormalizer::hacks($this->client->requestApi('contest.hacks', [

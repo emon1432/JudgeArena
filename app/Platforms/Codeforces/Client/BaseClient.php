@@ -29,6 +29,7 @@ class BaseClient
         $this->apiSecret = (string) config('platforms.codeforces.credentials.api_secret', '');
     }
 
+    //used
     protected function http(): PendingRequest
     {
         return Http::acceptJson()
@@ -44,6 +45,7 @@ class BaseClient
             );
     }
 
+    //used
     protected function respectRateLimit(string $method, array $query): void
     {
         $cacheKey = 'codeforces:last_request_at:' . $method . ':' . md5(json_encode($query));
@@ -57,6 +59,7 @@ class BaseClient
         cache()->put($cacheKey, time(), self::API_RATE_LIMIT_SECONDS + 1);
     }
 
+    //used
     protected function sanitizeQuery(array $query): array
     {
         $sanitized = [];
@@ -72,6 +75,7 @@ class BaseClient
         return $sanitized;
     }
 
+    //used
     protected function decodeApiResponse(Response $response, string $method, array $query): array
     {
         if (! $response->ok()) {
@@ -119,6 +123,7 @@ class BaseClient
         return is_array($result) ? $result : [];
     }
 
+    //used
     protected function signedQuery(string $method, array $query): array
     {
         $apiKey = $this->apiKey();
@@ -142,21 +147,25 @@ class BaseClient
         return $query;
     }
 
+    //used
     protected function apiKey(): string
     {
         return $this->apiKey;
     }
 
+    //used
     protected function apiSecret(): string
     {
         return $this->apiSecret;
     }
 
+    //used
     protected function hasApiCredentials(): bool
     {
         return $this->apiKey() !== '' && $this->apiSecret() !== '';
     }
 
+    //used
     protected function requiresSignedRequest(array $options): bool
     {
         return array_key_exists('apiKey', $options)
@@ -164,7 +173,7 @@ class BaseClient
             || $this->hasApiCredentials();
     }
 
-    // Expose helper for services when using composition
+    //used
     public function requiresSignedRequestPublic(array $options): bool
     {
         return $this->requiresSignedRequest($options);
@@ -180,6 +189,7 @@ class BaseClient
         return (int) self::USER_INFO_BATCH_CHAR_LIMIT;
     }
 
+    //used
     public function requestApi(string $method, array $query = [], bool $signed = false): array
     {
         $finalQuery = $this->sanitizeQuery($query);

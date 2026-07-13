@@ -81,7 +81,7 @@ class StandingsImporter implements StandingsImporterContract
             }
 
             try {
-                $standings = $this->adapter->getContest((string) $contest->platform_contest_id);
+                $standings = $this->adapter->getStandings((string) $contest->platform_contest_id);
 
                 if (! $standings instanceof ContestStandingsDTO) {
                     throw new RuntimeException('Adapter returned invalid standings payload.');

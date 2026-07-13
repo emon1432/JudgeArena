@@ -2,7 +2,6 @@
 
 namespace App\Platforms\Codeforces\Services;
 
-use App\Core\DTOs\RatingChangeDTO;
 use App\Platforms\Codeforces\Client\BaseClient;
 use App\Platforms\Codeforces\DTOs\CodeforcesUserDTO;
 use App\Platforms\Codeforces\Mappers\CodeforcesRatingChangeMapper;
@@ -20,7 +19,7 @@ class Users
         private readonly BaseClient $client,
     ) {}
 
-    /** @return CodeforcesUserDTO */
+    //used
     public function info(string $handle, bool $checkHistoricHandles = true): CodeforcesUserDTO
     {
         $result = $this->client->requestApi('user.info', [
@@ -31,10 +30,19 @@ class Users
         return CodeforcesUserMapper::fromNormalized(Arr::first(ResponseNormalizer::users($result), null, []));
     }
 
-    /**
-     * @param array<int, string> $handles
-     * @return CodeforcesUserDTO[]
-     */
+    //used
+    public function ratingHistory(string $handle): array
+    {
+        return CodeforcesRatingChangeTransformer::fromApiRatingChanges(
+            CodeforcesRatingChangeMapper::fromNormalizedList(
+                ResponseNormalizer::ratingChanges($this->client->requestApi('user.rating', [
+                    'handle' => $handle,
+                ]))
+            ),
+            $handle,
+        );
+    }
+
     public function infos(array $handles, bool $checkHistoricHandles = true): array
     {
         $results = [];
@@ -51,7 +59,6 @@ class Users
         return $results;
     }
 
-    /** @return \App\Platforms\Codeforces\DTOs\CodeforcesSubmissionDTO[] */
     public function status(string $contestId, string $handle): array
     {
         $query = [
@@ -70,23 +77,6 @@ class Users
         );
     }
 
-
-    /** @return RatingChangeDTO[] */
-    public function ratingHistory(string $handle): array
-    {
-        return CodeforcesRatingChangeTransformer::fromApiRatingChanges(
-            CodeforcesRatingChangeMapper::fromNormalizedList(
-                ResponseNormalizer::ratingChanges($this->client->requestApi('user.rating', [
-                    'handle' => $handle,
-                ]))
-            ),
-            $handle,
-        );
-    }
-
-    /**
-     * @return CodeforcesUserDTO[]
-     */
     public function ratedList(bool $activeOnly = true, bool $includeRetired = false, ?int $contestId = null): array
     {
         $query = [
@@ -103,7 +93,6 @@ class Users
         );
     }
 
-    /** @return array<int, array<string, mixed>> */
     public function blogEntries(string $handle): array
     {
         return ResponseNormalizer::blogEntries($this->client->requestApi('user.blogEntries', [
@@ -111,7 +100,6 @@ class Users
         ]));
     }
 
-    /** @return array<int, array<string, mixed>> */
     public function friends(bool $onlyOnline = false): array
     {
         return $this->client->requestApi('user.friends', [
@@ -155,27 +143,16 @@ class Users
         return $this->client->webBaseUrl() . '/profile/' . urlencode($handle);
     }
 
-    /**
-     * @param array<string, mixed> $user
-     * @return array<string, mixed>
-     */
     public function normalize(array $user): array
     {
         return ResponseNormalizer::user($user);
     }
 
-    /**
-     * @param array<string, mixed> $userInfo
-     */
     public function calculateMaxRating(array $userInfo): ?int
     {
         return $userInfo['maxRating'] ?? $userInfo['rating'] ?? null;
     }
 
-    /**
-     * @param array<int, string> $handles
-     * @return array<int, array<int, string>>
-     */
     private function chunkHandlesForUserInfo(array $handles): array
     {
         $chunks = [];

@@ -11,6 +11,7 @@ class Problems
         private readonly Contests $contestsService,
     ) {}
 
+    //used
     public function getContestProblems(string $contestId): array
     {
         return AtCoderProblemMapper::fromNormalizedList(

@@ -2,7 +2,6 @@
 
 namespace App\Platforms\AtCoder\Services;
 
-use App\Core\DTOs\RatingChangeDTO;
 use App\Models\Contest;
 use App\Platforms\AtCoder\Services\AtCoderHtmlScraper;
 use App\Platforms\AtCoder\DTOs\AtCoderUserDTO;
@@ -21,7 +20,7 @@ class Users
         private readonly Contest $contestModel,
     ) {}
 
-    /** @return AtCoderUserDTO */
+    //used
     public function info(string $handle): AtCoderUserDTO
     {
         $payload = $this->scraper->getUserProfile($handle);
@@ -35,13 +34,11 @@ class Users
         );
     }
 
-    /** @return \App\Platforms\AtCoder\DTOs\AtCoderSubmissionDTO[] */
     public function submissions(string $contestId, string $handle): array
     {
         return $this->contests->submissions($contestId, $handle);
     }
 
-    /** @return RatingChangeDTO[] */
     public function ratingHistory(string $handle): array
     {
         return AtCoderRatingChangeTransformer::fromApiRatingChanges(
