@@ -117169,11 +117169,11 @@ class PlatformSyncStatesTableSeeder extends Seeder
                 'entity_platform_id' => '1048',
                 'sync_status' => 'failed',
                 'last_synced_at' => NULL,
-                'last_attempted_at' => '2026-07-14 08:17:10',
+                'last_attempted_at' => '2026-07-14 10:55:58',
                 'last_error' => 'Codeforces contest.standings request failed with HTTP 400',
                 'metadata' => '{"contest_id":1140,"contest_name":"\\u0422\\u0435\\u0445\\u043d\\u043e\\u043a\\u0443\\u0431\\u043e\\u043a 2019 - \\u041e\\u0437\\u043d\\u0430\\u043a\\u043e\\u043c\\u0438\\u0442\\u0435\\u043b\\u044c\\u043d\\u044b\\u0439 \\u0420\\u0430\\u0443\\u043d\\u0434 1","platform_slug":"codeforces"}',
                 'created_at' => '2026-07-13 13:58:04',
-                'updated_at' => '2026-07-14 08:17:10',
+                'updated_at' => '2026-07-14 10:55:58',
             ),
             366 => 
             array (
@@ -117183,11 +117183,11 @@ class PlatformSyncStatesTableSeeder extends Seeder
                 'entity_platform_id' => '1049',
                 'sync_status' => 'failed',
                 'last_synced_at' => NULL,
-                'last_attempted_at' => '2026-07-14 08:17:12',
+                'last_attempted_at' => '2026-07-14 10:56:00',
                 'last_error' => 'Codeforces contest.standings request failed with HTTP 400',
                 'metadata' => '{"contest_id":1123,"contest_name":"\\u0422\\u0435\\u0445\\u043d\\u043e\\u043a\\u0443\\u0431\\u043e\\u043a 2019 - \\u041e\\u0437\\u043d\\u0430\\u043a\\u043e\\u043c\\u0438\\u0442\\u0435\\u043b\\u044c\\u043d\\u044b\\u0439 \\u0420\\u0430\\u0443\\u043d\\u0434 2","platform_slug":"codeforces"}',
                 'created_at' => '2026-07-13 13:58:06',
-                'updated_at' => '2026-07-14 08:17:12',
+                'updated_at' => '2026-07-14 10:56:00',
             ),
             367 => 
             array (
@@ -117211,11 +117211,11 @@ class PlatformSyncStatesTableSeeder extends Seeder
                 'entity_platform_id' => '1050',
                 'sync_status' => 'failed',
                 'last_synced_at' => NULL,
-                'last_attempted_at' => '2026-07-14 08:17:14',
+                'last_attempted_at' => '2026-07-14 10:56:04',
                 'last_error' => 'Codeforces contest.standings request failed with HTTP 400',
                 'metadata' => '{"contest_id":1107,"contest_name":"\\u0422\\u0435\\u0445\\u043d\\u043e\\u043a\\u0443\\u0431\\u043e\\u043a 2019 - \\u041e\\u0437\\u043d\\u0430\\u043a\\u043e\\u043c\\u0438\\u0442\\u0435\\u043b\\u044c\\u043d\\u044b\\u0439 \\u0420\\u0430\\u0443\\u043d\\u0434 3","platform_slug":"codeforces"}',
                 'created_at' => '2026-07-13 13:58:09',
-                'updated_at' => '2026-07-14 08:17:14',
+                'updated_at' => '2026-07-14 10:56:04',
             ),
             369 => 
             array (
@@ -117869,11 +117869,11 @@ class PlatformSyncStatesTableSeeder extends Seeder
                 'entity_platform_id' => '1094',
                 'sync_status' => 'failed',
                 'last_synced_at' => NULL,
-                'last_attempted_at' => '2026-07-14 08:17:16',
+                'last_attempted_at' => '2026-07-14 10:56:06',
                 'last_error' => 'Codeforces contest.standings request failed with HTTP 400',
                 'metadata' => '{"contest_id":1091,"contest_name":"\\u0422\\u0435\\u0445\\u043d\\u043e\\u043a\\u0443\\u0431\\u043e\\u043a 2019 - \\u041e\\u0437\\u043d\\u0430\\u043a\\u043e\\u043c\\u0438\\u0442\\u0435\\u043b\\u044c\\u043d\\u044b\\u0439 \\u0420\\u0430\\u0443\\u043d\\u0434 4","platform_slug":"codeforces"}',
                 'created_at' => '2026-07-13 13:59:42',
-                'updated_at' => '2026-07-14 08:17:16',
+                'updated_at' => '2026-07-14 10:56:06',
             ),
             416 => 
             array (
@@ -119747,11 +119747,11 @@ class PlatformSyncStatesTableSeeder extends Seeder
                 'entity_platform_id' => '1222',
                 'sync_status' => 'failed',
                 'last_synced_at' => NULL,
-                'last_attempted_at' => '2026-07-14 08:17:18',
+                'last_attempted_at' => '2026-07-14 10:56:10',
                 'last_error' => 'Codeforces contest.standings request failed with HTTP 400',
                 'metadata' => '{"contest_id":962,"contest_name":"\\u0422\\u0435\\u0445\\u043d\\u043e\\u043a\\u0443\\u0431\\u043e\\u043a 2020 - \\u041e\\u0437\\u043d\\u0430\\u043a\\u043e\\u043c\\u0438\\u0442\\u0435\\u043b\\u044c\\u043d\\u044b\\u0439 \\u0420\\u0430\\u0443\\u043d\\u0434 1","platform_slug":"codeforces"}',
                 'created_at' => '2026-07-13 14:04:55',
-                'updated_at' => '2026-07-14 08:17:18',
+                'updated_at' => '2026-07-14 10:56:10',
             ),
             50 => 
             array (
@@ -119775,11 +119775,11 @@ class PlatformSyncStatesTableSeeder extends Seeder
                 'entity_platform_id' => '1224',
                 'sync_status' => 'failed',
                 'last_synced_at' => NULL,
-                'last_attempted_at' => '2026-07-14 08:17:20',
+                'last_attempted_at' => '2026-07-14 10:56:13',
                 'last_error' => 'Codeforces contest.standings request failed with HTTP 400',
                 'metadata' => '{"contest_id":951,"contest_name":"\\u0422\\u0435\\u0445\\u043d\\u043e\\u043a\\u0443\\u0431\\u043e\\u043a 2020 - \\u041e\\u0437\\u043d\\u0430\\u043a\\u043e\\u043c\\u0438\\u0442\\u0435\\u043b\\u044c\\u043d\\u044b\\u0439 \\u0420\\u0430\\u0443\\u043d\\u0434 2","platform_slug":"codeforces"}',
                 'created_at' => '2026-07-13 14:04:59',
-                'updated_at' => '2026-07-14 08:17:20',
+                'updated_at' => '2026-07-14 10:56:13',
             ),
             52 => 
             array (
@@ -119803,11 +119803,11 @@ class PlatformSyncStatesTableSeeder extends Seeder
                 'entity_platform_id' => '1226',
                 'sync_status' => 'failed',
                 'last_synced_at' => NULL,
-                'last_attempted_at' => '2026-07-14 08:17:22',
+                'last_attempted_at' => '2026-07-14 10:56:17',
                 'last_error' => 'Codeforces contest.standings request failed with HTTP 400',
                 'metadata' => '{"contest_id":936,"contest_name":"\\u0422\\u0435\\u0445\\u043d\\u043e\\u043a\\u0443\\u0431\\u043e\\u043a 2020 - \\u041e\\u0437\\u043d\\u0430\\u043a\\u043e\\u043c\\u0438\\u0442\\u0435\\u043b\\u044c\\u043d\\u044b\\u0439 \\u0420\\u0430\\u0443\\u043d\\u0434 3","platform_slug":"codeforces"}',
                 'created_at' => '2026-07-13 14:05:03',
-                'updated_at' => '2026-07-14 08:17:22',
+                'updated_at' => '2026-07-14 10:56:17',
             ),
             54 => 
             array (
@@ -120265,11 +120265,11 @@ class PlatformSyncStatesTableSeeder extends Seeder
                 'entity_platform_id' => '1258',
                 'sync_status' => 'failed',
                 'last_synced_at' => NULL,
-                'last_attempted_at' => '2026-07-14 08:17:24',
+                'last_attempted_at' => '2026-07-14 10:56:23',
                 'last_error' => 'Codeforces contest.standings request failed with HTTP 400',
                 'metadata' => '{"contest_id":924,"contest_name":"\\u0422\\u0435\\u0445\\u043d\\u043e\\u043a\\u0443\\u0431\\u043e\\u043a 2020 - \\u041e\\u0437\\u043d\\u0430\\u043a\\u043e\\u043c\\u0438\\u0442\\u0435\\u043b\\u044c\\u043d\\u044b\\u0439 \\u0420\\u0430\\u0443\\u043d\\u0434 4","platform_slug":"codeforces"}',
                 'created_at' => '2026-07-13 14:06:17',
-                'updated_at' => '2026-07-14 08:17:24',
+                'updated_at' => '2026-07-14 10:56:23',
             ),
             87 => 
             array (
@@ -122547,11 +122547,11 @@ class PlatformSyncStatesTableSeeder extends Seeder
                 'entity_platform_id' => '1410',
                 'sync_status' => 'failed',
                 'last_synced_at' => NULL,
-                'last_attempted_at' => '2026-07-14 08:17:27',
+                'last_attempted_at' => '2026-07-14 10:56:28',
                 'last_error' => 'Codeforces contest.standings request failed with HTTP 400',
                 'metadata' => '{"contest_id":742,"contest_name":"\\u0422\\u0435\\u0445\\u043d\\u043e\\u043a\\u0443\\u0431\\u043e\\u043a 2021 - \\u041e\\u0437\\u043d\\u0430\\u043a\\u043e\\u043c\\u0438\\u0442\\u0435\\u043b\\u044c\\u043d\\u044b\\u0439 \\u0420\\u0430\\u0443\\u043d\\u0434 3","platform_slug":"codeforces"}',
                 'created_at' => '2026-07-13 14:15:26',
-                'updated_at' => '2026-07-14 08:17:27',
+                'updated_at' => '2026-07-14 10:56:28',
             ),
             250 => 
             array (
@@ -122575,11 +122575,11 @@ class PlatformSyncStatesTableSeeder extends Seeder
                 'entity_platform_id' => '1412',
                 'sync_status' => 'failed',
                 'last_synced_at' => NULL,
-                'last_attempted_at' => '2026-07-14 08:17:29',
+                'last_attempted_at' => '2026-07-14 10:56:35',
                 'last_error' => 'Codeforces contest.standings request failed with HTTP 400',
                 'metadata' => '{"contest_id":774,"contest_name":"\\u0422\\u0435\\u0445\\u043d\\u043e\\u043a\\u0443\\u0431\\u043e\\u043a 2021 - \\u041e\\u0437\\u043d\\u0430\\u043a\\u043e\\u043c\\u0438\\u0442\\u0435\\u043b\\u044c\\u043d\\u044b\\u0439 \\u0420\\u0430\\u0443\\u043d\\u0434 1","platform_slug":"codeforces"}',
                 'created_at' => '2026-07-13 14:15:29',
-                'updated_at' => '2026-07-14 08:17:29',
+                'updated_at' => '2026-07-14 10:56:35',
             ),
             252 => 
             array (
@@ -122603,11 +122603,11 @@ class PlatformSyncStatesTableSeeder extends Seeder
                 'entity_platform_id' => '1414',
                 'sync_status' => 'failed',
                 'last_synced_at' => NULL,
-                'last_attempted_at' => '2026-07-14 08:17:31',
+                'last_attempted_at' => '2026-07-14 10:56:43',
                 'last_error' => 'Codeforces contest.standings request failed with HTTP 400',
                 'metadata' => '{"contest_id":753,"contest_name":"\\u0422\\u0435\\u0445\\u043d\\u043e\\u043a\\u0443\\u0431\\u043e\\u043a 2021 - \\u041e\\u0437\\u043d\\u0430\\u043a\\u043e\\u043c\\u0438\\u0442\\u0435\\u043b\\u044c\\u043d\\u044b\\u0439 \\u0420\\u0430\\u0443\\u043d\\u0434 2","platform_slug":"codeforces"}',
                 'created_at' => '2026-07-13 14:15:33',
-                'updated_at' => '2026-07-14 08:17:31',
+                'updated_at' => '2026-07-14 10:56:43',
             ),
             254 => 
             array (
@@ -125235,11 +125235,11 @@ class PlatformSyncStatesTableSeeder extends Seeder
                 'entity_platform_id' => '1595',
                 'sync_status' => 'failed',
                 'last_synced_at' => NULL,
-                'last_attempted_at' => '2026-07-14 08:17:33',
+                'last_attempted_at' => '2026-07-14 10:56:49',
                 'last_error' => 'Codeforces contest.standings request failed with HTTP 400',
                 'metadata' => '{"contest_id":621,"contest_name":"\\u0422\\u0435\\u0445\\u043d\\u043e\\u043a\\u0443\\u0431\\u043e\\u043a 2022 - \\u041e\\u0437\\u043d\\u0430\\u043a\\u043e\\u043c\\u0438\\u0442\\u0435\\u043b\\u044c\\u043d\\u044b\\u0439 \\u0420\\u0430\\u0443\\u043d\\u0434 1","platform_slug":"codeforces"}',
                 'created_at' => '2026-07-13 14:27:25',
-                'updated_at' => '2026-07-14 08:17:33',
+                'updated_at' => '2026-07-14 10:56:49',
             ),
             442 => 
             array (
@@ -125249,11 +125249,11 @@ class PlatformSyncStatesTableSeeder extends Seeder
                 'entity_platform_id' => '1596',
                 'sync_status' => 'failed',
                 'last_synced_at' => NULL,
-                'last_attempted_at' => '2026-07-14 08:17:35',
+                'last_attempted_at' => '2026-07-14 10:56:54',
                 'last_error' => 'Codeforces contest.standings request failed with HTTP 400',
                 'metadata' => '{"contest_id":611,"contest_name":"\\u0422\\u0435\\u0445\\u043d\\u043e\\u043a\\u0443\\u0431\\u043e\\u043a 2022 - \\u041e\\u0437\\u043d\\u0430\\u043a\\u043e\\u043c\\u0438\\u0442\\u0435\\u043b\\u044c\\u043d\\u044b\\u0439 \\u0420\\u0430\\u0443\\u043d\\u0434 2","platform_slug":"codeforces"}',
                 'created_at' => '2026-07-13 14:27:27',
-                'updated_at' => '2026-07-14 08:17:35',
+                'updated_at' => '2026-07-14 10:56:54',
             ),
             443 => 
             array (
@@ -125263,11 +125263,11 @@ class PlatformSyncStatesTableSeeder extends Seeder
                 'entity_platform_id' => '1597',
                 'sync_status' => 'failed',
                 'last_synced_at' => NULL,
-                'last_attempted_at' => '2026-07-14 08:17:37',
+                'last_attempted_at' => '2026-07-14 10:57:03',
                 'last_error' => 'Codeforces contest.standings request failed with HTTP 400',
                 'metadata' => '{"contest_id":600,"contest_name":"\\u0422\\u0435\\u0445\\u043d\\u043e\\u043a\\u0443\\u0431\\u043e\\u043a 2022 - \\u041e\\u0437\\u043d\\u0430\\u043a\\u043e\\u043c\\u0438\\u0442\\u0435\\u043b\\u044c\\u043d\\u044b\\u0439 \\u0420\\u0430\\u0443\\u043d\\u0434 3","platform_slug":"codeforces"}',
                 'created_at' => '2026-07-13 14:27:29',
-                'updated_at' => '2026-07-14 08:17:37',
+                'updated_at' => '2026-07-14 10:57:03',
             ),
             444 => 
             array (
@@ -134787,11 +134787,11 @@ class PlatformSyncStatesTableSeeder extends Seeder
                 'entity_platform_id' => '2244',
                 'sync_status' => 'failed',
                 'last_synced_at' => NULL,
-                'last_attempted_at' => '2026-07-14 08:17:59',
+                'last_attempted_at' => '2026-07-14 10:57:07',
                 'last_error' => 'Codeforces contest.standings request failed with HTTP 400',
             'metadata' => '{"contest_id":3,"contest_name":"Codeforces Round 1109 (Div. 3)","platform_slug":"codeforces"}',
                 'created_at' => '2026-07-13 15:39:26',
-                'updated_at' => '2026-07-14 08:17:59',
+                'updated_at' => '2026-07-14 10:57:07',
             ),
             124 => 
             array (
@@ -134801,11 +134801,11 @@ class PlatformSyncStatesTableSeeder extends Seeder
                 'entity_platform_id' => '2245',
                 'sync_status' => 'failed',
                 'last_synced_at' => NULL,
-                'last_attempted_at' => '2026-07-14 08:18:02',
+                'last_attempted_at' => '2026-07-14 10:57:09',
                 'last_error' => 'Codeforces contest.standings request failed with HTTP 400',
             'metadata' => '{"contest_id":2,"contest_name":"Spectral::Cup 2026 Round 3 (Codeforces Round 1110, Div. 1 + Div. 2)","platform_slug":"codeforces"}',
                 'created_at' => '2026-07-13 15:39:28',
-                'updated_at' => '2026-07-14 08:18:02',
+                'updated_at' => '2026-07-14 10:57:09',
             ),
             125 => 
             array (
@@ -134829,11 +134829,11 @@ class PlatformSyncStatesTableSeeder extends Seeder
                 'entity_platform_id' => '2247',
                 'sync_status' => 'failed',
                 'last_synced_at' => NULL,
-                'last_attempted_at' => '2026-07-14 08:18:05',
+                'last_attempted_at' => '2026-07-14 10:57:11',
                 'last_error' => 'Codeforces contest.standings request failed with HTTP 400',
             'metadata' => '{"contest_id":1,"contest_name":"Codeforces Round (Div. 2)","platform_slug":"codeforces"}',
                 'created_at' => '2026-07-13 15:39:33',
-                'updated_at' => '2026-07-14 08:18:05',
+                'updated_at' => '2026-07-14 10:57:11',
             ),
             127 => 
             array (
@@ -141803,11 +141803,11 @@ class PlatformSyncStatesTableSeeder extends Seeder
                 'entity_platform_id' => '693',
                 'sync_status' => 'failed',
                 'last_synced_at' => NULL,
-                'last_attempted_at' => '2026-07-14 08:18:08',
+                'last_attempted_at' => '2026-07-14 10:57:15',
                 'last_error' => 'Codeforces contest.standings request failed with HTTP 400',
             'metadata' => '{"contest_id":1465,"contest_name":"VK Cup 2016 - Finals (trial contest)","platform_slug":"codeforces"}',
                 'created_at' => '2026-07-13 15:54:03',
-                'updated_at' => '2026-07-14 08:18:08',
+                'updated_at' => '2026-07-14 10:57:15',
             ),
             125 => 
             array (
@@ -142307,11 +142307,11 @@ class PlatformSyncStatesTableSeeder extends Seeder
                 'entity_platform_id' => '726',
                 'sync_status' => 'failed',
                 'last_synced_at' => NULL,
-                'last_attempted_at' => '2026-07-14 08:18:11',
+                'last_attempted_at' => '2026-07-14 10:57:17',
                 'last_error' => 'Codeforces contest.standings request failed with HTTP 400',
                 'metadata' => '{"contest_id":1431,"contest_name":"\\u0422\\u0435\\u0445\\u043d\\u043e\\u043a\\u0443\\u0431\\u043e\\u043a 2017 - \\u041e\\u0437\\u043d\\u0430\\u043a\\u043e\\u043c\\u0438\\u0442\\u0435\\u043b\\u044c\\u043d\\u044b\\u0439 \\u0420\\u0430\\u0443\\u043d\\u0434 1","platform_slug":"codeforces"}',
                 'created_at' => '2026-07-13 15:55:21',
-                'updated_at' => '2026-07-14 08:18:11',
+                'updated_at' => '2026-07-14 10:57:17',
             ),
             161 => 
             array (
@@ -142335,11 +142335,11 @@ class PlatformSyncStatesTableSeeder extends Seeder
                 'entity_platform_id' => '728',
                 'sync_status' => 'failed',
                 'last_synced_at' => NULL,
-                'last_attempted_at' => '2026-07-14 08:18:14',
+                'last_attempted_at' => '2026-07-14 10:57:19',
                 'last_error' => 'Codeforces contest.standings request failed with HTTP 400',
                 'metadata' => '{"contest_id":1423,"contest_name":"\\u0422\\u0435\\u0445\\u043d\\u043e\\u043a\\u0443\\u0431\\u043e\\u043a 2017 - \\u041e\\u0437\\u043d\\u0430\\u043a\\u043e\\u043c\\u0438\\u0442\\u0435\\u043b\\u044c\\u043d\\u044b\\u0439 \\u0420\\u0430\\u0443\\u043d\\u0434 2","platform_slug":"codeforces"}',
                 'created_at' => '2026-07-13 15:55:25',
-                'updated_at' => '2026-07-14 08:18:14',
+                'updated_at' => '2026-07-14 10:57:19',
             ),
             163 => 
             array (
@@ -143833,11 +143833,11 @@ class PlatformSyncStatesTableSeeder extends Seeder
                 'entity_platform_id' => '826',
                 'sync_status' => 'failed',
                 'last_synced_at' => NULL,
-                'last_attempted_at' => '2026-07-14 08:18:17',
+                'last_attempted_at' => '2026-07-14 10:57:21',
                 'last_error' => 'Codeforces contest.standings request failed with HTTP 400',
             'metadata' => '{"contest_id":1334,"contest_name":"VK Cup 2017 - Finals (practice session)","platform_slug":"codeforces"}',
                 'created_at' => '2026-07-13 15:59:08',
-                'updated_at' => '2026-07-14 08:18:17',
+                'updated_at' => '2026-07-14 10:57:21',
             ),
             270 => 
             array (
@@ -144281,11 +144281,11 @@ class PlatformSyncStatesTableSeeder extends Seeder
                 'entity_platform_id' => '857',
                 'sync_status' => 'failed',
                 'last_synced_at' => NULL,
-                'last_attempted_at' => '2026-07-14 08:18:20',
+                'last_attempted_at' => '2026-07-14 10:57:23',
                 'last_error' => 'Codeforces contest.standings request failed with HTTP 400',
                 'metadata' => '{"contest_id":1305,"contest_name":"\\u0422\\u0435\\u0445\\u043d\\u043e\\u043a\\u0443\\u0431\\u043e\\u043a 2018 - \\u041e\\u0437\\u043d\\u0430\\u043a\\u043e\\u043c\\u0438\\u0442\\u0435\\u043b\\u044c\\u043d\\u044b\\u0439 \\u0420\\u0430\\u0443\\u043d\\u0434 1","platform_slug":"codeforces"}',
                 'created_at' => '2026-07-13 16:01:07',
-                'updated_at' => '2026-07-14 08:18:20',
+                'updated_at' => '2026-07-14 10:57:23',
             ),
             302 => 
             array (
@@ -144547,11 +144547,11 @@ class PlatformSyncStatesTableSeeder extends Seeder
                 'entity_platform_id' => '874',
                 'sync_status' => 'failed',
                 'last_synced_at' => NULL,
-                'last_attempted_at' => '2026-07-14 08:18:22',
+                'last_attempted_at' => '2026-07-14 10:57:25',
                 'last_error' => 'Codeforces contest.standings request failed with HTTP 400',
                 'metadata' => '{"contest_id":1290,"contest_name":"Technocup 2018 - Practice Round 2","platform_slug":"codeforces"}',
                 'created_at' => '2026-07-13 16:01:41',
-                'updated_at' => '2026-07-14 08:18:22',
+                'updated_at' => '2026-07-14 10:57:25',
             ),
             321 => 
             array (
@@ -144673,11 +144673,11 @@ class PlatformSyncStatesTableSeeder extends Seeder
                 'entity_platform_id' => '885',
                 'sync_status' => 'failed',
                 'last_synced_at' => NULL,
-                'last_attempted_at' => '2026-07-14 08:18:25',
+                'last_attempted_at' => '2026-07-14 10:57:27',
                 'last_error' => 'Codeforces contest.standings request failed with HTTP 400',
                 'metadata' => '{"contest_id":1277,"contest_name":"\\u0422\\u0435\\u0445\\u043d\\u043e\\u043a\\u0443\\u0431\\u043e\\u043a 2018 - \\u041e\\u0437\\u043d\\u0430\\u043a\\u043e\\u043c\\u0438\\u0442\\u0435\\u043b\\u044c\\u043d\\u044b\\u0439 \\u0420\\u0430\\u0443\\u043d\\u0434 3","platform_slug":"codeforces"}',
                 'created_at' => '2026-07-13 16:01:56',
-                'updated_at' => '2026-07-14 08:18:25',
+                'updated_at' => '2026-07-14 10:57:27',
             ),
             330 => 
             array (
@@ -144995,11 +144995,11 @@ class PlatformSyncStatesTableSeeder extends Seeder
                 'entity_platform_id' => '905',
                 'sync_status' => 'failed',
                 'last_synced_at' => NULL,
-                'last_attempted_at' => '2026-07-14 08:18:29',
+                'last_attempted_at' => '2026-07-14 10:57:29',
                 'last_error' => 'Codeforces contest.standings request failed with HTTP 400',
                 'metadata' => '{"contest_id":1259,"contest_name":"\\u0422\\u0435\\u0445\\u043d\\u043e\\u043a\\u0443\\u0431\\u043e\\u043a 2018 - \\u041e\\u0437\\u043d\\u0430\\u043a\\u043e\\u043c\\u0438\\u0442\\u0435\\u043b\\u044c\\u043d\\u044b\\u0439 \\u0420\\u0430\\u0443\\u043d\\u0434 4","platform_slug":"codeforces"}',
                 'created_at' => '2026-07-13 16:02:40',
-                'updated_at' => '2026-07-14 08:18:29',
+                'updated_at' => '2026-07-14 10:57:29',
             ),
             353 => 
             array (
@@ -217887,11 +217887,11 @@ class PlatformSyncStatesTableSeeder extends Seeder
                 'entity_platform_id' => 'adt_top',
                 'sync_status' => 'failed',
                 'last_synced_at' => NULL,
-                'last_attempted_at' => '2026-07-14 08:18:53',
+                'last_attempted_at' => '2026-07-14 10:57:50',
                 'last_error' => 'AtCoder tasks request failed with HTTP 404',
                 'metadata' => '{"contest_id":8310,"contest_name":"AtCoder Daily Training","platform_slug":"atcoder"}',
                 'created_at' => '2026-07-13 19:22:20',
-                'updated_at' => '2026-07-14 08:18:53',
+                'updated_at' => '2026-07-14 10:57:50',
             ),
             58 => 
             array (
@@ -223151,11 +223151,11 @@ class PlatformSyncStatesTableSeeder extends Seeder
                 'entity_platform_id' => 'asprocon2',
                 'sync_status' => 'failed',
                 'last_synced_at' => NULL,
-                'last_attempted_at' => '2026-07-14 08:18:55',
+                'last_attempted_at' => '2026-07-14 10:57:52',
                 'last_error' => 'AtCoder tasks request failed with HTTP 404',
                 'metadata' => '{"contest_id":3015,"contest_name":"2nd Asprova Programming Contest","platform_slug":"atcoder"}',
                 'created_at' => '2026-07-13 19:33:54',
-                'updated_at' => '2026-07-14 08:18:55',
+                'updated_at' => '2026-07-14 10:57:52',
             ),
             434 => 
             array (
@@ -223165,11 +223165,11 @@ class PlatformSyncStatesTableSeeder extends Seeder
                 'entity_platform_id' => 'asprocon3',
                 'sync_status' => 'failed',
                 'last_synced_at' => NULL,
-                'last_attempted_at' => '2026-07-14 08:18:56',
+                'last_attempted_at' => '2026-07-14 10:57:52',
                 'last_error' => 'AtCoder tasks request failed with HTTP 404',
                 'metadata' => '{"contest_id":2974,"contest_name":"\\u7b2c3\\u56de Asprova \\u30d7\\u30ed\\u30b0\\u30e9\\u30df\\u30f3\\u30b0\\u30b3\\u30f3\\u30c6\\u30b9\\u30c8","platform_slug":"atcoder"}',
                 'created_at' => '2026-07-13 19:33:54',
-                'updated_at' => '2026-07-14 08:18:56',
+                'updated_at' => '2026-07-14 10:57:52',
             ),
             435 => 
             array (
@@ -223179,11 +223179,11 @@ class PlatformSyncStatesTableSeeder extends Seeder
                 'entity_platform_id' => 'asprocon4',
                 'sync_status' => 'failed',
                 'last_synced_at' => NULL,
-                'last_attempted_at' => '2026-07-14 08:18:57',
+                'last_attempted_at' => '2026-07-14 10:57:52',
                 'last_error' => 'AtCoder tasks request failed with HTTP 404',
                 'metadata' => '{"contest_id":2936,"contest_name":"\\u7b2c4\\u56de Asprova \\u30d7\\u30ed\\u30b0\\u30e9\\u30df\\u30f3\\u30b0\\u30b3\\u30f3\\u30c6\\u30b9\\u30c8","platform_slug":"atcoder"}',
                 'created_at' => '2026-07-13 19:33:54',
-                'updated_at' => '2026-07-14 08:18:57',
+                'updated_at' => '2026-07-14 10:57:52',
             ),
             436 => 
             array (
@@ -223193,11 +223193,11 @@ class PlatformSyncStatesTableSeeder extends Seeder
                 'entity_platform_id' => 'asprocon5',
                 'sync_status' => 'failed',
                 'last_synced_at' => NULL,
-                'last_attempted_at' => '2026-07-14 08:18:58',
+                'last_attempted_at' => '2026-07-14 10:57:52',
                 'last_error' => 'AtCoder tasks request failed with HTTP 404',
                 'metadata' => '{"contest_id":2893,"contest_name":"\\u7b2c5\\u56de Asprova \\u30d7\\u30ed\\u30b0\\u30e9\\u30df\\u30f3\\u30b0\\u30b3\\u30f3\\u30c6\\u30b9\\u30c8","platform_slug":"atcoder"}',
                 'created_at' => '2026-07-13 19:33:55',
-                'updated_at' => '2026-07-14 08:18:58',
+                'updated_at' => '2026-07-14 10:57:52',
             ),
             437 => 
             array (
@@ -223207,11 +223207,11 @@ class PlatformSyncStatesTableSeeder extends Seeder
                 'entity_platform_id' => 'asprocon6',
                 'sync_status' => 'failed',
                 'last_synced_at' => NULL,
-                'last_attempted_at' => '2026-07-14 08:18:58',
+                'last_attempted_at' => '2026-07-14 10:57:53',
                 'last_error' => 'AtCoder tasks request failed with HTTP 404',
                 'metadata' => '{"contest_id":2862,"contest_name":"\\u7b2c6\\u56de Asprova \\u30d7\\u30ed\\u30b0\\u30e9\\u30df\\u30f3\\u30b0\\u30b3\\u30f3\\u30c6\\u30b9\\u30c8","platform_slug":"atcoder"}',
                 'created_at' => '2026-07-13 19:33:55',
-                'updated_at' => '2026-07-14 08:18:58',
+                'updated_at' => '2026-07-14 10:57:53',
             ),
             438 => 
             array (
@@ -223235,11 +223235,11 @@ class PlatformSyncStatesTableSeeder extends Seeder
                 'entity_platform_id' => 'asprocon8',
                 'sync_status' => 'failed',
                 'last_synced_at' => NULL,
-                'last_attempted_at' => '2026-07-14 08:18:59',
+                'last_attempted_at' => '2026-07-14 10:57:53',
                 'last_error' => 'AtCoder tasks request failed with HTTP 404',
                 'metadata' => '{"contest_id":2670,"contest_name":"\\u7b2c8\\u56de Asprova \\u30d7\\u30ed\\u30b0\\u30e9\\u30df\\u30f3\\u30b0\\u30b3\\u30f3\\u30c6\\u30b9\\u30c8","platform_slug":"atcoder"}',
                 'created_at' => '2026-07-13 19:33:56',
-                'updated_at' => '2026-07-14 08:18:59',
+                'updated_at' => '2026-07-14 10:57:53',
             ),
             440 => 
             array (
@@ -223249,11 +223249,11 @@ class PlatformSyncStatesTableSeeder extends Seeder
                 'entity_platform_id' => 'asprocon9',
                 'sync_status' => 'failed',
                 'last_synced_at' => NULL,
-                'last_attempted_at' => '2026-07-14 08:18:59',
+                'last_attempted_at' => '2026-07-14 10:57:54',
                 'last_error' => 'AtCoder tasks request failed with HTTP 404',
                 'metadata' => '{"contest_id":2619,"contest_name":"\\u7b2c9\\u56de Asprova \\u30d7\\u30ed\\u30b0\\u30e9\\u30df\\u30f3\\u30b0\\u30b3\\u30f3\\u30c6\\u30b9\\u30c8","platform_slug":"atcoder"}',
                 'created_at' => '2026-07-13 19:33:56',
-                'updated_at' => '2026-07-14 08:18:59',
+                'updated_at' => '2026-07-14 10:57:54',
             ),
             441 => 
             array (
@@ -227115,11 +227115,11 @@ class PlatformSyncStatesTableSeeder extends Seeder
                 'entity_platform_id' => 'future-meets-you-contest-2018',
                 'sync_status' => 'failed',
                 'last_synced_at' => NULL,
-                'last_attempted_at' => '2026-07-14 08:19:01',
+                'last_attempted_at' => '2026-07-14 10:57:54',
                 'last_error' => 'AtCoder tasks request failed with HTTP 404',
                 'metadata' => '{"contest_id":3045,"contest_name":"Future Meets You Contest","platform_slug":"atcoder"}',
                 'created_at' => '2026-07-13 19:42:25',
-                'updated_at' => '2026-07-14 08:19:01',
+                'updated_at' => '2026-07-14 10:57:54',
             ),
             217 => 
             array (
@@ -229789,11 +229789,11 @@ class PlatformSyncStatesTableSeeder extends Seeder
                 'entity_platform_id' => 'kuronekoyamato-contest2019',
                 'sync_status' => 'failed',
                 'last_synced_at' => NULL,
-                'last_attempted_at' => '2026-07-14 08:19:03',
+                'last_attempted_at' => '2026-07-14 10:57:55',
                 'last_error' => 'AtCoder tasks request failed with HTTP 404',
                 'metadata' => '{"contest_id":2941,"contest_name":"\\u30e4\\u30de\\u30c8\\u904b\\u8f38\\u30d7\\u30ed\\u30b0\\u30e9\\u30df\\u30f3\\u30b0\\u30b3\\u30f3\\u30c6\\u30b9\\u30c82019","platform_slug":"atcoder"}',
                 'created_at' => '2026-07-13 19:49:46',
-                'updated_at' => '2026-07-14 08:19:03',
+                'updated_at' => '2026-07-14 10:57:55',
             ),
             408 => 
             array (
@@ -230993,11 +230993,11 @@ class PlatformSyncStatesTableSeeder extends Seeder
                 'entity_platform_id' => 'practice',
                 'sync_status' => 'failed',
                 'last_synced_at' => NULL,
-                'last_attempted_at' => '2026-07-14 08:19:04',
+                'last_attempted_at' => '2026-07-14 10:57:56',
                 'last_error' => 'AtCoder tasks request failed with HTTP 404',
                 'metadata' => '{"contest_id":8303,"contest_name":"practice contest","platform_slug":"atcoder"}',
                 'created_at' => '2026-07-13 19:54:57',
-                'updated_at' => '2026-07-14 08:19:04',
+                'updated_at' => '2026-07-14 10:57:56',
             ),
             494 => 
             array (
@@ -233044,6 +233044,146 @@ class PlatformSyncStatesTableSeeder extends Seeder
                 'metadata' => '{"profile_id":1,"handle":"tourist","platform_slug":"atcoder","contest_id":2324,"contest_name":"AtCoder Heuristic Contest 042","platform_contest_id":"ahc042","rating_changes_fetched":157}',
                 'created_at' => '2026-07-14 08:19:05',
                 'updated_at' => '2026-07-14 08:19:08',
+            ),
+            140 => 
+            array (
+                'id' => 16657,
+                'platform_id' => 1,
+                'entity_type' => 'contest',
+                'entity_platform_id' => '2248',
+                'sync_status' => 'synced',
+                'last_synced_at' => '2026-07-14 10:53:23',
+                'last_attempted_at' => '2026-07-14 10:53:23',
+                'last_error' => NULL,
+            'metadata' => '{"contest_platform_id":"2248","contest_title":"Codeforces Round (Div. 2)","platform_slug":"codeforces","contest_id":8317}',
+                'created_at' => '2026-07-14 10:53:23',
+                'updated_at' => '2026-07-14 10:53:23',
+            ),
+            141 => 
+            array (
+                'id' => 16658,
+                'platform_id' => 2,
+                'entity_type' => 'contest',
+                'entity_platform_id' => 'adt_all_20260714_2',
+                'sync_status' => 'synced',
+                'last_synced_at' => '2026-07-14 10:55:52',
+                'last_attempted_at' => '2026-07-14 10:55:52',
+                'last_error' => NULL,
+                'metadata' => '{"contest_platform_id":"adt_all_20260714_2","contest_title":"AtCoder Daily Training ALL 2026\\/07\\/14 18:00start","platform_slug":"atcoder","contest_id":8318}',
+                'created_at' => '2026-07-14 10:55:52',
+                'updated_at' => '2026-07-14 10:55:52',
+            ),
+            142 => 
+            array (
+                'id' => 16659,
+                'platform_id' => 2,
+                'entity_type' => 'contest',
+                'entity_platform_id' => 'adt_easy_20260714_2',
+                'sync_status' => 'synced',
+                'last_synced_at' => '2026-07-14 10:55:52',
+                'last_attempted_at' => '2026-07-14 10:55:52',
+                'last_error' => NULL,
+                'metadata' => '{"contest_platform_id":"adt_easy_20260714_2","contest_title":"AtCoder Daily Training EASY 2026\\/07\\/14 18:00start","platform_slug":"atcoder","contest_id":8319}',
+                'created_at' => '2026-07-14 10:55:52',
+                'updated_at' => '2026-07-14 10:55:52',
+            ),
+            143 => 
+            array (
+                'id' => 16660,
+                'platform_id' => 2,
+                'entity_type' => 'contest',
+                'entity_platform_id' => 'adt_all_20260714_1',
+                'sync_status' => 'synced',
+                'last_synced_at' => '2026-07-14 10:55:52',
+                'last_attempted_at' => '2026-07-14 10:55:52',
+                'last_error' => NULL,
+                'metadata' => '{"contest_platform_id":"adt_all_20260714_1","contest_title":"AtCoder Daily Training ALL 2026\\/07\\/14 16:00start","platform_slug":"atcoder","contest_id":8320}',
+                'created_at' => '2026-07-14 10:55:52',
+                'updated_at' => '2026-07-14 10:55:52',
+            ),
+            144 => 
+            array (
+                'id' => 16661,
+                'platform_id' => 2,
+                'entity_type' => 'contest',
+                'entity_platform_id' => 'adt_easy_20260714_1',
+                'sync_status' => 'synced',
+                'last_synced_at' => '2026-07-14 10:55:52',
+                'last_attempted_at' => '2026-07-14 10:55:52',
+                'last_error' => NULL,
+                'metadata' => '{"contest_platform_id":"adt_easy_20260714_1","contest_title":"AtCoder Daily Training EASY 2026\\/07\\/14 16:00start","platform_slug":"atcoder","contest_id":8321}',
+                'created_at' => '2026-07-14 10:55:52',
+                'updated_at' => '2026-07-14 10:55:52',
+            ),
+            145 => 
+            array (
+                'id' => 16662,
+                'platform_id' => 1,
+                'entity_type' => 'contest_problems',
+                'entity_platform_id' => '2248',
+                'sync_status' => 'failed',
+                'last_synced_at' => NULL,
+                'last_attempted_at' => '2026-07-14 10:57:13',
+                'last_error' => 'Codeforces contest.standings request failed with HTTP 400',
+            'metadata' => '{"contest_id":8317,"contest_name":"Codeforces Round (Div. 2)","platform_slug":"codeforces"}',
+                'created_at' => '2026-07-14 10:57:11',
+                'updated_at' => '2026-07-14 10:57:13',
+            ),
+            146 => 
+            array (
+                'id' => 16663,
+                'platform_id' => 2,
+                'entity_type' => 'contest_problems',
+                'entity_platform_id' => 'adt_all_20260714_1',
+                'sync_status' => 'synced',
+                'last_synced_at' => '2026-07-14 10:57:37',
+                'last_attempted_at' => '2026-07-14 10:57:33',
+                'last_error' => NULL,
+                'metadata' => '{"contest_id":8320,"contest_name":"AtCoder Daily Training ALL 2026\\/07\\/14 16:00start","platform_slug":"atcoder","problem_count":9}',
+                'created_at' => '2026-07-14 10:57:33',
+                'updated_at' => '2026-07-14 10:57:37',
+            ),
+            147 => 
+            array (
+                'id' => 16664,
+                'platform_id' => 2,
+                'entity_type' => 'contest_problems',
+                'entity_platform_id' => 'adt_all_20260714_2',
+                'sync_status' => 'synced',
+                'last_synced_at' => '2026-07-14 10:57:41',
+                'last_attempted_at' => '2026-07-14 10:57:37',
+                'last_error' => NULL,
+                'metadata' => '{"contest_id":8318,"contest_name":"AtCoder Daily Training ALL 2026\\/07\\/14 18:00start","platform_slug":"atcoder","problem_count":9}',
+                'created_at' => '2026-07-14 10:57:37',
+                'updated_at' => '2026-07-14 10:57:41',
+            ),
+            148 => 
+            array (
+                'id' => 16665,
+                'platform_id' => 2,
+                'entity_type' => 'contest_problems',
+                'entity_platform_id' => 'adt_easy_20260714_1',
+                'sync_status' => 'synced',
+                'last_synced_at' => '2026-07-14 10:57:44',
+                'last_attempted_at' => '2026-07-14 10:57:43',
+                'last_error' => NULL,
+                'metadata' => '{"contest_id":8321,"contest_name":"AtCoder Daily Training EASY 2026\\/07\\/14 16:00start","platform_slug":"atcoder","problem_count":5}',
+                'created_at' => '2026-07-14 10:57:43',
+                'updated_at' => '2026-07-14 10:57:44',
+            ),
+            149 => 
+            array (
+                'id' => 16666,
+                'platform_id' => 2,
+                'entity_type' => 'contest_problems',
+                'entity_platform_id' => 'adt_easy_20260714_2',
+                'sync_status' => 'synced',
+                'last_synced_at' => '2026-07-14 10:57:46',
+                'last_attempted_at' => '2026-07-14 10:57:44',
+                'last_error' => NULL,
+                'metadata' => '{"contest_id":8319,"contest_name":"AtCoder Daily Training EASY 2026\\/07\\/14 18:00start","platform_slug":"atcoder","problem_count":5}',
+                'created_at' => '2026-07-14 10:57:44',
+                'updated_at' => '2026-07-14 10:57:46',
             ),
         ));
         
