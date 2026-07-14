@@ -83,7 +83,7 @@ class UserRatingHistoryImporter implements UserRatingHistoryImporterContract
 
             $syncState = $this->platformSyncStateService->markSyncing(
                 $platform,
-                PlatformSyncEntityType::User,
+                PlatformSyncEntityType::UserRatingHistory,
                 $normalizedHandle,
                 [
                     'profile_id' => $profile->id,
