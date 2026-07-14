@@ -50,7 +50,7 @@ class ImportStandingsCommand extends Command
         }
 
         try {
-            $result = $adapter->standingsImporter()->import();
+            $result = $adapter->standingImporter()->import();
 
             $this->line('Platform: ' . $platformSlug);
             $this->line('Checked: ' . $result->checked);

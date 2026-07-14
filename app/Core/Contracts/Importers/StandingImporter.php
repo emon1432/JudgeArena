@@ -4,7 +4,7 @@ namespace App\Core\Contracts\Importers;
 
 use App\Core\Results\ImportResult;
 
-interface StandingsImporter
+interface StandingImporter
 {
     public function import(): ImportResult;
 }

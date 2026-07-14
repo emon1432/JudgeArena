@@ -6,7 +6,7 @@ use App\Core\Contracts\Importers\ContestImporter as ContestImporterContract;
 use App\Core\Contracts\Importers\ProblemImporter as ProblemImporterContract;
 use App\Core\Contracts\Importers\SubmissionImporter as SubmissionImporterContract;
 use App\Core\Contracts\Importers\RatingChangeImporter as RatingChangeImporterContract;
-use App\Core\Contracts\Importers\StandingsImporter as StandingsImporterContract;
+use App\Core\Contracts\Importers\StandingImporter as StandingImporterContract;
 use App\Core\Contracts\Importers\UserImporter as UserImporterContract;
 use App\Core\Contracts\Importers\UserRatingHistoryImporter as UserRatingHistoryImporterContract;
 use App\Core\Contracts\Platforms\PlatformAdapter;
@@ -16,7 +16,7 @@ use App\Platforms\Codeforces\Importers\ContestImporter;
 use App\Platforms\Codeforces\Importers\RatingChangeImporter;
 use App\Platforms\Codeforces\Importers\ProblemImporter;
 use App\Platforms\Codeforces\Importers\SubmissionImporter;
-use App\Platforms\Codeforces\Importers\StandingsImporter;
+use App\Platforms\Codeforces\Importers\StandingImporter;
 use App\Platforms\Codeforces\Importers\UserImporter;
 use App\Platforms\Codeforces\Importers\UserRatingHistoryImporter;
 use App\Platforms\Codeforces\Services\Contests;
@@ -106,9 +106,9 @@ class CodeforcesAdapter implements PlatformAdapter
         return app(RatingChangeImporter::class);
     }
 
-    public function standingsImporter(): StandingsImporterContract
+    public function standingImporter(): StandingImporterContract
     {
-        return app(StandingsImporter::class);
+        return app(StandingImporter::class);
     }
 
     public function userRatingHistoryImporter(): UserRatingHistoryImporterContract

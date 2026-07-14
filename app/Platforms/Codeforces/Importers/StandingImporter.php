@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Platforms\AtCoder\Importers;
+namespace App\Platforms\Codeforces\Importers;
 
-use App\Core\Contracts\Importers\StandingsImporter as StandingsImporterContract;
+use App\Core\Contracts\Importers\StandingImporter as StandingImporterContract;
 use App\Core\DTOs\ContestStandingsDTO;
 use App\Core\DTOs\ParticipantDTO;
 use App\Core\DTOs\ProblemResultDTO;
@@ -14,13 +14,13 @@ use App\Models\PlatformProfile;
 use App\Models\Problem;
 use App\Models\Standing;
 use App\Models\StandingTaskResult;
-use App\Platforms\AtCoder\AtCoderAdapter;
+use App\Platforms\Codeforces\CodeforcesAdapter;
 use App\Services\ApplicationLogger;
 use App\Services\PlatformSyncStateService;
 use RuntimeException;
 use Throwable;
 
-class StandingsImporter implements StandingsImporterContract
+class StandingImporter implements StandingImporterContract
 {
     public function __construct(
         private readonly Contest $contestModel,
@@ -30,12 +30,12 @@ class StandingsImporter implements StandingsImporterContract
         private readonly Platform $platformModel,
         private readonly PlatformProfile $platformProfileModel,
         private readonly PlatformSyncStateService $platformSyncStateService,
-        private readonly AtCoderAdapter $adapter,
+        private readonly CodeforcesAdapter $adapter,
     ) {}
 
     public function import(): ImportResult
     {
-        $platformSlug = 'atcoder';
+        $platformSlug = 'codeforces';
 
         $result = new ImportResult();
 
@@ -183,7 +183,7 @@ class StandingsImporter implements StandingsImporterContract
         $result->metadata = array_merge(
             $result->metadata,
             [
-                'platform' => 'atcoder',
+                'platform' => 'codeforces',
                 'entity' => 'standing',
             ]
         );
@@ -195,7 +195,7 @@ class StandingsImporter implements StandingsImporterContract
     {
         return $this->platformModel
             ->newQuery()
-            ->where('slug', 'atcoder')
+            ->where('slug', 'codeforces')
             ->first();
     }
 
