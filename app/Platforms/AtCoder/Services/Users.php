@@ -6,6 +6,7 @@ use App\Models\Contest;
 use App\Platforms\AtCoder\Services\AtCoderHtmlScraper;
 use App\Platforms\AtCoder\DTOs\AtCoderUserDTO;
 use App\Platforms\AtCoder\Mappers\AtCoderRatingChangeMapper;
+use App\Platforms\AtCoder\Mappers\AtCoderSubmissionMapper;
 use App\Platforms\AtCoder\Mappers\AtCoderUserMapper;
 use App\Platforms\AtCoder\Support\ResponseNormalizer;
 use App\Platforms\AtCoder\Transformers\AtCoderRatingChangeTransformer;
@@ -34,9 +35,29 @@ class Users
         );
     }
 
-    public function submissions(string $contestId, string $handle): array
+    /**
+     * @return array{
+     *     submissions: AtCoderSubmissionDTO[],
+     *     reached_stop: bool
+     * }
+     */
+    public function submissions(array $params): array
     {
-        return $this->contests->submissions($contestId, $handle);
+        $response = $this->scraper->getSubmissions(
+            $params['contestId'],
+            $params['handle'],
+            $params['stopSubmissionId'] ?? null,
+        );
+
+        return [
+            'submissions' => AtCoderSubmissionMapper::fromNormalizedList(
+                ResponseNormalizer::submissions(
+                    $response['result']
+                )
+            ),
+
+            'reached_stop' => $response['reached_stop'],
+        ];
     }
 
     //used

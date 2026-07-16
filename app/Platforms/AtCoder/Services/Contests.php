@@ -36,10 +36,10 @@ class Contests
     }
 
     //used
-    public function submissions(string $contestId, ?string $user = null): array
+    public function submissions(string $contestId): array
     {
         return AtCoderSubmissionMapper::fromNormalizedList(
-            ResponseNormalizer::submissions($this->scraper->getSubmissions($contestId, $user))
+            ResponseNormalizer::submissions($this->scraper->getSubmissions($contestId))
         );
     }
 

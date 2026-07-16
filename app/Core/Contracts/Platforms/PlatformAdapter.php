@@ -9,32 +9,83 @@ use App\Core\Contracts\Importers\RatingChangeImporter;
 use App\Core\Contracts\Importers\StandingImporter;
 use App\Core\Contracts\Importers\UserImporter;
 use App\Core\Contracts\Importers\UserRatingHistoryImporter;
+use App\Core\Contracts\Importers\UserSubmissionImporter;
+use App\Core\DTOs\ContestDTO;
 use App\Core\DTOs\ContestStandingsDTO;
+use App\Core\DTOs\ProblemDTO;
+use App\Core\DTOs\RatingChangeDTO;
+use App\Core\DTOs\SubmissionDTO;
 use App\Core\DTOs\UserDTO;
 
 interface PlatformAdapter
 {
-    //==================================Used==================================
-    // Getters
+    //===============================Getters==================================
+
+    /**
+     * @return ContestDTO[]
+     */
     public function getContests(): array;
+
+    /**
+     * @param string $contestId
+     * @return ProblemDTO[]
+     */
     public function getContestProblems(string $contestId): array;
+
+    /**
+     * @param string $contestId
+     * @return SubmissionDTO[]
+     */
     public function getSubmissions(string $contestId): array;
+
+    /**
+     * @param string $contestId
+     * @return RatingChangeDTO[]
+     */
     public function getRatingChanges(string $contestId): array;
+
+    /**
+     * @param string $id
+     * @return ContestStandingsDTO
+     */
     public function getStandings(string $id): ContestStandingsDTO;
+
+    /**
+     * @param string $handle
+     * @return RatingChangeDTO[]
+     */
     public function getUserRatingHistory(string $handle): array;
+
+    /**
+     * @param array{
+     *     handle:string,
+     *     contestId?:string,
+     *     from?:int,
+     *     count?:int,
+     *     stopSubmissionId?:string
+     * } $params
+     *
+     * @return array{
+     *     submissions: SubmissionDTO[],
+     *     reached_stop: bool
+     * }
+     */
+    public function getUserSubmissions(array $params): array;
+
+    /**
+     * @param string $username
+     * @return UserDTO
+     */
     public function getUser(string $username): UserDTO;
 
-    // Importers
+
+    //==============================Importers==================================
     public function contestImporter(): ContestImporter;
     public function problemImporter(): ProblemImporter;
     public function submissionImporter(): SubmissionImporter;
     public function ratingChangeImporter(): RatingChangeImporter;
     public function standingImporter(): StandingImporter;
     public function userRatingHistoryImporter(): UserRatingHistoryImporter;
+    public function userSubmissionImporter(): UserSubmissionImporter;
     public function userImporter(): UserImporter;
-
-
-    //==================================Unused==================================
-    public function getContest(string $id): ContestStandingsDTO;
-    public function getProblems(): array;
 }

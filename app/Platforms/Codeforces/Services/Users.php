@@ -59,21 +59,27 @@ class Users
         return $results;
     }
 
-    public function status(string $contestId, string $handle): array
+    public function submissions(string $handle, ?int $from = null, ?int $count = null): array
     {
         $query = [
             'handle' => $handle,
         ];
 
-        $submissions = $this->client->requestApi('user.status', array_merge($query));
+        if ($from !== null) {
+            $query['from'] = $from;
+        }
 
-        // get only submissions for the specified contest
-        $submissions = array_filter($submissions, function ($submission) use ($contestId) {
-            return isset($submission['contestId']) && (string) $submission['contestId'] === $contestId;
-        });
+        if ($count !== null) {
+            $query['count'] = $count;
+        }
 
         return CodeforcesSubmissionMapper::fromNormalizedList(
-            ResponseNormalizer::submissions($submissions)
+            ResponseNormalizer::submissions(
+                $this->client->requestApi(
+                    'user.status',
+                    $query
+                )
+            )
         );
     }
 

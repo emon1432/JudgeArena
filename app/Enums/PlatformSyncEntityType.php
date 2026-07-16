@@ -21,4 +21,5 @@ enum PlatformSyncEntityType: string
     case Submission = 'submission';
     case RatingChange = 'rating_change';
     case UserRatingHistory = 'user_rating_history';
+    case UserSubmissions = 'user_submissions';
 }

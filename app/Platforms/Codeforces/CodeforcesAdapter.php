@@ -9,6 +9,7 @@ use App\Core\Contracts\Importers\RatingChangeImporter as RatingChangeImporterCon
 use App\Core\Contracts\Importers\StandingImporter as StandingImporterContract;
 use App\Core\Contracts\Importers\UserImporter as UserImporterContract;
 use App\Core\Contracts\Importers\UserRatingHistoryImporter as UserRatingHistoryImporterContract;
+use App\Core\Contracts\Importers\UserSubmissionImporter as UserSubmissionImporterContract;
 use App\Core\Contracts\Platforms\PlatformAdapter;
 use App\Core\DTOs\ContestStandingsDTO;
 use App\Core\DTOs\UserDTO;
@@ -19,6 +20,7 @@ use App\Platforms\Codeforces\Importers\SubmissionImporter;
 use App\Platforms\Codeforces\Importers\StandingImporter;
 use App\Platforms\Codeforces\Importers\UserImporter;
 use App\Platforms\Codeforces\Importers\UserRatingHistoryImporter;
+use App\Platforms\Codeforces\Importers\UserSubmissionImporter;
 use App\Platforms\Codeforces\Services\Contests;
 use App\Platforms\Codeforces\Services\Problems;
 use App\Platforms\Codeforces\Services\Users;
@@ -80,6 +82,13 @@ class CodeforcesAdapter implements PlatformAdapter
         return $this->users->ratingHistory($handle);
     }
 
+    public function getUserSubmissions(array $params): array
+    {
+        return $this->submissionTransformer->fromApiSubmissions(
+            $this->users->submissions($params['handle'], $params['from'], $params['count'])
+        );
+    }
+
     public function getUser(string $username): UserDTO
     {
         return $this->userTransformer->fromApiUser($this->users->info($username));
@@ -116,21 +125,13 @@ class CodeforcesAdapter implements PlatformAdapter
         return app(UserRatingHistoryImporter::class);
     }
 
+    public function userSubmissionImporter(): UserSubmissionImporterContract
+    {
+        return app(UserSubmissionImporter::class);
+    }
+
     public function userImporter(): UserImporterContract
     {
         return app(UserImporter::class);
-    }
-
-
-    //==================================Unused==================================
-    public function getContest(string $id): ContestStandingsDTO
-    {
-        return $this->standingsTransformer
-            ->fromApiStandings($this->contests->standings((int) $id));
-    }
-
-    public function getProblems(): array
-    {
-        return $this->problemTransformer->fromApiProblems($this->problems->list());
     }
 }

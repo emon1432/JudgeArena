@@ -9,6 +9,7 @@ use App\Core\Contracts\Importers\RatingChangeImporter as RatingChangeImporterCon
 use App\Core\Contracts\Importers\StandingImporter as StandingImporterContract;
 use App\Core\Contracts\Importers\UserImporter as UserImporterContract;
 use App\Core\Contracts\Importers\UserRatingHistoryImporter as UserRatingHistoryImporterContract;
+use App\Core\Contracts\Importers\UserSubmissionImporter as UserSubmissionImporterContract;
 use App\Core\Contracts\Platforms\PlatformAdapter;
 use App\Core\DTOs\ContestStandingsDTO;
 use App\Core\DTOs\UserDTO;
@@ -19,6 +20,7 @@ use App\Platforms\AtCoder\Importers\SubmissionImporter;
 use App\Platforms\AtCoder\Importers\StandingImporter;
 use App\Platforms\AtCoder\Importers\UserImporter;
 use App\Platforms\AtCoder\Importers\UserRatingHistoryImporter;
+use App\Platforms\AtCoder\Importers\UserSubmissionImporter;
 use App\Platforms\AtCoder\Services\Contests;
 use App\Platforms\AtCoder\Services\Problems;
 use App\Platforms\AtCoder\Services\Users;
@@ -81,6 +83,32 @@ class AtCoderAdapter implements PlatformAdapter
         return $this->users->ratingHistory($handle);
     }
 
+    /**
+     * @param array{
+     *     handle:string,
+     *     contestId?:string,
+     *     from?:int,
+     *     count?:int,
+     *     stopSubmissionId?:string
+     * } $params
+     *
+     * @return array{
+     *     submissions: SubmissionDTO[],
+     *     reached_stop: bool
+     * }
+     */
+    public function getUserSubmissions(array $params): array
+    {
+        $response = $this->users->submissions($params);
+
+        return [
+            'submissions' => $this->submissionTransformer
+                ->fromApiSubmissions($response['submissions']),
+
+            'reached_stop' => $response['reached_stop'],
+        ];
+    }
+
     public function getUser(string $username): UserDTO
     {
         return $this->userTransformer->fromApiUser($this->users->info($username));
@@ -117,20 +145,13 @@ class AtCoderAdapter implements PlatformAdapter
         return app(UserRatingHistoryImporter::class);
     }
 
+    public function userSubmissionImporter(): UserSubmissionImporterContract
+    {
+        return app(UserSubmissionImporter::class);
+    }
+
     public function userImporter(): UserImporterContract
     {
         return app(UserImporter::class);
-    }
-
-    //================================Unused==================================
-    public function getContest(string $id): ContestStandingsDTO
-    {
-        return $this->standingsTransformer
-            ->fromApiStandings($this->contests->standings($id));
-    }
-
-    public function getProblems(): array
-    {
-        return [];
     }
 }

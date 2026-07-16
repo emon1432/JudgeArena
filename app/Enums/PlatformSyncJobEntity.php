@@ -17,6 +17,7 @@ enum PlatformSyncJobEntity: string
     case Standing = 'standing';
     case RatingChange = 'rating_change';
     case UserRatingHistory = 'user_rating_history';
+    case UserSubmissions = 'user_submissions';
 
     public function importerMethod(): string
     {
@@ -28,6 +29,7 @@ enum PlatformSyncJobEntity: string
             self::Standing => 'standingImporter',
             self::RatingChange => 'ratingChangeImporter',
             self::UserRatingHistory => 'userRatingHistoryImporter',
+            self::UserSubmissions => 'userSubmissionImporter',
         };
     }
 }

@@ -4,6 +4,7 @@ namespace App\Platforms\AtCoder\Services;
 
 use App\Services\ApplicationLogger;
 use DOMDocument;
+use DOMElement;
 use DOMXPath;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
@@ -58,29 +59,46 @@ class AtCoderHtmlScraper
     }
 
     //used
-    public function getSubmissions(string $contestId, ?string $user = null): array
-    {
+    public function getSubmissions(
+        string $contestId,
+        ?string $user = null,
+        ?string $stopSubmissionId = null,
+    ): array {
         $submissions = [];
         $page = 1;
+        $reachedStop = false;
 
         while (true) {
-            $url = self::ATCODER_BASE_URL . '/contests/' . $contestId . '/submissions?page=' . $page;
+
+            $url = self::ATCODER_BASE_URL .
+                '/contests/' . $contestId .
+                '/submissions?page=' . $page;
+
             if ($user !== null && $user !== '') {
                 $url .= '&f.User=' . urlencode($user);
             }
 
             $html = $this->fetchPage($url);
-            if ($html === "") {
+
+            if ($html === '') {
                 break;
             }
 
-            $doc = new DOMDocument;
+            $doc = new DOMDocument();
             @$doc->loadHTML($html);
+
             $xpath = new DOMXPath($doc);
 
             $rows = $xpath->query('//table//tbody//tr');
+
+            if ($rows->length === 0) {
+                break;
+            }
+
             foreach ($rows as $row) {
+
                 $cells = $xpath->query('.//td', $row);
+
                 if ($cells->length < 2) {
                     continue;
                 }
@@ -88,29 +106,46 @@ class AtCoderHtmlScraper
                 $time = trim($cells->item(0)?->textContent ?? '');
 
                 $taskLink = $xpath->query('.//a', $cells->item(1))->item(0);
+
                 $taskId = null;
                 $taskTitle = null;
                 $taskUrl = null;
-                if ($taskLink instanceof \DOMElement) {
+
+                if ($taskLink instanceof DOMElement) {
+
                     $taskHref = $taskLink->getAttribute('href');
+
                     $taskId = basename($taskHref);
+
                     $taskTitle = trim($taskLink->textContent);
+
                     $taskUrl = self::ATCODER_BASE_URL . $taskHref;
                 } else {
+
                     $taskTitle = trim($cells->item(1)?->textContent ?? '');
                 }
 
                 $userLink = $xpath->query('.//a', $cells->item(2))->item(0);
-                $username = $userLink instanceof \DOMElement ? trim(basename($userLink->getAttribute('href'))) : trim($cells->item(2)?->textContent ?? '');
+
+                $username = $userLink instanceof DOMElement
+                    ? trim(basename($userLink->getAttribute('href')))
+                    : trim($cells->item(2)?->textContent ?? '');
 
                 $langLink = $xpath->query('.//a', $cells->item(3))->item(0);
-                $language = $langLink instanceof \DOMElement ? trim($langLink->textContent) : trim($cells->item(3)?->textContent ?? '');
+
+                $language = $langLink instanceof DOMElement
+                    ? trim($langLink->textContent)
+                    : trim($cells->item(3)?->textContent ?? '');
 
                 $scoreTd = $cells->item(4);
+
                 $score = null;
                 $submissionId = null;
-                if ($scoreTd instanceof \DOMElement) {
+
+                if ($scoreTd instanceof DOMElement) {
+
                     $scoreText = trim($scoreTd->textContent ?? '');
+
                     if (is_numeric($scoreText)) {
                         $score = (int) $scoreText;
                     } elseif ($scoreText !== '') {
@@ -118,6 +153,7 @@ class AtCoderHtmlScraper
                     }
 
                     $dataId = $scoreTd->getAttribute('data-id');
+
                     if ($dataId !== '') {
                         $submissionId = $dataId;
                     }
@@ -126,24 +162,49 @@ class AtCoderHtmlScraper
                 $codeSize = trim($cells->item(5)?->textContent ?? '');
 
                 $statusSpan = $xpath->query('.//span', $cells->item(6))->item(0);
-                $status = $statusSpan instanceof \DOMElement ? trim($statusSpan->textContent) : trim($cells->item(6)?->textContent ?? '');
+
+                $status = $statusSpan instanceof DOMElement
+                    ? trim($statusSpan->textContent)
+                    : trim($cells->item(6)?->textContent ?? '');
 
                 $execTime = trim($cells->item(7)?->textContent ?? '');
+
                 $memory = trim($cells->item(8)?->textContent ?? '');
 
                 $detailUrl = null;
+
                 if ($submissionId !== null) {
-                    $detailUrl = self::ATCODER_BASE_URL . '/contests/' . $contestId . '/submissions/' . $submissionId;
+
+                    $detailUrl = self::ATCODER_BASE_URL .
+                        '/contests/' .
+                        $contestId .
+                        '/submissions/' .
+                        $submissionId;
                 } else {
-                    $detailLink = $xpath->query('.//a[contains(@class, "submission-details-link")]', $cells->item(9))->item(0);
-                    if ($detailLink instanceof \DOMElement) {
+
+                    $detailLink = $xpath->query(
+                        './/a[contains(@class,"submission-details-link")]',
+                        $cells->item(9)
+                    )->item(0);
+
+                    if ($detailLink instanceof DOMElement) {
+
                         $detailHref = $detailLink->getAttribute('href');
+
                         $detailUrl = self::ATCODER_BASE_URL . $detailHref;
                     }
 
                     if ($submissionId === null && $detailUrl !== null) {
                         $submissionId = basename($detailUrl);
                     }
+                }
+
+                if (
+                    $stopSubmissionId !== null &&
+                    $submissionId === $stopSubmissionId
+                ) {
+                    $reachedStop = true;
+                    break;
                 }
 
                 $submissions[] = [
@@ -163,16 +224,21 @@ class AtCoderHtmlScraper
                     'detail_url' => $detailUrl,
                 ];
             }
-
+            if ($reachedStop) {
+                break;
+            }
             if ($rows->length === 0) {
                 break;
             }
-
             $page++;
+
             $this->respectRateLimit();
         }
 
-        return ['result' => $submissions];
+        return [
+            'result' => $submissions,
+            'reached_stop' => $reachedStop,
+        ];
     }
 
     //used
