@@ -1,0 +1,1172 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-bs-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Khairul Islam Emon (@tourist) · Codeforces Platform Profile · JudgeArena</title>
+    <meta
+      name="description"
+      content="Platform specific competitive programming profile, Codeforces rating trajectory, contest history, solved problems, and submission verdict stats for Khairul Islam Emon on JudgeArena."
+    />
+
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- FontAwesome 6 Pro Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    />
+
+    <!-- Bootstrap 5.3 CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css"
+    />
+
+    <!-- Select2 CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css"
+    />
+
+    <!-- Custom Core Design System CSS -->
+    <link rel="stylesheet" href="css/style.css" />
+
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
+    <!-- Instant Theme Execution -->
+    <script>
+      (function () {
+        try {
+          var s = localStorage.getItem("judgearena-theme");
+          var t = s === "dark" || s === "light" ? s : "light";
+          document.documentElement.setAttribute("data-theme", t);
+          document.documentElement.setAttribute("data-bs-theme", t);
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+
+  <body>
+    <!-- ================= HEADER / BOOTSTRAP NAVBAR ================= -->
+    <header class="site-header sticky-top">
+      <nav class="navbar navbar-expand-lg border-bottom py-2">
+        <div class="container-fluid px-3 px-md-4">
+          <!-- Mobile Toggler Button -->
+          <button
+            class="navbar-toggler border-0 p-2 me-2 d-lg-none"
+            type="button"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#mobileNav"
+            aria-controls="mobileNav"
+            aria-label="Toggle navigation"
+          >
+            <i class="fa-solid fa-bars text-secondary fs-5"></i>
+          </button>
+
+          <!-- Brand Logo -->
+          <a class="navbar-brand header-brand me-4" href="index.html">
+            <i class="fa-solid fa-code me-2 text-primary"></i>
+            JudgeArena
+          </a>
+
+          <!-- Desktop Navigation & Search -->
+          <div class="collapse navbar-collapse" id="desktopNavbar">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-1 gap-lg-2">
+              <li class="nav-item">
+                <a class="nav-link fw-medium" href="platforms.html">Platforms</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link fw-medium" href="contests.html">Contests</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link fw-medium" href="problems.html">Problems</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link fw-medium" href="rankings.html">Rankings</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link fw-medium" href="community.html">Community</a>
+              </li>
+            </ul>
+
+            <!-- Global Search Input -->
+            <div class="header-search me-3 d-none d-xl-flex">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input
+                type="text"
+                placeholder="Search users, contests, problems..."
+              />
+              <kbd class="search-kbd-hint">⌘K</kbd>
+            </div>
+          </div>
+
+          <!-- Right Utility Actions -->
+          <div class="d-flex align-items-center gap-2">
+            <!-- Mobile Search Icon Button -->
+            <button
+              class="header-icon-btn d-xl-none"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#mobileSearchCollapse"
+              aria-expanded="false"
+              title="Search"
+            >
+              <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+
+            <!-- Theme Switcher Button -->
+            <button
+              class="header-icon-btn"
+              id="theme-toggle-btn"
+              title="Toggle theme"
+            >
+              <i class="fa-solid fa-sun" id="theme-toggle-icon"></i>
+            </button>
+
+            <!-- Notifications Dropdown -->
+            <div class="dropdown">
+              <button
+                class="header-icon-btn position-relative"
+                type="button"
+                data-bs-toggle="dropdown"
+                data-bs-auto-close="outside"
+                aria-expanded="false"
+                title="Notifications"
+              >
+                <i class="fa-regular fa-bell"></i>
+                <span class="dot-badge"></span>
+              </button>
+              <div
+                class="dropdown-menu dropdown-menu-end notification-dropdown-menu shadow-lg"
+              >
+                <div
+                  class="notification-header d-flex align-items-center justify-content-between"
+                >
+                  <div class="d-flex align-items-center gap-2">
+                    <h6 class="fw-bold mb-0 text-primary fs-6">
+                      Notifications
+                    </h6>
+                    <span class="badge bg-primary rounded-pill small"
+                      >3 New</span
+                    >
+                  </div>
+                  <a
+                    href="#"
+                    class="text-muted small text-decoration-none hover-primary"
+                    >Mark all as read</a
+                  >
+                </div>
+                <ul class="notification-list">
+                  <li>
+                    <a href="#" class="notification-item unread">
+                      <div class="notification-icon trophy">
+                        <i class="fa-solid fa-trophy"></i>
+                      </div>
+                      <div class="notification-content">
+                        <div>
+                          <b>Codeforces Round #928 (Div. 2)</b> is starting in
+                          30 minutes!
+                        </div>
+                        <div class="notification-time">
+                          <i class="fa-regular fa-clock me-1"></i>5 min ago
+                        </div>
+                      </div>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" class="notification-item unread">
+                      <div class="notification-icon verdict">
+                        <i class="fa-solid fa-circle-check"></i>
+                      </div>
+                      <div class="notification-content">
+                        <div>
+                          Your submission for
+                          <b>1931F - Programmable Robot</b> passed System Tests.
+                        </div>
+                        <div class="notification-time">
+                          <i class="fa-regular fa-clock me-1"></i>1 hour ago
+                        </div>
+                      </div>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" class="notification-item unread">
+                      <div class="notification-icon blog">
+                        <i class="fa-solid fa-book-open"></i>
+                      </div>
+                      <div class="notification-content">
+                        <div>
+                          Editorial for <b>Educational Round 165</b> has been
+                          published.
+                        </div>
+                        <div class="notification-time">
+                          <i class="fa-regular fa-clock me-1"></i>3 hours ago
+                        </div>
+                      </div>
+                    </a>
+                  </li>
+                </ul>
+                <div class="notification-footer">
+                  <a href="#" class="text-decoration-none"
+                    >View All Notifications
+                    <i class="fa-solid fa-angle-right ms-1"></i
+                  ></a>
+                </div>
+              </div>
+            </div>
+
+            <!-- User Profile Avatar Dropdown -->
+            <div class="dropdown">
+              <a
+                class="header-avatar-btn border-0 bg-transparent p-0 ms-1 d-block"
+                href="#"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+                title="User Profile"
+              >
+                <img
+                  src="img/khairul-islam-emon.jpg"
+                  alt="Khairul Islam Emon avatar"
+                />
+              </a>
+              <div
+                class="dropdown-menu dropdown-menu-end profile-dropdown-menu shadow-lg"
+              >
+                <div class="profile-dropdown-header">
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="profile-dropdown-user-name mb-0">
+                      Khairul Islam Emon
+                    </div>
+                    <i
+                      class="fa-solid fa-circle-check verified-badge"
+                      style="font-size: 0.85rem"
+                    ></i>
+                  </div>
+                  <div class="profile-dropdown-user-handle">@tourist</div>
+                  <div class="mt-2">
+                    <span class="badge-expert">Candidate Master (1964)</span>
+                  </div>
+                </div>
+                <div class="py-1">
+                  <a class="dropdown-item" href="profile.html">
+                    <i class="fa-regular fa-user"></i> My Profile
+                  </a>
+                  <a class="dropdown-item" href="#">
+                    <i class="fa-solid fa-clock-rotate-left"></i> Submissions
+                  </a>
+                  <a class="dropdown-item" href="#">
+                    <i class="fa-regular fa-bookmark"></i> Bookmarks
+                  </a>
+                  <hr class="dropdown-divider" />
+                  <a class="dropdown-item" href="settings.html">
+                    <i class="fa-solid fa-gear me-1"></i> Account Settings
+                  </a>
+                  <hr class="dropdown-divider" />
+                  <a class="dropdown-item text-danger" href="#">
+                    <i
+                      class="fa-solid fa-arrow-right-from-bracket text-danger"
+                    ></i>
+                    Sign Out
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Log In & Register Buttons (Desktop) -->
+            <div class="d-none d-lg-block">
+              <a
+                href="login.html"
+                class="btn btn-sm btn-outline-secondary fw-semibold rounded-3 px-3 py-1-5 ms-1"
+              >
+                Log In
+              </a>
+              <a
+                href="register.html"
+                class="btn btn-sm btn-primary fw-semibold rounded-3 px-3 py-1-5 shadow-sm"
+              >
+                Register
+              </a>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Mobile Collapsible Search Bar -->
+      <div
+        class="collapse d-xl-none mobile-search-bar shadow-sm"
+        id="mobileSearchCollapse"
+      >
+        <div class="header-search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input
+            type="text"
+            placeholder="Search users, contests, problems..."
+          />
+        </div>
+      </div>
+    </header>
+
+    <!-- Mobile Offcanvas Menu -->
+    <aside
+      class="offcanvas offcanvas-start mobile-nav-drawer"
+      tabindex="-1"
+      id="mobileNav"
+      aria-labelledby="mobileNavLabel"
+    >
+      <div class="offcanvas-header border-bottom">
+        <h5 class="offcanvas-title header-brand mb-0" id="mobileNavLabel">
+          <a href="index.html" class="text-decoration-none">
+            <i class="fa-solid fa-code me-2"></i>
+            JudgeArena
+          </a>
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="offcanvas"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="offcanvas-body d-flex flex-column justify-content-between">
+        <ul class="navbar-nav gap-2">
+          <li class="nav-item">
+            <a class="nav-link py-2" href="platforms.html">Platforms</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link py-2" href="contests.html">Contests</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link py-2" href="problems.html">Problems</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link py-2" href="rankings.html">Rankings</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link py-2" href="community.html">Community</a>
+          </li>
+        </ul>
+        <div class="mt-4 pt-3 border-top d-flex gap-2">
+          <a href="login.html" class="btn btn-outline-secondary fw-semibold w-100"
+            >Log In</a
+          >
+          <a href="register.html" class="btn btn-primary fw-semibold w-100"
+            >Register</a
+          >
+        </div>
+      </div>
+    </aside>
+
+    <!-- ================= MAIN CONTENT ================= -->
+    <main class="page-main container my-4">
+      <!-- Top Breadcrumb & Platform Switcher Row -->
+      <div class="row align-items-center justify-content-between g-2 mb-3">
+        <div class="col-auto">
+          <nav class="breadcrumb-list" aria-label="Breadcrumb navigation">
+            <a href="index.html">Home</a>
+            <span class="sep">/</span>
+            <a href="profile.html">Profiles</a>
+            <span class="sep">/</span>
+            <a href="profile.html">Khairul Islam Emon</a>
+            <span class="sep">/</span>
+            <span class="current">Codeforces Profile</span>
+          </nav>
+        </div>
+
+        <!-- Platform Switcher Dropdown (Switch between user's connected platform profiles) -->
+        <div class="col-auto d-flex align-items-center gap-2">
+          <span class="text-muted extra-small font-monospace uppercase fw-semibold d-none d-sm-inline">Platform:</span>
+          <select
+            class="form-select form-select-sm rounded-3 fw-semibold text-primary"
+            style="width: 190px"
+            onchange="if(this.value==='unified') location.href='profile.html'; else location.href='user-platform-profile.html';"
+          >
+            <option value="codeforces" selected>Codeforces (@tourist)</option>
+            <option value="leetcode">LeetCode (@emon1432)</option>
+            <option value="atcoder">AtCoder (@emon)</option>
+            <option value="codechef">CodeChef (@khairul_emon)</option>
+            <option value="unified">← Unified Master Profile</option>
+          </select>
+
+          <a href="profile.html" class="btn btn-sm btn-outline-secondary fw-semibold">
+            <i class="fa-solid fa-layer-group me-1"></i> Unified Profile
+          </a>
+        </div>
+      </div>
+
+      <!-- ================= 1. USER PLATFORM HERO HEADER CARD ================= -->
+      <header class="profile-header-card mb-4 p-4 shadow-sm" style="border-radius: 18px">
+        <div class="row align-items-center g-4">
+          <div class="col-lg-8">
+            <div class="d-flex align-items-center gap-3.5 flex-wrap flex-sm-nowrap">
+              <!-- Avatar with Codeforces Platform Watermark -->
+              <div class="position-relative flex-shrink-0">
+                <img
+                  src="img/khairul-islam-emon.jpg"
+                  alt="Khairul Islam Emon avatar"
+                  class="rounded-circle border border-2 shadow-sm"
+                  width="88"
+                  height="88"
+                />
+                <span
+                  class="position-absolute bottom-0 end-0 bg-primary text-white rounded-circle p-1.5 shadow-sm d-flex align-items-center justify-content-center"
+                  style="width: 30px; height: 30px; border: 2px solid var(--surface)"
+                  title="Connected to Codeforces"
+                >
+                  <i class="fa-solid fa-code extra-small"></i>
+                </span>
+              </div>
+
+              <div>
+                <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                  <h1 class="h3 fw-bold mb-0 text-primary-emphasis">Khairul Islam Emon</h1>
+                  <i class="fa-solid fa-circle-check verified-badge"></i>
+                  <span class="badge bg-purple-subtle text-purple border border-purple-subtle rounded-pill px-2.5 py-1 extra-small fw-bold font-monospace">
+                    Candidate Master (1964)
+                  </span>
+                </div>
+
+                <div class="profile-role-title text-secondary small mb-2">
+                  Codeforces Handle: <a href="https://codeforces.com/profile/tourist" target="_blank" class="fw-bold text-primary font-monospace text-decoration-none">@tourist</a>
+                  <span class="text-muted ms-2">• Software Engineer · Dhaka, Bangladesh 🇧🇩</span>
+                </div>
+
+                <div class="extra-small text-muted d-flex align-items-center gap-3 flex-wrap">
+                  <span><i class="fa-solid fa-circle text-success extra-small me-1"></i> Sync Active (30s)</span>
+                  <span><i class="fa-solid fa-clock-rotate-left me-1 text-primary"></i> Last Synced: 2 mins ago</span>
+                  <span><i class="fa-solid fa-calendar me-1 text-info"></i> Member since Oct 2021</span>
+                  <span><i class="fa-solid fa-id-card me-1 text-warning"></i> Verification Token: Verified</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions Col -->
+          <div class="col-lg-4 text-lg-end">
+            <div class="d-flex align-items-center justify-content-lg-end gap-2 flex-wrap">
+              <button class="btn btn-sm btn-outline-secondary fw-semibold" onclick="alert('Resyncing Codeforces handle @tourist...')">
+                <i class="fa-solid fa-rotate text-primary me-1"></i> Sync Handle
+              </button>
+              <a
+                href="https://codeforces.com/profile/tourist"
+                target="_blank"
+                rel="noopener"
+                class="btn btn-sm btn-outline-secondary fw-semibold"
+              >
+                <i class="fa-solid fa-arrow-up-right-from-square text-muted me-1"></i> Codeforces.com
+              </a>
+              <button class="btn btn-sm btn-primary fw-semibold shadow-sm" data-bs-toggle="modal" data-bs-target="#shareProfileModal">
+                <i class="fa-solid fa-share-nodes me-1"></i> Share Profile
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- ================= 2. KEY STAT CARDS GRID (FOR CODEFORCES ONLY) ================= -->
+      <div class="row g-3 mb-4">
+        <!-- Card 1: Current Rating -->
+        <div class="col-6 col-md-4 col-lg-2">
+          <div class="card stat-card text-center py-3">
+            <div class="stat-label">Codeforces Rating</div>
+            <div class="stat-value text-purple font-monospace">1,964</div>
+            <div class="extra-small text-muted">Candidate Master</div>
+          </div>
+        </div>
+
+        <!-- Card 2: Peak Rating -->
+        <div class="col-6 col-md-4 col-lg-2">
+          <div class="card stat-card text-center py-3">
+            <div class="stat-label">Peak Rating</div>
+            <div class="stat-value text-warning font-monospace">2,042</div>
+            <div class="extra-small text-muted">Master Tier</div>
+          </div>
+        </div>
+
+        <!-- Card 3: Solved Problems -->
+        <div class="col-6 col-md-4 col-lg-2">
+          <div class="card stat-card text-center py-3">
+            <div class="stat-label">CF Solved Problems</div>
+            <div class="stat-value text-success font-monospace">842</div>
+            <div class="extra-small text-muted">800 - 2400 Rating</div>
+          </div>
+        </div>
+
+        <!-- Card 4: Contests Participated -->
+        <div class="col-6 col-md-4 col-lg-2">
+          <div class="card stat-card text-center py-3">
+            <div class="stat-label">CF Contests</div>
+            <div class="stat-value text-primary font-monospace">148</div>
+            <div class="extra-small text-muted">Div 1 & Div 2 Rounds</div>
+          </div>
+        </div>
+
+        <!-- Card 5: Platform Rank -->
+        <div class="col-6 col-md-4 col-lg-2">
+          <div class="card stat-card text-center py-3">
+            <div class="stat-label">Global CF Rank</div>
+            <div class="stat-value text-info font-monospace">#846</div>
+            <div class="extra-small text-muted">BD Rank #12</div>
+          </div>
+        </div>
+
+        <!-- Card 6: Max Rating Gain -->
+        <div class="col-6 col-md-4 col-lg-2">
+          <div class="card stat-card text-center py-3">
+            <div class="stat-label">Max Rating Gain</div>
+            <div class="stat-value stat-value-positive font-monospace">+142</div>
+            <div class="extra-small text-muted">Round #918</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= 3. CODEFORCES RATING HISTORY CHART ================= -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="card panel">
+            <div class="panel-head flex-wrap gap-2">
+              <div class="panel-title">
+                <i class="fa-solid fa-chart-line text-primary me-2"></i>
+                Codeforces Rating Trajectory & Contest History
+              </div>
+              <span class="badge bg-purple-subtle text-purple border border-purple-subtle px-2 py-1 extra-small fw-semibold">
+                <i class="fa-solid fa-code me-1"></i> Codeforces Adapter Data
+              </span>
+            </div>
+            <div style="position: relative; height: 320px; width: 100%">
+              <canvas id="userPlatformRatingChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= 4. SOLVED BY DIFFICULTY & VERDICT BREAKDOWN CHARTS ================= -->
+      <div class="row g-3 mb-4">
+        <!-- Solved Problems by Difficulty Breakdown -->
+        <div class="col-lg-6">
+          <div class="card panel h-100">
+            <div class="panel-head flex-wrap gap-2">
+              <div class="panel-title">
+                <i class="fa-solid fa-chart-column text-success me-2"></i>
+                Codeforces Solved Problems by Rating Difficulty
+              </div>
+              <span class="badge bg-success-subtle text-success extra-small fw-semibold">842 Solved</span>
+            </div>
+            <div style="position: relative; height: 240px; width: 100%">
+              <canvas id="userPfDiffChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submission Verdict Breakdown Donut Chart -->
+        <div class="col-lg-6">
+          <div class="card panel h-100">
+            <div class="panel-head flex-wrap gap-2">
+              <div class="panel-title">
+                <i class="fa-solid fa-chart-pie me-2" style="color:var(--purple)"></i>
+                Codeforces Submission Verdict Breakdown
+              </div>
+              <span class="badge bg-purple-subtle text-purple extra-small fw-semibold">1,240 Total Submissions</span>
+            </div>
+            <div style="position: relative; height: 240px; width: 100%">
+              <canvas id="userPfVerdictChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= 5. TABBED DATA TABLES (CONTESTS, PROBLEMS, SUBMISSIONS, TOPICS) ================= -->
+      <div class="card panel border-0 p-4 mb-4" style="border-radius: 18px">
+        <!-- Tab Navigation Bar -->
+        <nav class="tab-nav mb-4" id="user-pf-tab-nav" aria-label="User Platform Profile Tabs">
+          <button class="tab-button active" data-tab="up-contests">
+            <i class="fa-solid fa-trophy me-1.5"></i> Contest History (148)
+          </button>
+          <button class="tab-button" data-tab="up-problems">
+            <i class="fa-solid fa-layer-group me-1.5"></i> Solved Problems (842)
+          </button>
+          <button class="tab-button" data-tab="up-submissions">
+            <i class="fa-solid fa-clock-rotate-left me-1.5"></i> Recent Submissions
+          </button>
+          <button class="tab-button" data-tab="up-topics">
+            <i class="fa-solid fa-brain me-1.5"></i> Codeforces Topic Mastery
+          </button>
+        </nav>
+
+        <!-- TAB 1: CONTEST HISTORY TABLE -->
+        <section class="tab-content" id="tab-content-up-contests">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light extra-small text-uppercase font-monospace text-muted">
+                <tr>
+                  <th scope="col" style="min-width: 260px">Contest Name</th>
+                  <th scope="col" style="min-width: 140px">Date</th>
+                  <th scope="col" style="min-width: 140px">Rank & Percentile</th>
+                  <th scope="col" style="min-width: 120px">Solved</th>
+                  <th scope="col" style="min-width: 140px">Rating Delta</th>
+                  <th scope="col" class="text-end" style="min-width: 120px">New Rating</th>
+                </tr>
+              </thead>
+              <tbody class="small">
+                <tr>
+                  <td>
+                    <div class="fw-bold text-primary-emphasis">Codeforces Round 955 (Div. 2)</div>
+                    <div class="extra-small text-muted font-monospace">Round ID: #1985</div>
+                  </td>
+                  <td><span class="text-muted">Today, 08:00 PM</span></td>
+                  <td>
+                    <span class="fw-bold text-primary font-monospace">240 / 18,400</span>
+                    <div class="extra-small text-success">Top 1.3%</div>
+                  </td>
+                  <td><span class="badge bg-success-subtle text-success font-monospace fw-bold">5 / 6</span></td>
+                  <td><span class="fw-bold text-success font-monospace fs-6">+84</span></td>
+                  <td class="text-end"><span class="fw-extrabold text-purple font-monospace">1,964</span></td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="fw-bold text-primary-emphasis">Codeforces Round 954 (Div. 3)</div>
+                    <div class="extra-small text-muted font-monospace">Round ID: #1986</div>
+                  </td>
+                  <td><span class="text-muted">Jul 20, 2026</span></td>
+                  <td>
+                    <span class="fw-bold text-primary font-monospace">180 / 28,400</span>
+                    <div class="extra-small text-success">Top 0.6%</div>
+                  </td>
+                  <td><span class="badge bg-success-subtle text-success font-monospace fw-bold">6 / 6</span></td>
+                  <td><span class="fw-bold text-success font-monospace fs-6">+42</span></td>
+                  <td class="text-end"><span class="fw-extrabold text-primary font-monospace">1,880</span></td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="fw-bold text-primary-emphasis">Educational Codeforces Round 167 (Div. 2)</div>
+                    <div class="extra-small text-muted font-monospace">Round ID: #1970</div>
+                  </td>
+                  <td><span class="text-muted">Jul 12, 2026</span></td>
+                  <td>
+                    <span class="fw-bold text-muted font-monospace">1,420 / 16,800</span>
+                    <div class="extra-small text-muted">Top 8.4%</div>
+                  </td>
+                  <td><span class="badge bg-warning-subtle text-warning font-monospace fw-bold">3 / 6</span></td>
+                  <td><span class="fw-bold text-danger font-monospace fs-6">-18</span></td>
+                  <td class="text-end"><span class="fw-extrabold text-primary font-monospace">1,838</span></td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="fw-bold text-primary-emphasis">Codeforces Round 948 (Div. 2)</div>
+                    <div class="extra-small text-muted font-monospace">Round ID: #1960</div>
+                  </td>
+                  <td><span class="text-muted">Jun 28, 2026</span></td>
+                  <td>
+                    <span class="fw-bold text-primary font-monospace">310 / 19,200</span>
+                    <div class="extra-small text-success">Top 1.6%</div>
+                  </td>
+                  <td><span class="badge bg-success-subtle text-success font-monospace fw-bold">4 / 6</span></td>
+                  <td><span class="fw-bold text-success font-monospace fs-6">+112</span></td>
+                  <td class="text-end"><span class="fw-extrabold text-primary font-monospace">1,856</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- TAB 2: SOLVED PROBLEMS TABLE -->
+        <section class="tab-content d-none" id="tab-content-up-problems">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light extra-small text-uppercase font-monospace text-muted">
+                <tr>
+                  <th scope="col" style="min-width: 110px">Code</th>
+                  <th scope="col" style="min-width: 240px">Problem Title</th>
+                  <th scope="col" style="min-width: 120px">Rating</th>
+                  <th scope="col" style="min-width: 200px">Tags</th>
+                  <th scope="col" style="min-width: 140px">Solved Date</th>
+                  <th scope="col" class="text-end" style="min-width: 120px">Official Link</th>
+                </tr>
+              </thead>
+              <tbody class="small">
+                <tr>
+                  <td><span class="font-monospace fw-bold text-primary">1931F</span></td>
+                  <td>
+                    <div class="fw-bold text-primary-emphasis">Programmable Robot</div>
+                    <div class="extra-small text-muted">Round #928 (Div. 2)</div>
+                  </td>
+                  <td><span class="badge bg-warning-subtle text-warning border border-warning-subtle fw-bold font-monospace">1600</span></td>
+                  <td>
+                    <span class="badge text-bg-secondary extra-small">dp</span>
+                    <span class="badge text-bg-secondary extra-small">graphs</span>
+                  </td>
+                  <td><span class="text-muted font-monospace">Today, 08:42 PM</span></td>
+                  <td class="text-end">
+                    <a href="https://codeforces.com/problemset/problem/1931/F" target="_blank" class="btn btn-sm btn-outline-primary px-3 py-1-5 fw-semibold rounded-2">
+                      View <i class="fa-solid fa-arrow-up-right-from-square extra-small ms-1"></i>
+                    </a>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td><span class="font-monospace fw-bold text-primary">1986E</span></td>
+                  <td>
+                    <div class="fw-bold text-primary-emphasis">Beautiful Array</div>
+                    <div class="extra-small text-muted">Round #954 (Div. 3)</div>
+                  </td>
+                  <td><span class="badge bg-info-subtle text-info border border-info-subtle fw-bold font-monospace">1400</span></td>
+                  <td>
+                    <span class="badge text-bg-secondary extra-small">greedy</span>
+                    <span class="badge text-bg-secondary extra-small">math</span>
+                  </td>
+                  <td><span class="text-muted font-monospace">Jul 20, 2026</span></td>
+                  <td class="text-end">
+                    <a href="https://codeforces.com/problemset/problem/1986/E" target="_blank" class="btn btn-sm btn-outline-primary px-3 py-1-5 fw-semibold rounded-2">
+                      View <i class="fa-solid fa-arrow-up-right-from-square extra-small ms-1"></i>
+                    </a>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td><span class="font-monospace fw-bold text-primary">1985H2</span></td>
+                  <td>
+                    <div class="fw-bold text-primary-emphasis">Maximize the Largest Component</div>
+                    <div class="extra-small text-muted">Round #952 (Div. 4)</div>
+                  </td>
+                  <td><span class="badge bg-danger-subtle text-danger border border-danger-subtle fw-bold font-monospace">2100</span></td>
+                  <td>
+                    <span class="badge text-bg-secondary extra-small">dsu</span>
+                    <span class="badge text-bg-secondary extra-small">grid</span>
+                  </td>
+                  <td><span class="text-muted font-monospace">Jul 18, 2026</span></td>
+                  <td class="text-end">
+                    <a href="https://codeforces.com/problemset/problem/1985/H2" target="_blank" class="btn btn-sm btn-outline-primary px-3 py-1-5 fw-semibold rounded-2">
+                      View <i class="fa-solid fa-arrow-up-right-from-square extra-small ms-1"></i>
+                    </a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- TAB 3: RECENT SUBMISSIONS TABLE -->
+        <section class="tab-content d-none" id="tab-content-up-submissions">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light extra-small text-uppercase font-monospace text-muted">
+                <tr>
+                  <th scope="col" style="width: 120px">Sub ID</th>
+                  <th scope="col" style="min-width: 220px">Problem</th>
+                  <th scope="col" style="min-width: 140px">Language</th>
+                  <th scope="col" style="min-width: 150px">Verdict</th>
+                  <th scope="col" style="min-width: 110px">Time</th>
+                  <th scope="col" class="text-end" style="min-width: 110px">Memory</th>
+                </tr>
+              </thead>
+              <tbody class="small font-monospace">
+                <tr>
+                  <td><span class="text-primary fw-bold">#2648102</span></td>
+                  <td>
+                    <div class="fw-bold text-primary-emphasis font-sans">1931F - Programmable Robot</div>
+                  </td>
+                  <td><span class="badge bg-secondary extra-small">GNU C++20 (GCC 13)</span></td>
+                  <td><span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1"><i class="fa-solid fa-circle-check me-1"></i> Accepted (OK)</span></td>
+                  <td><span class="text-muted">31 ms</span></td>
+                  <td class="text-end"><span class="text-muted">2.4 MB</span></td>
+                </tr>
+
+                <tr>
+                  <td><span class="text-primary fw-bold">#2648080</span></td>
+                  <td>
+                    <div class="fw-bold text-primary-emphasis font-sans">1931F - Programmable Robot</div>
+                  </td>
+                  <td><span class="badge bg-secondary extra-small">GNU C++20 (GCC 13)</span></td>
+                  <td><span class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1"><i class="fa-solid fa-clock me-1"></i> Time Limit Exceeded</span></td>
+                  <td><span class="text-danger fw-bold">2000 ms</span></td>
+                  <td class="text-end"><span class="text-muted">4.8 MB</span></td>
+                </tr>
+
+                <tr>
+                  <td><span class="text-primary fw-bold">#2647890</span></td>
+                  <td>
+                    <div class="fw-bold text-primary-emphasis font-sans">1986E - Beautiful Array</div>
+                  </td>
+                  <td><span class="badge bg-secondary extra-small">GNU C++20 (GCC 13)</span></td>
+                  <td><span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1"><i class="fa-solid fa-circle-check me-1"></i> Accepted (OK)</span></td>
+                  <td><span class="text-muted">15 ms</span></td>
+                  <td class="text-end"><span class="text-muted">1.8 MB</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- TAB 4: TOPIC MASTERY MATRIX -->
+        <section class="tab-content d-none" id="tab-content-up-topics">
+          <div class="row g-4">
+            <div class="col-lg-7">
+              <h3 class="h6 fw-bold text-primary-emphasis mb-3">
+                <i class="fa-solid fa-brain text-primary me-2"></i> Codeforces Algorithmic Skill Breakdown
+              </h3>
+              <p class="text-secondary small mb-4">
+                Mastery levels calculated from total accepted submissions on Codeforces across core algorithmic categories.
+              </p>
+
+              <div class="space-y-3">
+                <!-- Topic 1 -->
+                <div>
+                  <div class="d-flex justify-content-between extra-small fw-semibold mb-1">
+                    <span>Dynamic Programming (DP)</span>
+                    <span class="text-primary font-monospace">184 Solved (88% Mastery)</span>
+                  </div>
+                  <div class="progress" style="height: 8px">
+                    <div class="progress-bar bg-primary" role="progressbar" style="width: 88%"></div>
+                  </div>
+                </div>
+
+                <!-- Topic 2 -->
+                <div>
+                  <div class="d-flex justify-content-between extra-small fw-semibold mb-1">
+                    <span>Graph Theory & Trees</span>
+                    <span class="text-info font-monospace">142 Solved (78% Mastery)</span>
+                  </div>
+                  <div class="progress" style="height: 8px">
+                    <div class="progress-bar bg-info" role="progressbar" style="width: 78%"></div>
+                  </div>
+                </div>
+
+                <!-- Topic 3 -->
+                <div>
+                  <div class="d-flex justify-content-between extra-small fw-semibold mb-1">
+                    <span>Mathematics & Number Theory</span>
+                    <span class="text-warning font-monospace">128 Solved (72% Mastery)</span>
+                  </div>
+                  <div class="progress" style="height: 8px">
+                    <div class="progress-bar bg-warning" role="progressbar" style="width: 72%"></div>
+                  </div>
+                </div>
+
+                <!-- Topic 4 -->
+                <div>
+                  <div class="d-flex justify-content-between extra-small fw-semibold mb-1">
+                    <span>Data Structures (Segment Trees, DSU)</span>
+                    <span class="text-purple font-monospace" style="color:var(--purple)">98 Solved (65% Mastery)</span>
+                  </div>
+                  <div class="progress" style="height: 8px">
+                    <div class="progress-bar" role="progressbar" style="width: 65%; background: var(--purple)"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-5">
+              <div class="p-4 rounded-3 border bg-body-tertiary">
+                <h4 class="h6 fw-bold text-primary-emphasis mb-3">Codeforces Analytics Summary</h4>
+                <ul class="list-unstyled extra-small text-secondary mb-0 space-y-2">
+                  <li class="d-flex justify-content-between border-bottom pb-2">
+                    <span class="text-muted">Total Codeforces Submissions</span>
+                    <span class="font-monospace fw-semibold text-primary">1,240</span>
+                  </li>
+                  <li class="d-flex justify-content-between border-bottom pb-2">
+                    <span class="text-muted">Codeforces Acceptance Rate</span>
+                    <span class="font-monospace fw-bold text-success">67.9%</span>
+                  </li>
+                  <li class="d-flex justify-content-between border-bottom pb-2">
+                    <span class="text-muted">First Contest Joined</span>
+                    <span class="font-monospace text-muted">Round #740 (Oct 2021)</span>
+                  </li>
+                  <li class="d-flex justify-content-between">
+                    <span class="text-muted">Average Rating Delta per Round</span>
+                    <span class="font-monospace fw-semibold text-success">+14.2 pts</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- ================= MODAL: SHARE PROFILE ================= -->
+    <div
+      class="modal fade"
+      id="shareProfileModal"
+      tabindex="-1"
+      aria-labelledby="shareProfileModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px">
+          <div class="modal-header border-bottom">
+            <h5 class="modal-title fw-bold text-primary-emphasis" id="shareProfileModalLabel">
+              <i class="fa-solid fa-share-nodes text-primary me-2"></i> Share Codeforces Profile
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body p-4">
+            <p class="small text-muted mb-3">
+              Share Khairul Islam Emon's verified Codeforces stats link.
+            </p>
+            <div class="input-group mb-3">
+              <input type="text" class="form-control small font-monospace" value="https://judgearena.com/u/emon/codeforces" id="share-user-pf-url" readonly />
+              <button class="btn btn-outline-secondary fw-semibold" type="button" onclick="navigator.clipboard.writeText(document.getElementById('share-user-pf-url').value); alert('Profile link copied to clipboard!');">
+                <i class="fa-regular fa-copy me-1"></i> Copy Link
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= FOOTER ================= -->
+    <footer class="site-footer">
+      <div class="footer-container">
+        <div class="row g-4">
+          <!-- Col 1: Brand & Bio -->
+          <div class="col-lg-4 col-md-6">
+            <div class="footer-brand">
+              <div class="d-flex align-items-center gap-2 mb-3">
+                <div class="header-brand">JudgeArena</div>
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2 py-1 fs-xs fw-semibold">Analytics Platform</span>
+              </div>
+              <p class="footer-desc">
+                The unified competitive programming analytics & portfolio platform.
+                Synchronizing ratings, contest history, and solved problems across 100+ platforms into one master profile.
+              </p>
+              <div class="footer-status-badge mb-3">
+                <span class="footer-badge">
+                  <span class="status-dot"></span> 100+ Platform Adapters Operational
+                </span>
+              </div>
+              <div class="footer-socials">
+                <a href="https://github.com" target="_blank" rel="noopener" class="social-icon" title="GitHub" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+                <a href="https://twitter.com" target="_blank" rel="noopener" class="social-icon" title="Twitter / X" aria-label="Twitter"><i class="fa-brands fa-x-twitter"></i></a>
+                <a href="https://discord.com" target="_blank" rel="noopener" class="social-icon" title="Discord" aria-label="Discord"><i class="fa-brands fa-discord"></i></a>
+                <a href="https://youtube.com" target="_blank" rel="noopener" class="social-icon" title="YouTube" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+                <a href="https://linkedin.com" target="_blank" rel="noopener" class="social-icon" title="LinkedIn" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Col 2: Platform Links -->
+          <div class="col-lg-2 col-md-6 col-6">
+            <h6 class="footer-heading">Platform</h6>
+            <ul class="footer-links">
+              <li><a href="profile.html"><i class="fa-solid fa-chevron-right"></i> Unified Profile</a></li>
+              <li><a href="platforms.html"><i class="fa-solid fa-chevron-right"></i> Connected Platforms <span class="badge text-bg-secondary ms-1">100+</span></a></li>
+              <li><a href="contests.html"><i class="fa-solid fa-chevron-right"></i> Contest Aggregator</a></li>
+              <li><a href="problems.html"><i class="fa-solid fa-chevron-right"></i> Problem Directory</a></li>
+              <li><a href="rankings.html"><i class="fa-solid fa-chevron-right"></i> Global Rankings</a></li>
+              <li><a href="community.html"><i class="fa-solid fa-chevron-right"></i> Community Hub</a></li>
+            </ul>
+          </div>
+
+          <!-- Col 3: Analytics Links -->
+          <div class="col-lg-2 col-md-6 col-6">
+            <h6 class="footer-heading">Analytics</h6>
+            <ul class="footer-links">
+              <li><a href="profile.html#ratings"><i class="fa-solid fa-chevron-right"></i> Rating Aggregation</a></li>
+              <li><a href="profile.html#heatmaps"><i class="fa-solid fa-chevron-right"></i> Submission Heatmaps</a></li>
+              <li><a href="profile.html#topics"><i class="fa-solid fa-chevron-right"></i> Topic Mastery Matrix</a></li>
+              <li><a href="rankings.html#normalization"><i class="fa-solid fa-chevron-right"></i> CP-Index Scale</a></li>
+              <li><a href="profile.html#wrapped"><i class="fa-solid fa-chevron-right"></i> Annual Wrapped</a></li>
+              <li><a href="profile.html#export"><i class="fa-solid fa-chevron-right"></i> Export CV / Portfolio</a></li>
+            </ul>
+          </div>
+
+          <!-- Col 4: Developers Links -->
+          <div class="col-lg-2 col-md-6 col-6">
+            <h6 class="footer-heading">Developers</h6>
+            <ul class="footer-links">
+              <li><a href="#"><i class="fa-solid fa-chevron-right"></i> REST & GraphQL API</a></li>
+              <li><a href="#"><i class="fa-solid fa-chevron-right"></i> Open Source Adapters</a></li>
+              <li><a href="#"><i class="fa-solid fa-chevron-right"></i> Readme Badges Widget</a></li>
+              <li><a href="#"><i class="fa-solid fa-chevron-right"></i> Webhook Notifications</a></li>
+              <li><a href="#"><i class="fa-solid fa-chevron-right"></i> Browser Extension</a></li>
+              <li><a href="#"><i class="fa-solid fa-chevron-right"></i> System Status</a></li>
+            </ul>
+          </div>
+
+          <!-- Col 5: Digest Newsletter -->
+          <div class="col-lg-2 col-md-6 col-6">
+            <h6 class="footer-heading">Contest Digest</h6>
+            <p class="footer-newsletter-text">
+              Receive a weekly digest of top contests, rating updates, and editorial solutions.
+            </p>
+            <form class="footer-newsletter-form">
+              <div class="input-group">
+                <input
+                  type="email"
+                  class="form-control"
+                  placeholder="Enter email..."
+                  aria-label="Email Address"
+                  required
+                />
+                <button class="btn btn-subscribe" type="submit">
+                  <i class="fa-solid fa-arrow-right"></i>
+                </button>
+              </div>
+              <div class="footer-newsletter-privacy mt-2">
+                <i class="fa-solid fa-lock me-1"></i> Zero spam. Unsubscribe anytime.
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sub-Footer -->
+      <div class="footer-bottom-section">
+        <div class="footer-container">
+          <div class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
+            <div class="copyright d-flex align-items-center gap-2 flex-wrap justify-content-center justify-content-md-start">
+              <span>© 2026 <b>JudgeArena Inc.</b> All rights reserved.</span>
+              <span class="dot">•</span>
+              <span class="text-muted fs-xs"><i class="fa-solid fa-bolt text-warning me-1"></i> API Latency: 24ms</span>
+            </div>
+            <div class="footer-legal-links d-flex align-items-center gap-3">
+              <a href="#">Privacy Policy</a>
+              <a href="#">Terms of Service</a>
+              <a href="#">Security</a>
+              <a href="#">Cookies</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Bootstrap 5.3 JS Bundle -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+
+    <!-- jQuery & Select2 JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
+    <!-- Custom Main JS Interactivity Script -->
+    <script src="js/main.js"></script>
+
+    <!-- User Platform Profile Charts Script -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // 1. User Platform Rating Trajectory Chart (Codeforces)
+        var ctxRating = document.getElementById("userPlatformRatingChart");
+        if (ctxRating) {
+          var isDark = document.documentElement.getAttribute("data-theme") === "dark";
+          var textColor = isDark ? "#94a3b8" : "#64748b";
+          var gridColor = isDark ? "#334155" : "#e2e8f0";
+
+          new Chart(ctxRating, {
+            type: "line",
+            data: {
+              labels: [
+                "Round #740", "Round #760", "Round #780", "Round #810",
+                "Round #850", "Round #890", "Round #918", "Round #948",
+                "Round #954", "Round #955"
+              ],
+              datasets: [
+                {
+                  label: "Codeforces Rating",
+                  data: [1320, 1450, 1580, 1640, 1720, 1810, 1952, 1856, 1880, 1964],
+                  borderColor: "#aa00aa", // Candidate Master Purple
+                  backgroundColor: "rgba(170, 0, 170, 0.12)",
+                  fill: true,
+                  tension: 0.3,
+                  pointRadius: 5,
+                  pointBackgroundColor: "#aa00aa",
+                  pointHoverRadius: 7
+                }
+              ]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { display: false },
+                tooltip: {
+                  mode: "index",
+                  intersect: false
+                }
+              },
+              scales: {
+                x: {
+                  ticks: { color: textColor, font: { size: 10 } },
+                  grid: { display: false }
+                },
+                y: {
+                  min: 1200,
+                  max: 2200,
+                  ticks: { color: textColor, font: { size: 10 } },
+                  grid: { color: gridColor }
+                }
+              }
+            }
+          });
+        }
+
+        // 2. User Solved Problems by Rating Bar Chart
+        var ctxDiff = document.getElementById("userPfDiffChart");
+        if (ctxDiff) {
+          var isDark = document.documentElement.getAttribute("data-theme") === "dark";
+          var textColor = isDark ? "#94a3b8" : "#64748b";
+          var gridColor = isDark ? "#334155" : "#e2e8f0";
+
+          new Chart(ctxDiff, {
+            type: "bar",
+            data: {
+              labels: ["800", "1000", "1200", "1400", "1600", "1800", "2000", "2200+"],
+              datasets: [
+                {
+                  label: "Solved Problems",
+                  data: [210, 195, 160, 140, 85, 38, 12, 2],
+                  backgroundColor: "#22c55e",
+                  borderRadius: 5
+                }
+              ]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { display: false } },
+              scales: {
+                x: { ticks: { color: textColor, font: { size: 10 } }, grid: { display: false } },
+                y: { ticks: { color: textColor, font: { size: 10 } }, grid: { color: gridColor } }
+              }
+            }
+          });
+        }
+
+        // 3. User Verdict Breakdown Donut Chart
+        var ctxVerdict = document.getElementById("userPfVerdictChart");
+        if (ctxVerdict) {
+          new Chart(ctxVerdict, {
+            type: "doughnut",
+            data: {
+              labels: ["Accepted (OK)", "Time Limit Exceeded", "Wrong Answer", "Runtime Error"],
+              datasets: [
+                {
+                  data: [842, 180, 140, 78],
+                  backgroundColor: ["#22c55e", "#eab308", "#ef4444", "#a855f7"],
+                  borderWidth: 0
+                }
+              ]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { position: "right", labels: { boxWidth: 12, font: { size: 11 } } }
+              },
+              cutout: "70%"
+            }
+          });
+        }
+      });
+    </script>
+  </body>
+</html>

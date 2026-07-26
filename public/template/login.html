@@ -1,0 +1,613 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign In · JudgeArena</title>
+    <meta
+      name="description"
+      content="Sign in to your JudgeArena account to access unified competitive programming statistics, contest reminders, and analytics."
+    />
+
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- FontAwesome 6 Pro Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    />
+
+    <!-- Select2 CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css"
+    />
+
+    <!-- Bootstrap 5.3 CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css"
+    />
+
+    <!-- Custom Master Stylesheet -->
+    <link rel="stylesheet" href="css/style.css" />
+
+    <!-- Instant Theme Execution -->
+    <script>
+      (function () {
+        try {
+          var s = localStorage.getItem("judgearena-theme");
+          var t = s === "dark" || s === "light" ? s : "light";
+          document.documentElement.setAttribute("data-theme", t);
+          document.documentElement.setAttribute("data-bs-theme", t);
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+
+  <body>
+    <!-- ================= HEADER / BOOTSTRAP NAVBAR ================= -->
+    <header class="site-header sticky-top">
+      <nav class="navbar navbar-expand-lg border-bottom py-2">
+        <div class="container-fluid px-3 px-md-4">
+          <!-- Mobile Toggler Button -->
+          <button
+            class="navbar-toggler border-0 p-2 me-2 d-lg-none"
+            type="button"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#mobileNav"
+            aria-controls="mobileNav"
+            aria-label="Toggle navigation"
+          >
+            <i class="fa-solid fa-bars text-secondary fs-5"></i>
+          </button>
+
+          <!-- Brand Logo -->
+          <a class="navbar-brand header-brand me-4" href="index.html">
+            <i class="fa-solid fa-code me-2 text-primary"></i>
+            JudgeArena
+          </a>
+
+          <!-- Desktop Navigation & Search -->
+          <div class="collapse navbar-collapse" id="desktopNavbar">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-1 gap-lg-2">
+              <li class="nav-item">
+                <a class="nav-link fw-medium" href="platforms.html"
+                  >Platforms</a
+                >
+              </li>
+              <li class="nav-item">
+                <a class="nav-link fw-medium" href="contests.html">Contests</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link fw-medium" href="problems.html">Problems</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link fw-medium" href="rankings.html">Rankings</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link fw-medium" href="community.html">Community</a>
+              </li>
+            </ul>
+
+            <!-- Global Search Input -->
+            <div class="header-search me-3 d-none d-xl-flex">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input
+                type="text"
+                placeholder="Search users, contests, problems..."
+              />
+              <kbd class="search-kbd-hint">⌘K</kbd>
+            </div>
+          </div>
+
+          <!-- Right Utility Actions: Log In & Register Buttons -->
+          <div class="d-flex align-items-center gap-2">
+            <!-- Mobile Search Icon Button -->
+            <button
+              class="header-icon-btn d-xl-none"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#mobileSearchCollapse"
+              aria-expanded="false"
+              title="Search"
+            >
+              <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+
+            <!-- Theme Switcher Button -->
+            <button
+              class="header-icon-btn me-1"
+              id="theme-toggle-btn"
+              title="Toggle dark/light theme"
+            >
+              <i class="fa-solid fa-sun" id="theme-toggle-icon"></i>
+            </button>
+
+            <!-- Log In & Register Buttons -->
+            <div class="d-none d-lg-block">
+              <a
+                href="login.html"
+                class="btn btn-sm btn-outline-secondary fw-semibold rounded-3 px-3 py-1-5 ms-1"
+              >
+                Log In
+              </a>
+              <a
+                href="register.html"
+                class="btn btn-sm btn-primary fw-semibold rounded-3 px-3 py-1-5 shadow-sm"
+              >
+                Register
+              </a>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Mobile Collapsible Search Bar -->
+      <div
+        class="collapse d-xl-none mobile-search-bar shadow-sm"
+        id="mobileSearchCollapse"
+      >
+        <div class="header-search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input
+            type="text"
+            placeholder="Search users, contests, problems..."
+          />
+        </div>
+      </div>
+    </header>
+
+    <!-- Mobile Offcanvas Menu -->
+    <aside
+      class="offcanvas offcanvas-start mobile-nav-drawer"
+      tabindex="-1"
+      id="mobileNav"
+      aria-labelledby="mobileNavLabel"
+    >
+      <div class="offcanvas-header border-bottom">
+        <h5 class="offcanvas-title header-brand mb-0" id="mobileNavLabel">
+          <a href="index.html" class="text-decoration-none">
+            <i class="fa-solid fa-code me-2"></i>
+            JudgeArena
+          </a>
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="offcanvas"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="offcanvas-body d-flex flex-column justify-content-between">
+        <ul class="navbar-nav gap-2">
+          <li class="nav-item">
+            <a class="nav-link py-2" href="platforms.html">Platforms</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link py-2" href="contests.html">Contests</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link py-2" href="problems.html">Problems</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link py-2" href="rankings.html">Rankings</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link py-2" href="community.html">Community</a>
+          </li>
+        </ul>
+        <div class="mt-4 pt-3 border-top d-flex gap-2">
+          <a href="login.html" class="btn btn-outline-secondary fw-semibold w-100">Log In</a>
+          <a href="register.html" class="btn btn-primary fw-semibold w-100">Register</a>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ================= MAIN AUTH CONTAINER ================= -->
+    <main class="container-fluid px-3 px-md-4 py-5 max-w-7xl">
+      <div class="row align-items-center justify-content-center g-4 lg-g-5">
+        <!-- Left Side Feature Presentation Panel (Desktop) -->
+        <div class="col-12 col-lg-6 col-xl-5 d-none d-lg-block pe-lg-4">
+          <div class="pe-xl-3">
+            <nav
+              class="breadcrumb-list mb-3"
+              aria-label="Breadcrumb navigation"
+            >
+              <a href="index.html">Home</a>
+              <span class="sep">/</span>
+              <span class="current">Sign In</span>
+            </nav>
+
+            <span
+              class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1.5 extra-small font-monospace uppercase fw-semibold mb-3"
+            >
+              <i class="fa-solid fa-sparkles me-1"></i> Competitive Programming
+              Portfolio
+            </span>
+
+            <h1
+              class="display-6 fw-extrabold text-primary-emphasis tracking-tight mb-3"
+            >
+              One Profile for
+              <span class="text-primary">100+ Online Judges</span>.
+            </h1>
+
+            <p class="text-secondary lead fs-6 mb-4">
+              Connect Codeforces, LeetCode, AtCoder, CodeChef, and SPOJ to track
+              ratings, contest history, and solved problems in one place.
+            </p>
+
+            <div class="d-flex flex-column gap-3 mb-4">
+              <div
+                class="d-flex align-items-start gap-3 p-3 rounded-3 panel border-0 shadow-xs"
+                style="background: var(--surface-2)"
+              >
+                <div class="bg-primary text-white rounded-2 p-2 flex-shrink-0">
+                  <i class="fa-solid fa-chart-line fs-5"></i>
+                </div>
+                <div>
+                  <div class="fw-bold text-primary-emphasis small">
+                    Unified Rating Progression
+                  </div>
+                  <div class="extra-small text-muted">
+                    Compare your rating trajectories across Codeforces, AtCoder,
+                    and LeetCode.
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="d-flex align-items-start gap-3 p-3 rounded-3 panel border-0 shadow-xs"
+                style="background: var(--surface-2)"
+              >
+                <div class="bg-success text-white rounded-2 p-2 flex-shrink-0">
+                  <i class="fa-solid fa-bell fs-5"></i>
+                </div>
+                <div>
+                  <div class="fw-bold text-primary-emphasis small">
+                    Automated Contest Reminders
+                  </div>
+                  <div class="extra-small text-muted">
+                    Set instant browser, email, and Google Calendar alerts for
+                    upcoming rounds.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="d-flex align-items-center gap-3 extra-small text-muted font-monospace"
+            >
+              <span
+                ><i class="fa-solid fa-shield-halved text-success me-1"></i>
+                256-bit OAuth Sync</span
+              >
+              <span>•</span>
+              <span
+                ><i class="fa-solid fa-bolt text-warning me-1"></i> 99.9%
+                Uptime</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Side Professional Auth Card -->
+        <div class="col-12 col-md-8 col-lg-6 col-xl-4">
+          <!-- Mobile Breadcrumb -->
+          <nav
+            class="breadcrumb-list mb-3 text-center d-lg-none"
+            aria-label="Breadcrumb navigation"
+          >
+            <a href="index.html">Home</a>
+            <span class="sep">/</span>
+            <span class="current">Sign In</span>
+          </nav>
+
+          <!-- Premium Auth Card Panel -->
+          <div
+            class="card panel border-0 p-4 p-md-4-5 shadow-sm"
+            style="
+              border-radius: 18px;
+              border: 1px solid var(--border-strong) !important;
+            "
+          >
+            <!-- Card Header -->
+            <div class="text-center mb-4">
+              <div
+                class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-3 p-3 mb-3"
+              >
+                <i class="fa-solid fa-right-to-bracket fs-3"></i>
+              </div>
+              <h2
+                class="h4 fw-extrabold text-primary-emphasis tracking-tight mb-1"
+              >
+                Welcome Back
+              </h2>
+              <p class="text-muted extra-small mb-0">
+                Sign in to your JudgeArena portfolio account
+              </p>
+            </div>
+
+            <!-- Alert Container -->
+            <div
+              class="alert alert-danger extra-small d-none mb-3"
+              id="auth-alert-box"
+              role="alert"
+            >
+              <i class="fa-solid fa-triangle-exclamation me-1.5"></i> Invalid
+              credentials. Please verify your email and password.
+            </div>
+
+            <!-- Social OAuth Buttons -->
+            <div class="d-grid gap-2 mb-3">
+              <button
+                type="button"
+                class="btn btn-outline-secondary fw-semibold extra-small py-2 rounded-3 d-flex align-items-center justify-content-center gap-2"
+                onclick="simulateOAuthLogin('GitHub')"
+              >
+                <i class="fa-brands fa-github fs-6"></i> Continue with GitHub
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline-secondary fw-semibold extra-small py-2 rounded-3 d-flex align-items-center justify-content-center gap-2"
+                onclick="simulateOAuthLogin('Google')"
+              >
+                <i class="fa-brands fa-google text-danger fs-6"></i> Continue
+                with Google
+              </button>
+            </div>
+
+            <div class="d-flex align-items-center my-3">
+              <hr class="flex-grow-1 m-0" />
+              <span class="px-2 text-muted font-monospace extra-small uppercase"
+                >OR EMAIL</span
+              >
+              <hr class="flex-grow-1 m-0" />
+            </div>
+
+            <!-- Sign In Form -->
+            <form id="login-form" onsubmit="handleUserSignIn(event)">
+              <div class="mb-3">
+                <label
+                  for="login-email"
+                  class="form-label extra-small font-monospace uppercase fw-semibold text-primary-emphasis"
+                >
+                  Email Address or Handle
+                </label>
+                <div class="input-group">
+                  <span
+                    class="input-group-text bg-body-tertiary border-end-0 text-muted extra-small"
+                  >
+                    <i class="fa-regular fa-envelope"></i>
+                  </span>
+                  <input
+                    type="text"
+                    class="form-control rounded-end-3 ps-2"
+                    id="login-email"
+                    placeholder="tourist or email@example.com"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <div
+                  class="d-flex align-items-center justify-content-between mb-1"
+                >
+                  <label
+                    for="login-password"
+                    class="form-label extra-small font-monospace uppercase fw-semibold text-primary-emphasis mb-0"
+                  >
+                    Password
+                  </label>
+                  <a
+                    href="forgot-password.html"
+                    class="extra-small text-decoration-none text-primary hover-underline"
+                  >
+                    Forgot Password?
+                  </a>
+                </div>
+                <div class="input-group">
+                  <span
+                    class="input-group-text bg-body-tertiary border-end-0 text-muted extra-small"
+                  >
+                    <i class="fa-solid fa-lock"></i>
+                  </span>
+                  <input
+                    type="password"
+                    class="form-control ps-2 border-end-0"
+                    id="login-password"
+                    placeholder="••••••••••••"
+                    required
+                  />
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary border-start-0 rounded-end-3 text-muted px-3"
+                    onclick="togglePasswordVisibility('login-password', this)"
+                    title="Toggle password visibility"
+                  >
+                    <i class="fa-regular fa-eye"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="form-check mb-4">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="remember-me"
+                  checked
+                />
+                <label
+                  class="form-check-label extra-small text-muted"
+                  for="remember-me"
+                >
+                  Remember me on this device for 30 days
+                </label>
+              </div>
+
+              <button
+                type="submit"
+                class="btn btn-primary w-100 py-2.5 fw-bold rounded-3 shadow-sm"
+                id="signin-submit-btn"
+              >
+                <i class="fa-solid fa-right-to-bracket me-1"></i> Sign In to
+                Account
+              </button>
+            </form>
+
+            <!-- Card Footer -->
+            <div class="text-center mt-4 pt-3 border-top">
+              <p class="extra-small text-muted mb-0">
+                Don't have a JudgeArena account?
+                <a
+                  href="register.html"
+                  class="fw-semibold text-primary text-decoration-none hover-underline"
+                  >Create an Account</a
+                >
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ================= FOOTER ================= -->
+    <!-- ================= FOOTER ================= -->
+    <footer class="site-footer">
+      <div class="footer-top-section">
+        <div class="footer-container">
+          <div class="row g-4 justify-content-between">
+            <!-- Col 1: Brand & Bio -->
+            <div class="col-xl-3 col-lg-4 col-md-6">
+              <div class="footer-brand">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                  <div class="header-brand">JudgeArena</div>
+                  <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2 py-1 fs-xs fw-semibold">Analytics Platform</span>
+                </div>
+                <p class="footer-desc">
+                  The unified competitive programming analytics & portfolio platform.
+                  Synchronizing ratings, contest history, and solved problems across 100+ platforms into one master profile.
+                </p>
+                <div class="footer-status-badge mb-3">
+                  <span class="footer-badge">
+                    <span class="status-dot"></span>
+                    100+ Platform Adapters Operational
+                  </span>
+                </div>
+                <div class="footer-socials">
+                  <a href="https://github.com" target="_blank" rel="noopener" class="social-icon" title="GitHub" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+                  <a href="https://twitter.com" target="_blank" rel="noopener" class="social-icon" title="Twitter / X" aria-label="Twitter"><i class="fa-brands fa-x-twitter"></i></a>
+                  <a href="https://discord.com" target="_blank" rel="noopener" class="social-icon" title="Discord" aria-label="Discord"><i class="fa-brands fa-discord"></i></a>
+                  <a href="https://youtube.com" target="_blank" rel="noopener" class="social-icon" title="YouTube" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+                  <a href="https://linkedin.com" target="_blank" rel="noopener" class="social-icon" title="LinkedIn" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Col 2: Navigation / Platform -->
+            <div class="col-xl-2 col-lg-2 col-md-3 col-6">
+              <h6 class="footer-heading">Platform</h6>
+              <ul class="footer-links">
+                <li><a href="profile.html"><i class="fa-solid fa-chevron-right"></i> Unified Profile</a></li>
+                <li><a href="platforms.html"><i class="fa-solid fa-chevron-right"></i> Connected Platforms <span class="badge text-bg-secondary ms-1">100+</span></a></li>
+                <li><a href="contests.html"><i class="fa-solid fa-chevron-right"></i> Contest Aggregator</a></li>
+                <li><a href="problems.html"><i class="fa-solid fa-chevron-right"></i> Problem Directory</a></li>
+                <li><a href="rankings.html"><i class="fa-solid fa-chevron-right"></i> Global Rankings</a></li>
+                <li><a href="community.html"><i class="fa-solid fa-chevron-right"></i> Community Hub</a></li>
+              </ul>
+            </div>
+
+            <!-- Col 3: Analytics & Features -->
+            <div class="col-xl-2 col-lg-2 col-md-3 col-6">
+              <h6 class="footer-heading">Analytics</h6>
+              <ul class="footer-links">
+                <li><a href="profile.html#ratings"><i class="fa-solid fa-chevron-right"></i> Rating Aggregation</a></li>
+                <li><a href="profile.html#heatmaps"><i class="fa-solid fa-chevron-right"></i> Submission Heatmaps</a></li>
+                <li><a href="profile.html#topics"><i class="fa-solid fa-chevron-right"></i> Topic Mastery Matrix</a></li>
+                <li><a href="rankings.html#normalization"><i class="fa-solid fa-chevron-right"></i> CP-Index Scale</a></li>
+                <li><a href="profile.html#wrapped"><i class="fa-solid fa-chevron-right"></i> Annual Wrapped</a></li>
+                <li><a href="profile.html#export"><i class="fa-solid fa-chevron-right"></i> Export CV / Portfolio</a></li>
+              </ul>
+            </div>
+
+            <!-- Col 4: Developers & Ecosystem -->
+            <div class="col-xl-2 col-lg-2 col-md-4 col-6">
+              <h6 class="footer-heading">Developers</h6>
+              <ul class="footer-links">
+                <li><a href="#"><i class="fa-solid fa-chevron-right"></i> Public REST & GraphQL API</a></li>
+                <li><a href="#"><i class="fa-solid fa-chevron-right"></i> Open Source Adapters</a></li>
+                <li><a href="#"><i class="fa-solid fa-chevron-right"></i> GitHub Readme Badges</a></li>
+                <li><a href="#"><i class="fa-solid fa-chevron-right"></i> Browser Extension Sync</a></li>
+                <li><a href="#"><i class="fa-solid fa-chevron-right"></i> Developer Docs</a></li>
+                <li><a href="#"><i class="fa-solid fa-chevron-right"></i> Platform Webhooks</a></li>
+              </ul>
+            </div>
+
+            <!-- Col 5: Newsletter & Sync Digest -->
+            <div class="col-xl-3 col-lg-4 col-md-8">
+              <h6 class="footer-heading">Contest & Analytics Digest</h6>
+              <p class="footer-newsletter-text">
+                Subscribe for weekly aggregated contest schedules, global rating insights, and adapter releases.
+              </p>
+              <form class="footer-newsletter-form">
+                <div class="input-group">
+                  <input
+                    type="email"
+                    class="form-control"
+                    placeholder="Enter your email address..."
+                    aria-label="Email Address"
+                    required
+                  />
+                  <button class="btn btn-subscribe" type="submit">
+                    Subscribe <i class="fa-solid fa-arrow-right ms-1"></i>
+                  </button>
+                </div>
+                <div class="form-text fs-xs text-muted mt-2">
+                  <i class="fa-solid fa-shield-halved me-1"></i> Zero spam. Unsubscribe anytime.
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sub Footer -->
+      <div class="footer-bottom-section">
+        <div class="footer-container">
+          <div class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
+            <div class="copyright d-flex align-items-center gap-2 flex-wrap justify-content-center justify-content-md-start">
+              <span>© 2026 <b>JudgeArena Inc.</b> All rights reserved.</span>
+              <span class="dot">•</span>
+              <span class="text-muted fs-xs"><i class="fa-solid fa-bolt text-warning me-1"></i> API Latency: 24ms</span>
+            </div>
+            <div class="footer-legal">
+              <a href="#">Privacy Policy</a>
+              <span class="dot">•</span>
+              <a href="#">Terms of Service</a>
+              <span class="dot">•</span>
+              <a href="#">Cookie Preferences</a>
+              <span class="dot">•</span>
+              <a href="#">Security & Trust</a>
+              <span class="dot">•</span>
+              <a href="#">System Status</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+    <script src="js/main.js"></script>
+  </body>
+</html>
