@@ -2,7 +2,6 @@
 
 namespace App\Http\Responses;
 
-use App\Providers\RouteServiceProvider;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
 
@@ -12,7 +11,7 @@ class LoginResponse implements LoginResponseContract
     {
         $user = Auth::user();
         if ($user->role === 'user') {
-            $home = "/user/profile/{$user->username}";
+            $home = "/user/{$user->username}";
         } elseif ($user->role === 'admin') {
             $home = '/dashboard';
         }
