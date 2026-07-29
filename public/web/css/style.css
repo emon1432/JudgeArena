@@ -2940,19 +2940,3 @@ html[data-theme="light"] .saas-feature-card:hover {
         padding: 40px 20px;
     }
 }
-
-/* Community Module Preview Cards */
-.community-module-card {
-    background-color: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    padding: 1.5rem;
-    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-    height: 100%;
-}
-
-.community-module-card:hover {
-    transform: translateY(-3px);
-    border-color: var(--border-hover);
-    box-shadow: var(--shadow-md);
-}
