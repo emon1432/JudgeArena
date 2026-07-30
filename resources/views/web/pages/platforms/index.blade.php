@@ -6,7 +6,7 @@
         <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
             <div>
                 <nav class="breadcrumb-list mb-1" aria-label="Breadcrumb navigation">
-                    <a href="index.html">Home</a>
+                    <a href="{{ route('home') }}">Home</a>
                     <span class="sep">/</span>
                     <span class="current">Platforms Directory</span>
                 </nav>
@@ -229,7 +229,7 @@
                                     </div>
                                     <div>
                                         <div class="fw-bold text-primary-emphasis">
-                                            <a href="platform-detail.html"
+                                            <a href="{{ route('platforms.show', 'codeforces') }}"
                                                 class="problem-title-link text-primary-emphasis text-decoration-none">
                                                 Codeforces
                                             </a>
@@ -265,7 +265,7 @@
                                     Connected (@tourist)</span>
                             </td>
                             <td class="text-end pe-4">
-                                <a href="platform-detail.html"
+                                <a href="{{ route('platforms.show', 'codeforces') }}"
                                     class="btn btn-xs btn-primary fw-semibold rounded-2 px-3 me-1">
                                     <i class="fa-solid fa-chart-pie me-1"></i>
                                     Platform Hub

@@ -5,7 +5,7 @@
         <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
             <div>
                 <nav class="breadcrumb-list mb-1" aria-label="Breadcrumb navigation">
-                    <a href="index.html">Home</a>
+                    <a href="{{ route('home') }}">Home</a>
                     <span class="sep">/</span>
                     <span class="current">Global Rankings</span>
                 </nav>

@@ -6,7 +6,7 @@
             <div class="col-12 col-lg-6 col-xl-5 d-none d-lg-block pe-lg-4">
                 <div class="pe-xl-3">
                     <nav class="breadcrumb-list mb-3" aria-label="Breadcrumb navigation">
-                        <a href="index.html">Home</a>
+                        <a href="{{ route('home') }}">Home</a>
                         <span class="sep">/</span>
                         <span class="current">Sign In</span>
                     </nav>

@@ -221,11 +221,11 @@
 
                         <!-- Quick Links -->
                         <div class="d-flex flex-wrap align-items-center justify-content-center gap-3">
-                            <a href="index.html" class="btn-hero-secondary">
+                            <a href="{{ route('home') }}" class="btn-hero-secondary">
                                 <i class="fa-solid fa-house text-primary me-1"></i>
                                 Back to Home
                             </a>
-                            <a href="platforms.html" class="btn-hero-secondary">
+                            <a href="{{ route('platforms.index') }}" class="btn-hero-secondary">
                                 <i class="fa-solid fa-cubes text-info me-1"></i>
                                 Explore Platforms
                             </a>

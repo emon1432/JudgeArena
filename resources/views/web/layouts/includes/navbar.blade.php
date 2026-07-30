@@ -9,7 +9,7 @@
             </button>
 
             <!-- Brand Logo -->
-            <a class="navbar-brand header-brand me-2 me-lg-4" href="index.html">
+            <a class="navbar-brand header-brand me-2 me-lg-4" href="{{ route('home') }}">
                 <i class="fa-solid fa-code me-2 text-primary"></i>
                 JudgeArena
             </a>
@@ -18,19 +18,19 @@
             <div class="collapse navbar-collapse" id="desktopNavbar">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-1 gap-lg-2">
                     <li class="nav-item">
-                        <a class="nav-link fw-medium" href="platforms.html">Platforms</a>
+                        <a class="nav-link fw-medium" href="{{ route('platforms.index') }}">Platforms</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link fw-medium" href="contests.html">Contests</a>
+                        <a class="nav-link fw-medium" href="{{ route('contests.index') }}">Contests</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link fw-medium" href="problems.html">Problems</a>
+                        <a class="nav-link fw-medium" href="{{ route('problems.index') }}">Problems</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link fw-medium" href="rankings.html">Rankings</a>
+                        <a class="nav-link fw-medium" href="{{ route('rankings.index') }}">Rankings</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link fw-medium" href="community.html">Community</a>
+                        <a class="nav-link fw-medium" href="{{ route('community.index') }}">Community</a>
                     </li>
                 </ul>
 
@@ -209,11 +209,11 @@
 
                 <!-- Log In & Register Buttons -->
                 <div class="d-none d-lg-block">
-                    <a href="login.html"
+                    <a href="{{ route('login') }}"
                         class="btn btn-sm btn-outline-secondary fw-semibold rounded-3 px-3 py-1-5 ms-1">
                         Log In
                     </a>
-                    <a href="register.html"
+                    <a href="{{ route('register') }}"
                         class="btn btn-sm btn-primary fw-semibold rounded-3 px-3 py-1-5 shadow-sm">
                         Register
                     </a>
@@ -236,7 +236,7 @@
     aria-labelledby="mobileNavLabel">
     <div class="offcanvas-header border-bottom">
         <h5 class="offcanvas-title header-brand mb-0" id="mobileNavLabel">
-            <a href="index.html" class="text-decoration-none">
+            <a href="{{ route('home') }}" class="text-decoration-none">
                 <i class="fa-solid fa-code me-2"></i>
                 JudgeArena
             </a>
@@ -246,24 +246,24 @@
     <div class="offcanvas-body d-flex flex-column justify-content-between">
         <ul class="navbar-nav gap-2">
             <li class="nav-item">
-                <a class="nav-link py-2" href="platforms.html">Platforms</a>
+                <a class="nav-link py-2" href="{{ route('platforms.index') }}">Platforms</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link py-2" href="contests.html">Contests</a>
+                <a class="nav-link py-2" href="{{ route('contests.index') }}">Contests</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link py-2" href="problems.html">Problems</a>
+                <a class="nav-link py-2" href="{{ route('problems.index') }}">Problems</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link py-2" href="rankings.html">Rankings</a>
+                <a class="nav-link py-2" href="{{ route('rankings.index') }}">Rankings</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link py-2" href="community.html">Community</a>
+                <a class="nav-link py-2" href="{{ route('community.index') }}">Community</a>
             </li>
         </ul>
         <div class="mt-4 pt-3 border-top d-flex gap-2">
-            <a href="login.html" class="btn btn-outline-secondary fw-semibold w-100">Log In</a>
-            <a href="register.html" class="btn btn-primary fw-semibold w-100">Register</a>
+            <a href="{{ route('login') }}" class="btn btn-outline-secondary fw-semibold w-100">Log In</a>
+            <a href="{{ route('register') }}" class="btn btn-primary fw-semibold w-100">Register</a>
         </div>
     </div>
 </aside>

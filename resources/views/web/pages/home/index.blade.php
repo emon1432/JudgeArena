@@ -33,7 +33,7 @@
 
                         <div
                             class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start gap-3 mb-4">
-                            <a href="register.html" class="btn-hero-primary">
+                            <a href="{{ route('register') }}" class="btn-hero-primary">
                                 <span>Get Started</span>
                                 <i class="fa-solid fa-arrow-right fs-6"></i>
                             </a>
@@ -1087,7 +1087,7 @@
                                 integration guides for 100+ connected
                                 judges.
                             </p>
-                            <a href="platforms.html" class="text-primary fw-semibold small text-decoration-none">
+                            <a href="{{ route('platforms.index') }}" class="text-primary fw-semibold small text-decoration-none">
                                 Browse Platforms
                                 <i class="fa-solid fa-arrow-right ms-1"></i>
                             </a>
@@ -1106,7 +1106,7 @@
                                 Live calendar of upcoming rated rounds
                                 across Codeforces, AtCoder & LeetCode.
                             </p>
-                            <a href="contests.html" class="text-primary fw-semibold small text-decoration-none">
+                            <a href="{{ route('contests.index') }}" class="text-primary fw-semibold small text-decoration-none">
                                 View Contests
                                 <i class="fa-solid fa-arrow-right ms-1"></i>
                             </a>
@@ -1125,7 +1125,7 @@
                                 Search & filter 250,000+ problems by
                                 normalized difficulty rating and topic tags.
                             </p>
-                            <a href="problems.html" class="text-primary fw-semibold small text-decoration-none">
+                            <a href="{{ route('problems.index') }}" class="text-primary fw-semibold small text-decoration-none">
                                 Search Problems
                                 <i class="fa-solid fa-arrow-right ms-1"></i>
                             </a>
@@ -1144,7 +1144,7 @@
                                 Normalized cross-platform leaderboards
                                 filtered by country, university, or company.
                             </p>
-                            <a href="rankings.html" class="text-primary fw-semibold small text-decoration-none">
+                            <a href="{{ route('rankings.index') }}" class="text-primary fw-semibold small text-decoration-none">
                                 View Rankings
                                 <i class="fa-solid fa-arrow-right ms-1"></i>
                             </a>
@@ -1296,11 +1296,11 @@
 
                             <!-- Clear Action CTA Buttons -->
                             <div class="d-flex flex-wrap align-items-center justify-content-center gap-3 mb-4">
-                                <a href="register.html" class="btn-hero-primary">
+                                <a href="{{ route('register') }}" class="btn-hero-primary">
                                     <span>Create Free Account</span>
                                     <i class="fa-solid fa-arrow-right fs-6"></i>
                                 </a>
-                                <a href="platforms.html" class="btn-hero-secondary">
+                                <a href="{{ route('platforms.index') }}" class="btn-hero-secondary">
                                     <i class="fa-solid fa-plus text-primary"></i>
                                     <span>Connect Your First Platform</span>
                                 </a>

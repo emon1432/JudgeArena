@@ -48,24 +48,24 @@
                                 Unified Profile</a>
                         </li>
                         <li>
-                            <a href="platforms.html"><i class="fa-solid fa-chevron-right"></i>
+                            <a href="{{ route('platforms.index') }}"><i class="fa-solid fa-chevron-right"></i>
                                 Connected Platforms
                                 <span class="badge text-bg-secondary ms-1">100+</span></a>
                         </li>
                         <li>
-                            <a href="contests.html"><i class="fa-solid fa-chevron-right"></i>
+                            <a href="{{ route('contests.index') }}"><i class="fa-solid fa-chevron-right"></i>
                                 Contest Aggregator</a>
                         </li>
                         <li>
-                            <a href="problems.html"><i class="fa-solid fa-chevron-right"></i>
+                            <a href="{{ route('problems.index') }}"><i class="fa-solid fa-chevron-right"></i>
                                 Problem Directory</a>
                         </li>
                         <li>
-                            <a href="rankings.html"><i class="fa-solid fa-chevron-right"></i>
+                            <a href="{{ route('rankings.index') }}"><i class="fa-solid fa-chevron-right"></i>
                                 Global Rankings</a>
                         </li>
                         <li>
-                            <a href="community.html"><i class="fa-solid fa-chevron-right"></i>
+                            <a href="{{ route('community.index') }}"><i class="fa-solid fa-chevron-right"></i>
                                 Community Hub</a>
                         </li>
                     </ul>
@@ -88,7 +88,7 @@
                                 Topic Mastery Matrix</a>
                         </li>
                         <li>
-                            <a href="rankings.html#normalization"><i class="fa-solid fa-chevron-right"></i>
+                            <a href="{{ route('rankings.index') }}#normalization"><i class="fa-solid fa-chevron-right"></i>
                                 CP-Index Scale</a>
                         </li>
                         <li>
