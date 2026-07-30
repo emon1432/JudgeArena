@@ -13,7 +13,7 @@
 
                     <span
                         class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1.5 extra-small font-monospace uppercase fw-semibold mb-3">
-                        <i class="fa-solid fa-shield-check me-1"></i> Free
+                        <i class="fa-solid fa-shield me-1"></i> Free
                         Forever Account
                     </span>
 

@@ -1109,7 +1109,7 @@
                                 </td>
                                 <td>
                                     <div class="d-flex align-items-center gap-2.5">
-                                        <img src="img/khairul-islam-emon.jpg" alt="tourist avatar"
+                                        <img src="{{ asset('web/img/khairul-islam-emon.jpg') }}" alt="tourist avatar"
                                             class="rounded-circle border" width="36" height="36" />
                                         <div>
                                             <div class="fw-bold text-primary-emphasis d-flex align-items-center gap-1.5">
@@ -1390,7 +1390,7 @@
                             <div class="col-md-6">
                                 <div class="p-3 rounded-3 border bg-body-tertiary h-100">
                                     <div class="fw-bold text-primary-emphasis small mb-1">
-                                        <i class="fa-solid fa-shield-check text-success me-1.5"></i>
+                                        <i class="fa-solid fa-shield text-success me-1.5"></i>
                                         Verification Protocol
                                     </div>
                                     <div class="extra-small text-secondary fw-semibold">
@@ -1556,3 +1556,226 @@
         </div>
     </div>
 @endsection
+@push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // 1. Codeforces User Rating Tier Distribution Chart
+            var ctxRating = document.getElementById("cfRatingDistChart");
+            if (ctxRating) {
+                var isDark =
+                    document.documentElement.getAttribute("data-theme") ===
+                    "dark";
+                var textColor = isDark ? "#94a3b8" : "#64748b";
+                var gridColor = isDark ? "#334155" : "#e2e8f0";
+
+                new Chart(ctxRating, {
+                    type: "bar",
+                    data: {
+                        labels: [
+                            "Newbie (<1200)",
+                            "Pupil (1200-1399)",
+                            "Specialist (1400-1599)",
+                            "Expert (1600-1899)",
+                            "CM (1900-2099)",
+                            "Master (2100-2299)",
+                            "GM (2300-2999)",
+                            "LGM (3000+)",
+                        ],
+                        datasets: [{
+                            label: "JudgeArena Users",
+                            data: [
+                                12400, 14200, 8900, 4800, 1650, 620,
+                                240, 40,
+                            ],
+                            backgroundColor: [
+                                "#808080", // Newbie gray
+                                "#008000", // Pupil green
+                                "#03a89e", // Specialist cyan
+                                "#0000ff", // Expert blue
+                                "#aa00aa", // CM purple
+                                "#ff8c00", // Master orange
+                                "#ff0000", // GM red
+                                "#bb0000", // LGM dark red
+                            ],
+                            borderRadius: 6,
+                        }, ],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                mode: "index",
+                                intersect: false,
+                            },
+                        },
+                        scales: {
+                            x: {
+                                ticks: {
+                                    color: textColor,
+                                    font: {
+                                        size: 10
+                                    },
+                                },
+                                grid: {
+                                    display: false
+                                },
+                            },
+                            y: {
+                                ticks: {
+                                    color: textColor,
+                                    font: {
+                                        size: 10
+                                    },
+                                },
+                                grid: {
+                                    color: gridColor
+                                },
+                            },
+                        },
+                    },
+                });
+            }
+
+            // 2. Solved Problems by Difficulty Curve Chart
+            var ctxDiff = document.getElementById("cfDifficultyDistChart");
+            if (ctxDiff) {
+                var isDark =
+                    document.documentElement.getAttribute("data-theme") ===
+                    "dark";
+                var textColor = isDark ? "#94a3b8" : "#64748b";
+                var gridColor = isDark ? "#334155" : "#e2e8f0";
+
+                new Chart(ctxDiff, {
+                    type: "line",
+                    data: {
+                        labels: [
+                            "800-1000",
+                            "1100-1300",
+                            "1400-1600",
+                            "1700-1900",
+                            "2000-2200",
+                            "2300-2500",
+                            "2600-2800",
+                            "2900+",
+                        ],
+                        datasets: [{
+                            label: "Problems Count",
+                            data: [
+                                2150, 2480, 1920, 1450, 820, 410, 180,
+                                70,
+                            ],
+                            borderColor: "#22c55e",
+                            backgroundColor: "rgba(34, 197, 94, 0.12)",
+                            fill: true,
+                            tension: 0.35,
+                            pointRadius: 4,
+                            pointBackgroundColor: "#22c55e",
+                        }, ],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                        },
+                        scales: {
+                            x: {
+                                ticks: {
+                                    color: textColor,
+                                    font: {
+                                        size: 10
+                                    },
+                                },
+                                grid: {
+                                    display: false
+                                },
+                            },
+                            y: {
+                                ticks: {
+                                    color: textColor,
+                                    font: {
+                                        size: 10
+                                    },
+                                },
+                                grid: {
+                                    color: gridColor
+                                },
+                            },
+                        },
+                    },
+                });
+            }
+        });
+
+        // Quick connect submission handler
+        function triggerCodeforcesConnect() {
+            var input =
+                document.getElementById("codeforces-handle-input") ||
+                document.getElementById("modal-cf-handle");
+            var handle = input ? input.value.trim() : "";
+            if (handle) {
+                alert(
+                    "Initiating JudgeArena Codeforces sync for handle @" +
+                    handle +
+                    "...\nConnecting to public API v2!",
+                );
+                var modalEl = document.getElementById(
+                    "connectPlatformModal",
+                );
+                if (modalEl && typeof bootstrap !== "undefined") {
+                    var modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+                }
+            }
+        }
+
+        // Filter contests list in Platform Detail
+        function filterPlatformContests() {
+            var q = document
+                .getElementById("pf-contest-search")
+                .value.toLowerCase();
+            var rows = document.querySelectorAll(
+                "#pf-contests-table tbody tr",
+            );
+            rows.forEach(function(r) {
+                var text = r.innerText.toLowerCase();
+                r.style.display = text.indexOf(q) !== -1 ? "" : "none";
+            });
+        }
+
+        function filterPlatformContestStatus(val) {
+            var rows = document.querySelectorAll(
+                "#pf-contests-table tbody tr",
+            );
+            rows.forEach(function(r) {
+                if (val === "all") {
+                    r.style.display = "";
+                } else {
+                    var st = r.getAttribute("data-status");
+                    r.style.display = st === val ? "" : "none";
+                }
+            });
+        }
+
+        // Filter problems list in Platform Detail
+        function filterPlatformProblems() {
+            var q = document
+                .getElementById("pf-problem-search")
+                .value.toLowerCase();
+            var rows = document.querySelectorAll(
+                "#pf-problems-table tbody tr",
+            );
+            rows.forEach(function(r) {
+                var text = r.innerText.toLowerCase();
+                r.style.display = text.indexOf(q) !== -1 ? "" : "none";
+            });
+        }
+    </script>
+@endpush

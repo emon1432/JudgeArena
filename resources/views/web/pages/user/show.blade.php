@@ -1,0 +1,1923 @@
+@extends('web.layouts.app')
+@section('content')
+    <main class="container px-3 px-md-4 py-4 max-w-7xl">
+        <!-- Top Breadcrumb & Share Row -->
+        <div class="row align-items-center justify-content-between g-2 mb-3">
+            <div class="col-auto">
+                <nav class="breadcrumb-list" aria-label="Breadcrumb navigation">
+                    <a href="{{ route('home') }}">Home</a>
+                    <span class="sep">/</span>
+                    <a href="#">User</a>
+                    <span class="sep">/</span>
+                    <span class="current">Khairul Islam Emon</span>
+                </nav>
+            </div>
+            <div class="col-auto">
+                <button class="btn-share-profile" data-bs-toggle="modal" data-bs-target="#shareProfileModal">
+                    <i class="fa-solid fa-arrow-up-from-bracket"></i> Share
+                    Profile
+                </button>
+            </div>
+        </div>
+
+        <!-- Profile Header Card Grid -->
+        <header class="profile-header-card mb-4">
+            <div class="row align-items-center g-3">
+                <!-- Left Col: Avatar & Info -->
+                <div class="col-lg-12 col-md-12">
+                    <div class="d-flex align-items-center gap-3 flex-wrap flex-sm-nowrap">
+                        <div class="avatar-wrap">
+                            <img src="{{ asset('web') }}/img/khairul-islam-emon.jpg" alt="Khairul Islam Emon avatar" />
+                        </div>
+                        <div>
+                            <div class="d-flex align-items-center gap-2">
+                                <h1 class="h3 fw-bold mb-0">
+                                    Khairul Islam Emon
+                                </h1>
+                                <i class="fa-solid fa-circle-check verified-badge"></i>
+                            </div>
+                            <div class="profile-role-title">
+                                Software Engineer · Bangladesh
+                            </div>
+                            <div class="profile-location-text">
+                                <i class="fa-solid fa-location-dot"></i>
+                                Dhaka, Bangladesh
+                            </div>
+                            <div class="profile-action-group mt-2">
+                                <a class="social-link-btn" title="GitHub" href="#"><i
+                                        class="fa-brands fa-github"></i></a>
+                                <a class="social-link-btn" title="Twitter" href="#"><i
+                                        class="fa-brands fa-twitter"></i></a>
+                                <a class="social-link-btn" title="LinkedIn" href="#"><i
+                                        class="fa-brands fa-linkedin"></i></a>
+                                <a class="social-link-btn" title="Facebook" href="#"><i
+                                        class="fa-brands fa-facebook"></i></a>
+                                <a class="social-link-btn" title="Instagram" href="#"><i
+                                        class="fa-brands fa-instagram"></i></a>
+                                <a class="social-link-btn" title="Youtube" href="#"><i
+                                        class="fa-brands fa-youtube"></i></a>
+                                <a class="social-link-btn" title="Whatsapp" href="#"><i
+                                        class="fa-brands fa-whatsapp"></i></a>
+                                <a class="social-link-btn" title="Telegram" href="#"><i
+                                        class="fa-brands fa-telegram"></i></a>
+                                <a class="social-link-btn" title="Website" href="#"><i
+                                        class="fa-solid fa-globe"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Tabs Navigation -->
+        <nav class="tab-nav" id="tab-nav-bar" aria-label="Profile Navigation Tabs">
+            <button class="tab-button active" data-tab="cp">
+                <i class="fa-solid fa-chart-pie me-1"></i> Competitive
+                Programming
+            </button>
+            <button class="tab-button" data-tab="experience">
+                <i class="fa-solid fa-briefcase me-1"></i> Experience
+            </button>
+            <button class="tab-button" data-tab="skills">
+                <i class="fa-solid fa-cogs me-1"></i> Skills
+            </button>
+            <button class="tab-button" data-tab="projects">
+                <i class="fa-solid fa-project-diagram me-1"></i> Projects
+            </button>
+            <button class="tab-button" data-tab="education">
+                <i class="fa-solid fa-graduation-cap me-1"></i> Education
+            </button>
+            <button class="tab-button" data-tab="achievements">
+                <i class="fa-solid fa-award me-1"></i> Achievements
+            </button>
+        </nav>
+
+        <!-- ============ TAB: COMPETITIVE PROGRAMMING ============ -->
+        <section class="tab-content" id="tab-content-cp">
+            <!-- 1. Key Stat Cards Grid (6 Stat Cards) -->
+            <div class="row g-3 mb-4">
+                <div class="col-lg-2 col-md-4 col-6">
+                    <div class="card stat-card text-center py-3">
+                        <div class="stat-label">Total Contests</div>
+                        <div class="stat-value">432</div>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4 col-6">
+                    <div class="card stat-card text-center py-3">
+                        <div class="stat-label">Peak Rating</div>
+                        <div class="stat-value text-primary">1,964</div>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4 col-6">
+                    <div class="card stat-card text-center py-3">
+                        <div class="stat-label">Solved Problems</div>
+                        <div class="stat-value text-success">1,482</div>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4 col-6">
+                    <div class="card stat-card text-center py-3">
+                        <div class="stat-label">Global Rank</div>
+                        <div class="stat-value text-warning">#846</div>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4 col-6">
+                    <div class="card stat-card text-center py-3">
+                        <div class="stat-label">Max Gain</div>
+                        <div class="stat-value stat-value-positive">
+                            +112
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4 col-6">
+                    <div class="card stat-card text-center py-3">
+                        <div class="stat-label">Active Streak</div>
+                        <div class="stat-value" style="color: var(--orange)">
+                            42 Days
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-12">
+                    <div class="card panel">
+                        <div class="panel-head flex-wrap gap-2">
+                            <div class="panel-title">
+                                <i class="fa-solid fa-chart-line text-primary me-2"></i>
+                                Rating History & Performance Trend
+                            </div>
+                            <span
+                                class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 extra-small fw-semibold"><i
+                                    class="fa-solid fa-layer-group me-1"></i>
+                                Multi-Platform Overlay</span>
+                        </div>
+                        <div
+                            style="
+                                    position: relative;
+                                    height: 300px;
+                                    width: 100%;
+                                ">
+                            <canvas id="ratingChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Platform Solved & Verdict Breakdown Donut Charts Row -->
+            <div class="row g-3 mb-4">
+                <!-- Platform Solved Distribution Donut Chart -->
+                <div class="col-lg-6 col-md-6">
+                    <div class="card panel h-100">
+                        <div class="panel-head">
+                            <div class="panel-title">
+                                <i class="fa-solid fa-chart-pie me-2" style="color: var(--purple)"></i>
+                                Platform Solved Distribution
+                            </div>
+                        </div>
+                        <div
+                            style="
+                                    position: relative;
+                                    height: 220px;
+                                    width: 100%;
+                                ">
+                            <canvas id="platformChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Verdict Breakdown Donut Chart -->
+                <div class="col-lg-6 col-md-6">
+                    <div class="card panel h-100">
+                        <div class="panel-head">
+                            <div class="panel-title">
+                                <i class="fa-solid fa-chart-pie me-2 text-success"></i>
+                                Submission Verdict Breakdown
+                            </div>
+                        </div>
+                        <div
+                            style="
+                                    position: relative;
+                                    height: 220px;
+                                    width: 100%;
+                                ">
+                            <canvas id="verdictChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. GitHub Profile Style 365-Day Activity Heatmap Widget -->
+            <div class="card panel mb-4">
+                <div class="panel-head flex-wrap gap-2">
+                    <div>
+                        <div class="panel-title d-flex align-items-center gap-2">
+                            <i class="fa-brands fa-github text-primary" style="font-size: 1.15rem"></i>
+                            <span>682 Submissions in 2026</span>
+                        </div>
+                        <div class="text-muted small mt-1">
+                            Active for 248 days in the last year · Longest
+                            Streak: 84 Days
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span
+                            class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-3 py-1 fw-semibold">
+                            <i class="fa-solid fa-fire me-1"></i> 42 Day
+                            Streak
+                        </span>
+                        <select class="panel-select" id="heatmap-year-select" style="width: 95px">
+                            <option>2026</option>
+                            <option>2025</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="github-heatmap-container">
+                    <div class="github-heatmap-inner">
+                        <div class="heatmap-months-row">
+                            <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
+                            <span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dec</span>
+                        </div>
+                        <div class="heatmap-body-wrap">
+                            <div class="heatmap-days-col">
+                                <span>Mon</span>
+                                <span>Wed</span>
+                                <span>Fri</span>
+                            </div>
+                            <div class="github-heatmap-grid" id="github-heatmap-grid">
+                                <!-- Dynamically populated 52-week grid with interactive hover tooltips via js/main.js -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mt-3 pt-2 border-top text-muted small"
+                    style="font-size: 0.75rem">
+                    <div class="d-flex align-items-center gap-3">
+                        <span><i class="fa-regular fa-calendar-check text-success me-1"></i>
+                            Peak Day: <b>18 submissions on May 14</b></span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span>Less</span>
+                        <ul class="heatmap-legend-list">
+                            <li class="hm-cell level-0" title="No submissions"></li>
+                            <li class="hm-cell level-1" title="1-3 submissions"></li>
+                            <li class="hm-cell level-2" title="4-6 submissions"></li>
+                            <li class="hm-cell level-3" title="7-9 submissions"></li>
+                            <li class="hm-cell level-4" title="10+ submissions"></li>
+                        </ul>
+                        <span>More</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Difficulty Tier Bar Chart, Topic Distribution & Multi-Platform Language Matrix Row -->
+            <div class="row g-3 mb-4">
+                <!-- Problems Solved by Difficulty Rating Bar Chart -->
+                <div class="col-lg-6">
+                    <div class="card panel h-100">
+                        <div class="panel-head flex-wrap gap-2">
+                            <div class="panel-title">
+                                <i class="fa-solid fa-chart-column text-success me-2"></i>
+                                Problems Solved by Difficulty Rating
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span
+                                    class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 small fw-semibold">Avg:
+                                    1540</span>
+                                <span
+                                    class="badge bg-purple-subtle text-purple border border-purple-subtle px-2 py-1 small fw-semibold"
+                                    style="color: var(--purple)">Max: 3500</span>
+                            </div>
+                        </div>
+                        <div
+                            style="
+                                    position: relative;
+                                    height: 245px;
+                                    width: 100%;
+                                ">
+                            <canvas id="difficultyChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Problem Topics Distribution Widget Card -->
+                <div class="col-lg-3 col-md-6">
+                    <div class="card panel h-100">
+                        <div class="panel-head">
+                            <div class="panel-title">
+                                <i class="fa-solid fa-tags text-info me-2"></i>
+                                Topic Mastery
+                            </div>
+                        </div>
+                        <div class="d-flex flex-column gap-3">
+                            <div>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-semibold small">Dynamic Programming</span>
+                                    <span class="text-muted extra-small">92%</span>
+                                </div>
+                                <div class="skill-progress-wrap">
+                                    <div class="skill-progress-bar"
+                                        style="
+                                                width: 92%;
+                                                background: linear-gradient(
+                                                    90deg,
+                                                    var(--blue),
+                                                    var(--purple)
+                                                );
+                                            ">
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-semibold small">Greedy & Search</span>
+                                    <span class="text-muted extra-small">88%</span>
+                                </div>
+                                <div class="skill-progress-wrap">
+                                    <div class="skill-progress-bar"
+                                        style="
+                                                width: 88%;
+                                                background: linear-gradient(
+                                                    90deg,
+                                                    var(--green),
+                                                    var(--blue)
+                                                );
+                                            ">
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-semibold small">Graph & Trees</span>
+                                    <span class="text-muted extra-small">84%</span>
+                                </div>
+                                <div class="skill-progress-wrap">
+                                    <div class="skill-progress-bar"
+                                        style="
+                                                width: 84%;
+                                                background: linear-gradient(
+                                                    90deg,
+                                                    var(--purple),
+                                                    var(--yellow)
+                                                );
+                                            ">
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-semibold small">Data Structures</span>
+                                    <span class="text-muted extra-small">78%</span>
+                                </div>
+                                <div class="skill-progress-wrap">
+                                    <div class="skill-progress-bar"
+                                        style="
+                                                width: 78%;
+                                                background: linear-gradient(
+                                                    90deg,
+                                                    var(--yellow),
+                                                    var(--orange)
+                                                );
+                                            ">
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-semibold small">Math & Geometry</span>
+                                    <span class="text-muted extra-small">70%</span>
+                                </div>
+                                <div class="skill-progress-wrap">
+                                    <div class="skill-progress-bar"
+                                        style="
+                                                width: 70%;
+                                                background: linear-gradient(
+                                                    90deg,
+                                                    var(--orange),
+                                                    var(--red)
+                                                );
+                                            ">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Standalone Multi-Platform Language Matrix Widget Card -->
+                <div class="col-lg-3 col-md-6">
+                    <div class="card panel h-100">
+                        <div class="panel-head">
+                            <div class="panel-title">
+                                <i class="fa-solid fa-code me-2 text-primary"></i>
+                                Multi-Platform Language Matrix
+                            </div>
+                        </div>
+                        <!-- Multi-Color Segmented Bar -->
+                        <div class="d-flex rounded-pill overflow-hidden my-3"
+                            style="
+                                    height: 10px;
+                                    background: var(--surface-2);
+                                ">
+                            <div style="width: 78%; background: #3b82f6" title="GNU C++20: 78%"></div>
+                            <div style="width: 15%; background: #3572a5" title="Python 3: 15%"></div>
+                            <div style="width: 5%; background: #f1e05a" title="JS/TS: 5%"></div>
+                            <div style="width: 2%; background: #00add8" title="Go: 2%"></div>
+                        </div>
+                        <!-- Detailed Language Items -->
+                        <div class="d-flex flex-column gap-2 small">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <span><i class="fa-solid fa-circle me-1"
+                                        style="
+                                                color: #3b82f6;
+                                                font-size: 0.55rem;
+                                            "></i>
+                                    GNU C++20</span>
+                                <span class="fw-bold">78%
+                                    <span class="text-muted extra-small fw-normal">(1,156 solved)</span></span>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <span><i class="fa-solid fa-circle me-1"
+                                        style="
+                                                color: #3572a5;
+                                                font-size: 0.55rem;
+                                            "></i>
+                                    Python 3</span>
+                                <span class="fw-bold">15%
+                                    <span class="text-muted extra-small fw-normal">(222 solved)</span></span>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <span><i class="fa-solid fa-circle me-1"
+                                        style="
+                                                color: #f1e05a;
+                                                font-size: 0.55rem;
+                                            "></i>
+                                    JS / TS</span>
+                                <span class="fw-bold">5%
+                                    <span class="text-muted extra-small fw-normal">(74 solved)</span></span>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <span><i class="fa-solid fa-circle me-1"
+                                        style="
+                                                color: #00add8;
+                                                font-size: 0.55rem;
+                                            "></i>
+                                    Go</span>
+                                <span class="fw-bold">2%
+                                    <span class="text-muted extra-small fw-normal">(30 solved)</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Recent Contests Section -->
+            <div class="card panel mb-4">
+                <div class="panel-head">
+                    <div class="panel-title">
+                        <i class="fa-solid fa-trophy text-warning me-2"></i>
+                        Recent Contests History
+                    </div>
+                    <a href="#" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-semibold">View All
+                        Contests
+                        <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                </div>
+                <div class="table-wrap responsive-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Platform</th>
+                                <th>Contest Name</th>
+                                <th>Rank</th>
+                                <th>Rating Change</th>
+                                <th>Solved</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="contests-table-body">
+                            <tr>
+                                <td>
+                                    <span
+                                        class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 small fw-semibold">Codeforces</span>
+                                </td>
+                                <td>
+                                    <a class="contest-link fw-semibold" href="#">Codeforces Round #928 (Div. 2)</a>
+                                </td>
+                                <td>14</td>
+                                <td class="rc-pos">+94</td>
+                                <td>5 / 6</td>
+                                <td>Jul 18, 2026</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <span
+                                        class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1 small fw-semibold">AtCoder</span>
+                                </td>
+                                <td>
+                                    <a class="contest-link fw-semibold" href="#">AtCoder Beginner Contest 342</a>
+                                </td>
+                                <td>82</td>
+                                <td class="rc-pos">+48</td>
+                                <td>4 / 6</td>
+                                <td>Jul 10, 2026</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <span
+                                        class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 small fw-semibold">LeetCode</span>
+                                </td>
+                                <td>
+                                    <a class="contest-link fw-semibold" href="#">Weekly Contest 390</a>
+                                </td>
+                                <td>312</td>
+                                <td class="rc-neg">-18</td>
+                                <td>3 / 4</td>
+                                <td>Jun 28, 2026</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <span
+                                        class="badge bg-purple-subtle text-purple border border-purple-subtle px-2 py-1 small fw-semibold"
+                                        style="color: var(--purple)">CodeChef</span>
+                                </td>
+                                <td>
+                                    <a class="contest-link fw-semibold" href="#">Starters 124 (Div 1)</a>
+                                </td>
+                                <td>95</td>
+                                <td class="rc-pos">+62</td>
+                                <td>5 / 7</td>
+                                <td>Jun 14, 2026</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <span
+                                        class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 small fw-semibold">Codeforces</span>
+                                </td>
+                                <td>
+                                    <a class="contest-link fw-semibold" href="#">Codeforces Round #920 (Div. 2)</a>
+                                </td>
+                                <td>3</td>
+                                <td class="rc-pos">+112</td>
+                                <td>6 / 6</td>
+                                <td>Jun 02, 2026</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="contest-card-list" id="contests-card-list">
+                    <div class="card contest-card">
+                        <div class="contest-card-top">
+                            <div class="d-flex align-items-center gap-2">
+                                <span
+                                    class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-0-5 extra-small">Codeforces</span>
+                                <a class="contest-link fw-semibold" href="#">Codeforces Round #928 (Div. 2)</a>
+                            </div>
+                            <span class="contest-card-change rc-pos">+94</span>
+                        </div>
+                        <div class="contest-card-meta">
+                            <span>Rank: <b>14</b></span>
+                            <span>Problems: <b>5 / 6</b></span>
+                            <span>Jul 18, 2026</span>
+                        </div>
+                    </div>
+                    <div class="card contest-card">
+                        <div class="contest-card-top">
+                            <div class="d-flex align-items-center gap-2">
+                                <span
+                                    class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-0-5 extra-small">AtCoder</span>
+                                <a class="contest-link fw-semibold" href="#">AtCoder Beginner Contest 342</a>
+                            </div>
+                            <span class="contest-card-change rc-pos">+48</span>
+                        </div>
+                        <div class="contest-card-meta">
+                            <span>Rank: <b>82</b></span>
+                            <span>Problems: <b>4 / 6</b></span>
+                            <span>Jul 10, 2026</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. Solved Problems History & Live Submissions Feed Row -->
+            <div class="row g-3">
+                <div class="col-lg-6">
+                    <div class="card panel h-100">
+                        <div class="panel-head">
+                            <div class="panel-title">
+                                <i class="fa-solid fa-code text-primary me-2"></i>
+                                Solved Problems History
+                            </div>
+                            <a href="#" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-semibold">See
+                                More Problems
+                                <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                        </div>
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Platform</th>
+                                        <th>Problem</th>
+                                        <th>Difficulty</th>
+                                        <th>Tag</th>
+                                        <th>Solved On</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="problems-table-body">
+                                    <tr>
+                                        <td>
+                                            <span
+                                                class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-0-5 extra-small fw-semibold">Codeforces</span>
+                                        </td>
+                                        <td>
+                                            <a class="contest-link fw-semibold" href="#">1931F - Programmable
+                                                Robot</a>
+                                        </td>
+                                        <td>
+                                            <span class="badge-diff master">2400</span>
+                                        </td>
+                                        <td>
+                                            <span class="tag-chip">dp</span>
+                                            <span class="tag-chip">trees</span>
+                                        </td>
+                                        <td>2 hours ago</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <span
+                                                class="badge bg-success-subtle text-success border border-success-subtle px-2 py-0-5 extra-small fw-semibold">LeetCode</span>
+                                        </td>
+                                        <td>
+                                            <a class="contest-link fw-semibold" href="#">42 - Trapping Rain
+                                                Water</a>
+                                        </td>
+                                        <td>
+                                            <span class="badge-diff hard">1900</span>
+                                        </td>
+                                        <td>
+                                            <span class="tag-chip">two pointers</span>
+                                        </td>
+                                        <td>Yesterday</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <span
+                                                class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-0-5 extra-small fw-semibold">AtCoder</span>
+                                        </td>
+                                        <td>
+                                            <a class="contest-link fw-semibold" href="#">ABC342_D - Square Pair</a>
+                                        </td>
+                                        <td>
+                                            <span class="badge-diff medium">1600</span>
+                                        </td>
+                                        <td>
+                                            <span class="tag-chip">math</span>
+                                            <span class="tag-chip">hash</span>
+                                        </td>
+                                        <td>Jul 15, 2026</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <span
+                                                class="badge bg-purple-subtle text-purple border border-purple-subtle px-2 py-0-5 extra-small fw-semibold"
+                                                style="color: var(--purple)">CodeChef</span>
+                                        </td>
+                                        <td>
+                                            <a class="contest-link fw-semibold" href="#">GCDPLUS - Prime
+                                                Subarray</a>
+                                        </td>
+                                        <td>
+                                            <span class="badge-diff easy">1100</span>
+                                        </td>
+                                        <td>
+                                            <span class="tag-chip">number theory</span>
+                                        </td>
+                                        <td>Jul 12, 2026</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card panel h-100">
+                        <div class="panel-head">
+                            <div class="panel-title">
+                                <i class="fa-solid fa-list-check text-success me-2"></i>
+                                Recent Submissions Feed
+                            </div>
+                            <a href="#" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-semibold">View
+                                All
+                                <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                        </div>
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Platform</th>
+                                        <th>Problem</th>
+                                        <th>Verdict</th>
+                                        <th>Language</th>
+                                        <th>Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="submissions-table-body">
+                                    <tr>
+                                        <td>
+                                            <span
+                                                class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-0-5 extra-small fw-semibold">Codeforces</span>
+                                        </td>
+                                        <td>
+                                            <a class="contest-link fw-semibold" href="#">1931F - Programmable
+                                                Robot</a>
+                                        </td>
+                                        <td>
+                                            <span class="badge-verdict ac"><i class="fa-solid fa-check"></i>
+                                                Accepted</span>
+                                        </td>
+                                        <td>GNU C++20</td>
+                                        <td>46 ms</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <span
+                                                class="badge bg-success-subtle text-success border border-success-subtle px-2 py-0-5 extra-small fw-semibold">LeetCode</span>
+                                        </td>
+                                        <td>
+                                            <a class="contest-link fw-semibold" href="#">42 - Trapping Rain
+                                                Water</a>
+                                        </td>
+                                        <td>
+                                            <span class="badge-verdict wa"><i class="fa-solid fa-xmark"></i>
+                                                WA</span>
+                                        </td>
+                                        <td>Python 3.11</td>
+                                        <td>15 ms</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <span
+                                                class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-0-5 extra-small fw-semibold">AtCoder</span>
+                                        </td>
+                                        <td>
+                                            <a class="contest-link fw-semibold" href="#">ABC342_D - Square Pair</a>
+                                        </td>
+                                        <td>
+                                            <span class="badge-verdict ac"><i class="fa-solid fa-check"></i>
+                                                Accepted</span>
+                                        </td>
+                                        <td>GNU C++20</td>
+                                        <td>112 ms</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <span
+                                                class="badge bg-purple-subtle text-purple border border-purple-subtle px-2 py-0-5 extra-small fw-semibold"
+                                                style="color: var(--purple)">CodeChef</span>
+                                        </td>
+                                        <td>
+                                            <a class="contest-link fw-semibold" href="#">GCDPLUS - Prime
+                                                Subarray</a>
+                                        </td>
+                                        <td>
+                                            <span class="badge-verdict tle"><i class="fa-solid fa-clock"></i>
+                                                TLE</span>
+                                        </td>
+                                        <td>GNU C++20</td>
+                                        <td>2000 ms</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Connected Competitive Programming Platforms Directory (Full-Length SaaS Table) -->
+            <div class="card panel mt-4 p-0 overflow-hidden" style="border-radius: 18px">
+                <!-- Header & Toolbar Row -->
+                <div class="p-4 border-bottom bg-body-tertiary-subtle saas-header-toolbar position-relative">
+                    <!-- Title & Action Header Row -->
+                    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-3">
+                        <div>
+                            <h2 class="h5 fw-bold mb-1 text-primary-emphasis d-flex align-items-center gap-2">
+                                <i class="fa-solid fa-network-wired text-primary"></i>
+                                Connected Platforms Directory
+                            </h2>
+                            <div class="text-muted small">
+                                15 connected accounts across 100+ supported
+                                judges
+                            </div>
+                            <div class="text-secondary extra-small mt-1">
+                                <i class="fa-solid fa-circle-info me-1 text-primary"></i>
+                                Click any row to open the dedicated platform
+                                profile.
+                            </div>
+                        </div>
+
+                        <!-- Primary Connect Platform Action -->
+                        <button
+                            class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1-5 fw-semibold px-3 py-2 shadow-sm rounded-3">
+                            <i class="fa-solid fa-plus"></i> Connect
+                            Platform
+                        </button>
+                    </div>
+
+                    <!-- Controls Toolbar Row: Search, Filter Tabs & Sort Dropdown -->
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mt-3 pt-3 border-top">
+                        <!-- Left: Filter Pills / Status Tabs -->
+                        <div class="d-flex align-items-center gap-2 flex-wrap" id="platform-filter-tabs">
+                            <button type="button" class="platform-filter-pill active" data-filter="all">
+                                All
+                                <span class="badge rounded-pill bg-primary-subtle text-primary ms-1">15</span>
+                            </button>
+                            <button type="button" class="platform-filter-pill" data-filter="active">
+                                <span class="pulse-dot bg-success rounded-circle me-1"
+                                    style="
+                                            width: 6px;
+                                            height: 6px;
+                                            display: inline-block;
+                                        "></span>
+                                Synced
+                                <span class="badge rounded-pill bg-success-subtle text-success ms-1">14</span>
+                            </button>
+                            <button type="button" class="platform-filter-pill" data-filter="top-rated">
+                                <i class="fa-solid fa-crown text-warning me-1"></i>
+                                Top Rated
+                                <span class="badge rounded-pill bg-warning-subtle text-warning ms-1">3</span>
+                            </button>
+                            <button type="button" class="platform-filter-pill" data-filter="needs-sync">
+                                Pending Sync
+                                <span class="badge rounded-pill bg-secondary-subtle text-secondary ms-1">1</span>
+                            </button>
+                        </div>
+
+                        <!-- Right: Search Input with KBD Badge & Sort Dropdown -->
+                        <div
+                            class="d-flex align-items-center gap-2 flex-wrap flex-grow-1 flex-md-grow-0 justify-content-end">
+                            <!-- Premium Search Input -->
+                            <div class="platform-search-wrapper position-relative flex-grow-1 flex-md-grow-0"
+                                style="min-width: 220px">
+                                <i
+                                    class="fa-solid fa-magnifying-glass text-muted position-absolute start-0 top-50 translate-middle-y ms-1 extra-small"></i>
+                                <input type="text" id="platform-search-input"
+                                    class="form-control form-control-sm ps-4 pe-5 rounded-3 border-secondary-subtle"
+                                    placeholder="Search platforms, handles..." />
+                                <kbd class="font-monospace extra-small text-muted bg-body border rounded px-1-5 position-absolute end-0 top-50 translate-middle-y me-2 d-none d-sm-inline-block"
+                                    style="font-size: 0.65rem">⌘K</kbd>
+                            </div>
+
+                            <!-- Sort Dropdown -->
+                            <div class="dropdown">
+                                <button
+                                    class="btn btn-sm btn-outline-secondary rounded-3 dropdown-toggle d-inline-flex align-items-center gap-1 extra-small fw-medium"
+                                    type="button" data-bs-toggle="dropdown" id="platformSortDropdown">
+                                    <i class="fa-solid fa-arrow-down-short-wide text-muted me-1"></i>
+                                    <span id="current-sort-label">Sort: Rating</span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end small shadow-sm rounded-3">
+                                    <li>
+                                        <a class="dropdown-item active sort-option" href="#"
+                                            data-sort="rating">Highest Rating</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item sort-option" href="#" data-sort="solved">Most
+                                            Solved</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item sort-option" href="#" data-sort="recent">Recently
+                                            Synced</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item sort-option" href="#" data-sort="name">Platform
+                                            Name (A-Z)</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Full Length SaaS Directory Table -->
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0 text-nowrap saas-directory-table">
+                        <thead
+                            class="bg-body-secondary text-muted uppercase font-monospace extra-small border-bottom sticky-top">
+                            <tr>
+                                <th class="ps-4 py-3 text-start">
+                                    Platform / Account
+                                </th>
+                                <th class="py-3 text-center">
+                                    Rank / Level
+                                </th>
+                                <th class="py-3 text-center">
+                                    Current Rating
+                                </th>
+                                <th class="py-3 text-center">
+                                    Peak Rating
+                                </th>
+                                <th class="py-3 text-center">Solved</th>
+                                <th class="py-3 text-center">Contests</th>
+                                <th class="py-3 text-center">
+                                    Global Rank
+                                </th>
+                                <th class="py-3 text-center">Last Sync</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Row 1: Codeforces -->
+                            <tr class="saas-table-row position-relative" style="cursor: pointer"
+                                onclick="
+                                        window.location.href =
+                                            'user-platform-profile.html'
+                                    ">
+                                <td class="ps-4 py-2-5 text-start">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="platform-logo-box bg-primary-subtle text-primary rounded-2 d-flex align-items-center justify-content-center"
+                                            style="
+                                                    width: 38px;
+                                                    height: 38px;
+                                                    flex-shrink: 0;
+                                                ">
+                                            <i class="fa-solid fa-code fs-6"></i>
+                                        </div>
+                                        <div class="lh-sm">
+                                            <div class="d-flex align-items-center gap-1">
+                                                <a href="user-platform-profile.html"
+                                                    class="fw-semibold text-primary-emphasis text-decoration-none">Codeforces</a>
+                                                <i class="fa-solid fa-arrow-right-long extra-small text-muted ms-1"></i>
+                                            </div>
+                                            <div class="text-muted small font-monospace mt-0-5">
+                                                @khairul_emon
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="py-2-5 text-center">
+                                    <span
+                                        class="badge bg-purple-subtle text-purple border border-purple-subtle px-2 py-1 extra-small fw-semibold"
+                                        style="
+                                                color: var(--purple);
+                                                background: rgba(
+                                                    139,
+                                                    92,
+                                                    246,
+                                                    0.12
+                                                );
+                                            ">
+                                        Candidate Master
+                                    </span>
+                                </td>
+                                <td class="py-2-5 text-center fw-bold" style="color: var(--purple)">
+                                    1,964
+                                </td>
+                                <td class="py-2-5 text-center text-muted fw-semibold">
+                                    1,964
+                                </td>
+                                <td class="py-2-5 text-center fw-semibold">
+                                    1,482
+                                </td>
+                                <td class="py-2-5 text-center text-muted">
+                                    432
+                                </td>
+                                <td class="py-2-5 text-center fw-semibold text-warning">
+                                    #846
+                                </td>
+                                <td class="py-2-5 text-center">
+                                    <div
+                                        class="d-flex align-items-center justify-content-center gap-1-5 extra-small text-success fw-medium">
+                                        <span class="pulse-dot bg-success rounded-circle"
+                                            style="width: 6px; height: 6px"></span>
+                                        <span>2 min ago</span>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Row 2: LeetCode -->
+                            <tr class="saas-table-row position-relative" style="cursor: pointer"
+                                onclick="
+                                        window.location.href =
+                                            'user-platform-profile.html'
+                                    ">
+                                <td class="ps-4 py-2-5 text-start">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="platform-logo-box bg-warning-subtle text-warning rounded-2 d-flex align-items-center justify-content-center"
+                                            style="
+                                                    width: 38px;
+                                                    height: 38px;
+                                                    flex-shrink: 0;
+                                                ">
+                                            <i class="fa-solid fa-terminal fs-6"></i>
+                                        </div>
+                                        <div class="lh-sm">
+                                            <div class="d-flex align-items-center gap-1">
+                                                <a href="user-platform-profile.html"
+                                                    class="fw-semibold text-primary-emphasis text-decoration-none">LeetCode</a>
+                                                <i class="fa-solid fa-arrow-right-long extra-small text-muted ms-1"></i>
+                                            </div>
+                                            <div class="text-muted small font-monospace mt-0-5">
+                                                @khairul_emon
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="py-2-5 text-center">
+                                    <span
+                                        class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1 extra-small fw-semibold">
+                                        Guardian
+                                    </span>
+                                </td>
+                                <td class="py-2-5 text-center fw-bold text-warning">
+                                    2,140
+                                </td>
+                                <td class="py-2-5 text-center text-muted fw-semibold">
+                                    2,140
+                                </td>
+                                <td class="py-2-5 text-center fw-semibold">
+                                    840
+                                </td>
+                                <td class="py-2-5 text-center text-muted">
+                                    68
+                                </td>
+                                <td class="py-2-5 text-center fw-semibold text-primary">
+                                    #1,204
+                                </td>
+                                <td class="py-2-5 text-center">
+                                    <div
+                                        class="d-flex align-items-center justify-content-center gap-1-5 extra-small text-success fw-medium">
+                                        <span class="pulse-dot bg-success rounded-circle"
+                                            style="width: 6px; height: 6px"></span>
+                                        <span>15 min ago</span>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Row 3: AtCoder -->
+                            <tr class="saas-table-row position-relative" style="cursor: pointer"
+                                onclick="
+                                        window.location.href =
+                                            'user-platform-profile.html'
+                                    ">
+                                <td class="ps-4 py-2-5 text-start">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="platform-logo-box bg-info-subtle text-info rounded-2 d-flex align-items-center justify-content-center"
+                                            style="
+                                                    width: 38px;
+                                                    height: 38px;
+                                                    flex-shrink: 0;
+                                                ">
+                                            <i class="fa-solid fa-bolt fs-6"></i>
+                                        </div>
+                                        <div class="lh-sm">
+                                            <div class="d-flex align-items-center gap-1">
+                                                <a href="user-platform-profile.html"
+                                                    class="fw-semibold text-primary-emphasis text-decoration-none">AtCoder</a>
+                                                <i class="fa-solid fa-arrow-right-long extra-small text-muted ms-1"></i>
+                                            </div>
+                                            <div class="text-muted small font-monospace mt-0-5">
+                                                @khairul_emon
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="py-2-5 text-center">
+                                    <span
+                                        class="badge bg-info-subtle text-info border border-info-subtle px-2 py-1 extra-small fw-semibold">
+                                        3-Dan (Cyan)
+                                    </span>
+                                </td>
+                                <td class="py-2-5 text-center fw-bold text-info">
+                                    1,542
+                                </td>
+                                <td class="py-2-5 text-center text-muted fw-semibold">
+                                    1,580
+                                </td>
+                                <td class="py-2-5 text-center fw-semibold">
+                                    320
+                                </td>
+                                <td class="py-2-5 text-center text-muted">
+                                    45
+                                </td>
+                                <td class="py-2-5 text-center fw-semibold text-secondary">
+                                    #2,410
+                                </td>
+                                <td class="py-2-5 text-center">
+                                    <div
+                                        class="d-flex align-items-center justify-content-center gap-1-5 extra-small text-success fw-medium">
+                                        <span class="pulse-dot bg-success rounded-circle"
+                                            style="width: 6px; height: 6px"></span>
+                                        <span>1 hour ago</span>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Row 4: CodeChef -->
+                            <tr class="saas-table-row position-relative" style="cursor: pointer"
+                                onclick="
+                                        window.location.href =
+                                            'user-platform-profile.html'
+                                    ">
+                                <td class="ps-4 py-2-5 text-start">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="platform-logo-box bg-purple-subtle text-purple rounded-2 d-flex align-items-center justify-content-center"
+                                            style="
+                                                    width: 38px;
+                                                    height: 38px;
+                                                    flex-shrink: 0;
+                                                    color: var(--purple);
+                                                ">
+                                            <i class="fa-solid fa-utensils fs-6"></i>
+                                        </div>
+                                        <div class="lh-sm">
+                                            <div class="d-flex align-items-center gap-1">
+                                                <a href="user-platform-profile.html"
+                                                    class="fw-semibold text-primary-emphasis text-decoration-none">CodeChef</a>
+                                                <i class="fa-solid fa-arrow-right-long extra-small text-muted ms-1"></i>
+                                            </div>
+                                            <div class="text-muted small font-monospace mt-0-5">
+                                                @khairul_emon
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="py-2-5 text-center">
+                                    <span
+                                        class="badge bg-purple-subtle text-purple border border-purple-subtle px-2 py-1 extra-small fw-semibold"
+                                        style="
+                                                color: var(--purple);
+                                                background: rgba(
+                                                    139,
+                                                    92,
+                                                    246,
+                                                    0.12
+                                                );
+                                            ">
+                                        5★ Master
+                                    </span>
+                                </td>
+                                <td class="py-2-5 text-center fw-bold text-purple" style="color: var(--purple)">
+                                    2,045
+                                </td>
+                                <td class="py-2-5 text-center text-muted fw-semibold">
+                                    2,045
+                                </td>
+                                <td class="py-2-5 text-center fw-semibold">
+                                    198
+                                </td>
+                                <td class="py-2-5 text-center text-muted">
+                                    32
+                                </td>
+                                <td class="py-2-5 text-center fw-semibold text-warning">
+                                    #940
+                                </td>
+                                <td class="py-2-5 text-center">
+                                    <div
+                                        class="d-flex align-items-center justify-content-center gap-1-5 extra-small text-muted fw-medium">
+                                        <span class="pulse-dot bg-secondary rounded-circle"
+                                            style="width: 6px; height: 6px"></span>
+                                        <span>2 hours ago</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ TAB: EXPERIENCE ============ -->
+        <section class="tab-content d-none" id="tab-content-experience">
+            <div class="card panel">
+                <div class="panel-head">
+                    <div class="panel-title">
+                        <i class="fa-solid fa-briefcase me-2 text-primary"></i>
+                        Work Experience
+                    </div>
+                </div>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-1">
+                            <h5 class="fw-bold mb-0">
+                                Senior Software Engineer & Problem Setter
+                            </h5>
+                            <span
+                                class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1">2024
+                                - Present</span>
+                        </div>
+                        <div class="text-secondary fw-medium mb-2">
+                            <i class="fa-solid fa-building me-1 text-muted"></i>
+                            JudgeArena Inc. · Dhaka, Bangladesh
+                        </div>
+                        <p class="text-secondary small mb-3">
+                            Leading the core online judge engine
+                            architecture and problem setting pipeline.
+                            Architected distributed code execution sandboxes
+                            handling 1M+ daily submissions with low latency
+                            and isolated security containerization.
+                        </p>
+                        <div class="d-flex flex-wrap gap-1">
+                            <span class="tag-chip">C++20</span>
+                            <span class="tag-chip">Docker</span>
+                            <span class="tag-chip">Go</span>
+                            <span class="tag-chip">gRPC</span>
+                            <span class="tag-chip">Distributed Systems</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-1">
+                            <h5 class="fw-bold mb-0">
+                                Competitive Programming Coach
+                            </h5>
+                            <span
+                                class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill px-3 py-1">2022
+                                - 2024</span>
+                        </div>
+                        <div class="text-secondary fw-medium mb-2">
+                            <i class="fa-solid fa-graduation-cap me-1 text-muted"></i>
+                            Tech Academy & CP Community
+                        </div>
+                        <p class="text-secondary small mb-3">
+                            Mentored over 500+ students in advanced
+                            algorithms, graph theory, dynamic programming,
+                            and data structures. Trained regional teams for
+                            ICPC regional finals.
+                        </p>
+                        <div class="d-flex flex-wrap gap-1">
+                            <span class="tag-chip">Algorithms</span>
+                            <span class="tag-chip">Data Structures</span>
+                            <span class="tag-chip">Mentorship</span>
+                            <span class="tag-chip">Problem Setting</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-1">
+                            <h5 class="fw-bold mb-0">
+                                Software Engineering Intern
+                            </h5>
+                            <span
+                                class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill px-3 py-1">2021
+                                - 2022</span>
+                        </div>
+                        <div class="text-secondary fw-medium mb-2">
+                            <i class="fa-solid fa-laptop-code me-1 text-muted"></i>
+                            Tech Solutions Ltd.
+                        </div>
+                        <p class="text-secondary small mb-3">
+                            Developed RESTful microservices and optimized
+                            SQL database query performance, reducing
+                            response times by 35% across core APIs.
+                        </p>
+                        <div class="d-flex flex-wrap gap-1">
+                            <span class="tag-chip">Python</span>
+                            <span class="tag-chip">PostgreSQL</span>
+                            <span class="tag-chip">Redis</span>
+                            <span class="tag-chip">REST API</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ TAB: SKILLS ============ -->
+        <section class="tab-content d-none" id="tab-content-skills">
+            <div class="row g-3">
+                <div class="col-lg-6">
+                    <div class="card panel h-100">
+                        <div class="panel-head">
+                            <div class="panel-title">
+                                <i class="fa-solid fa-code me-2 text-primary"></i>
+                                Programming Languages
+                            </div>
+                        </div>
+                        <div class="d-flex flex-column gap-3">
+                            <div>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-semibold text-primary">C++ (C++17 / C++20)</span>
+                                    <span class="badge-diff master">Expert</span>
+                                </div>
+                                <div class="skill-progress-wrap">
+                                    <div class="skill-progress-bar" style="width: 95%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-semibold text-primary">Python 3</span>
+                                    <span class="badge-diff hard">Advanced</span>
+                                </div>
+                                <div class="skill-progress-wrap">
+                                    <div class="skill-progress-bar" style="width: 88%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-semibold text-primary">JavaScript / TypeScript</span>
+                                    <span class="badge-diff hard">Advanced</span>
+                                </div>
+                                <div class="skill-progress-wrap">
+                                    <div class="skill-progress-bar" style="width: 85%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-semibold text-primary">Go (Golang)</span>
+                                    <span class="badge-diff medium">Proficient</span>
+                                </div>
+                                <div class="skill-progress-wrap">
+                                    <div class="skill-progress-bar" style="width: 75%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-semibold text-primary">Java / SQL</span>
+                                    <span class="badge-diff medium">Proficient</span>
+                                </div>
+                                <div class="skill-progress-wrap">
+                                    <div class="skill-progress-bar" style="width: 72%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="card panel h-100">
+                        <div class="panel-head">
+                            <div class="panel-title">
+                                <i class="fa-solid fa-brain me-2 text-purple" style="color: var(--purple)"></i>
+                                Algorithms & Topics
+                            </div>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2 mb-4">
+                            <span
+                                class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-3">Dynamic
+                                Programming</span>
+                            <span
+                                class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-3">Graph
+                                Theory & Network Flow</span>
+                            <span
+                                class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-3">Segment
+                                Trees & Fenwick</span>
+                            <span
+                                class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-3">String
+                                Algorithms</span>
+                            <span
+                                class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-3">Number
+                                Theory & Combinatorics</span>
+                            <span
+                                class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-3">Ternary
+                                Search & Geometry</span>
+                            <span
+                                class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-3">Tree
+                                Decompositions</span>
+                        </div>
+
+                        <div class="panel-head border-top pt-3">
+                            <div class="panel-title">
+                                <i class="fa-solid fa-cubes me-2 text-success"></i>
+                                Frameworks & Dev Tools
+                            </div>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2">
+                            <span class="tag-chip">React.js</span>
+                            <span class="tag-chip">Node.js</span>
+                            <span class="tag-chip">Bootstrap 5</span>
+                            <span class="tag-chip">Docker</span>
+                            <span class="tag-chip">Git / GitHub</span>
+                            <span class="tag-chip">PostgreSQL</span>
+                            <span class="tag-chip">Redis</span>
+                            <span class="tag-chip">Linux Bash</span>
+                            <span class="tag-chip">gRPC</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ TAB: PROJECTS ============ -->
+        <section class="tab-content d-none" id="tab-content-projects">
+            <div class="row g-3">
+                <div class="col-lg-6">
+                    <div class="card panel project-card">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="fw-bold mb-0 text-primary">
+                                JudgeArena Execution Sandbox
+                            </h5>
+                            <span
+                                class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 small">Featured</span>
+                        </div>
+                        <p class="text-secondary small mb-3">
+                            High-speed distributed code execution sandbox
+                            supporting 20+ programming languages with
+                            resource limits and security isolation.
+                        </p>
+                        <div class="d-flex flex-wrap gap-1 mb-3">
+                            <span class="tag-chip">C++20</span>
+                            <span class="tag-chip">Linux Seccomp</span>
+                            <span class="tag-chip">Docker</span>
+                            <span class="tag-chip">Go</span>
+                        </div>
+                        <div class="project-card-footer">
+                            <div class="text-muted small">
+                                <i class="fa-regular fa-star me-1 text-warning"></i>
+                                342 Stars ·
+                                <i class="fa-solid fa-code-fork me-1"></i>
+                                89 Forks
+                            </div>
+                            <div class="d-flex gap-2">
+                                <a href="#" class="btn btn-sm btn-outline-secondary"><i
+                                        class="fa-brands fa-github me-1"></i>
+                                    Code</a>
+                                <a href="#" class="btn btn-sm btn-primary"><i
+                                        class="fa-solid fa-arrow-up-right-from-square me-1"></i>
+                                    Demo</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="card panel project-card">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="fw-bold mb-0 text-primary">
+                                CP-Helper CLI Tool
+                            </h5>
+                            <span
+                                class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 small">Open
+                                Source</span>
+                        </div>
+                        <p class="text-secondary small mb-3">
+                            Command line interface to parse sample test
+                            cases from Codeforces & AtCoder, run solution
+                            files against sample inputs, and generate stress
+                            tests.
+                        </p>
+                        <div class="d-flex flex-wrap gap-1 mb-3">
+                            <span class="tag-chip">Go</span>
+                            <span class="tag-chip">CLI</span>
+                            <span class="tag-chip">REST API</span>
+                            <span class="tag-chip">Cross-platform</span>
+                        </div>
+                        <div class="project-card-footer">
+                            <div class="text-muted small">
+                                <i class="fa-regular fa-star me-1 text-warning"></i>
+                                218 Stars ·
+                                <i class="fa-solid fa-code-fork me-1"></i>
+                                45 Forks
+                            </div>
+                            <div class="d-flex gap-2">
+                                <a href="#" class="btn btn-sm btn-outline-secondary"><i
+                                        class="fa-brands fa-github me-1"></i>
+                                    Code</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="card panel project-card">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="fw-bold mb-0 text-primary">
+                                AlgoVisualizer Web Application
+                            </h5>
+                            <span class="badge bg-purple-subtle text-purple border border-purple-subtle px-2 py-1 small"
+                                style="
+                                        color: var(--purple);
+                                        background: rgba(139, 92, 246, 0.15);
+                                    ">Web
+                                App</span>
+                        </div>
+                        <p class="text-secondary small mb-3">
+                            Interactive 2D web visualization app for graph
+                            traversal algorithms (Dijkstra, A*, BFS/DFS) and
+                            sorting algorithms with step-by-step playback.
+                        </p>
+                        <div class="d-flex flex-wrap gap-1 mb-3">
+                            <span class="tag-chip">TypeScript</span>
+                            <span class="tag-chip">Canvas API</span>
+                            <span class="tag-chip">HTML5</span>
+                        </div>
+                        <div class="project-card-footer">
+                            <div class="text-muted small">
+                                <i class="fa-regular fa-star me-1 text-warning"></i>
+                                154 Stars ·
+                                <i class="fa-solid fa-code-fork me-1"></i>
+                                28 Forks
+                            </div>
+                            <div class="d-flex gap-2">
+                                <a href="#" class="btn btn-sm btn-outline-secondary"><i
+                                        class="fa-brands fa-github me-1"></i>
+                                    Code</a>
+                                <a href="#" class="btn btn-sm btn-primary"><i
+                                        class="fa-solid fa-arrow-up-right-from-square me-1"></i>
+                                    Demo</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="card panel project-card">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="fw-bold mb-0 text-primary">
+                                Codeforces Extension
+                            </h5>
+                            <span class="badge bg-info-subtle text-info border border-info-subtle px-2 py-1 small">Browser
+                                Extension</span>
+                        </div>
+                        <p class="text-secondary small mb-3">
+                            Chrome extension providing live contest
+                            standings predictor, custom rating change
+                            calculator, and problem difficulty hide options.
+                        </p>
+                        <div class="d-flex flex-wrap gap-1 mb-3">
+                            <span class="tag-chip">JavaScript</span>
+                            <span class="tag-chip">Manifest V3</span>
+                            <span class="tag-chip">Chrome API</span>
+                        </div>
+                        <div class="project-card-footer">
+                            <div class="text-muted small">
+                                <i class="fa-regular fa-star me-1 text-warning"></i>
+                                98 Stars ·
+                                <i class="fa-solid fa-user-group me-1"></i>
+                                1,200+ Users
+                            </div>
+                            <div class="d-flex gap-2">
+                                <a href="#" class="btn btn-sm btn-outline-secondary"><i
+                                        class="fa-brands fa-github me-1"></i>
+                                    Code</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ TAB: EDUCATION ============ -->
+        <section class="tab-content d-none" id="tab-content-education">
+            <div class="row g-3">
+                <div class="col-lg-6">
+                    <div class="card panel h-100">
+                        <div class="d-flex align-items-start gap-3 flex-wrap flex-sm-nowrap">
+                            <div class="achievement-icon blue">
+                                <i class="fa-solid fa-graduation-cap"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                                    <div>
+                                        <h5 class="fw-bold mb-1">
+                                            B.Sc. in Computer Science &
+                                            Engineering
+                                        </h5>
+                                        <div class="text-secondary fw-medium">
+                                            University of Dhaka · Dhaka
+                                        </div>
+                                    </div>
+                                    <span
+                                        class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1">2019
+                                        - 2023</span>
+                                </div>
+                                <div class="mt-2 text-muted small">
+                                    <span class="me-3"><b>CGPA:</b> 3.92 / 4.00</span>
+                                    <span><b>Honors:</b> Dean's Honor
+                                        Roll</span>
+                                </div>
+                                <p class="text-secondary small mt-3 mb-0">
+                                    <b>Key Coursework:</b> Data Structures,
+                                    Algorithm Design & Analysis, Object
+                                    Oriented Programming, System
+                                    Programming, Operating Systems, Database
+                                    Systems, Computer Networks.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="card panel h-100">
+                        <div class="d-flex align-items-start gap-3 flex-wrap flex-sm-nowrap">
+                            <div class="achievement-icon purple">
+                                <i class="fa-solid fa-school"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                                    <div>
+                                        <h5 class="fw-bold mb-1">
+                                            Higher Secondary Certificate
+                                            (HSC)
+                                        </h5>
+                                        <div class="text-secondary fw-medium">
+                                            Notre Dame College · Dhaka
+                                        </div>
+                                    </div>
+                                    <span
+                                        class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill px-3 py-1">2017
+                                        - 2019</span>
+                                </div>
+                                <div class="mt-2 text-muted small mb-2">
+                                    <span><b>GPA:</b> 5.00 / 5.00 (Golden
+                                        GPA)</span>
+                                </div>
+                                <p class="text-secondary small mt-2 mb-0">
+                                    Specialized in Higher Mathematics,
+                                    Physics, and Chemistry. Captain of the
+                                    College Information Technology &
+                                    Programming Club.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ TAB: ACHIEVEMENTS ============ -->
+        <section class="tab-content d-none" id="tab-content-achievements">
+            <div class="row g-3">
+                <div class="col-lg-4 col-md-6">
+                    <div class="card panel h-100">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="achievement-icon gold">
+                                <i class="fa-solid fa-trophy"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-0">
+                                    ICPC Regional Finalist
+                                </h6>
+                                <small class="text-muted">Dhaka Regional Contest</small>
+                            </div>
+                        </div>
+                        <p class="text-secondary small mb-0">
+                            Ranked Top 3 among 150+ teams in the ICPC Asia
+                            Dhaka Regional Contest 2022.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="card panel h-100">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="achievement-icon purple">
+                                <i class="fa-solid fa-crown"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-0">
+                                    Codeforces Candidate Master
+                                </h6>
+                                <small class="text-muted">Peak Rating: 1964</small>
+                            </div>
+                        </div>
+                        <p class="text-secondary small mb-0">
+                            Achieved Candidate Master title on Codeforces
+                            after participating in over 400+ rated contests.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="card panel h-100">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="achievement-icon green">
+                                <i class="fa-solid fa-award"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-0">
+                                    National Hackathon Champion
+                                </h6>
+                                <small class="text-muted">1st Place Winner</small>
+                            </div>
+                        </div>
+                        <p class="text-secondary small mb-0">
+                            Awarded Champion trophy in National Competitive
+                            Programming & Algorithmic Hackathon 2023.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="card panel h-100">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="achievement-icon blue">
+                                <i class="fa-solid fa-code"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-0">
+                                    Google Code Jam Semi-Finalist
+                                </h6>
+                                <small class="text-muted">Global Top 500</small>
+                            </div>
+                        </div>
+                        <p class="text-secondary small mb-0">
+                            Qualified for Round 3 in Google Code Jam among
+                            tens of thousands of global participants.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="card panel h-100">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="achievement-icon gold">
+                                <i class="fa-solid fa-medal"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-0">
+                                    Meta Hacker Cup Qualifier
+                                </h6>
+                                <small class="text-muted">Round 3 Qualifier</small>
+                            </div>
+                        </div>
+                        <p class="text-secondary small mb-0">
+                            Achieved top placement in Meta Hacker Cup 2022
+                            Round 2, securing advancement to Round 3.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="card panel h-100">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="achievement-icon green">
+                                <i class="fa-solid fa-fire"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-0">
+                                    1400+ Problems Solved
+                                </h6>
+                                <small class="text-muted">JudgeArena & Codeforces</small>
+                            </div>
+                        </div>
+                        <p class="text-secondary small mb-0">
+                            Successfully solved over 1,400+ algorithmic
+                            problems across dynamic programming, graph
+                            theory, and math.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Share Profile Modal -->
+    <div class="modal fade" id="shareProfileModal" tabindex="-1" aria-labelledby="shareProfileModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 500px">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; background: var(--surface)">
+                <!-- Modal Header -->
+                <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
+                    <div>
+                        <h5 class="modal-title fw-bold d-flex align-items-center gap-2 text-primary-emphasis"
+                            id="shareProfileModalLabel">
+                            <i class="fa-solid fa-share-nodes text-primary"></i>
+                            Share CP Identity
+                        </h5>
+                        <p class="text-muted extra-small mb-0 mt-1">
+                            Share Khairul Islam Emon's unified competitive
+                            programming profile
+                        </p>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="modal-body p-4">
+                    <!-- 1. Direct Profile Link Field -->
+                    <div class="mb-4">
+                        <label class="form-label font-monospace extra-small text-muted uppercase fw-semibold mb-1">Direct
+                            Profile Link</label>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-body-secondary border-end-0 text-muted"><i
+                                    class="fa-solid fa-link extra-small"></i></span>
+                            <input type="text"
+                                class="form-control font-monospace border-start-0 ps-0 text-primary-emphasis"
+                                id="share-profile-url-input" value="https://judgearena.com/users/khairul_emon" readonly />
+                            <button class="btn btn-primary fw-semibold px-3 d-inline-flex align-items-center gap-1"
+                                id="btn-copy-profile-url" onclick="copyProfileUrl()">
+                                <i class="fa-regular fa-copy" id="copy-btn-icon"></i>
+                                <span id="copy-btn-text">Copy Link</span>
+                            </button>
+                        </div>
+                        <div id="copy-success-toast" class="text-success extra-small mt-1-5 d-none">
+                            <i class="fa-solid fa-circle-check me-1"></i>
+                            Link copied to clipboard!
+                        </div>
+                    </div>
+
+                    <!-- 2. Quick Share Social Grid -->
+                    <div class="mb-4">
+                        <label class="form-label font-monospace extra-small text-muted uppercase fw-semibold mb-2">Share to
+                            Social Networks</label>
+                        <div class="row g-2">
+                            <div class="col-3">
+                                <a href="https://twitter.com/intent/tweet?text=Check%20out%20Khairul%20Islam%20Emon's%20Competitive%20Programming%20Identity%20on%20JudgeArena!&url=https://judgearena.com/users/khairul_emon"
+                                    target="_blank"
+                                    class="btn btn-sm btn-outline-secondary w-100 py-2 d-flex flex-column align-items-center gap-1 text-decoration-none">
+                                    <i class="fa-brands fa-x-twitter fs-5 text-primary-emphasis"></i>
+                                    <span class="extra-small">X / Twitter</span>
+                                </a>
+                            </div>
+                            <div class="col-3">
+                                <a href="https://www.linkedin.com/sharing/share-offsite/?url=https://judgearena.com/users/khairul_emon"
+                                    target="_blank"
+                                    class="btn btn-sm btn-outline-secondary w-100 py-2 d-flex flex-column align-items-center gap-1 text-decoration-none">
+                                    <i class="fa-brands fa-linkedin fs-5 text-primary"></i>
+                                    <span class="extra-small">LinkedIn</span>
+                                </a>
+                            </div>
+                            <div class="col-3">
+                                <a href="https://api.whatsapp.com/send?text=Khairul%20Islam%20Emon's%20JudgeArena%20Profile%20https://judgearena.com/users/khairul_emon"
+                                    target="_blank"
+                                    class="btn btn-sm btn-outline-secondary w-100 py-2 d-flex flex-column align-items-center gap-1 text-decoration-none">
+                                    <i class="fa-brands fa-whatsapp fs-5 text-success"></i>
+                                    <span class="extra-small">WhatsApp</span>
+                                </a>
+                            </div>
+                            <div class="col-3">
+                                <a href="https://reddit.com/submit?url=https://judgearena.com/users/khairul_emon&title=Khairul%20Islam%20Emon%20-%20JudgeArena%20CP%20Profile"
+                                    target="_blank"
+                                    class="btn btn-sm btn-outline-secondary w-100 py-2 d-flex flex-column align-items-center gap-1 text-decoration-none">
+                                    <i class="fa-brands fa-reddit fs-5 text-danger"></i>
+                                    <span class="extra-small">Reddit</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. GitHub README Embed Badge -->
+                    <div class="mb-4">
+                        <label class="form-label font-monospace extra-small text-muted uppercase fw-semibold mb-1">GitHub
+                            README Badge Embed</label>
+                        <div class="p-3 bg-body-tertiary rounded-3 border">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <span class="extra-small text-secondary fw-semibold">Live Preview Badge</span>
+                                <span class="badge bg-primary-subtle text-primary extra-small">Markdown</span>
+                            </div>
+                            <!-- Badge Preview Card -->
+                            <div class="p-2 bg-body rounded border mb-2 d-flex align-items-center gap-2">
+                                <i class="fa-solid fa-trophy text-warning ms-1"></i>
+                                <div class="lh-1">
+                                    <div class="fw-bold extra-small text-primary-emphasis">
+                                        Khairul Islam Emon (Candidate
+                                        Master)
+                                    </div>
+                                    <div class="text-muted extra-small">
+                                        1,964 Rating · 2,840 Solved ·
+                                        JudgeArena
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Code Input & Copy -->
+                            <div class="input-group input-group-sm">
+                                <input type="text" class="form-control font-monospace extra-small bg-body"
+                                    value="[![JudgeArena Profile](https://judgearena.com/api/badge/khairul_emon)](https://judgearena.com/users/khairul_emon)"
+                                    readonly id="share-badge-markdown-input" />
+                                <button class="btn btn-outline-secondary extra-small fw-semibold"
+                                    onclick="copyMarkdownBadge()">
+                                    Copy MD
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. Mobile Identity QR Code Card -->
+                    <div
+                        class="p-3 bg-body-tertiary rounded-3 border d-flex align-items-center justify-content-between gap-3">
+                        <div>
+                            <div class="fw-bold small text-primary-emphasis">
+                                <i class="fa-solid fa-qrcode me-1 text-primary"></i>
+                                Mobile Identity QR Code
+                            </div>
+                            <div class="text-muted extra-small">
+                                Scan to view profile directly on smartphone
+                                devices
+                            </div>
+                        </div>
+                        <!-- Dynamic Vector SVG QR Code Card -->
+                        <div class="bg-white p-1-5 rounded-2 border shadow-sm flex-shrink-0"
+                            style="width: 52px; height: 52px">
+                            <svg viewBox="0 0 100 100" width="100%" height="100%">
+                                <path
+                                    d="M0,0 h30 v30 h-30 z M40,0 h20 v10 h-20 z M70,0 h30 v30 h-30 z M10,10 h10 v10 h-10 z M80,10 h10 v10 h-10 z M0,40 h10 v20 h-10 z M30,40 h30 v10 h-30 z M70,40 h10 v10 h-10 z M90,40 h10 v20 h-10 z M0,70 h30 v30 h-30 z M10,80 h10 v10 h-10 z M40,70 h20 v20 h-20 z M70,70 h20 v10 h-20 z M90,80 h10 v20 h-10 z"
+                                    fill="#0f172a" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="modal-footer border-top-0 pt-0 px-4 pb-4">
+                    <button type="button" class="btn btn-sm btn-secondary w-100 fw-semibold" data-bs-dismiss="modal">
+                        Close Window
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
+
+@push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+@endpush
