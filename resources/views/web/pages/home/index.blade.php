@@ -64,7 +64,7 @@
                                 </div>
                                 <div class="mockup-browser-address">
                                     <i class="fa-solid fa-lock text-success fs-7"></i>
-                                    <span>judgearena.com/u/tourist</span>
+                                    <span>{{ settings('system_settings', 'app_url') }}/user/tourist</span>
                                 </div>
                                 <div class="d-none d-sm-flex align-items-center gap-2 text-muted fs-7">
                                     <span
@@ -545,7 +545,7 @@
                                             <i class="fa-solid fa-circle-check text-primary" title="Verified"></i>
                                         </div>
                                         <div class="text-secondary small">
-                                            judgearena.com/u/tourist
+                                            {{ settings('system_settings', 'app_url') }}/user/tourist
                                         </div>
                                     </div>
                                 </div>
@@ -1087,7 +1087,8 @@
                                 integration guides for 100+ connected
                                 judges.
                             </p>
-                            <a href="{{ route('platforms.index') }}" class="text-primary fw-semibold small text-decoration-none">
+                            <a href="{{ route('platforms.index') }}"
+                                class="text-primary fw-semibold small text-decoration-none">
                                 Browse Platforms
                                 <i class="fa-solid fa-arrow-right ms-1"></i>
                             </a>
@@ -1106,7 +1107,8 @@
                                 Live calendar of upcoming rated rounds
                                 across Codeforces, AtCoder & LeetCode.
                             </p>
-                            <a href="{{ route('contests.index') }}" class="text-primary fw-semibold small text-decoration-none">
+                            <a href="{{ route('contests.index') }}"
+                                class="text-primary fw-semibold small text-decoration-none">
                                 View Contests
                                 <i class="fa-solid fa-arrow-right ms-1"></i>
                             </a>
@@ -1125,7 +1127,8 @@
                                 Search & filter 250,000+ problems by
                                 normalized difficulty rating and topic tags.
                             </p>
-                            <a href="{{ route('problems.index') }}" class="text-primary fw-semibold small text-decoration-none">
+                            <a href="{{ route('problems.index') }}"
+                                class="text-primary fw-semibold small text-decoration-none">
                                 Search Problems
                                 <i class="fa-solid fa-arrow-right ms-1"></i>
                             </a>
@@ -1144,7 +1147,8 @@
                                 Normalized cross-platform leaderboards
                                 filtered by country, university, or company.
                             </p>
-                            <a href="{{ route('rankings.index') }}" class="text-primary fw-semibold small text-decoration-none">
+                            <a href="{{ route('rankings.index') }}"
+                                class="text-primary fw-semibold small text-decoration-none">
                                 View Rankings
                                 <i class="fa-solid fa-arrow-right ms-1"></i>
                             </a>

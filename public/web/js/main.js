@@ -44,6 +44,11 @@ function applyTheme(theme, savePreference = true) {
             theme === "dark" ? "fa-solid fa-moon" : "fa-solid fa-sun";
     }
 
+    const themeSwitch = document.getElementById("theme-switch-checkbox");
+    if (themeSwitch) {
+        themeSwitch.checked = (theme === "dark");
+    }
+
     if (savePreference) {
         try {
             localStorage.setItem(STORAGE_KEY, theme);

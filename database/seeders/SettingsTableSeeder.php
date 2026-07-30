@@ -14,13 +14,13 @@ class SettingsTableSeeder extends Seeder
      */
     public function run()
     {
-        
+
 
         \DB::table('settings')->delete();
-        
-        \DB::table('settings')->insert(array (
-            0 => 
-            array (
+
+        \DB::table('settings')->insert(array(
+            0 =>
+            array(
                 'id' => 1,
                 'icon' => 'briefcase',
                 'key' => 'business_settings',
@@ -28,17 +28,17 @@ class SettingsTableSeeder extends Seeder
                 'created_at' => '2025-04-19 05:17:43',
                 'updated_at' => '2026-01-04 18:46:18',
             ),
-            1 => 
-            array (
+            1 =>
+            array(
                 'id' => 2,
                 'icon' => 'settings',
                 'key' => 'system_settings',
-                'value' => '{"app_name":"JudgeArena","app_url":"https:\\/\\/judgearena.bdusedautoparts.com","app_locale":"en","app_timezone":"Asia\\/Dhaka","date_format":"d-m-Y","time_format":"h:i A","decimal_separator":".","thousand_separator":",","decimal_precision":"2","footer_text":"\\u00a9 2026 JudgeArena. All rights reserved.","copyright":"Copyright \\u00a9 2026 JudgeArena"}',
+                'value' => '{"app_name":"JudgeArena","app_url":"http:127.0.0.1:8000","app_locale":"en","app_timezone":"Asia\\/Dhaka","date_format":"d-m-Y","time_format":"h:i A","decimal_separator":".","thousand_separator":",","decimal_precision":"2","footer_text":"\\u00a9 2026 JudgeArena. All rights reserved.","copyright":"Copyright \\u00a9 2026 JudgeArena"}',
                 'created_at' => '2025-04-19 05:17:43',
                 'updated_at' => '2026-01-22 12:27:25',
             ),
-            2 => 
-            array (
+            2 =>
+            array(
                 'id' => 3,
                 'icon' => 'mail',
                 'key' => 'mail_settings',
@@ -47,7 +47,5 @@ class SettingsTableSeeder extends Seeder
                 'updated_at' => '2025-12-08 10:59:49',
             ),
         ));
-        
-        
     }
 }
