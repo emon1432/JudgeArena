@@ -45,7 +45,7 @@
             <h5 class="card-title mb-0">{{ __('Filters') }}</h5>
         </div>
         <div class="card-body mt-5">
-            <form method="GET" action="{{ route('sync-monitor.index') }}" class="row g-3 align-items-end">
+            <form method="GET" action="{{ route('admin.sync-monitor.index') }}" class="row g-3 align-items-end">
                 <div class="col-md-4">
                     <label class="form-label">{{ __('Platform') }}</label>
                     <select name="platform" class="form-select">
@@ -81,7 +81,7 @@
                 </div>
                 <div class="col-12 d-flex gap-2">
                     <button type="submit" class="btn btn-primary">{{ __('Filter') }}</button>
-                    <a href="{{ route('sync-monitor.index') }}" class="btn btn-label-secondary">{{ __('Reset') }}</a>
+                    <a href="{{ route('admin.sync-monitor.index') }}" class="btn btn-label-secondary">{{ __('Reset') }}</a>
                 </div>
             </form>
         </div>
@@ -160,7 +160,7 @@
                                 <td>{{ $retryCount($state) }}</td>
                                 <td>{{ $state->updated_at?->format('d M, Y h:i A') }}</td>
                                 <td>
-                                    <form method="POST" action="{{ route('sync-monitor.retry', $state) }}">
+                                    <form method="POST" action="{{ route('admin.sync-monitor.retry', $state) }}">
                                         @csrf
                                         <button type="submit"
                                             class="btn btn-sm btn-label-warning">{{ __('Retry Sync') }}</button>

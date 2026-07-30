@@ -3,7 +3,7 @@
 @section('content')
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h4 class="mb-0">{{ __('Contact Message Details') }}</h4>
-        <a href="{{ route('contact-messages.index') }}" class="btn btn-label-secondary">
+        <a href="{{ route('admin.contact-messages.index') }}" class="btn btn-label-secondary">
             <i class="icon-base ti tabler-arrow-left me-1"></i>{{ __('Back') }}
         </a>
     </div>

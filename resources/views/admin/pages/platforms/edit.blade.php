@@ -6,7 +6,7 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0">{{ __('Edit Platform') }}</h5>
-                    <a class="btn add-new btn-primary" href="{{ route('platforms.index') }}">
+                    <a class="btn add-new btn-primary" href="{{ route('admin.platforms.index') }}">
                         <span class="d-flex align-items-center gap-2 text-white">
                             <i class="icon-base ti tabler-arrow-back-up icon-xs"></i>
                             {{ __('Back to Platform List') }}
@@ -14,7 +14,7 @@
                     </a>
                 </div>
                 <div class="card-body">
-                    <form class="row g-6 common-form" action="{{ route('platforms.update', $platform->id) }}" method="POST"
+                    <form class="row g-6 common-form" action="{{ route('admin.platforms.update', $platform->id) }}" method="POST"
                         enctype="multipart/form-data">
                         @csrf
                         @method('PUT')

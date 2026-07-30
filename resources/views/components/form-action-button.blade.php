@@ -10,8 +10,11 @@
             {{ __('Update') }}
         </button>
     @endif
+    @php
+        $indexRouteName = str_starts_with($resource, 'admin.') ? $resource . '.index' : (Route::has('admin.' . $resource . '.index') ? 'admin.' . $resource . '.index' : $resource . '.index');
+    @endphp
     <button type="button" class="btn btn-secondary me-2"
-        onclick="window.location.href='{{ route($resource . '.index') }}'">
+        onclick="window.location.href='{{ route($indexRouteName) }}'">
         <i class="icon-base ti tabler-x icon-xs me-2"></i>
         {{ __('Cancel') }}
     </button>

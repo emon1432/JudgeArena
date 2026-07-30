@@ -37,7 +37,7 @@ class AdminController extends Controller
             return response()->json([
                 'status' => 200,
                 'message' => __('Admin created successfully'),
-                'redirect' => route('admins.index'),
+                'redirect' => route('admin.admins.index'),
             ]);
         } catch (\Exception $e) {
             app(ApplicationLogger::class)->error('Admin create failed', [
@@ -76,7 +76,7 @@ class AdminController extends Controller
             return response()->json([
                 'status' => 200,
                 'message' => __('Admin updated successfully'),
-                'redirect' => route('admins.index'),
+                'redirect' => route('admin.admins.index'),
             ]);
         } catch (\Exception $e) {
             app(ApplicationLogger::class)->error('Admin update failed', [
@@ -102,7 +102,7 @@ class AdminController extends Controller
             return response()->json([
                 'status' => 200,
                 'message' => __('Admin deleted successfully'),
-                'redirect' => route('admins.index'),
+                'redirect' => route('admin.admins.index'),
             ]);
         } catch (\Exception $e) {
             app(ApplicationLogger::class)->error('Admin delete failed', [

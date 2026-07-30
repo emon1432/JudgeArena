@@ -29,6 +29,7 @@
                     $buttons = $actions['buttons']['basic'];
                     $resource = $actions['resource'];
                     $model = $actions['model'];
+                    $routePrefix = str_starts_with($resource, 'admin.') ? $resource : 'admin.' . $resource;
                 @endphp
                 @if ($buttons['view'])
                     @if (isset($buttons['view']['modal']) && $buttons['view']['modal'])
@@ -37,7 +38,7 @@
                         @endphp
                     @else
                         @php
-                            $url = route($resource . '.show', $model->id);
+                            $url = Route::has($routePrefix . '.show') ? route($routePrefix . '.show', $model->id) : (Route::has($resource . '.show') ? route($resource . '.show', $model->id) : '#');
                         @endphp
                     @endif
                     <a href="{{ $url }}"
@@ -54,7 +55,7 @@
                         @endphp
                     @else
                         @php
-                            $url = route($resource . '.edit', $model->id);
+                            $url = Route::has($routePrefix . '.edit') ? route($routePrefix . '.edit', $model->id) : (Route::has($resource . '.edit') ? route($resource . '.edit', $model->id) : '#');
                         @endphp
                     @endif
                     <a href="{{ $url }}"
@@ -67,7 +68,7 @@
                 @if ($buttons['delete'])
                     <a href="javascript:void(0);" class="dropdown-item d-flex align-items-center delete-record">
                         <i class="icon-base ti tabler-trash me-2"></i>
-                        <form action="{{ route($resource . '.destroy', $model->id) }}" method="DELETE" class="d-none">
+                        <form action="{{ Route::has($routePrefix . '.destroy') ? route($routePrefix . '.destroy', $model->id) : (Route::has($resource . '.destroy') ? route($resource . '.destroy', $model->id) : '#') }}" method="DELETE" class="d-none">
                             @csrf
                         </form>
                         {{ __('Delete') }}

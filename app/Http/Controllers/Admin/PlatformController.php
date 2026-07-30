@@ -52,7 +52,7 @@ class PlatformController extends Controller
             return response()->json([
                 'status' => 200,
                 'message' => __('Platform created successfully'),
-                'redirect' => route('platforms.index'),
+                'redirect' => route('admin.platforms.index'),
             ]);
         } catch (\Exception $e) {
             app(ApplicationLogger::class)->error('Platform create failed', [
@@ -104,7 +104,7 @@ class PlatformController extends Controller
             return response()->json([
                 'status' => 200,
                 'message' => __('Platform updated successfully'),
-                'redirect' => route('platforms.index'),
+                'redirect' => route('admin.platforms.index'),
             ]);
         } catch (\Exception $e) {
             app(ApplicationLogger::class)->error('Platform update failed', [
@@ -131,7 +131,7 @@ class PlatformController extends Controller
             return response()->json([
                 'status' => 200,
                 'message' => __('Platform deleted successfully'),
-                'redirect' => route('platforms.index'),
+                'redirect' => route('admin.platforms.index'),
             ]);
         } catch (\Exception $e) {
             app(ApplicationLogger::class)->error('Platform delete failed', [

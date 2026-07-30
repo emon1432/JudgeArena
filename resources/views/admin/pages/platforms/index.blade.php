@@ -6,7 +6,7 @@
             <div class="card">
                 <div class="card-header border-bottom d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0">{{ __('Platforms') }}</h5>
-                    <a class="btn add-new btn-primary" href="{{ route('platforms.create') }}">
+                    <a class="btn add-new btn-primary" href="{{ route('admin.platforms.create') }}">
                         <span class="d-flex align-items-center gap-2 text-white">
                             <i class="icon-base ti tabler-plus icon-xs"></i>
                             {{ __('Add New Record') }}
@@ -15,7 +15,7 @@
                 </div>
                 <div class="card-body">
                     <div class="card-datatable">
-                        <table class="common-datatable table d-table" data-url="{{ route('platforms.index') }}"
+                        <table class="common-datatable table d-table" data-url="{{ route('admin.platforms.index') }}"
                             data-columns='[
                                             { "data": "info" },
                                             { "data": "base_url" },

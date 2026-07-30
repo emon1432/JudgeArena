@@ -4,7 +4,7 @@
     <div class="card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="card-title mb-0">{{ __('Application Log Details') }}</h5>
-            <a href="{{ route('logs.index') }}" class="btn btn-label-secondary">
+            <a href="{{ route('admin.logs.index') }}" class="btn btn-label-secondary">
                 <i class="icon-base ti tabler-arrow-left me-1"></i>{{ __('Back') }}
             </a>
         </div>

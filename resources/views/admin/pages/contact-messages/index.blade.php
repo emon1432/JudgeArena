@@ -7,7 +7,7 @@
         </div>
         <div class="card-body">
             <div class="card-datatable">
-                <table class="common-datatable table d-table" data-url="{{ route('contact-messages.index') }}"
+                <table class="common-datatable table d-table" data-url="{{ route('admin.contact-messages.index') }}"
                     data-order='[[4, "desc"]]'
                     data-columns='[
                 { "data": "name" },

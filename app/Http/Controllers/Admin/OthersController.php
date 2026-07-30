@@ -52,14 +52,14 @@ class OthersController extends Controller
         Artisan::call('migrate:fresh --seed');
         Auth::loginUsingId($userId);
         notify()->success('Database migration has been completed successfully.');
-        return redirect('/dashboard');
+        return redirect('/admin/dashboard');
     }
 
     public function clear()
     {
         Artisan::call('optimize:clear');
         notify()->success('Cache has been cleared successfully.');
-        return redirect('/dashboard');
+        return redirect('/admin/dashboard');
     }
 
     public function composer()
@@ -67,7 +67,7 @@ class OthersController extends Controller
         exec('composer update');
         exec('composer dump-autoload');
         notify()->success('Composer update has been completed successfully.');
-        return redirect('/dashboard');
+        return redirect('/admin/dashboard');
     }
 
     public function iseed()
@@ -81,6 +81,6 @@ class OthersController extends Controller
                 Artisan::call('iseed ' . $table_name . ' --force');
         }
         notify()->success('Database seed has been created successfully.');
-        return redirect('/dashboard');
+        return redirect('/admin/dashboard');
     }
 }

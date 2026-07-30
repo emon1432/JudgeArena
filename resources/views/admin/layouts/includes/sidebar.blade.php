@@ -1,6 +1,6 @@
 <aside id="layout-menu" class="layout-menu menu-vertical menu">
     <div class="app-brand demo ">
-        <a href="{{ route('dashboard') }}" class="app-brand-link">
+        <a href="{{ route('admin.dashboard') }}" class="app-brand-link">
             <span class="app-brand-logo demo">
                 <span class="text-primary">
                     <img src="{{ imageShow(settings('business_settings', 'logo')) }}"
@@ -22,7 +22,7 @@
             <span class="menu-header-text">{{ __('Home') }}</span>
         </li>
         <li class="menu-item">
-            <a href="{{ route('dashboard') }}" class="menu-link">
+            <a href="{{ route('admin.dashboard') }}" class="menu-link">
                 <i class="menu-icon icon-base ti tabler-smart-home"></i>
                 <div>{{ __('Dashboard') }}</div>
             </a>
@@ -31,19 +31,19 @@
             <span class="menu-header-text">{{ __('Platform Management') }}</span>
         </li>
         <li class="menu-item">
-            <a href="{{ route('platforms.index') }}" class="menu-link">
+            <a href="{{ route('admin.platforms.index') }}" class="menu-link">
                 <i class="menu-icon icon-base ti tabler-device-laptop"></i>
                 <div>{{ __('Platforms') }}</div>
             </a>
         </li>
         <li class="menu-item">
-            <a href="{{ route('all-problems.index') }}" class="menu-link">
+            <a href="{{ route('admin.all-problems.index') }}" class="menu-link">
                 <i class="menu-icon icon-base ti tabler-list-check"></i>
                 <div>{{ __('Problems') }}</div>
             </a>
         </li>
         <li class="menu-item">
-            <a href="{{ route('all-contests.index') }}" class="menu-link">
+            <a href="{{ route('admin.all-contests.index') }}" class="menu-link">
                 <i class="menu-icon icon-base ti tabler-trophy"></i>
                 <div>{{ __('Contests') }}</div>
             </a>
@@ -52,13 +52,13 @@
             <span class="menu-header-text">{{ __('User Management') }}</span>
         </li>
         <li class="menu-item">
-            <a href="{{ route('users.index') }}" class="menu-link">
+            <a href="{{ route('admin.users.index') }}" class="menu-link">
                 <i class="menu-icon icon-base ti tabler-users"></i>
                 <div>{{ __('Users') }}</div>
             </a>
         </li>
         <li class="menu-item">
-            <a href="{{ route('contact-messages.index') }}" class="menu-link">
+            <a href="{{ route('admin.contact-messages.index') }}" class="menu-link">
                 <i class="menu-icon icon-base ti tabler-mail"></i>
                 <div>{{ __('Contact Messages') }}</div>
             </a>
@@ -67,25 +67,25 @@
             <span class="menu-header-text">{{ __('System') }}</span>
         </li>
         <li class="menu-item">
-            <a href="{{ route('logs.index') }}" class="menu-link">
+            <a href="{{ route('admin.logs.index') }}" class="menu-link">
                 <i class="menu-icon icon-base ti tabler-list-details"></i>
                 <div>{{ __('Logs') }}</div>
             </a>
         </li>
         <li class="menu-item">
-            <a href="{{ route('sync-monitor.index') }}" class="menu-link">
+            <a href="{{ route('admin.sync-monitor.index') }}" class="menu-link">
                 <i class="menu-icon icon-base ti tabler-activity-heartbeat"></i>
                 <div>{{ __('Sync Monitor') }}</div>
             </a>
         </li>
         <li class="menu-item">
-            <a href="{{ route('admins.index') }}" class="menu-link">
+            <a href="{{ route('admin.admins.index') }}" class="menu-link">
                 <i class="menu-icon icon-base ti tabler-shield-check"></i>
                 <div>{{ __('Admins') }}</div>
             </a>
         </li>
         <li class="menu-item">
-            <a href="{{ route('settings.index') }}" class="menu-link">
+            <a href="{{ route('admin.settings.index') }}" class="menu-link">
                 <i class="menu-icon icon-base ti tabler-settings"></i>
                 <div>{{ __('Settings') }}</div>
             </a>

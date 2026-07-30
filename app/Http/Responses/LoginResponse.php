@@ -13,7 +13,7 @@ class LoginResponse implements LoginResponseContract
         if ($user->role === 'user') {
             $home = "/user/{$user->username}";
         } elseif ($user->role === 'admin') {
-            $home = '/dashboard';
+            $home = '/admin/dashboard';
         }
 
         return redirect()->intended($home);

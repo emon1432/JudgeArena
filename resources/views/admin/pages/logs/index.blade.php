@@ -6,7 +6,7 @@
             <h5 class="card-title mb-0">{{ __('Application Logs') }}</h5>
         </div>
         <div class="card-body border-bottom mt-5">
-            <form method="GET" action="{{ route('logs.index') }}" class="row g-3 align-items-end">
+            <form method="GET" action="{{ route('admin.logs.index') }}" class="row g-3 align-items-end">
                 <div class="col-md-3">
                     <label class="form-label">{{ __('Search') }}</label>
                     <input type="text" name="search" value="{{ request('search') }}" class="form-control" placeholder="{{ __('Message, source, category, platform, entity') }}">
@@ -61,14 +61,14 @@
                 </div>
                 <div class="col-12 d-flex gap-2">
                     <button type="submit" class="btn btn-primary">{{ __('Filter') }}</button>
-                    <a href="{{ route('logs.index') }}" class="btn btn-label-secondary">{{ __('Reset') }}</a>
+                    <a href="{{ route('admin.logs.index') }}" class="btn btn-label-secondary">{{ __('Reset') }}</a>
                 </div>
             </form>
         </div>
         <div class="card-body">
             <div class="card-datatable">
                 <table class="common-datatable table d-table"
-                    data-url="{{ route('logs.index', request()->query()) }}"
+                    data-url="{{ route('admin.logs.index', request()->query()) }}"
                     data-order='[[0, "desc"]]'
                     data-columns='[
                 { "data": "createdAt" },

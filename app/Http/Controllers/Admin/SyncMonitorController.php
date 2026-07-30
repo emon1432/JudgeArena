@@ -55,7 +55,7 @@ class SyncMonitorController extends Controller
     {
         if ($syncState->sync_status !== PlatformSyncStatus::Failed) {
             return redirect()
-                ->route('sync-monitor.index')
+                ->route('admin.sync-monitor.index')
                 ->with('error', __('Only failed sync states can be reset for retry.'));
         }
 
@@ -77,7 +77,7 @@ class SyncMonitorController extends Controller
         ]);
 
         return redirect()
-            ->route('sync-monitor.index')
+            ->route('admin.sync-monitor.index')
             ->with('success', __('Sync state reset for retry.'));
     }
 

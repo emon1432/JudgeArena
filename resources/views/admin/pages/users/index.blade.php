@@ -7,7 +7,7 @@
         </div>
         <div class="card-body">
             <div class="card-datatable">
-                <table class="common-datatable table d-table" data-url="{{ route('users.index') }}"
+                <table class="common-datatable table d-table" data-url="{{ route('admin.users.index') }}"
                     data-columns='[
                 { "data": "name" },
                 { "data": "email" },

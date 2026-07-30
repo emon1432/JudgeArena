@@ -13,7 +13,7 @@
         </div>
     </div>
     <div class="d-flex flex-column">
-        <a href="{{ route('users.show', $user->id) }}" class="text-heading text-truncate">
+        <a href="{{ route('admin.users.show', $user->id) }}" class="text-heading text-truncate">
             <span class="fw-medium">{{ $user->name }}</span>
         </a>
         <small>

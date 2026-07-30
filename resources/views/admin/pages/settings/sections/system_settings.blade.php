@@ -5,7 +5,7 @@
 
 <div class="row g-6">
     <div class="col-12">
-        <form class="row g-6 common-form" action="{{ route('settings.update', $setting->key) }}" method="POST">
+        <form class="row g-6 common-form" action="{{ route('admin.settings.update', $setting->key) }}" method="POST">
             @csrf
             @method('PUT')
             @php
