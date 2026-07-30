@@ -5,8 +5,7 @@
 
 <body>
     @include('web.layouts.includes.navbar')
-    <main class="landing-main">
-        @yield('content')
+    @yield('content')
     </main>
     @include('web.layouts.includes.footer')
     @include('web.layouts.includes.scripts')
