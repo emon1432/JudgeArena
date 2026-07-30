@@ -1,415 +1,196 @@
 @extends('web.layouts.app')
-
-@section('title', 'Login | JudgeArena')
-@section('description', 'Sign in to your JudgeArena account and continue your coding journey.')
-
-@push('styles')
-    <style>
-        :root {
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-
-        .auth-page {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .auth-page::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-            opacity: 0.5;
-            z-index: 0;
-        }
-
-        .login-container {
-            position: relative;
-            z-index: 1;
-            width: 100%;
-            max-width: 1100px;
-            margin: 20px;
-        }
-
-        .login-card {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
-        }
-
-        .login-left {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 60px 40px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .login-left::before {
-            content: '';
-            position: absolute;
-            width: 200px;
-            height: 200px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            top: -50px;
-            right: -50px;
-        }
-
-        .login-left::after {
-            content: '';
-            position: absolute;
-            width: 150px;
-            height: 150px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            bottom: -30px;
-            left: -30px;
-        }
-
-        .login-right {
-            padding: 60px 50px;
-        }
-
-        .brand-logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 30px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .brand-logo-icon {
-            width: 50px;
-            height: 50px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-        }
-
-        .brand-logo-text {
-            font-size: 1.8rem;
-            font-weight: 800;
-        }
-
-        .feature-item {
-            display: flex;
-            align-items: start;
-            gap: 15px;
-            margin-bottom: 25px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .feature-icon {
-            width: 40px;
-            height: 40px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .form-control {
-            padding: 12px 20px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-        }
-
-        .form-control:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
-        }
-
-        .form-label {
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
-        }
-
-        .btn-login {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            color: white;
-            font-weight: 600;
-            padding: 14px;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-            width: 100%;
-            font-size: 1.05rem;
-        }
-
-        .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
-            color: white;
-        }
-
-        .register-link {
-            text-align: center;
-            margin-top: 25px;
-            color: #666;
-        }
-
-        .register-link a {
-            color: #667eea;
-            font-weight: 600;
-            text-decoration: none;
-        }
-
-        .register-link a:hover {
-            text-decoration: underline;
-        }
-
-        .alert {
-            border-radius: 10px;
-            border: none;
-        }
-
-        .input-group-text {
-            background: transparent;
-            border: 2px solid #e0e0e0;
-            border-left: none;
-            border-radius: 0 10px 10px 0;
-            cursor: pointer;
-        }
-
-        .input-group .form-control {
-            border-right: none;
-            border-radius: 10px 0 0 10px;
-        }
-
-        .input-group:focus-within .form-control,
-        .input-group:focus-within .input-group-text {
-            border-color: #667eea;
-        }
-
-        .page-title {
-            font-size: 2rem;
-            font-weight: 800;
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        .page-subtitle {
-            color: #666;
-            margin-bottom: 30px;
-        }
-
-        .form-check-input:checked {
-            background-color: #667eea;
-            border-color: #667eea;
-        }
-
-        .forgot-password {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        .forgot-password:hover {
-            text-decoration: underline;
-        }
-
-        @media (max-width: 768px) {
-            .login-left {
-                padding: 40px 30px;
-            }
-
-            .login-right {
-                padding: 40px 30px;
-            }
-        }
-    </style>
-@endpush
-
 @section('content')
-    <div class="auth-page">
-        <div class="login-container">
-            <div class="login-card">
-                <div class="row g-0">
-                    <!-- Left Side - Branding -->
-                    <div class="col-lg-5 d-none d-lg-block">
-                        <div class="login-left">
-                            <div class="brand-logo">
-                                <div class="brand-logo-icon">
-                                    <i class="bi bi-code-slash"></i>
+    <main class="container-fluid px-3 px-md-4 py-4 max-w-7xl">
+        <div class="row align-items-center justify-content-center g-4 lg-g-5">
+            <!-- Left Side Feature Presentation Panel (Desktop) -->
+            <div class="col-12 col-lg-6 col-xl-5 d-none d-lg-block pe-lg-4">
+                <div class="pe-xl-3">
+                    <nav class="breadcrumb-list mb-3" aria-label="Breadcrumb navigation">
+                        <a href="index.html">Home</a>
+                        <span class="sep">/</span>
+                        <span class="current">Sign In</span>
+                    </nav>
+
+                    <span
+                        class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1.5 extra-small font-monospace uppercase fw-semibold mb-3">
+                        <i class="fa-solid fa-sparkles me-1"></i>
+                        Competitive Programming Portfolio
+                    </span>
+
+                    <h1 class="display-6 fw-extrabold text-primary-emphasis tracking-tight mb-3">
+                        One Profile for
+                        <span class="text-primary">100+ Online Judges</span>.
+                    </h1>
+
+                    <p class="text-secondary lead fs-6 mb-4">
+                        Connect Codeforces, LeetCode, AtCoder, CodeChef, and
+                        SPOJ to track ratings, contest history, and solved
+                        problems in one place.
+                    </p>
+
+                    <div class="d-flex flex-column gap-3 mb-4">
+                        <div class="d-flex align-items-start gap-3 p-3 rounded-3 panel border-0 shadow-xs"
+                            style="background: var(--surface-2)">
+                            <div class="bg-primary text-white rounded-2 p-2 flex-shrink-0">
+                                <i class="fa-solid fa-chart-line fs-5"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold text-primary-emphasis small">
+                                    Unified Rating Progression
                                 </div>
-                                <div class="brand-logo-text">
-                                    <a href="{{ route('home') }}" class="text-white text-decoration-none">
-                                        JudgeArena
-                                    </a>
+                                <div class="extra-small text-muted">
+                                    Compare your rating trajectories across
+                                    Codeforces, AtCoder, and LeetCode.
                                 </div>
                             </div>
+                        </div>
 
-                            <h2 class="mb-4" style="font-weight: 700;">Welcome Back! 👋</h2>
-                            <p class="mb-4" style="opacity: 0.95;">Sign in to your account and continue your coding
-                                journey across multiple competitive programming platforms.</p>
-
-                            <div class="feature-item">
-                                <div class="feature-icon">
-                                    <i class="bi bi-lightning-charge-fill"></i>
-                                </div>
-                                <div>
-                                    <h5 class="mb-1">Real-time Sync</h5>
-                                    <p class="mb-0" style="opacity: 0.9; font-size: 0.95rem;">Automatically sync profiles
-                                        from all major platforms</p>
-                                </div>
+                        <div class="d-flex align-items-start gap-3 p-3 rounded-3 panel border-0 shadow-xs"
+                            style="background: var(--surface-2)">
+                            <div class="bg-success text-white rounded-2 p-2 flex-shrink-0">
+                                <i class="fa-solid fa-bell fs-5"></i>
                             </div>
-
-                            <div class="feature-item">
-                                <div class="feature-icon">
-                                    <i class="bi bi-graph-up-arrow"></i>
+                            <div>
+                                <div class="fw-bold text-primary-emphasis small">
+                                    Automated Contest Reminders
                                 </div>
-                                <div>
-                                    <h5 class="mb-1">Track Progress</h5>
-                                    <p class="mb-0" style="opacity: 0.9; font-size: 0.95rem;">Visualize your growth with
-                                        detailed analytics</p>
-                                </div>
-                            </div>
-
-                            <div class="feature-item">
-                                <div class="feature-icon">
-                                    <i class="bi bi-trophy-fill"></i>
-                                </div>
-                                <div>
-                                    <h5 class="mb-1">Performance Analytics</h5>
-                                    <p class="mb-0" style="opacity: 0.9; font-size: 0.95rem;">Deep insights into your
-                                        problem-solving patterns</p>
+                                <div class="extra-small text-muted">
+                                    Set instant browser, email, and Google
+                                    Calendar alerts for upcoming rounds.
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Right Side - Login Form -->
-                    <div class="col-lg-7">
-                        <div class="login-right">
-                            <div class="text-center d-lg-none mb-4">
-                                <div class="d-inline-flex align-items-center gap-2">
-                                    <div
-                                        style="width: 40px; height: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white;">
-                                        <i class="bi bi-code-slash"></i>
-                                    </div>
-                                    <span
-                                        style="font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">JudgeArena</span>
-                                </div>
-                            </div>
+                    <div class="d-flex align-items-center gap-3 extra-small text-muted font-monospace">
+                        <span><i class="fa-solid fa-shield-halved text-success me-1"></i>
+                            256-bit OAuth Sync</span>
+                        <span>•</span>
+                        <span><i class="fa-solid fa-bolt text-warning me-1"></i>
+                            99.9% Uptime</span>
+                    </div>
+                </div>
+            </div>
 
-                            <h1 class="page-title">Sign In</h1>
-                            <p class="page-subtitle">Welcome back! Please enter your details</p>
+            <!-- Right Side Professional Auth Card -->
+            <div class="col-12 col-md-8 col-lg-6 col-xl-4">
+                <!-- Mobile Breadcrumb -->
+                <nav class="breadcrumb-list mb-3 text-center d-lg-none" aria-label="Breadcrumb navigation">
+                    <a href="{{ route('home') }}">Home</a>
+                    <span class="sep">/</span>
+                    <span class="current">Sign In</span>
+                </nav>
 
-                            @if ($errors->any())
-                                <div class="alert alert-danger">
-                                    <ul class="mb-0">
-                                        @foreach ($errors->all() as $error)
-                                            <li>{{ $error }}</li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            @endif
+                <!-- Premium Auth Card Panel -->
+                <div class="card panel border-0 p-4 p-md-4-5 shadow-sm"
+                    style="
+                        border-radius: 18px;
+                        border: 1px solid var(--border-strong) !important;
+                    ">
+                    <!-- Card Header -->
+                    <div class="text-center mb-4">
+                        <div
+                            class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-3 p-3 mb-3">
+                            <i class="fa-solid fa-right-to-bracket fs-3"></i>
+                        </div>
+                        <h2 class="h4 fw-extrabold text-primary-emphasis tracking-tight mb-1">
+                            Welcome Back
+                        </h2>
+                        <p class="text-muted extra-small mb-0">
+                            Sign in to your JudgeArena portfolio account
+                        </p>
+                    </div>
 
-                            @if (session('status'))
-                                <div class="alert alert-success">
-                                    {{ session('status') }}
-                                </div>
-                            @endif
+                    <!-- Alert Container for Errors & Status -->
+                    @if ($errors->any())
+                        <div class="alert alert-danger extra-small mb-3" role="alert">
+                            @foreach ($errors->all() as $error)
+                                <div>{{ $error }}</div>
+                            @endforeach
+                        </div>
+                    @endif
 
-                            <form method="POST" action="{{ route('login') }}">
-                                @csrf
-
-                                <div class="mb-3">
-                                    <label for="email" class="form-label">
-                                        <i class="bi bi-person-fill text-muted"></i> Email or Username
-                                    </label>
-                                    <input type="text" class="form-control @error('email') is-invalid @enderror"
-                                        id="email" name="email" value="{{ old('email') }}"
-                                        placeholder="Enter your email or username" required autofocus>
-                                    @error('email')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="password" class="form-label">
-                                        <i class="bi bi-lock-fill text-muted"></i> Password
-                                    </label>
-                                    <div class="input-group">
-                                        <input type="password" class="form-control @error('password') is-invalid @enderror"
-                                            id="password" name="password" placeholder="Enter your password" required>
-                                        <span class="input-group-text" onclick="togglePassword('password', this)">
-                                            <i class="bi bi-eye"></i>
-                                        </span>
-                                        @error('password')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-
-                                <div class="mb-4 d-flex justify-content-between align-items-center">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="remember" name="remember"
-                                            {{ old('remember') ? 'checked' : '' }}>
-                                        <label class="form-check-label" for="remember">
-                                            Remember me
-                                        </label>
-                                    </div>
-                                    @if (Route::has('password.request'))
-                                        <a href="{{ route('password.request') }}" class="forgot-password">
-                                            Forgot Password?
-                                        </a>
-                                    @endif
-                                </div>
-
-                                <button type="submit" class="btn btn-login">
-                                    <i class="bi bi-box-arrow-in-right"></i> Sign In
-                                </button>
-                            </form>
-
-                            <div class="register-link">
-                                Don't have an account? <a href="{{ route('register') }}">Create one now</a>
+                    <!-- Sign In Form -->
+                    <form id="login-form" method="POST" action="{{ route('login') }}" onsubmit="handleUserSignIn(event)">
+                        @csrf
+                        <div class="mb-3">
+                            <label for="login-email"
+                                class="form-label extra-small font-monospace uppercase fw-semibold text-primary-emphasis">
+                                Email Address or Handle
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-body-tertiary border-end-0 text-muted extra-small">
+                                    <i class="fa-regular fa-envelope"></i>
+                                </span>
+                                <input type="text" name="email" value="{{ old('email') }}"
+                                    class="form-control rounded-end-3 ps-2" id="login-email"
+                                    placeholder="tourist or email@example.com" required autofocus />
                             </div>
                         </div>
+
+                        <div class="mb-3">
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <label for="login-password"
+                                    class="form-label extra-small font-monospace uppercase fw-semibold text-primary-emphasis mb-0">
+                                    Password
+                                </label>
+                                @if (Route::has('password.request'))
+                                    <a href="{{ route('password.request') }}"
+                                        class="extra-small text-decoration-none text-primary hover-underline">
+                                        Forgot Password?
+                                    </a>
+                                @endif
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-text bg-body-tertiary border-end-0 text-muted extra-small">
+                                    <i class="fa-solid fa-lock"></i>
+                                </span>
+                                <input type="password" name="password" class="form-control ps-2 border-end-0"
+                                    id="login-password" placeholder="••••••••••••" required />
+                                <button type="button"
+                                    class="btn btn-outline-secondary border-start-0 rounded-end-3 text-muted px-3"
+                                    onclick="togglePasswordVisibility('login-password', this)"
+                                    title="Toggle password visibility">
+                                    <i class="fa-regular fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" name="remember" id="remember-me" checked />
+                            <label class="form-check-label extra-small text-muted" for="remember-me">
+                                Remember me on this device for 30 days
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 py-2.5 fw-bold rounded-3 shadow-sm"
+                            id="signin-submit-btn">
+                            <i class="fa-solid fa-right-to-bracket me-1"></i>
+                            Sign In to Account
+                        </button>
+                    </form>
+
+                    <!-- Card Footer -->
+                    <div class="text-center mt-4 pt-3 border-top">
+                        <p class="extra-small text-muted mb-0">
+                            Don't have a JudgeArena account?
+                            <a href="{{ route('register') }}"
+                                class="fw-semibold text-primary text-decoration-none hover-underline">Create an Account</a>
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 @endsection
-
 @push('scripts')
     <script>
-        function togglePassword(inputId, icon) {
-            const input = document.getElementById(inputId);
-            const iconElement = icon.querySelector('i');
-
-            if (input.type === 'password') {
-                input.type = 'text';
-                iconElement.classList.remove('bi-eye');
-                iconElement.classList.add('bi-eye-slash');
-            } else {
-                input.type = 'password';
-                iconElement.classList.remove('bi-eye-slash');
-                iconElement.classList.add('bi-eye');
+        function handleUserSignIn(e) {
+            const btn = document.getElementById("signin-submit-btn");
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML =
+                    '<i class="fa-solid fa-spinner fa-spin me-1"></i> Authenticating...';
             }
         }
     </script>

@@ -1,444 +1,270 @@
 @extends('web.layouts.app')
-
-@section('title', 'Register | Welcome to JudgeArena')
-@section('description', 'Create your JudgeArena account and start tracking your coding progress.')
-
-@push('styles')
-    <style>
-        :root {
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-
-        .auth-page {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding-top: 90px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .auth-page::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-            opacity: 0.5;
-            z-index: 0;
-        }
-
-        .register-container {
-            position: relative;
-            z-index: 1;
-            width: 100%;
-            max-width: 1100px;
-            margin: 20px;
-        }
-
-        .register-card {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
-        }
-
-        .register-left {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            height: 100%;
-            color: white;
-            padding: 60px 40px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .register-left::before {
-            content: '';
-            position: absolute;
-            width: 200px;
-            height: 200px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            top: -50px;
-            right: -50px;
-        }
-
-        .register-left::after {
-            content: '';
-            position: absolute;
-            width: 150px;
-            height: 150px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            bottom: -30px;
-            left: -30px;
-        }
-
-        .register-right {
-            padding: 60px 50px;
-        }
-
-        .brand-logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 30px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .brand-logo-icon {
-            width: 50px;
-            height: 50px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-        }
-
-        .brand-logo-text {
-            font-size: 1.8rem;
-            font-weight: 800;
-        }
-
-        .feature-item {
-            display: flex;
-            align-items: start;
-            gap: 15px;
-            margin-bottom: 25px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .feature-icon {
-            width: 40px;
-            height: 40px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .form-control {
-            padding: 12px 20px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-        }
-
-        .form-control:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
-        }
-
-        .form-label {
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
-        }
-
-        .btn-register {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            color: white;
-            font-weight: 600;
-            padding: 14px;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-            width: 100%;
-            font-size: 1.05rem;
-        }
-
-        .btn-register:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
-            color: white;
-        }
-
-        .divider {
-            text-align: center;
-            margin: 25px 0;
-            position: relative;
-        }
-
-        .divider::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 50%;
-            width: 100%;
-            height: 1px;
-            background: #e0e0e0;
-        }
-
-        .divider span {
-            background: white;
-            padding: 0 15px;
-            position: relative;
-            color: #999;
-            font-size: 0.9rem;
-        }
-
-        .login-link {
-            text-align: center;
-            margin-top: 25px;
-            color: #666;
-        }
-
-        .login-link a {
-            color: #667eea;
-            font-weight: 600;
-            text-decoration: none;
-        }
-
-        .login-link a:hover {
-            text-decoration: underline;
-        }
-
-        .alert {
-            border-radius: 10px;
-            border: none;
-        }
-
-        .input-group-text {
-            background: transparent;
-            border: 2px solid #e0e0e0;
-            border-left: none;
-            border-radius: 0 10px 10px 0;
-            cursor: pointer;
-        }
-
-        .input-group .form-control {
-            border-right: none;
-            border-radius: 10px 0 0 10px;
-        }
-
-        .input-group:focus-within .form-control,
-        .input-group:focus-within .input-group-text {
-            border-color: #667eea;
-        }
-
-        .page-title {
-            font-size: 2rem;
-            font-weight: 800;
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        .page-subtitle {
-            color: #666;
-            margin-bottom: 30px;
-        }
-
-        @media (max-width: 768px) {
-            .register-left {
-                padding: 40px 30px;
-            }
-
-            .register-right {
-                padding: 40px 30px;
-            }
-        }
-    </style>
-@endpush
-
 @section('content')
-    <div class="auth-page">
-        <div class="register-container">
-            <div class="register-card">
-                <div class="row g-0">
-                    <!-- Left Side - Branding -->
-                    <div class="col-lg-5 d-none d-lg-block">
-                        <div class="register-left">
-                            <div class="brand-logo">
-                                <div class="brand-logo-icon">
-                                    <i class="bi bi-code-slash"></i>
+    <main class="container-fluid px-3 px-md-4 py-4 max-w-7xl">
+        <div class="row align-items-center justify-content-center g-4 lg-g-5">
+            <!-- Left Side Feature Presentation Panel (Desktop) -->
+            <div class="col-12 col-lg-6 col-xl-5 d-none d-lg-block pe-lg-4">
+                <div class="pe-xl-3">
+                    <nav class="breadcrumb-list mb-3" aria-label="Breadcrumb navigation">
+                        <a href="{{ route('home') }}">Home</a>
+                        <span class="sep">/</span>
+                        <span class="current">Create Account</span>
+                    </nav>
+
+                    <span
+                        class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1.5 extra-small font-monospace uppercase fw-semibold mb-3">
+                        <i class="fa-solid fa-shield-check me-1"></i> Free
+                        Forever Account
+                    </span>
+
+                    <h1 class="display-6 fw-extrabold text-primary-emphasis tracking-tight mb-3">
+                        Elevate Your
+                        <span class="text-primary">Coding Portfolio</span>
+                        Today.
+                    </h1>
+
+                    <p class="text-secondary lead fs-6 mb-4">
+                        Join 85,000+ competitive programmers showcasing
+                        their contest ranks, ratings, and problem archives
+                        across 100+ judges.
+                    </p>
+
+                    <div class="d-flex flex-column gap-3 mb-4">
+                        <div class="d-flex align-items-start gap-3 p-3 rounded-3 panel border-0 shadow-xs"
+                            style="background: var(--surface-2)">
+                            <div class="bg-primary text-white rounded-2 p-2 flex-shrink-0">
+                                <i class="fa-solid fa-cubes fs-5"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold text-primary-emphasis small">
+                                    100+ Platform Connections
                                 </div>
-                                <div class="brand-logo-text">
-                                    <a href="{{ route('home') }}" class="text-white text-decoration-none">
-                                        JudgeArena
-                                    </a>
+                                <div class="extra-small text-muted">
+                                    Auto-sync ratings from Codeforces,
+                                    LeetCode, AtCoder, CSES & SPOJ.
                                 </div>
                             </div>
+                        </div>
 
-                            <h2 class="mb-4" style="font-weight: 700;">Start Your Coding Journey Today</h2>
-                            <p class="mb-4" style="opacity: 0.95;">Join thousands of programmers tracking their progress
-                                across multiple competitive programming platforms.</p>
-
-                            <div class="feature-item">
-                                <div class="feature-icon">
-                                    <i class="bi bi-lightning-charge-fill"></i>
-                                </div>
-                                <div>
-                                    <h5 class="mb-1">Real-time Sync</h5>
-                                    <p class="mb-0" style="opacity: 0.9; font-size: 0.95rem;">Automatically sync profiles
-                                        from all major platforms</p>
-                                </div>
+                        <div class="d-flex align-items-start gap-3 p-3 rounded-3 panel border-0 shadow-xs"
+                            style="background: var(--surface-2)">
+                            <div class="bg-success text-white rounded-2 p-2 flex-shrink-0">
+                                <i class="fa-solid fa-share-nodes fs-5"></i>
                             </div>
-
-                            <div class="feature-item">
-                                <div class="feature-icon">
-                                    <i class="bi bi-graph-up-arrow"></i>
+                            <div>
+                                <div class="fw-bold text-primary-emphasis small">
+                                    Shareable SaaS Profile URL
                                 </div>
-                                <div>
-                                    <h5 class="mb-1">Track Progress</h5>
-                                    <p class="mb-0" style="opacity: 0.9; font-size: 0.95rem;">Visualize your growth with
-                                        detailed analytics</p>
-                                </div>
-                            </div>
-
-                            <div class="feature-item">
-                                <div class="feature-icon">
-                                    <i class="bi bi-shield-check"></i>
-                                </div>
-                                <div>
-                                    <h5 class="mb-1">Secure & Private</h5>
-                                    <p class="mb-0" style="opacity: 0.9; font-size: 0.95rem;">Your data is encrypted and
-                                        completely secure</p>
+                                <div class="extra-small text-muted">
+                                    Get your custom handle link
+                                    judgearena.com/u/yourname for resumes.
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Right Side - Registration Form -->
-                    <div class="col-lg-7">
-                        <div class="register-right">
-                            <div class="text-center d-lg-none mb-4">
-                                <div class="d-inline-flex align-items-center gap-2">
-                                    <div
-                                        style="width: 40px; height: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white;">
-                                        <i class="bi bi-code-slash"></i>
-                                    </div>
-                                    <span
-                                        style="font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">JudgeArena</span>
+                    <div class="d-flex align-items-center gap-3 extra-small text-muted font-monospace">
+                        <span><i class="fa-solid fa-lock text-success me-1"></i>
+                            No Credit Card Required</span>
+                        <span>•</span>
+                        <span><i class="fa-solid fa-bolt text-warning me-1"></i>
+                            Instant Handle Verification</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side Professional Registration Card -->
+            <div class="col-12 col-md-9 col-lg-6 col-xl-5">
+                <!-- Mobile Breadcrumb -->
+                <nav class="breadcrumb-list mb-3 text-center d-lg-none" aria-label="Breadcrumb navigation">
+                    <a href="{{ route('home') }}">Home</a>
+                    <span class="sep">/</span>
+                    <span class="current">Create Account</span>
+                </nav>
+
+                <!-- Premium Auth Card Panel -->
+                <div class="card panel border-0 p-4 p-md-4-5 shadow-sm"
+                    style="
+                        border-radius: 18px;
+                        border: 1px solid var(--border-strong) !important;
+                    ">
+                    <!-- Card Header -->
+                    <div class="text-center mb-4">
+                        <div
+                            class="d-inline-flex align-items-center justify-content-center bg-success-subtle text-success rounded-3 p-3 mb-3">
+                            <i class="fa-solid fa-user-plus fs-3"></i>
+                        </div>
+                        <h2 class="h4 fw-extrabold text-primary-emphasis tracking-tight mb-1">
+                            Create Your Free Account
+                        </h2>
+                        <p class="text-muted extra-small mb-0">
+                            Start building your unified competitive
+                            programming profile
+                        </p>
+                    </div>
+
+                    <!-- Alert Container for Errors -->
+                    @if ($errors->any())
+                        <div class="alert alert-danger extra-small mb-3" role="alert">
+                            @foreach ($errors->all() as $error)
+                                <div>{{ $error }}</div>
+                            @endforeach
+                        </div>
+                    @endif
+
+
+                    <!-- Registration Form -->
+                    <form id="register-form" method="POST" action="{{ route('register') }}"
+                        onsubmit="handleUserSignUp(event)">
+                        @csrf
+                        <div class="row g-3 mb-3">
+                            <!-- Full Name -->
+                            <div class="col-12 col-sm-6">
+                                <label for="reg-fullname"
+                                    class="form-label extra-small font-monospace uppercase fw-semibold text-primary-emphasis">
+                                    Full Name
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-body-tertiary border-end-0 text-muted extra-small">
+                                        <i class="fa-regular fa-user"></i>
+                                    </span>
+                                    <input type="text" name="name" value="{{ old('name') }}"
+                                        class="form-control rounded-end-3 ps-2" id="reg-fullname"
+                                        placeholder="Gennady Korotkevich" required />
                                 </div>
                             </div>
 
-                            <h1 class="page-title">Create Account</h1>
-                            <p class="page-subtitle">Fill in your details to get started</p>
-
-                            @if ($errors->any())
-                                <div class="alert alert-danger">
-                                    <ul class="mb-0">
-                                        @foreach ($errors->all() as $error)
-                                            <li>{{ $error }}</li>
-                                        @endforeach
-                                    </ul>
+                            <!-- Username / Handle -->
+                            <div class="col-12 col-sm-6">
+                                <label for="reg-handle"
+                                    class="form-label extra-small font-monospace uppercase fw-semibold text-primary-emphasis">
+                                    Username / Handle
+                                </label>
+                                <div class="input-group">
+                                    <span
+                                        class="input-group-text bg-body-tertiary border-end-0 text-muted extra-small">@</span>
+                                    <input type="text" name="username" value="{{ old('username') }}"
+                                        class="form-control rounded-end-3 ps-2" id="reg-handle" placeholder="tourist"
+                                        required />
                                 </div>
-                            @endif
-
-                            <form method="POST" action="{{ route('register') }}" autocomplete="off">
-                                @csrf
-
-                                <div class="mb-3">
-                                    <label for="name" class="form-label">
-                                        <i class="bi bi-person-fill text-muted"></i> Full Name
-                                    </label>
-                                    <input type="text" class="form-control @error('name') is-invalid @enderror"
-                                        id="name" name="name" value="{{ old('name') }}"
-                                        placeholder="Enter your full name" required>
-                                    @error('name')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="username" class="form-label">
-                                        <i class="bi bi-person-badge-fill text-muted"></i> Username
-                                    </label>
-                                    <input type="text" class="form-control @error('username') is-invalid @enderror"
-                                        minlength="4" maxlength="20" id="username" name="username"
-                                        value="{{ old('username') }}" placeholder="Choose a username" required>
-                                    @error('username')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="email" class="form-label">
-                                        <i class="bi bi-envelope-fill text-muted"></i> Email Address
-                                    </label>
-                                    <input type="email" class="form-control @error('email') is-invalid @enderror"
-                                        id="email" name="email" value="{{ old('email') }}"
-                                        placeholder="Enter your email" required>
-                                    @error('email')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="password" class="form-label">
-                                        <i class="bi bi-lock-fill text-muted"></i> Password
-                                    </label>
-                                    <div class="input-group">
-                                        <input type="password" class="form-control @error('password') is-invalid @enderror"
-                                            id="password" name="password" placeholder="Create a strong password" required>
-                                        <span class="input-group-text" onclick="togglePassword('password', this)">
-                                            <i class="bi bi-eye"></i>
-                                        </span>
-                                        @error('password')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <small class="text-muted">Must be at least 8 characters</small>
-                                </div>
-
-                                <div class="mb-4">
-                                    <label for="password_confirmation" class="form-label">
-                                        <i class="bi bi-lock-fill text-muted"></i> Confirm Password
-                                    </label>
-                                    <div class="input-group">
-                                        <input type="password" class="form-control" id="password_confirmation"
-                                            name="password_confirmation" placeholder="Confirm your password" required>
-                                        <span class="input-group-text"
-                                            onclick="togglePassword('password_confirmation', this)">
-                                            <i class="bi bi-eye"></i>
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <button type="submit" class="btn btn-register">
-                                    <i class="bi bi-rocket-takeoff"></i> Create Account
-                                </button>
-                            </form>
-
-                            <div class="login-link">
-                                Already have an account? <a href="{{ route('login') }}">Sign in here</a>
                             </div>
                         </div>
+
+                        <!-- Email Address -->
+                        <div class="mb-3">
+                            <label for="reg-email"
+                                class="form-label extra-small font-monospace uppercase fw-semibold text-primary-emphasis">
+                                Email Address
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-body-tertiary border-end-0 text-muted extra-small">
+                                    <i class="fa-regular fa-envelope"></i>
+                                </span>
+                                <input type="email" name="email" value="{{ old('email') }}"
+                                    class="form-control rounded-end-3 ps-2" id="reg-email" placeholder="gennady@example.com"
+                                    required />
+                            </div>
+                        </div>
+
+                        <!-- Password Fields -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-12 col-sm-6">
+                                <label for="reg-password"
+                                    class="form-label extra-small font-monospace uppercase fw-semibold text-primary-emphasis">
+                                    Password
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-body-tertiary border-end-0 text-muted extra-small">
+                                        <i class="fa-solid fa-lock"></i>
+                                    </span>
+                                    <input type="password" name="password" class="form-control ps-2 border-end-0"
+                                        id="reg-password" placeholder="••••••••••••"
+                                        onkeyup="checkPasswordStrength(this.value)" required />
+                                    <button type="button"
+                                        class="btn btn-outline-secondary border-start-0 rounded-end-3 text-muted px-2.5"
+                                        onclick="togglePasswordVisibility('reg-password', this)"
+                                        title="Toggle password visibility">
+                                        <i class="fa-regular fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-sm-6">
+                                <label for="reg-confirm-password"
+                                    class="form-label extra-small font-monospace uppercase fw-semibold text-primary-emphasis">
+                                    Confirm Password
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-body-tertiary border-end-0 text-muted extra-small">
+                                        <i class="fa-solid fa-shield-halved"></i>
+                                    </span>
+                                    <input type="password" name="password_confirmation"
+                                        class="form-control ps-2 border-end-0" id="reg-confirm-password"
+                                        placeholder="••••••••••••" required />
+                                    <button type="button"
+                                        class="btn btn-outline-secondary border-start-0 rounded-end-3 text-muted px-2.5"
+                                        onclick="togglePasswordVisibility('reg-confirm-password', this)"
+                                        title="Toggle password visibility">
+                                        <i class="fa-regular fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Password Strength Bar -->
+                        <div class="mb-3">
+                            <div class="progress" style="height: 5px" id="password-strength-bar-container">
+                                <div class="progress-bar bg-secondary" id="password-strength-bar" role="progressbar"
+                                    style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <div class="extra-small text-muted mt-1 d-flex justify-content-between">
+                                <span>Strength:
+                                    <strong id="password-strength-text" class="text-secondary">Too short</strong></span>
+                                <span>At least 8 characters</span>
+                            </div>
+                        </div>
+
+                        <!-- Terms Checkbox -->
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" id="terms-agree" required />
+                            <label class="form-check-label extra-small text-muted" for="terms-agree">
+                                I agree to JudgeArena's
+                                <a href="#" class="text-primary text-decoration-none">Terms of Service</a>
+                                and
+                                <a href="#" class="text-primary text-decoration-none">Privacy Policy</a>.
+                            </label>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn btn-primary w-100 py-2.5 fw-bold rounded-3 shadow-sm"
+                            id="signup-submit-btn">
+                            <i class="fa-solid fa-user-plus me-1"></i>
+                            Create Free Account
+                        </button>
+                    </form>
+
+                    <!-- Card Footer -->
+                    <div class="text-center mt-4 pt-3 border-top">
+                        <p class="extra-small text-muted mb-0">
+                            Already have a JudgeArena account?
+                            <a href="{{ route('login') }}"
+                                class="fw-semibold text-primary text-decoration-none hover-underline">Sign In Instead</a>
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 @endsection
-
 @push('scripts')
     <script>
-        function togglePassword(inputId, icon) {
-            const input = document.getElementById(inputId);
-            const iconElement = icon.querySelector('i');
+        function handleUserSignUp(e) {
 
-            if (input.type === 'password') {
-                input.type = 'text';
-                iconElement.classList.remove('bi-eye');
-                iconElement.classList.add('bi-eye-slash');
-            } else {
-                input.type = 'password';
-                iconElement.classList.remove('bi-eye-slash');
-                iconElement.classList.add('bi-eye');
+            const btn = document.getElementById("signup-submit-btn");
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML =
+                    '<i class="fa-solid fa-spinner fa-spin me-1"></i> Creating Account...';
             }
         }
     </script>

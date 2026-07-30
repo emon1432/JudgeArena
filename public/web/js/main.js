@@ -1608,44 +1608,6 @@ function checkPasswordStrength(password) {
     }
 }
 
-/**
- * Simulates user authentication sign-in.
- * @param {Event} e - Form submit event
- */
-function handleUserSignIn(e) {
-    e.preventDefault();
-
-    const btn = document.getElementById("signin-submit-btn");
-    if (btn) {
-        btn.disabled = true;
-        btn.innerHTML =
-            '<i class="fa-solid fa-spinner fa-spin me-1"></i> Authenticating...';
-    }
-
-    setTimeout(() => {
-        window.location.href = "index.html";
-    }, 1000);
-}
-
-/**
- * Simulates user registration.
- * @param {Event} e - Form submit event
- */
-function handleUserSignUp(e) {
-    e.preventDefault();
-
-    const btn = document.getElementById("signup-submit-btn");
-    if (btn) {
-        btn.disabled = true;
-        btn.innerHTML =
-            '<i class="fa-solid fa-spinner fa-spin me-1"></i> Creating Account...';
-    }
-
-    setTimeout(() => {
-        alert("Registration successful! Welcome to JudgeArena.");
-        window.location.href = "index.html";
-    }, 1000);
-}
 
 /**
  * Simulates password reset request and redirects to OTP verification page.
