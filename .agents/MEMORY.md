@@ -38,6 +38,7 @@ All interactions with external Online Judges MUST be encapsulated within concret
 | **Scraping Engine** | `symfony/dom-crawler` + `chrome-php/chrome` | Dual-approach allowing fast static HTML parsing for simple pages and headless Chrome rendering for JavaScript-rendered judges. |
 | **State Machine** | `PlatformSyncState` checkpoints | Explicit state tracking per profile/platform prevents full historical re-crawling and enables paginated delta syncs. |
 | **Testing Standard** | Pest PHP | Expressive, readable unit testing framework for validating DTO parsers, verdict mappers, and adapter contracts. |
+| **Frontend Scripting** | `@push('scripts')` + `@include('web.pages.<feature>.scripts')` | Page-specific JS stored in Blade script partials allows direct access to Blade routes (`route()`), CSRF, and config without polluting `public/` or hardcoding URLs. |
 
 ---
 

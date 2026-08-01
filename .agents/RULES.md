@@ -18,6 +18,10 @@
 - **Instruction**: Livewire components and HTTP Controllers MUST NOT contain business logic, web scraping routines, or multi-step database transactions. They must delegate directly to Services (`App\Services\*`) or dispatch Queue Jobs.
 - **Why**: Keeps presentation decoupled from logic, allowing the same sync and aggregation logic to be triggered seamlessly from Artisan CLI commands or Web UI.
 
+### Rule 1.4: Testing Policy Scoping (No Tests for Standard Web Routes)
+- **Instruction**: Do NOT create test files for standard web routes, views, or simple controllers. Automated Pest PHP test files MUST ONLY be created when developing or updating a NEW Platform Integration (`app/Platforms/<PlatformName>/`).
+- **Why**: Keeps test execution focused on high-risk platform response parsers, DTO transformations, and scrapers, preventing unnecessary test maintenance bloat for basic web views.
+
 ---
 
 ## 2. Data Transfer Object (DTO) Rules
@@ -78,6 +82,13 @@
 - **Instruction**: Any query filtering submissions by user handle and platform MUST utilize composite indexes. Table migrations MUST enforce unique composite keys on `(platform_profile_id, external_submission_id)`.
 - **Why**: Guarantees fast lookup speeds for sync state checks even as the `submissions` table grows to millions of records.
 
+### Rule 5.3: Standardized Database Constraint Naming Convention
+- **Instruction**: All explicitly named indexes, unique constraints, and foreign keys in migrations MUST follow a predictable, standardized prefix format:
+  - **Unique Constraints**: `uq_<table_name>_<columns>` (e.g. `uq_submissions_platform_submission_id`, `uq_contests_platform_contest_id`)
+  - **Composite & Secondary Indexes**: `idx_<table_name>_<columns>` (e.g. `idx_submissions_profile_verdict_submitted`, `idx_standings_contest_rank`)
+  - **Foreign Keys**: `fk_<table_name>_<referenced_column>` (where explicitly named)
+- **Why**: Ensures uniform database schema maintenance, predictable SQL migration troubleshooting, and self-documenting raw SQL query plans in MariaDB/MySQL.
+
 ---
 
 ## 6. Security & Credential Safeguards
@@ -101,3 +112,20 @@
 ### Rule 7.2: Crawler Memory Management
 - **Instruction**: When processing paginated HTML responses in scraping loops, memory references to `Crawler` or DOM instances MUST be cleared explicitly (`unset($crawler)` or garbage collection triggers).
 - **Why**: Prevents PHP process memory exhaustion in long-running queue workers (`php artisan queue:listen`).
+
+---
+
+## 8. Frontend & View Architecture Rules
+
+### Rule 8.1: Page-Specific JavaScript Management Pattern
+- **Instruction**: Do NOT create static `.js` files in `public/` for page-specific view logic. Page-specific JavaScript MUST be stored inside Blade script partials (e.g., `resources/views/web/pages/<feature>/scripts.blade.php`) and included in the view using `@push('scripts') @include('web.pages.<feature>.scripts') @endpush`.
+- **Why**: Allows direct, safe usage of Blade directives (`route()`, `config()`, `@json()`, `csrf_token()`) inside JavaScript without hardcoding URLs or creating global Window scope pollution.
+
+### Rule 8.2: Self-Contained Component-Based Architecture for UI Partials
+- **Instruction**: Reusable UI elements (Breadcrumbs, Pagination, Status Badges) MUST be created as single-file, self-contained Blade Components inside `resources/views/components/*` (e.g., `<x-breadcrumb>`, `<x-pagination>`).
+- **Why**: Guarantees DRY architecture, global accessibility across all views, and consistent styling without cluttering `views/includes/`.
+
+### Rule 8.3: High-Scale Server-Side Pagination & Debounced Search
+- **Instruction**: Data tables handling large datasets (lakhs of records) MUST execute search, filter, sort, and pagination strictly on the database/server side (`paginate()`). Search inputs MUST use 300ms JavaScript debouncing with AJAX partial replacement (`X-Requested-With: XMLHttpRequest`).
+- **Why**: Eliminates client-side memory crashes, reduces database server load, and provides an instant real-time user experience without page reloads.
+
