@@ -39,7 +39,7 @@ return new class extends Migration
             $table->timestamps();
             $table->unique(
                 ['contest_id', 'participant_key'],
-                'unique_contest_participant'
+                'uq_standings_contest_participant_key'
             );
             $table->index('contest_id');
             $table->index('platform_profile_id');
@@ -49,19 +49,19 @@ return new class extends Migration
             $table->index('last_synced_at');
             $table->index(
                 ['contest_id', 'rank'],
-                'contest_rank_index'
+                'idx_standings_contest_rank'
             );
             $table->index(
                 ['contest_id', 'points', 'penalty'],
-                'contest_points_penalty_index'
+                'idx_standings_contest_points_penalty'
             );
             $table->index(
                 ['platform_profile_id', 'contest_id'],
-                'platform_profile_contest_index'
+                'idx_standings_profile_contest'
             );
             $table->index(
                 ['platform_id', 'contest_id'],
-                'platform_contest_index'
+                'idx_standings_platform_contest'
             );
         });
     }

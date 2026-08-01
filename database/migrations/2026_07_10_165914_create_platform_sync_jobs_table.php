@@ -35,14 +35,14 @@ return new class extends Migration
             $table->json('metadata')
                 ->nullable();
             $table->timestamps();
-            $table->unique([
-                'platform_id',
-                'entity',
-            ]);
-            $table->index([
-                'enabled',
-                'priority',
-            ]);
+            $table->unique(
+                ['platform_id', 'entity'],
+                'uq_platform_sync_jobs_entity'
+            );
+            $table->index(
+                ['enabled', 'priority'],
+                'idx_platform_sync_jobs_enabled_priority'
+            );
             $table->index('last_success_at');
         });
     }

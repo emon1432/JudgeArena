@@ -36,22 +36,22 @@ return new class extends Migration
             $table->string('status', 50)->default('Active');
             $table->timestamps();
 
-            $table->unique(['contest_id', 'handle'], 'unique_contest_handle');
+            $table->unique(['contest_id', 'handle'], 'uq_contest_rating_changes_contest_handle');
             $table->index('contest_id');
             $table->index('platform_profile_id');
             $table->index('handle');
             $table->index('rating_change');
             $table->index('status');
             $table->index('last_synced_at');
-            $table->index(['contest_id', 'rank'], 'contest_rank_index');
-            $table->index(['platform_profile_id', 'contest_id'], 'platform_profile_contest_index');
+            $table->index(['contest_id', 'rank'], 'idx_contest_rating_changes_contest_rank');
+            $table->index(['platform_profile_id', 'contest_id'], 'idx_contest_rating_changes_profile_contest');
             $table->index(
                 ['platform_profile_id', 'new_rating'],
-                'profile_rating_index'
+                'idx_contest_rating_changes_profile_rating'
             );
             $table->index(
                 ['platform_id', 'handle'],
-                'platform_handle_index'
+                'idx_contest_rating_changes_platform_handle'
             );
         });
     }

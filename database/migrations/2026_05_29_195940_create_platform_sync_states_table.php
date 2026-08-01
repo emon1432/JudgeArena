@@ -26,7 +26,7 @@ return new class extends Migration
             $table->timestamps();
             $table->unique(
                 ['platform_id', 'entity_type', 'entity_platform_id'],
-                'unique_platform_entity_sync_state'
+                'uq_platform_sync_states_entity'
             );
             $table->index('platform_id');
             $table->index('entity_type');
@@ -35,7 +35,7 @@ return new class extends Migration
             $table->index('last_attempted_at');
             $table->index(
                 ['platform_id', 'entity_type', 'sync_status'],
-                'platform_entity_status_index'
+                'idx_platform_sync_states_entity_status'
             );
         });
     }

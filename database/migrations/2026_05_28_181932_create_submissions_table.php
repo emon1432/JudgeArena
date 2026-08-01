@@ -44,7 +44,7 @@ return new class extends Migration
             $table->timestamps();
             $table->unique(
                 ['platform_id', 'platform_submission_id'],
-                'unique_platform_submission'
+                'uq_submissions_platform_submission_id'
             );
             $table->index('contest_id');
             $table->index('problem_id');
@@ -56,15 +56,15 @@ return new class extends Migration
             $table->index('last_synced_at');
             $table->index(
                 ['platform_profile_id', 'verdict', 'submitted_at'],
-                'platform_profile_verdict_submitted_index'
+                'idx_submissions_profile_verdict_submitted'
             );
             $table->index(
                 ['problem_id', 'verdict'],
-                'problem_verdict_index'
+                'idx_submissions_problem_verdict'
             );
             $table->index(
                 ['contest_id', 'submitted_at'],
-                'contest_submitted_index'
+                'idx_submissions_contest_submitted_at'
             );
         });
     }

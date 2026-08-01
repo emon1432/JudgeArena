@@ -43,7 +43,7 @@ return new class extends Migration
             $table->timestamps();
             $table->unique(
                 ['platform_id', 'platform_problem_id'],
-                'unique_platform_problem'
+                'uq_problems_platform_problem_id'
             );
             $table->index('slug');
             $table->index('contest_id');
@@ -54,15 +54,15 @@ return new class extends Migration
             $table->index('last_synced_at');
             $table->index(
                 ['platform_id', 'rating'],
-                'platform_rating_index'
+                'idx_problems_platform_rating'
             );
             $table->index(
                 ['contest_id', 'code'],
-                'contest_code_index'
+                'idx_problems_contest_code'
             );
             $table->index(
                 ['platform_id', 'status', 'updated_at'],
-                'platform_status_updated_index'
+                'idx_problems_platform_status_updated_at'
             );
         });
     }

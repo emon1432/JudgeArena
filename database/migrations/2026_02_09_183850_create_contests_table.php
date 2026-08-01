@@ -37,7 +37,7 @@ return new class extends Migration
             $table->timestamps();
             $table->unique(
                 ['platform_id', 'platform_contest_id'],
-                'unique_platform_contest'
+                'uq_contests_platform_contest_id'
             );
             $table->index('slug');
             $table->index('phase');
@@ -48,11 +48,11 @@ return new class extends Migration
             $table->index('last_synced_at');
             $table->index(
                 ['platform_id', 'start_time'],
-                'platform_start_time_index'
+                'idx_contests_platform_start_time'
             );
             $table->index(
                 ['platform_id', 'status', 'start_time'],
-                'platform_status_start_time_index'
+                'idx_contests_platform_status_start_time'
             );
         });
     }

@@ -21,8 +21,8 @@ return new class extends Migration
             $table->enum('status', ['Active', 'Inactive'])->default('Active');
             $table->timestamp('last_synced_at')->nullable();
             $table->timestamps();
-            $table->unique(['platform_id', 'handle']);
-            $table->index(['user_id', 'platform_id']);
+            $table->unique(['platform_id', 'handle'], 'uq_platform_profiles_platform_handle');
+            $table->index(['user_id', 'platform_id'], 'idx_platform_profiles_user_platform');
             $table->index('handle');
         });
     }
