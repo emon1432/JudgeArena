@@ -1,44 +1,77 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Models\Platform;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 
 class WebsiteController extends Controller
 {
-    public function index()
+    public function index(): View
     {
         return view('web.pages.home.index');
     }
 
-    public function platforms()
+    public function platforms(Request $request): View
     {
-        return view('web.pages.platforms.index');
+        $perPage = min(max((int) $request->input('per_page', 10), 5), 100);
+        $search = trim((string) $request->input('search', ''));
+        $sort = $request->input('sort', 'popular');
+
+        $query = Platform::active()
+            ->select(['id', 'name', 'short_name', 'slug', 'base_url', 'icon', 'status', 'created_at'])
+            ->withCount(['platformProfiles', 'problems', 'contests']);
+
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('short_name', 'like', "%{$search}%")
+                    ->orWhere('slug', 'like', "%{$search}%")
+                    ->orWhere('base_url', 'like', "%{$search}%");
+            });
+        }
+
+        match ($sort) {
+            'name-asc' => $query->orderBy('name', 'asc'),
+            'name-desc' => $query->orderBy('name', 'desc'),
+            'contests-desc' => $query->orderBy('contests_count', 'desc'),
+            'problems-desc' => $query->orderBy('problems_count', 'desc'),
+            'users-desc', 'popular' => $query->orderBy('platform_profiles_count', 'desc'),
+            default => $query->orderBy('platform_profiles_count', 'desc'),
+        };
+
+        $platforms = $query->paginate($perPage)->withQueryString();
+
+        return view('web.pages.platforms.index', compact('platforms'));
     }
 
-    public function platformDetail(string $slug)
+    public function platformDetail(string $slug): View
     {
         return view('web.pages.platforms.show');
     }
 
-    public function contests()
+    public function contests(): View
     {
         return view('web.pages.contests.index');
     }
 
-    public function problems()
+    public function problems(): View
     {
         return view('web.pages.problems.index');
     }
 
-    public function rankings()
+    public function rankings(): View
     {
         return view('web.pages.rankings.index');
     }
 
-    public function community()
+    public function community(): View
     {
         return view('web.pages.community.index');
     }
 }
+
