@@ -1776,3 +1776,168 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 });
+
+/* ==========================================================================
+   5. UNIVERSAL INFINITE SCROLLED LOADING ENGINE
+   ========================================================================== */
+const UniversalInfiniteScroller = {
+    observer: null,
+    scrollThrottleTimer: null,
+
+    init() {
+        if (!("IntersectionObserver" in window)) return;
+
+        this.observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    const loader = entry.target;
+                    if (loader.getAttribute("data-loading") === "false") {
+                        this.fetchNextPage(loader);
+                    }
+                }
+            });
+        }, {
+            root: null,
+            rootMargin: "0px 0px 450px 0px",
+            threshold: 0.05
+        });
+
+        this.observeElements(document);
+
+        const mutationObserver = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                mutation.addedNodes.forEach((node) => {
+                    if (node.nodeType === 1) {
+                        if (node.classList && node.classList.contains("universal-infinite-loader")) {
+                            this.observer.observe(node);
+                            this.checkAndFetchIfVisible(node);
+                        } else if (node.querySelectorAll) {
+                            node.querySelectorAll(".universal-infinite-loader").forEach((elem) => {
+                                this.observer.observe(elem);
+                                this.checkAndFetchIfVisible(elem);
+                            });
+                        }
+                    }
+                });
+            });
+        });
+
+        mutationObserver.observe(document.body, { childList: true, subtree: true });
+
+        window.addEventListener("scroll", () => {
+            if (!this.scrollThrottleTimer) {
+                this.scrollThrottleTimer = setTimeout(() => {
+                    this.scrollThrottleTimer = null;
+                    document.querySelectorAll(".universal-infinite-loader[data-loading='false']").forEach((loader) => {
+                        this.checkAndFetchIfVisible(loader);
+                    });
+                }, 180);
+            }
+        }, { passive: true });
+    },
+
+    observeElements(container) {
+        if (!this.observer) return;
+        container.querySelectorAll(".universal-infinite-loader").forEach((loader) => {
+            this.observer.observe(loader);
+            this.checkAndFetchIfVisible(loader);
+        });
+    },
+
+    checkAndFetchIfVisible(loader) {
+        if (!loader || !document.body.contains(loader) || loader.getAttribute("data-loading") !== "false") {
+            return;
+        }
+        const rect = loader.getBoundingClientRect();
+        const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+        if (rect.top <= windowHeight + 450 && rect.bottom >= -100) {
+            this.fetchNextPage(loader);
+        }
+    },
+
+    fetchNextPage(loader) {
+        const nextUrl = loader.getAttribute("data-next-url");
+        if (!nextUrl) return;
+
+        loader.setAttribute("data-loading", "true");
+
+        fetch(nextUrl, {
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "X-Infinite-Scroll": "true"
+            }
+        })
+        .then((response) => response.text())
+        .then((html) => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, "text/html");
+
+            let targetSelector = loader.getAttribute("data-target-container");
+            let currentContainer = null;
+            let newContainer = null;
+
+            if (targetSelector && targetSelector.trim() !== "") {
+                currentContainer = document.querySelector(targetSelector);
+                newContainer = doc.querySelector(targetSelector);
+            } else {
+                const parentCard = loader.closest(".card") || loader.parentElement;
+                currentContainer = parentCard ? (parentCard.querySelector("tbody") || parentCard.querySelector(".row") || parentCard.querySelector("ul")) : null;
+                if (currentContainer && currentContainer.id) {
+                    newContainer = doc.getElementById(currentContainer.id);
+                } else if (currentContainer && currentContainer.tagName === "TBODY") {
+                    const tableId = currentContainer.closest("table")?.id;
+                    newContainer = tableId ? doc.querySelector(`#${tableId} tbody`) : doc.querySelector("tbody");
+                }
+            }
+
+            if (currentContainer && newContainer) {
+                const fragment = document.createDocumentFragment();
+                Array.from(newContainer.children).forEach((child) => {
+                    child.style.opacity = "0";
+                    child.style.transition = "opacity 0.35s ease-in";
+                    fragment.appendChild(child);
+                });
+
+                currentContainer.appendChild(fragment);
+
+                requestAnimationFrame(() => {
+                    Array.from(currentContainer.children).forEach((child) => {
+                        if (child.style.opacity === "0") {
+                            child.style.opacity = "1";
+                        }
+                    });
+                });
+            }
+
+            const newLoader = doc.querySelector(".universal-infinite-loader");
+            const newEndMessage = doc.querySelector(".universal-infinite-end");
+
+            if (newLoader && newLoader.getAttribute("data-next-url")) {
+                loader.setAttribute("data-next-url", newLoader.getAttribute("data-next-url"));
+                loader.setAttribute("data-loading", "false");
+
+                if (this.observer) {
+                    this.observer.unobserve(loader);
+                    this.observer.observe(loader);
+                }
+                setTimeout(() => this.checkAndFetchIfVisible(loader), 120);
+            } else if (newEndMessage) {
+                loader.insertAdjacentHTML("afterend", newEndMessage.outerHTML);
+                if (this.observer) this.observer.unobserve(loader);
+                loader.remove();
+            } else {
+                if (this.observer) this.observer.unobserve(loader);
+                loader.remove();
+            }
+        })
+        .catch((err) => {
+            console.error("Infinite scroll fetch failed:", err);
+            loader.setAttribute("data-loading", "false");
+            setTimeout(() => this.checkAndFetchIfVisible(loader), 1500);
+        });
+    }
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+    UniversalInfiniteScroller.init();
+});

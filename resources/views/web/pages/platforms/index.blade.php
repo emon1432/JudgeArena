@@ -107,9 +107,33 @@
                                         class="text-secondary extra-small font-monospace">{{ number_format($platform->platform_profiles_count ?? 0) }}</span>
                                 </td>
                                 <td>
-                                    <span
-                                        class="badge bg-success-subtle text-success border border-success-subtle rounded-pill extra-small">
-                                        <i class="fa-solid fa-link me-1"></i> {{ $platform->status }}
+                                    @php
+                                        $class = match ($platform->status) {
+                                            'Active' => [
+                                                'badge' => 'bg-success-subtle text-success border-success-subtle',
+                                                'icon' => 'fa-solid fa-link',
+                                            ],
+                                            'Coming Soon' => [
+                                                'badge' => 'bg-info-subtle text-info border-info-subtle',
+                                                'icon' => 'fa-solid fa-clock',
+                                            ],
+                                            'Maintenance' => [
+                                                'badge' => 'bg-warning-subtle text-warning border-warning-subtle',
+                                                'icon' => 'fa-solid fa-screwdriver-wrench',
+                                            ],
+                                            'Inactive' => [
+                                                'badge' => 'bg-danger-subtle text-danger border-danger-subtle',
+                                                'icon' => 'fa-solid fa-ban',
+                                            ],
+                                            default => [
+                                                'badge' => 'bg-secondary-subtle text-secondary border-secondary-subtle',
+                                                'icon' => 'fa-solid fa-circle-info',
+                                            ],
+                                        };
+                                    @endphp
+
+                                    <span class="badge {{ $class['badge'] }} border rounded-pill extra-small">
+                                        <i class="{{ $class['icon'] }} me-1"></i> {{ $platform->status }}
                                     </span>
                                 </td>
                                 <td class="text-end pe-4">
@@ -124,7 +148,7 @@
                             <tr>
                                 <td colspan="6" class="text-center py-5 text-muted">
                                     <i class="fa-solid fa-cubes fs-2 mb-2 d-block text-secondary"></i>
-                                    No active platforms found in database.
+                                    No platforms found in directory.
                                 </td>
                             </tr>
                         @endforelse
@@ -132,7 +156,7 @@
                 </table>
             </div>
 
-            <x-pagination :paginator="$platforms" />
+            <x-infinite-scroll :paginator="$platforms" target="#platforms-directory-table tbody" />
         </div>
     </main>
 @endsection

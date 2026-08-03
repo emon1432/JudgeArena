@@ -22,7 +22,7 @@ class WebsiteController extends Controller
         $search = trim((string) $request->input('search', ''));
         $sort = $request->input('sort', 'popular');
 
-        $query = Platform::active()
+        $query = Platform::query()
             ->select(['id', 'name', 'short_name', 'slug', 'base_url', 'icon', 'status', 'created_at'])
             ->withCount(['platformProfiles', 'problems', 'contests']);
 
@@ -44,7 +44,7 @@ class WebsiteController extends Controller
             default => $query->orderBy('platform_profiles_count', 'desc'),
         };
 
-        $platforms = $query->paginate($perPage)->withQueryString();
+        $platforms = $query->simplePaginate($perPage)->withQueryString();
 
         return view('web.pages.platforms.index', compact('platforms'));
     }

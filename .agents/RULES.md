@@ -125,7 +125,7 @@
 - **Instruction**: Reusable UI elements (Breadcrumbs, Pagination, Status Badges) MUST be created as single-file, self-contained Blade Components inside `resources/views/components/*` (e.g., `<x-breadcrumb>`, `<x-pagination>`).
 - **Why**: Guarantees DRY architecture, global accessibility across all views, and consistent styling without cluttering `views/includes/`.
 
-### Rule 8.3: High-Scale Server-Side Pagination & Debounced Search
-- **Instruction**: Data tables handling large datasets (lakhs of records) MUST execute search, filter, sort, and pagination strictly on the database/server side (`paginate()`). Search inputs MUST use 300ms JavaScript debouncing with AJAX partial replacement (`X-Requested-With: XMLHttpRequest`).
-- **Why**: Eliminates client-side memory crashes, reduces database server load, and provides an instant real-time user experience without page reloads.
+### Rule 8.3: Universal Infinite Scrolling & Debounced Search (No Traditional Pagination)
+- **Instruction**: Traditional numbered pagination links (`paginate()`, `<x-pagination>`) are STRICTLY PROHIBITED across all data tables and listings. All listings handling large datasets (thousands to lakhs of records like submissions, rankings, platforms, and problems) MUST implement **Universal Infinite Scrolling / On-Scroll Loading** using server-side Cursor Pagination (`cursorPaginate()`) or simple chunking combined with a reusable frontend Intersection Observer architecture. Search inputs MUST use 300ms JavaScript debouncing with AJAX table reset and smooth infinite loading.
+- **Why**: Traditional page numbers create friction and degrade User Experience when navigating lakhs of data points. Universal infinite scrolling delivers an immersive, app-like real-time UX while keeping client memory and database queries optimal.
 

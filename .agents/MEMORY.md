@@ -39,6 +39,7 @@ All interactions with external Online Judges MUST be encapsulated within concret
 | **State Machine** | `PlatformSyncState` checkpoints | Explicit state tracking per profile/platform prevents full historical re-crawling and enables paginated delta syncs. |
 | **Testing Standard** | Pest PHP | Expressive, readable unit testing framework for validating DTO parsers, verdict mappers, and adapter contracts. |
 | **Frontend Scripting** | `@push('scripts')` + `@include('web.pages.<feature>.scripts')` | Page-specific JS stored in Blade script partials allows direct access to Blade routes (`route()`), CSRF, and config without polluting `public/` or hardcoding URLs. |
+| **Data Lists & UI** | **Universal Infinite Scrolling (No Pagination)** | Traditional numbered pagination is strictly forbidden across the platform. Due to massive datasets (lakhs of submissions, problems, standings), seamless Infinite Loading / Scroll Loading via IntersectionObserver and Server-Side Cursor/Simple queries guarantees superior user experience and speed. |
 
 ---
 
