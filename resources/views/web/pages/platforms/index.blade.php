@@ -4,6 +4,68 @@
 
         <x-breadcrumb title="Platforms Directory" :breadcrumbs="['Platforms' => null]"></x-breadcrumb>
 
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="card panel border-0 p-3 shadow-sm h-100" style="border-radius: 14px">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="text-muted extra-small uppercase font-monospace fw-semibold">Supported Judges</span>
+                        <i class="fa-solid fa-cubes text-primary"></i>
+                    </div>
+                    <div class="h3 fw-bold text-primary-emphasis mb-0">
+                        {{ number_format($totalPlatforms ?? 0) }}
+                    </div>
+                    <div class="extra-small text-muted mt-1">
+                        Global online judges integrated
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+                <div class="card panel border-0 p-3 shadow-sm h-100" style="border-radius: 14px">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="text-muted extra-small uppercase font-monospace fw-semibold">Total Contests</span>
+                        <i class="fa-solid fa-trophy text-success"></i>
+                    </div>
+                    <div class="h3 fw-bold text-primary-emphasis mb-0">
+                        {{ number_format($totalContests ?? 0) }}
+                    </div>
+                    <div class="extra-small text-muted mt-1">
+                        Aggregated from all judges
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+                <div class="card panel border-0 p-3 shadow-sm h-100" style="border-radius: 14px">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="text-muted extra-small uppercase font-monospace fw-semibold">Total Problems</span>
+                        <i class="fa-solid fa-code text-info"></i>
+                    </div>
+                    <div class="h3 fw-bold text-primary-emphasis mb-0">
+                        {{ number_format($totalProblems ?? 0) }}
+                    </div>
+                    <div class="extra-small text-muted mt-1">
+                        Curated competitive problems
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+                <div class="card panel border-0 p-3 shadow-sm h-100" style="border-radius: 14px">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="text-muted extra-small uppercase font-monospace fw-semibold">Connected Handles</span>
+                        <i class="fa-solid fa-users text-warning"></i>
+                    </div>
+                    <div class="h3 fw-bold text-primary-emphasis mb-0">
+                        {{ number_format($totalProfiles ?? 0) }}
+                    </div>
+                    <div class="extra-small text-muted mt-1">
+                        Active user handles connected
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="card panel border-0 p-3 mb-4" style="border-radius: 16px">
             <form method="GET" action="{{ route('platforms.index') }}"
                 onsubmit="event.preventDefault(); handleLiveSearch(document.getElementById('platforms-search-input'), true);"

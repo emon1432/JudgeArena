@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Models\Contest;
 use App\Models\Platform;
+use App\Models\PlatformProfile;
+use App\Models\Problem;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 
@@ -46,7 +49,12 @@ class WebsiteController extends Controller
 
         $platforms = $query->simplePaginate($perPage)->withQueryString();
 
-        return view('web.pages.platforms.index', compact('platforms'));
+        $totalPlatforms = Platform::query()->count('*');
+        $totalContests = Contest::query()->count('*');
+        $totalProblems = Problem::query()->count('*');
+        $totalProfiles = PlatformProfile::query()->count('*');
+
+        return view('web.pages.platforms.index', compact('platforms', 'totalPlatforms', 'totalContests', 'totalProblems', 'totalProfiles'));
     }
 
     public function platformDetail(string $slug): View
