@@ -122,10 +122,14 @@
 - **Why**: Allows direct, safe usage of Blade directives (`route()`, `config()`, `@json()`, `csrf_token()`) inside JavaScript without hardcoding URLs or creating global Window scope pollution.
 
 ### Rule 8.2: Self-Contained Component-Based Architecture for UI Partials
-- **Instruction**: Reusable UI elements (Breadcrumbs, Pagination, Status Badges) MUST be created as single-file, self-contained Blade Components inside `resources/views/components/*` (e.g., `<x-breadcrumb>`, `<x-pagination>`).
+- **Instruction**: Reusable UI elements MUST be created as single-file, self-contained Blade Components inside `resources/views/components/*` and ALWAYS utilized across views instead of raw HTML copy-pasting (e.g., ALWAYS use `<x-breadcrumb>` for top navigation and page titles, `<x-infinite-scroll>` for endless listings). NEVER recreate manual breadcrumb or loader HTML in individual view pages.
 - **Why**: Guarantees DRY architecture, global accessibility across all views, and consistent styling without cluttering `views/includes/`.
 
 ### Rule 8.3: Universal Infinite Scrolling & Debounced Search (No Traditional Pagination)
 - **Instruction**: Traditional numbered pagination links (`paginate()`, `<x-pagination>`) are STRICTLY PROHIBITED across all data tables and listings. All listings handling large datasets (thousands to lakhs of records like submissions, rankings, platforms, and problems) MUST implement **Universal Infinite Scrolling / On-Scroll Loading** using server-side Cursor Pagination (`cursorPaginate()`) or simple chunking combined with a reusable frontend Intersection Observer architecture. Search inputs MUST use 300ms JavaScript debouncing with AJAX table reset and smooth infinite loading.
 - **Why**: Traditional page numbers create friction and degrade User Experience when navigating lakhs of data points. Universal infinite scrolling delivers an immersive, app-like real-time UX while keeping client memory and database queries optimal.
+
+### Rule 8.4: Detail / Profile Page Table Preview vs Directory Infinite Scroll
+- **Instruction**: On detail/profile overview pages (e.g. Platform Detail `show.blade.php`, User Profile) where additional widgets, analytics cards, or content components are positioned below a table or tabbed section, NEVER implement Infinite Scrolling on the main page stream to prevent the "Footer Trap" UX problem. Instead, display a **Top 10 Recent Preview** with a prominent Call-to-Action button linking directly to the full filtered Directory page (where full-screen Universal Infinite Scrolling is implemented).
+- **Why**: Ensures users can easily reach bottom-page widgets and components without getting trapped in an endless expanding table, while keeping detail page load times lightning-fast.
 
