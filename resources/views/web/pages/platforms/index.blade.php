@@ -106,10 +106,10 @@
             </form>
         </div>
 
-        <div id="platforms-table-card" class="card panel border-0 p-0 mb-4 shadow-sm"
+        <div id="platforms-table-card" class="card panel border-0 p-0 mb-4 shadow-sm fixed-card"
             style="border-radius: 16px; overflow: hidden">
             <div class="table-responsive">
-                <table class="table align-middle mb-0 text-nowrap" id="platforms-directory-table">
+                <table class="table table-hover align-middle mb-0 text-nowrap" id="platforms-directory-table">
                     <thead class="table-light extra-small uppercase font-monospace border-bottom">
                         <tr class="text-center">
                             <th class="ps-4" style="width: 260px">

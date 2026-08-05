@@ -9,6 +9,7 @@ use App\Models\Contest;
 use App\Models\Platform;
 use App\Models\PlatformProfile;
 use App\Models\Problem;
+use App\Models\Standing;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 
@@ -59,7 +60,31 @@ class WebsiteController extends Controller
 
     public function platformDetail(string $slug): View
     {
-        return view('web.pages.platforms.show');
+        $platform = Platform::query()
+            ->where('slug', $slug)
+            ->withCount(['contests', 'problems', 'platformProfiles'])
+            ->firstOrFail();
+
+        $recentContests = $platform->contests()
+            ->withCount('standings')
+            ->orderByDesc('start_time')
+            ->orderByDesc('id')
+            ->limit(10)
+            ->get();
+
+        $recentProblems = $platform->problems()
+            ->with('contest:id,name')
+            ->orderBy('created_at', 'asc')
+            ->orderByDesc('id')
+            ->limit(10)
+            ->get();
+
+        $communityCount = Standing::query()
+            ->where('platform_id', $platform->id)
+            ->distinct()
+            ->count('participant_key');
+
+        return view('web.pages.platforms.show', compact('platform', 'recentContests', 'recentProblems', 'communityCount'));
     }
 
     public function contests(): View
