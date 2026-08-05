@@ -245,7 +245,7 @@ class AtCoderHtmlScraper
     public function getTasks(string $contestId): array
     {
         $response = $this->httpRequest()->get(self::ATCODER_BASE_URL . '/contests/' . $contestId . '/tasks');
-        if (! $response->successful()) {
+        if (!$response->successful()) {
             throw new RuntimeException('AtCoder tasks request failed with HTTP ' . $response->status());
         }
 
@@ -263,14 +263,13 @@ class AtCoderHtmlScraper
             }
 
             $link = $xpath->query('.//a', $cells->item(0))->item(0);
-            if (! $link instanceof \DOMElement) {
+            if (!$link instanceof \DOMElement) {
                 continue;
             }
 
             $taskId = basename($link->getAttribute('href'));
             $title = trim($cells->item(1)?->nodeValue ?? '');
             $position = trim($cells->item(0)?->nodeValue ?? '');
-            $fullTitle = $position . ' - ' . $title;
             $timeLimit = trim($cells->item(2)?->nodeValue ?? '');
             $memoryLimit = trim($cells->item(3)?->nodeValue ?? '');
             $taskUrl = self::ATCODER_BASE_URL . $link->getAttribute('href');
@@ -300,7 +299,6 @@ class AtCoderHtmlScraper
                 'contest_id' => $contestId,
                 'title' => $title,
                 'position' => $position,
-                'full_title' => $fullTitle,
                 'score' => $score,
                 'time_limit' => $timeLimit,
                 'memory_limit' => $memoryLimit,
@@ -432,7 +430,7 @@ class AtCoderHtmlScraper
                 ->withHeaders(['User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'])
                 ->get(self::LOGIN_URL);
 
-            if (! $getResp->successful()) {
+            if (!$getResp->successful()) {
                 app(ApplicationLogger::class)->warning('AtCoder login page request failed', [
                     'category' => 'scraper',
                     'platform' => 'atcoder',
@@ -457,7 +455,7 @@ class AtCoderHtmlScraper
             $cookiePairs = [];
             $getHeaders = $getResp->headers();
             $setCookieHeaders = $getHeaders['Set-Cookie'] ?? $getHeaders['set-cookie'] ?? [];
-            if (! is_array($setCookieHeaders) && $setCookieHeaders !== []) {
+            if (!is_array($setCookieHeaders) && $setCookieHeaders !== []) {
                 $setCookieHeaders = [$setCookieHeaders];
             }
             foreach ($setCookieHeaders as $setCookieHeader) {
@@ -481,7 +479,7 @@ class AtCoderHtmlScraper
 
             $postHeaders = $postResp->headers();
             $postSetCookieHeaders = $postHeaders['Set-Cookie'] ?? $postHeaders['set-cookie'] ?? [];
-            if (! is_array($postSetCookieHeaders) && $postSetCookieHeaders !== []) {
+            if (!is_array($postSetCookieHeaders) && $postSetCookieHeaders !== []) {
                 $postSetCookieHeaders = [$postSetCookieHeaders];
             }
             foreach ($postSetCookieHeaders as $setCookieHeader) {
@@ -545,7 +543,7 @@ class AtCoderHtmlScraper
 
                 $startText = trim($cells->item(0)?->nodeValue ?? '');
                 $link = $xpath->query('.//a', $cells->item(1))->item(0);
-                if (! $link instanceof \DOMElement) {
+                if (!$link instanceof \DOMElement) {
                     continue;
                 }
 
@@ -568,7 +566,7 @@ class AtCoderHtmlScraper
                 $pageHasContests = true;
             }
 
-            if (! $pageHasContests) {
+            if (!$pageHasContests) {
                 break;
             }
 
@@ -612,7 +610,7 @@ class AtCoderHtmlScraper
 
                 $startText = trim($cells->item(0)?->nodeValue ?? '');
                 $link = $xpath->query('.//a', $cells->item(1))->item(0);
-                if (! $link instanceof \DOMElement) {
+                if (!$link instanceof \DOMElement) {
                     continue;
                 }
 
@@ -635,7 +633,7 @@ class AtCoderHtmlScraper
                 $pageHasContests = true;
             }
 
-            if (! $pageHasContests) {
+            if (!$pageHasContests) {
                 break;
             }
 
@@ -684,7 +682,7 @@ class AtCoderHtmlScraper
                     }
 
                     $link = $xpath->query('.//a', $cells->item(0))->item(0);
-                    if (! $link instanceof \DOMElement) {
+                    if (!$link instanceof \DOMElement) {
                         continue;
                     }
 
@@ -731,7 +729,7 @@ class AtCoderHtmlScraper
 
         try {
             $filePath = storage_path('app/atcoder_hidden_contests.json');
-            if (! file_exists($filePath)) {
+            if (!file_exists($filePath)) {
                 return $contests;
             }
 
@@ -739,7 +737,7 @@ class AtCoderHtmlScraper
             $hiddenContests = json_decode($json ?: '[]', true) ?? [];
 
             foreach ($hiddenContests as $contest) {
-                if (! isset($contest['id'])) {
+                if (!isset($contest['id'])) {
                     continue;
                 }
 
@@ -806,7 +804,7 @@ class AtCoderHtmlScraper
 
                 $startText = trim($cells->item(0)?->nodeValue ?? '');
                 $link = $xpath->query('.//a', $cells->item(1))->item(0);
-                if (! $link instanceof \DOMElement) {
+                if (!$link instanceof \DOMElement) {
                     continue;
                 }
 
@@ -829,7 +827,7 @@ class AtCoderHtmlScraper
                 $pageHasContests = true;
             }
 
-            if (! $pageHasContests) {
+            if (!$pageHasContests) {
                 break;
             }
 
@@ -854,7 +852,7 @@ class AtCoderHtmlScraper
             ? $request->withHeaders(['Cookie' => $this->sessionCookies])->get($url)
             : $request->get($url);
 
-        if (! $response->successful()) {
+        if (!$response->successful()) {
             return '';
             // throw new RuntimeException('AtCoder page request failed with HTTP ' . $response->status());
         }
@@ -879,12 +877,12 @@ class AtCoderHtmlScraper
                 : $request->get($fallbackUrl);
         }
 
-        if (! $response->successful()) {
+        if (!$response->successful()) {
             throw new RuntimeException('AtCoder JSON request failed with HTTP ' . $response->status());
         }
 
         $payload = $response->json();
-        if (! is_array($payload)) {
+        if (!is_array($payload)) {
             throw new RuntimeException('AtCoder JSON request returned invalid payload');
         }
 

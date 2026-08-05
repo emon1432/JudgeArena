@@ -12,7 +12,7 @@ class ProblemTransformer
         return new ProblemDTO(
             platform: 'atcoder',
             platformProblemId: (string) ($problem->id ?? ''),
-            title: (string) ($problem->fullTitle ?? $problem->title ?? ''),
+            title: (string) ($problem->title ?? ''),
             contestPlatformId: $problem->contestId,
             code: $problem->position,
             points: $problem->points,
@@ -26,7 +26,7 @@ class ProblemTransformer
 
     public function fromApiProblems(array $problems): array
     {
-        return array_map(fn (AtCoderProblemDTO $problem): ProblemDTO => $this->fromApiProblem($problem), $problems);
+        return array_map(fn(AtCoderProblemDTO $problem): ProblemDTO => $this->fromApiProblem($problem), $problems);
     }
 
     private function parseTimeLimit(string $timeLimit): ?int

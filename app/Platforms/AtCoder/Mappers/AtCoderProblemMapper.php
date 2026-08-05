@@ -17,7 +17,6 @@ final class AtCoderProblemMapper
             contestId: isset($problem['contestId']) ? (string) $problem['contestId'] : null,
             title: $problem['title'] ?? null,
             position: $problem['position'] ?? null,
-            fullTitle: $problem['fullTitle'] ?? null,
             points: isset($problem['score']) && is_numeric($problem['score']) ? (float) $problem['score'] : null,
             timeLimit: $problem['timeLimit'] ?? null,
             memoryLimit: $problem['memoryLimit'] ?? null,
@@ -29,7 +28,7 @@ final class AtCoderProblemMapper
     /** @return array<int, AtCoderProblemDTO> */
     public static function fromNormalizedList(array $problems): array
     {
-        return array_map(fn (array $problem): AtCoderProblemDTO => self::fromNormalized($problem), $problems);
+        return array_map(fn(array $problem): AtCoderProblemDTO => self::fromNormalized($problem), $problems);
     }
 }
 

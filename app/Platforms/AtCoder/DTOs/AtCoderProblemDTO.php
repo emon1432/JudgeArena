@@ -12,12 +12,12 @@ readonly class AtCoderProblemDTO
         public ?string $contestId,
         public ?string $title,
         public ?string $position,
-        public ?string $fullTitle,
         public ?float $points,
         public ?string $timeLimit,
         public ?string $memoryLimit,
         public ?string $url,
         public array $raw,
-    ) {}
+    ) {
+    }
 }
 
