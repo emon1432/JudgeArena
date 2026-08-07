@@ -129,7 +129,7 @@ final class ResponseNormalizer
             'startTimeSeconds' => null,
             'relativeTimeSeconds' => null,
             'preparedBy' => null,
-            'websiteUrl' => null,
+            'url' => null,
             'description' => null,
             'difficulty' => null,
             'kind' => null,

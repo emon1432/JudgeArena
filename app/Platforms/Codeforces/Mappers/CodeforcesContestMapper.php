@@ -19,7 +19,7 @@ final class CodeforcesContestMapper
             startTimeSeconds: isset($contest['startTimeSeconds']) ? (int) $contest['startTimeSeconds'] : null,
             relativeTimeSeconds: isset($contest['relativeTimeSeconds']) ? (int) $contest['relativeTimeSeconds'] : null,
             preparedBy: $contest['preparedBy'] ?? null,
-            websiteUrl: $contest['websiteUrl'] ?? null,
+            url: isset($contest['id']) ? config('platforms.codeforces.base_url') . 'contest/' . $contest['id'] : null,
             description: $contest['description'] ?? null,
             difficulty: isset($contest['difficulty']) ? (string) $contest['difficulty'] : null,
             kind: $contest['kind'] ?? null,

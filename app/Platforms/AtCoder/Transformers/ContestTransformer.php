@@ -21,8 +21,9 @@ class ContestTransformer
             startedAt: $this->parseStartTime($contest->date),
             durationSeconds: $this->parseDurationSeconds($contest->duration),
             endedAt: isset($contest->date, $contest->duration)
-                ? $this->parseStartTime($contest->date)?->add(new \DateInterval('PT' . $this->parseDurationSeconds($contest->duration) . 'S'))
-                : null,
+            ? $this->parseStartTime($contest->date)?->add(new \DateInterval('PT' . $this->parseDurationSeconds($contest->duration) . 'S'))
+            : null,
+            url: $contest->url,
             raw: $contest->raw,
         );
     }
@@ -30,7 +31,7 @@ class ContestTransformer
     /** @return array<int, ContestDTO> */
     public function fromApiContests(array $contests): array
     {
-        return array_map(fn (AtCoderContestDTO $contest): ContestDTO => $this->fromApiContest($contest), $contests);
+        return array_map(fn(AtCoderContestDTO $contest): ContestDTO => $this->fromApiContest($contest), $contests);
     }
 
     private function parseStartTime(?string $date): ?DateTimeImmutable

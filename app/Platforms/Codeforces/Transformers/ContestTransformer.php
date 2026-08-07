@@ -19,12 +19,13 @@ class ContestTransformer
             title: (string) ($contest->name ?? ''),
             phase: $contest->phase ?? null,
             startedAt: isset($contest->startTimeSeconds)
-                ? (new DateTimeImmutable())->setTimestamp((int) $contest->startTimeSeconds)
-                : null,
+            ? (new DateTimeImmutable())->setTimestamp((int) $contest->startTimeSeconds)
+            : null,
             durationSeconds: $contest->durationSeconds,
             endedAt: isset($contest->startTimeSeconds, $contest->durationSeconds)
-                ? (new DateTimeImmutable())->setTimestamp((int) $contest->startTimeSeconds + (int) $contest->durationSeconds)
-                : null,
+            ? (new DateTimeImmutable())->setTimestamp((int) $contest->startTimeSeconds + (int) $contest->durationSeconds)
+            : null,
+            url: $contest->url,
             raw: $contest->raw,
         );
     }

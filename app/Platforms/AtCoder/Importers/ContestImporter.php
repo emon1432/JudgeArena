@@ -20,7 +20,8 @@ class ContestImporter implements ContestImporterContract
         private readonly Platform $platformModel,
         private readonly AtCoderAdapter $adapter,
         private readonly PlatformSyncStateService $platformSyncStateService,
-    ) {}
+    ) {
+    }
 
     public function import(): ImportResult
     {
@@ -46,7 +47,7 @@ class ContestImporter implements ContestImporterContract
 
         $contests = $this->adapter->getContests();
 
-        if (! is_array($contests)) {
+        if (!is_array($contests)) {
             $contests = [];
         }
 
@@ -54,11 +55,13 @@ class ContestImporter implements ContestImporterContract
         $result->incrementChecked(count($contests));
 
         foreach ($contests as $contestDto) {
-            if ($this->platformSyncStateService->isSynced(
-                $platform,
-                PlatformSyncEntityType::Contest,
-                (string) $contestDto->platformContestId
-            )) {
+            if (
+                $this->platformSyncStateService->isSynced(
+                    $platform,
+                    PlatformSyncEntityType::Contest,
+                    (string) $contestDto->platformContestId
+                )
+            ) {
                 $result->incrementSkipped();
                 continue;
             }
@@ -90,6 +93,7 @@ class ContestImporter implements ContestImporterContract
                         'duration_seconds' => $contestDto->durationSeconds,
                         'start_time' => $contestDto->startedAt,
                         'end_time' => $contestDto->endedAt,
+                        'url' => $contestDto->url,
                         'metadata' => [
                             'source' => 'adapter',
                             'imported_at' => now(),

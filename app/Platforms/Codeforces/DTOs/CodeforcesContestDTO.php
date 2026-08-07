@@ -18,7 +18,7 @@ readonly class CodeforcesContestDTO
         public ?int $startTimeSeconds,
         public ?int $relativeTimeSeconds,
         public ?string $preparedBy,
-        public ?string $websiteUrl,
+        public ?string $url,
         public ?string $description,
         public ?string $difficulty,
         public ?string $kind,
@@ -27,5 +27,6 @@ readonly class CodeforcesContestDTO
         public ?string $city,
         public ?string $season,
         public array $raw,
-    ) {}
+    ) {
+    }
 }
