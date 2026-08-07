@@ -45,7 +45,7 @@
 
         <div class="row g-3 mb-4">
             <div class="col-6 col-md-3">
-                <div class="card panel border-0 p-3 shadow-sm h-100" style="border-radius: 14px">
+                <div class="card panel border-0 p-3 shadow-sm" style="border-radius: 14px">
                     <div class="d-flex align-items-center justify-content-between mb-2">
                         <span class="text-muted extra-small uppercase font-monospace fw-semibold">Hosted Contests</span>
                         <i class="fa-solid fa-trophy text-warning"></i>
@@ -53,11 +53,14 @@
                     <div class="h3 fw-bold text-primary-emphasis mb-0">
                         {{ number_format($platform->contests_count ?? 0) }}+ Contests
                     </div>
+                    <div class="extra-small text-muted mt-1">
+                        4+ Contest Types
+                    </div>
                 </div>
             </div>
 
             <div class="col-6 col-md-3">
-                <div class="card panel border-0 p-3 shadow-sm h-100" style="border-radius: 14px">
+                <div class="card panel border-0 p-3 shadow-sm" style="border-radius: 14px;">
                     <div class="d-flex align-items-center justify-content-between mb-2">
                         <span class="text-muted extra-small uppercase font-monospace fw-semibold">Problem Directory</span>
                         <i class="fa-solid fa-layer-group text-info"></i>
@@ -65,29 +68,39 @@
                     <div class="h3 fw-bold text-primary-emphasis mb-0">
                         {{ number_format($platform->problems_count ?? 0) }}+ Problems
                     </div>
+                    <div class="extra-small text-muted mt-1">
+                        50+ difficulty levels
+                    </div>
                 </div>
             </div>
 
             <div class="col-6 col-md-3">
-                <div class="card panel border-0 p-3 shadow-sm h-100" style="border-radius: 14px">
+                <div class="card panel border-0 p-3 shadow-sm" style="border-radius: 14px">
                     <div class="d-flex align-items-center justify-content-between mb-2">
-                        <span class="text-muted extra-small uppercase font-monospace fw-semibold">Global Community</span>
+                        <span class="text-muted extra-small uppercase font-monospace fw-semibold">{{ $platform->name }}
+                            Users</span>
                         <i class="fa-solid fa-users text-primary"></i>
                     </div>
                     <div class="h3 fw-bold text-primary-emphasis mb-0">
-                        {{ number_format($communityCount ?? 0) }}+ Users
+                        Coming Soon
+                    </div>
+                    <div class="extra-small text-muted mt-1">
+                        We are working on it!
                     </div>
                 </div>
             </div>
 
             <div class="col-6 col-md-3">
-                <div class="card panel border-0 p-3 shadow-sm h-100" style="border-radius: 14px">
+                <div class="card panel border-0 p-3 shadow-sm" style="border-radius: 14px">
                     <div class="d-flex align-items-center justify-content-between mb-2">
                         <span class="text-muted extra-small uppercase font-monospace fw-semibold">Connected Handles</span>
                         <i class="fa-solid fa-link text-success"></i>
                     </div>
                     <div class="h3 fw-bold text-success mb-0">
                         {{ number_format($platform->platform_profiles_count ?? 0) }}+
+                    </div>
+                    <div class="extra-small text-muted mt-1">
+                        Connected Profiles
                     </div>
                 </div>
             </div>
@@ -120,7 +133,7 @@
                                 <th scope="col" style="min-width: 140px">Category</th>
                                 <th scope="col" style="min-width: 170px">Start Date & Time</th>
                                 <th scope="col" style="min-width: 110px">Duration</th>
-                                <th scope="col" style="min-width: 160px">Participants</th>
+                                <th scope="col" style="min-width: 160px">Standings</th>
                                 <th scope="col" class="text-end pe-4" style="min-width: 140px">Action</th>
                             </tr>
                         </thead>
@@ -183,8 +196,9 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <span class="fw-semibold text-primary">
-                                            {{ number_format($contest->standings_count ?: ($contest->participant_count ?: 0)) }} Contestants
+                                        <span
+                                            class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle px-2 py-1 extra-small font-monospace rounded-pill">
+                                            <i class="fa-solid fa-hourglass-half me-1"></i> Coming Soon
                                         </span>
                                     </td>
                                     <td class="text-end pe-4">
@@ -209,7 +223,7 @@
                 </div>
 
                 @if ($platform->contests_count > 0)
-                    <div class="p-3 text-center border-top bg-light-subtle rounded-bottom-3 mt-3">
+                    <div class="p-3 text-center rounded-bottom-3 mt-3">
                         <a href="{{ route('contests.index', ['platform' => $platform->slug]) }}"
                             class="btn btn-primary px-4 py-2 fw-semibold rounded-3 shadow-sm d-inline-flex align-items-center gap-2">
                             <span>View All {{ number_format($platform->contests_count) }} Contests in Directory</span>
@@ -314,7 +328,7 @@
                 </div>
 
                 @if ($platform->problems_count > 0)
-                    <div class="p-3 text-center border-top bg-light-subtle rounded-bottom-3 mt-3">
+                    <div class="p-3 text-center rounded-bottom-3 mt-3">
                         <a href="{{ route('problems.index', ['platform' => $platform->slug]) }}"
                             class="btn btn-primary px-4 py-2 fw-semibold rounded-3 shadow-sm d-inline-flex align-items-center gap-2">
                             <span>View All {{ number_format($platform->problems_count) }} Problems in Directory</span>

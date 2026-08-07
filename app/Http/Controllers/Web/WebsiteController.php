@@ -66,7 +66,6 @@ class WebsiteController extends Controller
             ->firstOrFail();
 
         $recentContests = $platform->contests()
-            ->withCount('standings')
             ->orderByDesc('start_time')
             ->orderByDesc('id')
             ->limit(10)
@@ -79,12 +78,7 @@ class WebsiteController extends Controller
             ->limit(10)
             ->get();
 
-        $communityCount = Standing::query()
-            ->where('platform_id', $platform->id)
-            ->distinct()
-            ->count('participant_key');
-
-        return view('web.pages.platforms.show', compact('platform', 'recentContests', 'recentProblems', 'communityCount'));
+        return view('web.pages.platforms.show', compact('platform', 'recentContests', 'recentProblems'));
     }
 
     public function contests(): View
