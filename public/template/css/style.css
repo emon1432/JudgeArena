@@ -2245,20 +2245,6 @@ html[data-theme="light"] .heatmap-tooltip::after {
 }
 
 /* Contests Table Cell Custom Styling */
-#contests-directory-table th {
-    padding: 16px 20px !important;
-    font-size: 0.75rem !important;
-    font-weight: 700 !important;
-    letter-spacing: 0.05em !important;
-    background-color: var(--surface-2) !important;
-    border-bottom: 1px solid var(--border-strong) !important;
-}
-
-#contests-directory-table td {
-    padding: 16px 20px !important;
-    vertical-align: middle !important;
-    border-bottom: 1px solid var(--border) !important;
-}
 
 .contest-action-btn {
     width: 36px;
