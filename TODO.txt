@@ -16,10 +16,15 @@
             -> Data collect and implement
         -> Official Feed & Blogs
             -> Data collect and implement
+    -> Contests index page
+        -> Live & upcoming contest section should update
+        -> Table need more valuable information
 
 -> Core Platforms
     -> Global Rating Changes and User Rating Changes should be merge
+    -> Contests phase should be update realtime
     -> Global Submissions and User Submissions should be merge
     -> All importer should be incremental sync
+    -> Atcoder contest importer should be improve (upcoming contest not found)
     -> Atcoder contests,problems name lang=ja to lang=en
     -> Atcoder problems tag should be manage from  https://atcoder-categories.github.io/

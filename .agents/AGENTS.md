@@ -31,3 +31,4 @@
 2. **Consult Knowledge Documents First**: Before modifying or creating code, inspect the relevant `.agents/*.md` document.
 3. **Strict Compliance**: Follow Clean Architecture layer rules (`ARCHITECTURE.md`), non-negotiable invariants (`MEMORY.md`), and pre-commit checklists (`CHECKLIST.md`).
 4. **Empirical Verification**: Always run `php artisan test` to verify changes before declaring a task finished.
+5. **Strict Design Consistency & Component Replication**: All web pages MUST strictly follow a unified design language. When rendering lists, toolbars, or tables, **you must open the reference page (e.g., `platforms/index.blade.php`) and copy its exact DOM structure, CSS classes, and alignment rules.** For tables, ensure row alignment (`class="text-center"`), avatar boxes, and column combinations (e.g., Image + Title) perfectly mirror the reference design. Do not invent new layouts if a reference exists.
