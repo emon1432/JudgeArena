@@ -1,0 +1,25 @@
+-> Web
+    -> platform details page
+        -> platform description and more information.
+        -> Platform user counting(if possible otherwise contests participants form standings)
+        -> Contests Directory
+            -> Contests phase should be update realtime
+            -> Contests category define
+            -> Time should be universal and user region wise
+            -> Standings should be dynamic.
+            -> Action should be our implemented page
+        -> Problems Directory
+            -> Rating and point should be collect
+            -> Solved Count should be manage
+            -> Action should be our page
+        -> Platform Ranking
+            -> Data collect and implement
+        -> Official Feed & Blogs
+            -> Data collect and implement
+
+-> Core Platforms
+    -> Global Rating Changes and User Rating Changes should be merge
+    -> Global Submissions and User Submissions should be merge
+    -> All importer should be incremental sync
+    -> Atcoder contests,problems name lang=ja to lang=en
+    -> Atcoder problems tag should be manage from  https://atcoder-categories.github.io/

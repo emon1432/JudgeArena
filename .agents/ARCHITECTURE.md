@@ -104,7 +104,14 @@ Fetch Methods (Getters)                               Importer Factory Methods
 
 ---
 
-## 5. DTO Lifecycle & Immutability Rules
+## 5. Unified Storage Model
+
+- **Single Source of Truth:** `Submissions` and `RatingChanges` are stored in singular, unified tables. There is no separation between "Global Submissions" and "User Submissions".
+- **Context via Relations:** The context (whether a submission belongs to a registered user or a global leaderboard) is determined by relation to a `PlatformProfile`, which may or may not be linked to a local `User`.
+
+---
+
+## 6. DTO Lifecycle & Immutability Rules
 
 Data Transfer Objects (`App\Core\DTOs\*`) represent clean, normalized domain data across all Online Judges.
 
@@ -116,7 +123,7 @@ Data Transfer Objects (`App\Core\DTOs\*`) represent clean, normalized domain dat
 
 ---
 
-## 6. Dependency Rules & Enforcement
+## 7. Dependency Rules & Enforcement
 
 1. **Inner Layer Independence**: `app/Core/` MUST NOT depend on `app/Platforms/`, `app/Http/`, or `app/Services/`.
 2. **No Direct Instantiation**: Services must resolve Platform Adapters via `config/platforms.php` or a dedicated Platform Manager/Factory.
@@ -124,7 +131,7 @@ Data Transfer Objects (`App\Core\DTOs\*`) represent clean, normalized domain dat
 
 ---
 
-## 7. Platform Extension Guidelines
+## 8. Platform Extension Guidelines
 
 To add a new Online Judge platform (e.g. `LeetCode`):
 

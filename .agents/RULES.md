@@ -70,6 +70,10 @@
   ```
 - **Why**: Prevents hammering external platforms when they suffer temporary outages or Cloudflare rate limits.
 
+### Rule 4.4: Incremental Sync Standard
+- **Instruction**: All platform importers MUST implement incremental sync logic using `PlatformSyncState` checkpoints (e.g., `last_submission_id`, `pagination_offset`).
+- **Why**: Re-fetching or re-processing full historical data (e.g., 5000 past submissions) during every sync cycle destroys performance and triggers rate limits. Syncs must only fetch the delta since the last checkpoint.
+
 ---
 
 ## 5. Database & Ingestion Performance Rules
@@ -88,6 +92,10 @@
   - **Composite & Secondary Indexes**: `idx_<table_name>_<columns>` (e.g. `idx_submissions_profile_verdict_submitted`, `idx_standings_contest_rank`)
   - **Foreign Keys**: `fk_<table_name>_<referenced_column>` (where explicitly named)
 - **Why**: Ensures uniform database schema maintenance, predictable SQL migration troubleshooting, and self-documenting raw SQL query plans in MariaDB/MySQL.
+
+### Rule 5.4: Unified Storage (No Data Duplication)
+- **Instruction**: Submissions and Rating Changes MUST be persisted in their respective single, unified tables (`submissions`, `contest_rating_changes`). Do NOT create separate tables for "Global" versus "User" records.
+- **Why**: Centralizes data aggregation, prevents desync between global leaderboards and user profiles, and simplifies queries.
 
 ---
 
