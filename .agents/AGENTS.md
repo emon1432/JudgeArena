@@ -8,12 +8,15 @@
 
 | Document | Purpose & Scope |
 | :--- | :--- |
-| **[PROJECT.md](file:///home/emonideas/Documents/JudgeArena/.agents/PROJECT.md)** | Core domain definition, ubiquitous language, models map, scope boundaries, and non-goals. |
-| **[ARCHITECTURE.md](file:///home/emonideas/Documents/JudgeArena/.agents/ARCHITECTURE.md)** | 5-layer system design, data flow, adapter lifecycle, DTO lifecycle, and dependency rules. |
-| **[RULES.md](file:///home/emonideas/Documents/JudgeArena/.agents/RULES.md)** | Strict coding standards for Laravel, DTOs, Services, Queues, Database bulk operations, and Security. |
-| **[WORKFLOWS.md](file:///home/emonideas/Documents/JudgeArena/.agents/WORKFLOWS.md)** | Step-by-step procedures for platform integrations, scraper development, bug fixes, and refactoring. |
-| **[MEMORY.md](file:///home/emonideas/Documents/JudgeArena/.agents/MEMORY.md)** | Permanent architectural invariants, system axioms, and strategic technical decisions. |
-| **[CHECKLIST.md](file:///home/emonideas/Documents/JudgeArena/.agents/CHECKLIST.md)** | Pre-commit self-review checklists for Architecture, Adapters, Security, and Performance. |
+| **[PROJECT.md](./memory/PROJECT.md)** | Core domain definition, ubiquitous language, models map, scope boundaries, and non-goals. |
+| **[ARCHITECTURE.md](./memory/ARCHITECTURE.md)** | 5-layer system design, data flow, adapter lifecycle, DTO lifecycle, and dependency rules. |
+| **[SYSTEM_AXIOMS.md](./memory/SYSTEM_AXIOMS.md)** | Permanent architectural invariants, system axioms, and strategic technical decisions. |
+| **[BACKEND_LARAVEL.md](./rules/BACKEND_LARAVEL.md)** | Strict coding standards for Laravel, DTOs, Services, and Queues. |
+| **[DATABASE_SECURITY.md](./rules/DATABASE_SECURITY.md)** | Database bulk operations, indexes, and scraper security rules. |
+| **[FRONTEND_DESIGN.md](./rules/FRONTEND_DESIGN.md)** | Strict frontend architecture, UI consistency, and infinite scrolling rules. |
+| **[PLATFORM_INTEGRATION.md](./workflows/PLATFORM_INTEGRATION.md)** | Step-by-step procedures for new platform integrations and scrapers. |
+| **[MAINTENANCE_REFACTOR.md](./workflows/MAINTENANCE_REFACTOR.md)** | Step-by-step procedures for bug fixes, new features, and core refactoring. |
+| **[PRE_COMMIT_REVIEW.md](./checklists/PRE_COMMIT_REVIEW.md)** | Pre-commit self-review checklists for Architecture, Adapters, Security, and Performance. |
 
 ---
 
@@ -28,7 +31,7 @@
 ## 🤖 Behavioral Directives for AI Agents
 
 1. **Language Preference**: Respond in **Bengali** (or English when requested) with professional formatting.
-2. **Consult Knowledge Documents First**: Before modifying or creating code, inspect the relevant `.agents/*.md` document.
-3. **Strict Compliance**: Follow Clean Architecture layer rules (`ARCHITECTURE.md`), non-negotiable invariants (`MEMORY.md`), and pre-commit checklists (`CHECKLIST.md`).
+2. **Consult Knowledge Documents First**: Before modifying or creating code, inspect the relevant `.agents/*/*.md` document.
+3. **Strict Compliance**: Follow Clean Architecture layer rules (`ARCHITECTURE.md`), non-negotiable invariants (`SYSTEM_AXIOMS.md`), and pre-commit checklists (`PRE_COMMIT_REVIEW.md`).
 4. **Empirical Verification**: Always run `php artisan test` to verify changes before declaring a task finished.
 5. **Strict Design Consistency & Component Replication**: All web pages MUST strictly follow a unified design language. When rendering lists, toolbars, or tables, **you must open the reference page (e.g., `platforms/index.blade.php`) and copy its exact DOM structure, CSS classes, and alignment rules.** For tables, ensure row alignment (`class="text-center"`), avatar boxes, and column combinations (e.g., Image + Title) perfectly mirror the reference design. Do not invent new layouts if a reference exists.
