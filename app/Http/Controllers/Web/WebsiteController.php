@@ -171,9 +171,87 @@ class WebsiteController extends Controller
         ));
     }
 
-    public function problems(): View
+    public function problems(Request $request): View
     {
-        return view('web.pages.problems.index');
+        $perPage = min(max((int) $request->input('per_page', 25), 10), 100);
+        $search = trim((string) $request->input('search', ''));
+        $sort = $request->input('sort', 'name-asc');
+        $platformSlug = $request->input('platform', 'all');
+        $difficulty = $request->input('difficulty', 'all');
+        $tagsParam = $request->input('tags', ''); // comma separated
+
+        $query = Problem::query()->with('platform');
+
+        // Filter by platform
+        if ($platformSlug !== 'all') {
+            $query->whereHas('platform', function ($q) use ($platformSlug) {
+                $q->where('slug', $platformSlug)
+                    ->orWhere('short_name', $platformSlug)
+                    ->orWhere('name', $platformSlug);
+            });
+        }
+
+        // Filter by search (name or code)
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('code', 'like', "%{$search}%");
+            });
+        }
+
+        // Filter by difficulty (using rating approximation)
+        if ($difficulty === 'Easy') {
+            $query->where('rating', '<', 1200);
+        } elseif ($difficulty === 'Medium') {
+            $query->whereBetween('rating', [1200, 1899]);
+        } elseif ($difficulty === 'Hard') {
+            $query->where('rating', '>=', 1900);
+        }
+
+        // Filter by tags
+        if ($tagsParam !== '') {
+            $tags = array_map('trim', explode(',', $tagsParam));
+            foreach ($tags as $tag) {
+                if (!empty($tag)) {
+                    $query->whereJsonContains('tags', $tag);
+                }
+            }
+        }
+
+        // Sorting
+        match ($sort) {
+            'name-asc' => $query->orderBy('name', 'asc'),
+            'diff-asc' => $query->orderBy('rating', 'asc'),
+            'diff-desc' => $query->orderBy('rating', 'desc'),
+            'newest' => $query->orderBy('created_at', 'desc')->orderBy('id', 'desc'),
+            default => $query->orderBy('name', 'asc'),
+        };
+
+        $problems = $query->simplePaginate($perPage)->withQueryString();
+
+        // Calculate metrics
+        $totalProblems = Problem::query()->count();
+        $activePlatforms = Platform::query()->where('status', 'Active')->get();
+        $platformsCount = $activePlatforms->count();
+        $platformShortNames = $activePlatforms->pluck('short_name')->filter()->implode(', ');
+
+        $availableTags = cache()->remember('problems_available_tags', 3600, function () {
+            return Problem::whereNotNull('tags')->pluck('tags')->map(function ($tags) {
+                return is_string($tags) ? json_decode($tags, true) : $tags;
+            })->flatten()->filter()->unique()->sort()->values();
+        });
+
+        $totalTags = $availableTags->count();
+
+        return view('web.pages.problems.index', compact(
+            'problems',
+            'totalProblems',
+            'platformsCount',
+            'activePlatforms',
+            'platformShortNames',
+            'availableTags',
+            'totalTags'
+        ));
     }
 
     public function rankings(): View
