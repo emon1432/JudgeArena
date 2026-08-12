@@ -8,6 +8,7 @@
 
 ### Rule 1.1: Exact Component Replication
 - **Instruction**: All web pages MUST strictly follow a unified design language. When rendering lists, toolbars, or tables, **you must open the reference page (e.g., `platforms/index.blade.php`) and copy its exact DOM structure, CSS classes, and alignment rules.**
+- **Critical Check**: For Toolbars (Search/Filter), you MUST perfectly match the flexbox layout, width constraints (e.g., `max-width: 380px` for search), input spinner (`<div class="spinner-border">`), and single-row alignment used in reference pages. Never invent custom multi-row layouts.
 - **Why**: Inventing new layouts breaks the unified premium feel of JudgeArena.
 
 ### Rule 1.2: Table Consistency Requirements
@@ -18,7 +19,7 @@
 ## 2. JavaScript & View Architecture
 
 ### Rule 2.1: Page-Specific JavaScript Management Pattern
-- **Instruction**: Do NOT create static `.js` files in `public/` for page-specific view logic. Page-specific JavaScript MUST be stored inside Blade script partials (e.g., `resources/views/web/pages/<feature>/scripts.blade.php`) and included in the view using `@push('scripts') @include('web.pages.<feature>.scripts') @endpush`.
+- **Instruction**: Every component/feature's script MUST be isolated in its own separate file (e.g., `scripts.blade.php`). ONLY truly global scripts are allowed in `main.js`. Do NOT mix page-specific logic into global JS files or inline them in index views. Page-specific JavaScript MUST be stored inside Blade script partials (e.g., `resources/views/web/pages/<feature>/scripts.blade.php`) and included in the view using `@push('scripts') @include('web.pages.<feature>.scripts') @endpush`.
 - **Why**: Allows direct, safe usage of Blade directives (`route()`, `config()`, `@json()`, `csrf_token()`) inside JavaScript without hardcoding URLs or creating global Window scope pollution.
 
 ### Rule 2.2: Self-Contained Component-Based Architecture for UI Partials
