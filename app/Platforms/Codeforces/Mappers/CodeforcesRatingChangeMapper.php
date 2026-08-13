@@ -30,7 +30,7 @@ final class CodeforcesRatingChangeMapper
             ratingUpdateTimeSeconds: $normalized['ratingUpdateTimeSeconds'] ?? null,
             oldRating: $normalized['oldRating'] ?? null,
             newRating: $normalized['newRating'] ?? null,
-            isRated: 1,
+            isRated: true,
             raw: $normalized,
         );
     }
