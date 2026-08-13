@@ -1,24 +1,15 @@
 @extends('web.layouts.app')
 @section('content')
     <main class="container px-3 px-md-4 py-4 max-w-7xl">
-        <!-- Top Breadcrumb & Share Row (Same as profile.html) -->
-        <div class="row align-items-center justify-content-between g-2 mb-3">
-            <div class="col-auto">
-                <nav class="breadcrumb-list" aria-label="Breadcrumb navigation">
-                    <a href="{{ route('home') }}">Home</a>
-                    <span class="sep">/</span>
-                    <a href="profile.html">User</a>
-                    <span class="sep">/</span>
-                    <span class="current">Edit Profile</span>
-                </nav>
-            </div>
-            <div class="col-auto">
-                <button class="btn-share-profile" data-bs-toggle="modal" data-bs-target="#shareProfileModal">
-                    <i class="fa-solid fa-arrow-up-from-bracket"></i> Share
-                    Profile
-                </button>
-            </div>
-        </div>
+        <!-- Top Breadcrumb & Share Row -->
+        <x-breadcrumb title="Edit Profile" :breadcrumbs="[
+            'User' => route('user.show', $username ?? (auth()->user()->username ?? 'admin')),
+            'Edit Profile' => null,
+        ]">
+            <button class="btn-share-profile" data-bs-toggle="modal" data-bs-target="#shareProfileModal">
+                <i class="fa-solid fa-arrow-up-from-bracket"></i> Share Profile
+            </button>
+        </x-breadcrumb>
 
         <!-- Settings Main Layout Row -->
         <div class="row g-4 mb-5">

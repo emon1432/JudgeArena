@@ -1,67 +1,64 @@
 @extends('web.layouts.app')
 @section('content')
     <main class="container px-3 px-md-4 py-4 max-w-7xl">
-        <!-- Top Breadcrumb & Share Row -->
-        <div class="row align-items-center justify-content-between g-2 mb-3">
-            <div class="col-auto">
-                <nav class="breadcrumb-list" aria-label="Breadcrumb navigation">
-                    <a href="{{ route('home') }}">Home</a>
-                    <span class="sep">/</span>
-                    <a href="#">User</a>
-                    <span class="sep">/</span>
-                    <span class="current">Khairul Islam Emon</span>
-                </nav>
-            </div>
-            <div class="col-auto">
-                <button class="btn-share-profile" data-bs-toggle="modal" data-bs-target="#shareProfileModal">
-                    <i class="fa-solid fa-arrow-up-from-bracket"></i> Share
-                    Profile
-                </button>
-            </div>
-        </div>
+        <x-breadcrumb :breadcrumbs="[
+            'Users' => route('home'),
+            $user->name => null,
+        ]">
+            <button class="btn-share-profile" data-bs-toggle="modal" data-bs-target="#shareProfileModal">
+                <i class="fa-solid fa-arrow-up-from-bracket"></i> Share Profile
+            </button>
+        </x-breadcrumb>
 
-        <!-- Profile Header Card Grid -->
         <header class="profile-header-card mb-4">
             <div class="row align-items-center g-3">
-                <!-- Left Col: Avatar & Info -->
                 <div class="col-lg-12 col-md-12">
                     <div class="d-flex align-items-center gap-3 flex-wrap flex-sm-nowrap">
                         <div class="avatar-wrap">
-                            <img src="{{ asset('web') }}/img/khairul-islam-emon.jpg" alt="Khairul Islam Emon avatar" />
+                            <img src="{{ imageExists($user->image) ? imageShow($user->image) : $user->profile_photo_url }}"
+                                alt="{{ $user->name }}">
                         </div>
                         <div>
                             <div class="d-flex align-items-center gap-2">
                                 <h1 class="h3 fw-bold mb-0">
-                                    Khairul Islam Emon
+                                    {{ $user->name }}
                                 </h1>
-                                <i class="fa-solid fa-circle-check verified-badge"></i>
+                                <i class="fa-solid fa-circle-check verified-badge" title="Verified User"></i>
                             </div>
                             <div class="profile-role-title">
-                                Software Engineer · Bangladesh
+                                {{ $user->institute->name }}
                             </div>
                             <div class="profile-location-text">
                                 <i class="fa-solid fa-location-dot"></i>
-                                Dhaka, Bangladesh
+                                {{ $user->country->name }}
                             </div>
                             <div class="profile-action-group mt-2">
-                                <a class="social-link-btn" title="GitHub" href="#"><i
-                                        class="fa-brands fa-github"></i></a>
-                                <a class="social-link-btn" title="Twitter" href="#"><i
-                                        class="fa-brands fa-twitter"></i></a>
-                                <a class="social-link-btn" title="LinkedIn" href="#"><i
-                                        class="fa-brands fa-linkedin"></i></a>
-                                <a class="social-link-btn" title="Facebook" href="#"><i
-                                        class="fa-brands fa-facebook"></i></a>
-                                <a class="social-link-btn" title="Instagram" href="#"><i
-                                        class="fa-brands fa-instagram"></i></a>
-                                <a class="social-link-btn" title="Youtube" href="#"><i
-                                        class="fa-brands fa-youtube"></i></a>
-                                <a class="social-link-btn" title="Whatsapp" href="#"><i
-                                        class="fa-brands fa-whatsapp"></i></a>
-                                <a class="social-link-btn" title="Telegram" href="#"><i
-                                        class="fa-brands fa-telegram"></i></a>
-                                <a class="social-link-btn" title="Website" href="#"><i
-                                        class="fa-solid fa-globe"></i></a>
+                                @if (!empty($user->github))
+                                    <a class="social-link-btn" title="GitHub"
+                                        href="{{ str_starts_with($user->github, 'http') ? $user->github : 'https://github.com/' . $user->github }}"
+                                        target="_blank"><i class="fa-brands fa-github"></i></a>
+                                @endif
+                                @if (!empty($user->twitter))
+                                    <a class="social-link-btn" title="Twitter"
+                                        href="{{ str_starts_with($user->twitter, 'http') ? $user->twitter : 'https://twitter.com/' . $user->twitter }}"
+                                        target="_blank"><i class="fa-brands fa-twitter"></i></a>
+                                @endif
+                                @if (!empty($user->linkedin))
+                                    <a class="social-link-btn" title="LinkedIn" href="{{ $user->linkedin }}"
+                                        target="_blank"><i class="fa-brands fa-linkedin"></i></a>
+                                @endif
+                                @if (!empty($user->facebook))
+                                    <a class="social-link-btn" title="Facebook" href="{{ $user->facebook }}"
+                                        target="_blank"><i class="fa-brands fa-facebook"></i></a>
+                                @endif
+                                @if (!empty($user->instagram))
+                                    <a class="social-link-btn" title="Instagram" href="{{ $user->instagram }}"
+                                        target="_blank"><i class="fa-brands fa-instagram"></i></a>
+                                @endif
+                                @if (!empty($user->website))
+                                    <a class="social-link-btn" title="Website" href="{{ $user->website }}"
+                                        target="_blank"><i class="fa-solid fa-globe"></i></a>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -94,45 +91,127 @@
 
         <!-- ============ TAB: COMPETITIVE PROGRAMMING ============ -->
         <section class="tab-content" id="tab-content-cp">
-            <!-- 1. Key Stat Cards Grid (6 Stat Cards) -->
-            <div class="row g-3 mb-4">
+            <!-- 1. Primary Key Stat Cards Grid (6 Stat Cards) -->
+            <div class="row g-3 mb-3">
+                <!-- Card 1: Connected Platforms -->
                 <div class="col-lg-2 col-md-4 col-6">
-                    <div class="card stat-card text-center py-3">
-                        <div class="stat-label">Total Contests</div>
-                        <div class="stat-value">432</div>
-                    </div>
-                </div>
-                <div class="col-lg-2 col-md-4 col-6">
-                    <div class="card stat-card text-center py-3">
-                        <div class="stat-label">Peak Rating</div>
-                        <div class="stat-value text-primary">1,964</div>
-                    </div>
-                </div>
-                <div class="col-lg-2 col-md-4 col-6">
-                    <div class="card stat-card text-center py-3">
-                        <div class="stat-label">Solved Problems</div>
-                        <div class="stat-value text-success">1,482</div>
-                    </div>
-                </div>
-                <div class="col-lg-2 col-md-4 col-6">
-                    <div class="card stat-card text-center py-3">
-                        <div class="stat-label">Global Rank</div>
-                        <div class="stat-value text-warning">#846</div>
-                    </div>
-                </div>
-                <div class="col-lg-2 col-md-4 col-6">
-                    <div class="card stat-card text-center py-3">
-                        <div class="stat-label">Max Gain</div>
-                        <div class="stat-value stat-value-positive">
-                            +112
+                    <div class="card stat-card text-center py-3 h-100">
+                        <div class="stat-label">
+                            <i class="fa-solid fa-layer-group text-primary me-1"></i> Platforms
+                        </div>
+                        <div class="stat-value text-primary">
+                            {{ $connectedPlatforms ?? $user->platformProfiles->count() }}
                         </div>
                     </div>
                 </div>
+
+                <!-- Card 2: Problems Solved -->
                 <div class="col-lg-2 col-md-4 col-6">
-                    <div class="card stat-card text-center py-3">
-                        <div class="stat-label">Active Streak</div>
-                        <div class="stat-value" style="color: var(--orange)">
-                            42 Days
+                    <div class="card stat-card text-center py-3 h-100">
+                        <div class="stat-label">
+                            <i class="fa-solid fa-circle-check text-success me-1"></i> Problems
+                        </div>
+                        <div class="stat-value text-success">
+                            {{ number_format($totalSolved) }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 3: Rated Contests -->
+                <div class="col-lg-2 col-md-4 col-6">
+                    <div class="card stat-card text-center py-3 h-100">
+                        <div class="stat-label">
+                            <i class="fa-solid fa-trophy text-purple me-1"></i> Contests
+                        </div>
+                        <div class="stat-value text-purple" style="color: var(--purple)">
+                            {{ number_format($totalContests) }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 4: Total Submissions -->
+                <div class="col-lg-2 col-md-4 col-6">
+                    <div class="card stat-card text-center py-3 h-100">
+                        <div class="stat-label">
+                            <i class="fa-solid fa-paper-plane text-info me-1"></i> Submissions
+                        </div>
+                        <div class="stat-value text-info">
+                            {{ number_format($totalSubmissions) }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 5: Best Rank -->
+                <div class="col-lg-2 col-md-4 col-6">
+                    <div class="card stat-card text-center py-3 h-100">
+                        <div class="stat-label">
+                            <i class="fa-solid fa-crown text-warning me-1"></i> Best Rank
+                        </div>
+                        <div class="stat-value text-warning">
+                            {{ $bestRank ?? '#3' }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 6: Solving Streak -->
+                <div class="col-lg-2 col-md-4 col-6">
+                    <div class="card stat-card text-center py-3 h-100">
+                        <div class="stat-label">
+                            <i class="fa-solid fa-fire text-danger me-1"></i> Streak
+                        </div>
+                        <div class="stat-value text-danger">
+                            {{ $activeStreak ?? 42 }} Days
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Secondary Metrics Grid (4 Performance Cards) -->
+            <div class="row g-3 mb-4">
+                <!-- Card 7: Acceptance Rate -->
+                <div class="col-lg-3 col-md-6 col-6">
+                    <div class="card stat-card text-center py-2.5 h-100">
+                        <div class="stat-label">
+                            <i class="fa-solid fa-chart-pie text-info me-1"></i> Acceptance
+                        </div>
+                        <div class="stat-value text-info fs-5">
+                            {{ $acceptanceRate }}%
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 8: Active Days -->
+                <div class="col-lg-3 col-md-6 col-6">
+                    <div class="card stat-card text-center py-2.5 h-100">
+                        <div class="stat-label">
+                            <i class="fa-regular fa-calendar-check text-success me-1"></i> Active Days
+                        </div>
+                        <div class="stat-value text-success fs-5">
+                            {{ number_format($activeDays) }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 9: Attempted Problems -->
+                <div class="col-lg-3 col-md-6 col-6">
+                    <div class="card stat-card text-center py-2.5 h-100">
+                        <div class="stat-label">
+                            <i class="fa-solid fa-bullseye text-warning me-1"></i> Attempted
+                        </div>
+                        <div class="stat-value text-warning fs-5">
+                            {{ number_format($totalAttempted) }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 10: Languages Used -->
+                <div class="col-lg-3 col-md-6 col-6">
+                    <div class="card stat-card text-center py-2.5 h-100">
+                        <div class="stat-label">
+                            <i class="fa-solid fa-code text-primary me-1"></i> Languages
+                        </div>
+                        <div class="stat-value text-primary fs-5">
+                            {{ number_format($totalLanguages) }}
                         </div>
                     </div>
                 </div>
@@ -1920,4 +1999,5 @@
 
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    @include('web.pages.user.scripts')
 @endpush

@@ -26,6 +26,15 @@
 - **Instruction**: Reusable UI elements MUST be created as single-file, self-contained Blade Components inside `resources/views/components/*` and ALWAYS utilized across views instead of raw HTML copy-pasting (e.g., ALWAYS use `<x-breadcrumb>` for top navigation and page titles, `<x-infinite-scroll>` for endless listings). NEVER recreate manual breadcrumb or loader HTML in individual view pages.
 - **Why**: Guarantees DRY architecture, global accessibility across all views, and consistent styling without cluttering `views/includes/`.
 
+### Rule 2.3: Standardized Image Rendering & Helper Usage
+- **Instruction**: When rendering uploaded images or user avatars in Blade templates, ALWAYS check image existence and resolve display URLs using the global helpers:
+  `{{ imageExists($model->image) ? imageShow($model->image) : $model->profile_photo_url }}`
+- **Why**: Guarantees fallback images are served gracefully when uploaded files are missing on disk, preventing broken `<img>` tags across the platform.
+
+### Rule 2.4: Strict Model Schema & Attribute Verification
+- **Instruction**: ALWAYS inspect Eloquent `$fillable` array or database migrations before referencing model attributes in Blade views or controllers. Never invent attribute names (e.g., use `$user->github`, `$user->twitter`, `$user->linkedin`, `$user->facebook`, `$user->instagram`, `$user->website` instead of `$user->github_username` or `$user->linkedin_url`).
+- **Why**: Prevents runtime null pointer bugs and ensures template bindings strictly match database schema properties.
+
 ---
 
 ## 3. Data Rendering & Infinite Scrolling
