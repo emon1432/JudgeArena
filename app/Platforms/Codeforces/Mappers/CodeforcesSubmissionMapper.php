@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Platforms\Codeforces\Mappers;
 
 use App\Platforms\Codeforces\DTOs\CodeforcesSubmissionDTO;
@@ -32,3 +34,4 @@ final class CodeforcesSubmissionMapper
         return array_map(fn (array $submission): CodeforcesSubmissionDTO => self::fromNormalized($submission), $submissions);
     }
 }
+

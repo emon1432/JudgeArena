@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Platforms\Codeforces\Services;
 
 use App\Platforms\Codeforces\Client\BaseClient;
@@ -191,3 +193,4 @@ class Users
         return $chunks;
     }
 }
+

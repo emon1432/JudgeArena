@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Platforms\Codeforces\Mappers;
 
 use App\Platforms\Codeforces\DTOs\CodeforcesUserDTO;
@@ -38,3 +40,4 @@ final class CodeforcesUserMapper
         return array_map(fn(array $user): CodeforcesUserDTO => self::fromNormalized($user), $users);
     }
 }
+

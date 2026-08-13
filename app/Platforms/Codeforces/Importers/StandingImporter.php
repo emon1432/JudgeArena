@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Platforms\Codeforces\Importers;
 
 use App\Core\Contracts\Importers\StandingImporter as StandingImporterContract;
@@ -434,3 +436,4 @@ class StandingImporter implements StandingImporterContract
         return (int) $raw[$key];
     }
 }
+

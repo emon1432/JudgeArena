@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Platforms\Codeforces\DTOs;
 
 readonly class CodeforcesStandingsDTO
@@ -16,3 +18,4 @@ readonly class CodeforcesStandingsDTO
         public array $raw,
     ) {}
 }
+

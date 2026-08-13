@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Platforms\Codeforces\Transformers;
 
 use App\Core\DTOs\ContestDTO;
@@ -35,3 +37,4 @@ class ContestTransformer
         return array_map(fn(CodeforcesContestDTO $contest): ContestDTO => $this->fromApiContest($contest), $contests);
     }
 }
+

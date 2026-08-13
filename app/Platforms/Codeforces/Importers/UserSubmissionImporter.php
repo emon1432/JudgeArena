@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Platforms\Codeforces\Importers;
 
 use App\Core\Contracts\Importers\UserSubmissionImporter as UserSubmissionImporterContract;
@@ -308,3 +310,4 @@ class UserSubmissionImporter implements UserSubmissionImporterContract
             );
     }
 }
+

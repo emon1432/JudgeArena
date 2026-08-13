@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Platforms\Codeforces\Importers;
 
 use App\Core\Contracts\Importers\ContestImporter as ContestImporterContract;
@@ -55,22 +57,35 @@ class ContestImporter implements ContestImporterContract
         $result->incrementChecked(count($contests));
 
         foreach ($contests as $contestDto) {
+            $contestPlatformId = (string) ($contestDto->platformContestId ?? '');
+
+            $existingContest = $this->contestModel->newQuery()
+                ->where('platform_id', $platform->id)
+                ->where('platform_contest_id', $contestPlatformId)
+                ->first();
+
+            $isSynced = $this->platformSyncStateService->isSynced(
+                $platform,
+                PlatformSyncEntityType::Contest,
+                $contestPlatformId
+            );
+
+            // Skip only if contest exists and its phase is already 'FINISHED'
             if (
-                $this->platformSyncStateService->isSynced(
-                    $platform,
-                    PlatformSyncEntityType::Contest,
-                    (string) $contestDto->platformContestId
-                )
+                $existingContest !== null &&
+                strtoupper((string) $existingContest->phase) === 'FINISHED' &&
+                $isSynced
             ) {
                 $result->incrementSkipped();
                 continue;
             }
+
             $syncState = $this->platformSyncStateService->markSyncing(
                 $platform,
                 PlatformSyncEntityType::Contest,
-                (string) $contestDto->platformContestId,
+                $contestPlatformId,
                 [
-                    'contest_platform_id' => $contestDto->platformContestId,
+                    'contest_platform_id' => $contestPlatformId,
                     'contest_title' => $contestDto->title,
                     'platform_slug' => $platform->slug,
                 ]
@@ -85,27 +100,39 @@ class ContestImporter implements ContestImporterContract
                 $contest = $this->contestModel->newQuery()->updateOrCreate(
                     [
                         'platform_id' => $platform->id,
-                        'platform_contest_id' => $contestDto->platformContestId,
+                        'platform_contest_id' => (string) ($contestDto->platformContestId ?? ''),
                     ],
                     [
-                        'name' => $contestDto->title,
-                        'phase' => $contestDto->phase,
-                        'duration_seconds' => $contestDto->durationSeconds,
-                        'start_time' => $contestDto->startedAt,
-                        'end_time' => $contestDto->endedAt,
-                        'url' => $contestDto->url,
+                        'name' => $contestDto->title ?? '',
+                        'slug' => \Illuminate\Support\Str::slug(($contestDto->title ?? 'contest') . '-' . ($contestDto->platformContestId ?? '')),
+                        'type' => $contestDto->raw['type'] ?? null,
+                        'phase' => $contestDto->phase ?? null,
+                        'duration_seconds' => $contestDto->durationSeconds ?? null,
+                        'start_time' => $contestDto->startedAt ?? null,
+                        'end_time' => $contestDto->endedAt ?? null,
+                        'url' => $contestDto->url ?? null,
+                        'last_synced_at' => now(),
                         'metadata' => [
                             'source' => 'adapter',
                             'imported_at' => now(),
                         ],
-                        'raw' => $contestDto->raw,
+                        'raw' => $contestDto->raw ?? [],
                     ],
                 );
 
-                $this->platformSyncStateService->markSynced($syncState, [
-                    'contest_id' => $contest->id,
-                    'contest_platform_id' => $contestDto->platformContestId,
-                ]);
+                if (strtoupper((string) $contest->phase) === 'FINISHED') {
+                    $this->platformSyncStateService->markSynced($syncState, [
+                        'contest_id' => $contest->id,
+                        'contest_platform_id' => $contestDto->platformContestId,
+                        'phase' => $contest->phase,
+                    ]);
+                } else {
+                    $this->platformSyncStateService->resetForRetry($syncState, [
+                        'contest_id' => $contest->id,
+                        'contest_platform_id' => $contestDto->platformContestId,
+                        'phase' => $contest->phase,
+                    ]);
+                }
 
                 if ($contest->wasRecentlyCreated) {
                     $result->incrementCreated();
@@ -147,3 +174,4 @@ class ContestImporter implements ContestImporterContract
         return $result;
     }
 }
+

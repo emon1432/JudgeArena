@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Platforms\Codeforces\Mappers;
 
 use App\Platforms\Codeforces\DTOs\CodeforcesProblemDTO;
@@ -31,3 +33,4 @@ final class CodeforcesProblemMapper
         return array_map(fn (array $problem): CodeforcesProblemDTO => self::fromNormalized($problem), $problems);
     }
 }
+

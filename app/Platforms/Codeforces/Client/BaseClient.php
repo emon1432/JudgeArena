@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Platforms\Codeforces\Client;
 
 use App\Services\ApplicationLogger;
@@ -200,8 +202,10 @@ class BaseClient
 
         $this->respectRateLimit($method, $finalQuery);
 
+        $url = rtrim($this->apiBaseUrl, '/') . '/' . ltrim($method, '/');
+
         $response = $this->http()
-            ->get($this->apiBaseUrl . '/' . $method, $finalQuery);
+            ->get($url, $finalQuery);
 
         return $this->decodeApiResponse($response, $method, $query);
     }
