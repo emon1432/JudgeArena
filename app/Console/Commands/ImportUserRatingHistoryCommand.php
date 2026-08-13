@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use App\Core\Platforms\PlatformRegistry;
@@ -10,10 +12,12 @@ use Throwable;
 class ImportUserRatingHistoryCommand extends Command
 {
     protected $signature = 'judgearena:import-user-rating-history {platform} {handle?}';
+
     protected $description = 'Import user rating history by delegating synchronization to the platform rating history table.';
 
     public function __construct(
         private readonly PlatformRegistry $platformRegistry,
+        private readonly ApplicationLogger $logger,
     ) {
         parent::__construct();
     }
@@ -23,7 +27,7 @@ class ImportUserRatingHistoryCommand extends Command
         $platformSlug = strtolower(trim((string) $this->argument('platform')));
         $handle = trim((string) $this->argument('handle')) ?: null;
 
-        app(ApplicationLogger::class)->info('User rating history import started', [
+        $this->logger->info('User rating history import started', [
             'category' => 'import',
             'platform' => $platformSlug,
             'source' => self::class,
@@ -32,7 +36,7 @@ class ImportUserRatingHistoryCommand extends Command
         $adapter = $this->platformRegistry->resolve($platformSlug);
 
         if ($adapter === null) {
-            app(ApplicationLogger::class)->warning('User rating history import skipped: unsupported platform', [
+            $this->logger->warning('User rating history import skipped: unsupported platform', [
                 'category' => 'import',
                 'platform' => $platformSlug,
                 'source' => self::class,
@@ -50,14 +54,16 @@ class ImportUserRatingHistoryCommand extends Command
                 ->import($handle);
 
             $this->line('Platform: ' . $platformSlug);
-            $this->line('Checked: ' . $result->checked);
-            $this->line('Created: ' . $result->created);
-            $this->line('Updated: ' . $result->updated);
-            $this->line('Failed: ' . $result->failed);
-            $this->line('Skipped: ' . $result->skipped);
+            $this->line('Checked: ' . ($result->checked ?? 0));
+            $this->line('Fetched: ' . ($result->fetched ?? 0));
+            $this->line('Created: ' . ($result->created ?? 0));
+            $this->line('Updated: ' . ($result->updated ?? 0));
+            $this->line('Skipped: ' . ($result->skipped ?? 0));
+            $this->line('Failed: ' . ($result->failed ?? 0));
+            $this->line('Synced: ' . $result->synced());
             $this->info('User rating history import completed successfully.');
 
-            app(ApplicationLogger::class)->info('User rating history import completed', [
+            $this->logger->info('User rating history import completed', [
                 'category' => 'import',
                 'platform' => $platformSlug,
                 'source' => self::class,
@@ -66,7 +72,7 @@ class ImportUserRatingHistoryCommand extends Command
 
             return self::SUCCESS;
         } catch (Throwable $e) {
-            app(ApplicationLogger::class)->error('User rating history import failed', [
+            $this->logger->error('User rating history import failed', [
                 'category' => 'import',
                 'platform' => $platformSlug,
                 'source' => self::class,

@@ -20,8 +20,6 @@ use Throwable;
 
 class UserRatingHistoryImporter implements UserRatingHistoryImporterContract
 {
-    private object $contest;
-
     public function __construct(
         private readonly Contest $contestModel,
         private readonly ContestRatingChange $contestRatingChangeModel,
@@ -29,9 +27,7 @@ class UserRatingHistoryImporter implements UserRatingHistoryImporterContract
         private readonly PlatformProfile $platformProfileModel,
         private readonly CodeforcesAdapter $adapter,
         private readonly PlatformSyncStateService $platformSyncStateService,
-    ) {
-        $this->contest = new Contest();
-    }
+    ) {}
 
     public function import(?string $handle = null): ImportResult
     {
@@ -60,7 +56,7 @@ class UserRatingHistoryImporter implements UserRatingHistoryImporterContract
             ->where('platform_id', $platform->id)
             ->active();
 
-        if ($handle !== null) {
+        if ($handle !== null && trim($handle) !== '') {
             $query->whereRaw(
                 'LOWER(handle) = ?',
                 [mb_strtolower(trim($handle))]
@@ -68,18 +64,34 @@ class UserRatingHistoryImporter implements UserRatingHistoryImporterContract
         }
 
         $profiles = $query->get();
-
         $result->incrementChecked($profiles->count());
 
-        foreach ($profiles as $profile) {
+        // Pre-index all contests by platform_contest_id to eliminate N+1 SQL queries
+        $contestsByPlatformId = $this->contestModel->newQuery()
+            ->where('platform_id', $platform->id)
+            ->whereNotNull('platform_contest_id')
+            ->get()
+            ->keyBy(fn(Contest $c): string => (string) $c->platform_contest_id);
 
-            $normalizedHandle = mb_strtolower(
-                trim((string) $profile->handle)
-            );
+        $platformProfilesByHandle = $this->platformProfilesByHandle((int) $platform->id);
+
+        foreach ($profiles as $profile) {
+            $normalizedHandle = mb_strtolower(trim((string) $profile->handle));
 
             if ($normalizedHandle === '') {
                 $result->incrementSkipped();
+                continue;
+            }
 
+            $isSynced = $this->platformSyncStateService->isSynced(
+                $platform,
+                PlatformSyncEntityType::UserRatingHistory,
+                $normalizedHandle
+            );
+
+            // If handle is not explicitly specified and profile rating history was already synced, skip!
+            if ($handle === null && $isSynced) {
+                $result->incrementSkipped();
                 continue;
             }
 
@@ -108,97 +120,91 @@ class UserRatingHistoryImporter implements UserRatingHistoryImporterContract
 
                 $result->incrementFetched(count($ratingChanges));
 
-                $platformProfilesByHandle = $this->platformProfilesByHandle((int) $platform->id);
-
                 foreach ($ratingChanges as $ratingChange) {
-
                     if (! ($ratingChange instanceof RatingChangeDTO)) {
                         continue;
                     }
 
-                    $handle = trim($ratingChange->handle);
+                    $ratingChangeHandle = trim((string) ($ratingChange->handle ?? ''));
+                    if ($ratingChangeHandle === '') {
+                        $ratingChangeHandle = $profile->handle;
+                    }
 
-                    $this->contest = $this->contestModel->newQuery()->where('platform_contest_id', $ratingChange->contestPlatformId)->first();
+                    $contestPlatformId = (string) ($ratingChange->contestPlatformId ?? '');
+                    $contest = $contestsByPlatformId->get($contestPlatformId);
 
-                    if ($handle === '') {
-                        app(ApplicationLogger::class)->warning('Skipping rating change with missing handle', [
+                    if ($contest === null) {
+                        app(ApplicationLogger::class)->warning('Skipping user rating change: contest not found in DB', [
                             'category' => 'import',
                             'platform' => 'codeforces',
                             'source' => self::class,
-                            'contest_id' => $this->contest->id,
-                            'platform_contest_id' => $this->contest->platform_contest_id,
-                            'contest_name' => $this->contest->name,
-                            'raw' => $ratingChange->raw,
+                            'platform_contest_id' => $contestPlatformId,
+                            'handle' => $ratingChangeHandle,
                         ]);
-
                         continue;
                     }
 
-                    $platformProfile = $platformProfilesByHandle[mb_strtolower($handle)] ?? null;
+                    $platformProfile = $platformProfilesByHandle[mb_strtolower($ratingChangeHandle)] ?? $profile;
 
                     $contestRatingChange = $this->contestRatingChangeModel->newQuery()->updateOrCreate(
                         [
-                            'contest_id' => $this->contest->id,
-                            'handle' => $handle,
+                            'contest_id' => $contest->id,
+                            'handle' => $ratingChangeHandle,
                         ],
                         [
-                            'platform_id' => $this->contest->platform_id,
+                            'platform_id' => $platform->id,
                             'platform_profile_id' => $platformProfile?->id,
-                            'is_rated' => $ratingChange->isRated,
-                            'rank' => $ratingChange->rank,
-                            'old_rating' => $ratingChange->oldRating,
-                            'new_rating' => $ratingChange->newRating,
-                            'rating_change' => $ratingChange->ratingChange,
-                            'performance' => $ratingChange->performance,
+                            'is_rated' => $ratingChange->isRated ?? true,
+                            'rank' => $ratingChange->rank ?? null,
+                            'old_rating' => $ratingChange->oldRating ?? null,
+                            'new_rating' => $ratingChange->newRating ?? null,
+                            'rating_change' => $ratingChange->ratingChange ?? null,
+                            'performance' => $ratingChange->performance ?? null,
                             'last_synced_at' => now(),
                             'metadata' => array_merge(
                                 [
-                                    'source' => 'rating-change-import',
+                                    'source' => 'user-rating-history-import',
                                     'platform' => 'codeforces',
-                                    'contest_platform_id' => $this->contest->platform_contest_id,
-                                    'contest_name' => $this->contest->name,
-                                    'handle' => $handle,
+                                    'contest_platform_id' => $contestPlatformId,
+                                    'contest_name' => $contest->name,
+                                    'handle' => $ratingChangeHandle,
                                     'synced_at' => now(),
                                 ],
-                                $ratingChange->metadata
+                                $ratingChange->metadata ?? []
                             ),
-                            'raw' => $ratingChange->raw,
+                            'raw' => $ratingChange->raw ?? [],
                             'status' => 'Active',
                         ]
                     );
 
                     if ($contestRatingChange->wasRecentlyCreated) {
                         $result->incrementCreated();
-                        continue;
+                    } else {
+                        $result->incrementUpdated();
                     }
-
-                    $result->incrementUpdated();
                 }
 
                 $this->platformSyncStateService->markSynced($syncState, [
-                    'contest_id' => $this->contest->id,
-                    'contest_name' => $this->contest->name,
+                    'profile_id' => $profile->id,
+                    'handle' => $profile->handle,
                     'platform_slug' => 'codeforces',
-                    'platform_contest_id' => $this->contest->platform_contest_id,
-                    'rating_changes_fetched' => count($ratingChanges),
+                    'rating_changes_count' => count($ratingChanges),
                 ]);
             } catch (Throwable $e) {
                 $result->incrementFailed();
 
                 $this->platformSyncStateService->markFailed($syncState, $e, [
-                    'contest_id' => $this->contest->id,
-                    'contest_name' => $this->contest->name,
+                    'profile_id' => $profile->id,
+                    'handle' => $profile->handle,
                     'platform_slug' => 'codeforces',
-                    'platform_contest_id' => $this->contest->platform_contest_id,
                 ]);
 
-                app(ApplicationLogger::class)->error('Rating change sync failed', [
+                app(ApplicationLogger::class)->error('User rating history sync failed', [
                     'category' => 'import',
                     'platform' => 'codeforces',
                     'source' => self::class,
-                    'contest_id' => $this->contest->id,
-                    'platform_contest_id' => $this->contest->platform_contest_id,
-                    'contest_name' => $this->contest->name,
+                    'profile_id' => $profile->id,
+                    'handle' => $profile->handle,
                     'message' => $e->getMessage(),
                     'exception' => get_class($e),
                     'file' => $e->getFile(),
