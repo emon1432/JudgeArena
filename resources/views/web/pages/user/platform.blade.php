@@ -2,37 +2,26 @@
 @section('content')
     <main class="container px-3 px-md-4 py-4 max-w-7xl">
         <!-- Top Breadcrumb & Platform Switcher Row -->
-        <div class="row align-items-center justify-content-between g-2 mb-3">
-            <div class="col-auto">
-                <nav class="breadcrumb-list" aria-label="Breadcrumb navigation">
-                    <a href="{{ route('home') }}">Home</a>
-                    <span class="sep">/</span>
-                    <a href="{{ route('user.show', $username ?? 'tourist') }}">Profiles</a>
-                    <span class="sep">/</span>
-                    <a href="{{ route('user.show', $username ?? 'tourist') }}">Khairul Islam Emon</a>
-                    <span class="sep">/</span>
-                    <span class="current">Codeforces Profile</span>
-                </nav>
-            </div>
-
-            <!-- Platform Switcher Dropdown (Switch between user's connected platform profiles) -->
-            <div class="col-auto d-flex align-items-center gap-2">
-                <span
-                    class="text-muted extra-small font-monospace uppercase fw-semibold d-none d-sm-inline">Platform:</span>
+        <x-breadcrumb :title="ucfirst($platform ?? 'Codeforces') . ' Profile'" :breadcrumbs="[
+            'Profiles' => route('user.show', $username ?? 'tourist'),
+            $username ?? 'User' => route('user.show', $username ?? 'tourist'),
+            ucfirst($platform ?? 'Codeforces') => null,
+        ]">
+            <!-- Platform Switcher Dropdown -->
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-muted extra-small font-monospace uppercase fw-semibold d-none d-sm-inline">Platform:</span>
                 <select class="form-select form-select-sm rounded-3 fw-semibold text-primary" style="width: 190px"
                     onchange="
-                            if (this.value === 'unified')
-                                location.href = 'profile.html';
-                            else location.href = 'user-platform-profile.html';
-                        ">
-                    <option value="codeforces" selected>
-                        Codeforces (@tourist)
+                        if (this.value === 'unified')
+                            location.href = '{{ route('user.show', $username ?? 'tourist') }}';
+                        else
+                            location.href = '{{ route('user.show', $username ?? 'tourist') }}';
+                    ">
+                    <option value="codeforces" {{ ($platform ?? '') === 'codeforces' ? 'selected' : '' }}>
+                        Codeforces
                     </option>
-                    <option value="leetcode">LeetCode (@emon1432)</option>
-                    <option value="atcoder">AtCoder (@emon)</option>
-                    <option value="codechef">
-                        CodeChef (@khairul_emon)
-                    </option>
+                    <option value="leetcode" {{ ($platform ?? '') === 'leetcode' ? 'selected' : '' }}>LeetCode</option>
+                    <option value="atcoder" {{ ($platform ?? '') === 'atcoder' ? 'selected' : '' }}>AtCoder</option>
                     <option value="unified">
                         ← Unified Master Profile
                     </option>
@@ -40,11 +29,10 @@
 
                 <a href="{{ route('user.show', $username ?? 'tourist') }}"
                     class="btn btn-sm btn-outline-secondary fw-semibold">
-                    <i class="fa-solid fa-layer-group me-1"></i> Unified
-                    Profile
+                    <i class="fa-solid fa-layer-group me-1"></i> Unified Profile
                 </a>
             </div>
-        </div>
+        </x-breadcrumb>
 
         <!-- ================= 1. USER PLATFORM HERO HEADER CARD ================= -->
         <header class="profile-header-card mb-4 p-4 shadow-sm" style="border-radius: 18px">
