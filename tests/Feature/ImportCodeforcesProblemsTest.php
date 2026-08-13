@@ -28,7 +28,9 @@ class ImportCodeforcesProblemsTest extends TestCase
             public $id = 20;
             public $platform_id = 1;
             public $platform_contest_id = '1840';
+            public $phase = 'BEFORE';
         };
+        $contest->setRelation('platform', $platform);
 
         $problem = new class extends Problem {
             public array $capturedLookup = [];
@@ -78,6 +80,21 @@ class ImportCodeforcesProblemsTest extends TestCase
                 return $this;
             }
 
+            public function whereNotNull($column)
+            {
+                return $this;
+            }
+
+            public function with($relation)
+            {
+                return $this;
+            }
+
+            public function get()
+            {
+                return collect([$this->contest]);
+            }
+
             public function first()
             {
                 return $this->contest;
@@ -96,28 +113,36 @@ class ImportCodeforcesProblemsTest extends TestCase
             raw: ['id' => '1840A']
         );
 
-        $this->mock(CodeforcesAdapter::class, function ($mock) use ($problemDto): void {
-            $mock->shouldReceive('getProblems')
+        $standingsDto = new \App\Core\DTOs\ContestStandingsDTO(
+            contest: new \App\Core\DTOs\ContestDTO(
+                platform: 'codeforces',
+                platformContestId: '1840',
+                title: 'Contest 1840'
+            ),
+            problems: [$problemDto],
+            rows: [new \App\Core\DTOs\ParticipantDTO(rank: 1)]
+        );
+
+        $this->mock(CodeforcesAdapter::class, function ($mock) use ($standingsDto): void {
+            $mock->shouldReceive('getStandings')
                 ->once()
-                ->andReturn([$problemDto]);
+                ->andReturn($standingsDto);
         });
 
-        $this->app->instance(ApplicationLogger::class, new class {
-            public function info() {}
-            public function warning() {}
-            public function error() {}
-            public function critical() {}
+        $this->app->instance(ApplicationLogger::class, new class extends ApplicationLogger {
+            public function info(string $message, array $context = [], ?\Throwable $exception = null): void {}
+            public function warning(string $message, array $context = [], ?\Throwable $exception = null): void {}
+            public function error(string $message, array $context = [], ?\Throwable $exception = null): void {}
+            public function critical(string $message, array $context = [], ?\Throwable $exception = null): void {}
         });
 
         $fakeState = new PlatformSyncState();
         $fakeState->sync_status = PlatformSyncStatus::Pending->value;
 
         $this->mock(PlatformSyncStateService::class, function ($mock) use ($fakeState): void {
-            $mock->shouldReceive('findState')->once()->andReturn(null);
-            $mock->shouldReceive('canBeRetried')->once()->andReturn(true);
             $mock->shouldReceive('isSynced')->once()->andReturn(false);
             $mock->shouldReceive('markSyncing')->once()->andReturn($fakeState);
-            $mock->shouldReceive('markSynced')->once()->andReturn($fakeState);
+            $mock->shouldReceive('resetForRetry')->once()->andReturn($fakeState);
             $mock->shouldReceive('markFailed')->never();
         });
 
@@ -135,14 +160,11 @@ class ImportCodeforcesProblemsTest extends TestCase
 
         $stats = app(ProblemImporter::class)->import();
 
-        $this->assertSame(1, $stats['problems_checked']);
-        $this->assertSame(1, $stats['problems_synced']);
-        $this->assertSame(0, $stats['problems_already_synced']);
-        $this->assertSame(0, $stats['problems_failed']);
-        $this->assertSame(1, $stats['fetched']);
-        $this->assertSame(1, $stats['created']);
-        $this->assertSame(0, $stats['updated']);
-        $this->assertSame(0, $stats['failed']);
+        $this->assertSame(1, $stats->checked);
+        $this->assertSame(1, $stats->fetched);
+        $this->assertSame(1, $stats->created);
+        $this->assertSame(0, $stats->updated);
+        $this->assertSame(0, $stats->failed);
         $this->assertSame([
             'platform_id' => 1,
             'platform_problem_id' => '1840A',

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use App\Core\Platforms\PlatformRegistry;
@@ -15,6 +17,7 @@ class ImportProblemsCommand extends Command
 
     public function __construct(
         private readonly PlatformRegistry $platformRegistry,
+        private readonly ApplicationLogger $logger,
     ) {
         parent::__construct();
     }
@@ -26,7 +29,7 @@ class ImportProblemsCommand extends Command
         $adapter = $this->platformRegistry->resolve($platformSlug);
 
         if ($adapter === null) {
-            app(ApplicationLogger::class)->warning(
+            $this->logger->warning(
                 'Problem import skipped: unsupported platform',
                 [
                     'category' => 'import',
@@ -45,7 +48,7 @@ class ImportProblemsCommand extends Command
             return self::FAILURE;
         }
 
-        app(ApplicationLogger::class)->info(
+        $this->logger->info(
             'Problem import started',
             [
                 'category' => 'import',
@@ -61,15 +64,17 @@ class ImportProblemsCommand extends Command
                 ->import();
 
             $this->line('Platform: ' . $platformSlug);
+            $this->line('Checked: ' . ($result->checked ?? 0));
             $this->line('Fetched: ' . ($result->fetched ?? 0));
             $this->line('Created: ' . ($result->created ?? 0));
             $this->line('Updated: ' . ($result->updated ?? 0));
+            $this->line('Skipped: ' . ($result->skipped ?? 0));
             $this->line('Failed: ' . ($result->failed ?? 0));
             $this->line('Synced: ' . $result->synced());
 
             $this->info('Problem import completed successfully.');
 
-            app(ApplicationLogger::class)->info(
+            $this->logger->info(
                 'Problem import completed',
                 [
                     'category' => 'import',
@@ -81,7 +86,7 @@ class ImportProblemsCommand extends Command
 
             return self::SUCCESS;
         } catch (Throwable $e) {
-            app(ApplicationLogger::class)->error(
+            $this->logger->error(
                 'Problem import failed',
                 [
                     'category' => 'import',
