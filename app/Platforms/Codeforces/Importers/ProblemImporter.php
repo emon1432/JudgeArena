@@ -61,10 +61,24 @@ class ProblemImporter implements ProblemImporterContract
 
         foreach ($contestsByPlatform as $platformSlugKey => $platformContests) {
             foreach ($platformContests as $contest) {
+                $contestPlatformId = (string) ($contest->platform_contest_id ?? '');
+
+                $isSynced = $this->platformSyncStateService->isSynced(
+                    $contest->platform,
+                    PlatformSyncEntityType::ContestProblems,
+                    $contestPlatformId
+                );
+
+                // Skip only if contest is FINISHED and its problems are already marked Synced
+                if (strtoupper((string) $contest->phase) === 'FINISHED' && $isSynced) {
+                    $result->incrementSkipped();
+                    continue;
+                }
+
                 $syncState = $this->platformSyncStateService->markSyncing(
                     $contest->platform,
                     PlatformSyncEntityType::ContestProblems,
-                    (string) $contest->platform_contest_id,
+                    $contestPlatformId,
                     [
                         'contest_id' => $contest->id,
                         'contest_name' => $contest->name,
@@ -78,7 +92,15 @@ class ProblemImporter implements ProblemImporterContract
                 }
 
                 try {
-                    $problems = $this->adapter->getContestProblems((string) $contest->platform_contest_id);
+                    $standings = $this->adapter->getStandings($contestPlatformId);
+                    $problems = $standings->problems ?? [];
+                    $participantCount = count($standings->rows ?? []);
+
+                    if ($participantCount > 0) {
+                        $contest->update([
+                            'participant_count' => $participantCount,
+                        ]);
+                    }
 
                     if (! is_array($problems)) {
                         $problems = [];
@@ -90,27 +112,27 @@ class ProblemImporter implements ProblemImporterContract
                         $problem = $this->problemModel->newQuery()->updateOrCreate(
                             [
                                 'platform_id' => $contest->platform_id,
-                                'platform_problem_id' => $problemDto->platformProblemId,
+                                'platform_problem_id' => (string) ($problemDto->platformProblemId ?? ''),
                             ],
                             [
                                 'contest_id' => $contest->id,
-                                'slug' => slugify($problemDto->title),
-                                'name' => $problemDto->title,
-                                'code' => $problemDto->code,
-                                'points' => $problemDto->points,
-                                'rating' => $problemDto->rating,
-                                'time_limit_ms' => $problemDto->timeLimit,
-                                'memory_limit_mb' => $problemDto->memoryLimit,
-                                'solved_count' => $problemDto->solvedCount,
-                                'tags' => $problemDto->tags,
-                                'url' => $problemDto->url,
+                                'slug' => \Illuminate\Support\Str::slug(($problemDto->title ?? 'problem') . '-' . ($problemDto->platformProblemId ?? '')),
+                                'name' => $problemDto->title ?? '',
+                                'code' => $problemDto->code ?? null,
+                                'points' => $problemDto->points ?? null,
+                                'rating' => $problemDto->rating ?? null,
+                                'time_limit_ms' => $problemDto->timeLimit ?? null,
+                                'memory_limit_mb' => $problemDto->memoryLimit ?? null,
+                                'solved_count' => $problemDto->solvedCount ?? 0,
+                                'tags' => $problemDto->tags ?? [],
+                                'url' => $problemDto->url ?? null,
                                 'last_synced_at' => now(),
                                 'metadata' => [
                                     'source' => 'contest-scoped-sync',
-                                    'platform' => $problemDto->platform,
-                                    'contest_platform_id' => $contest->platform_contest_id,
+                                    'platform' => $problemDto->platform ?? 'codeforces',
+                                    'contest_platform_id' => $contestPlatformId,
                                 ],
-                                'raw' => $problemDto->raw,
+                                'raw' => $problemDto->raw ?? [],
                                 'status' => 'Active',
                             ]
                         );
@@ -123,9 +145,15 @@ class ProblemImporter implements ProblemImporterContract
                         $result->incrementUpdated();
                     }
 
-                    $this->platformSyncStateService->markSynced($syncState, [
-                        'problem_count' => count($problems),
-                    ]);
+                    if (strtoupper((string) $contest->phase) === 'FINISHED') {
+                        $this->platformSyncStateService->markSynced($syncState, [
+                            'problem_count' => count($problems),
+                        ]);
+                    } else {
+                        $this->platformSyncStateService->resetForRetry($syncState, [
+                            'problem_count' => count($problems),
+                        ]);
+                    }
                 } catch (Throwable $e) {
                     $result->incrementFailed();
 

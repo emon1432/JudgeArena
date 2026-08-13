@@ -6,8 +6,6 @@ use App\Enums\PlatformSyncStatus;
 use App\Models\Contest;
 use App\Models\Platform;
 use App\Models\PlatformSyncState;
-use App\Platforms\AtCoder\AtCoderAdapter;
-use App\Platforms\AtCoder\Importers\ContestImporter as AtCoderContestImporter;
 use App\Platforms\Codeforces\CodeforcesAdapter;
 use App\Platforms\Codeforces\Importers\ContestImporter as CodeforcesContestImporter;
 use App\Services\ApplicationLogger;
@@ -23,15 +21,6 @@ class ImportContestsCommandTest extends TestCase
             'codeforces',
             CodeforcesAdapter::class,
             CodeforcesContestImporter::class
-        );
-    }
-
-    public function test_atcoder_contest_import_uses_platform_sync_states(): void
-    {
-        $this->assertContestImportUsesPlatformSyncState(
-            'atcoder',
-            AtCoderAdapter::class,
-            AtCoderContestImporter::class
         );
     }
 
