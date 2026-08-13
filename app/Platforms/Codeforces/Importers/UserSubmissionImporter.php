@@ -100,6 +100,18 @@ class UserSubmissionImporter implements UserSubmissionImporterContract
                 continue;
             }
 
+            $isSynced = $this->platformSyncStateService->isSynced(
+                $platform,
+                PlatformSyncEntityType::UserSubmissions,
+                $normalizedHandle
+            );
+
+            // If handle is not explicitly specified and profile user submissions were already synced, skip!
+            if ($handle === null && $isSynced) {
+                $result->incrementSkipped();
+                continue;
+            }
+
             $syncState = $this->platformSyncStateService->markSyncing(
                 $platform,
                 PlatformSyncEntityType::UserSubmissions,
@@ -117,7 +129,6 @@ class UserSubmissionImporter implements UserSubmissionImporterContract
             }
 
             try {
-
                 $lastSubmissionId = data_get(
                     $syncState->metadata,
                     'last_submission_id'
@@ -129,7 +140,6 @@ class UserSubmissionImporter implements UserSubmissionImporterContract
                 $submissionCount = 0;
 
                 while (true) {
-
                     $params = [
                         'handle' => $normalizedHandle,
                         'from' => $from,
@@ -139,7 +149,7 @@ class UserSubmissionImporter implements UserSubmissionImporterContract
                         $params,
                     );
 
-                    if ($submissions === []) {
+                    if (! is_array($submissions) || $submissions === []) {
                         break;
                     }
 
