@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Platforms\Codeforces\Importers;
 
 use App\Core\Contracts\Importers\UserRatingHistoryImporter as UserRatingHistoryImporterContract;
@@ -237,3 +239,4 @@ class UserRatingHistoryImporter implements UserRatingHistoryImporterContract
         return $indexedProfiles;
     }
 }
+

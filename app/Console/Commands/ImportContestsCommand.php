@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use App\Core\Platforms\PlatformRegistry;
@@ -15,6 +17,7 @@ class ImportContestsCommand extends Command
 
     public function __construct(
         private readonly PlatformRegistry $platformRegistry,
+        private readonly ApplicationLogger $logger,
     ) {
         parent::__construct();
     }
@@ -26,7 +29,7 @@ class ImportContestsCommand extends Command
         $adapter = $this->platformRegistry->resolve($platformSlug);
 
         if ($adapter === null) {
-            app(ApplicationLogger::class)->warning(
+            $this->logger->warning(
                 'Contest import skipped: unsupported platform',
                 [
                     'category' => 'import',
@@ -45,7 +48,7 @@ class ImportContestsCommand extends Command
             return self::FAILURE;
         }
 
-        app(ApplicationLogger::class)->info(
+        $this->logger->info(
             'Contest import started',
             [
                 'category' => 'import',
@@ -71,7 +74,7 @@ class ImportContestsCommand extends Command
 
             $this->info('Contest import completed successfully.');
 
-            app(ApplicationLogger::class)->info(
+            $this->logger->info(
                 'Contest import completed',
                 [
                     'category' => 'import',
@@ -83,7 +86,7 @@ class ImportContestsCommand extends Command
 
             return self::SUCCESS;
         } catch (Throwable $e) {
-            app(ApplicationLogger::class)->error(
+            $this->logger->error(
                 'Contest import failed',
                 [
                     'category' => 'import',

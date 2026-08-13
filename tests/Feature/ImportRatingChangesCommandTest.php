@@ -14,18 +14,26 @@ class ImportRatingChangesCommandTest extends TestCase
     public function test_rating_change_import_command_requires_a_platform_and_delegates_to_the_adapter_importer(): void
     {
         $fakeImporter = new class implements RatingChangeImporterContract {
-            public function import(): array
+            public function import(): \App\Core\Results\ImportResult
             {
-                return [
-                    'contests_checked' => 1,
-                    'contests_synced' => 1,
-                    'contests_already_synced' => 0,
-                    'contests_failed' => 0,
-                    'contests_unsupported_platform' => 0,
-                    'rating_changes_fetched' => 3,
-                    'rating_changes_created' => 2,
-                    'rating_changes_updated' => 1,
-                ];
+                return new \App\Core\Results\ImportResult(
+                    checked: 1,
+                    fetched: 3,
+                    created: 2,
+                    updated: 1,
+                    failed: 0,
+                    skipped: 0,
+                    metadata: [
+                        'contests_checked' => 1,
+                        'contests_synced' => 1,
+                        'contests_already_synced' => 0,
+                        'contests_failed' => 0,
+                        'contests_unsupported_platform' => 0,
+                        'rating_changes_fetched' => 3,
+                        'rating_changes_created' => 2,
+                        'rating_changes_updated' => 1,
+                    ]
+                );
             }
         };
 

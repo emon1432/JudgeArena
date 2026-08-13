@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Platforms\Codeforces;
 
 use App\Core\Contracts\Importers\ContestImporter as ContestImporterContract;
@@ -135,3 +137,4 @@ class CodeforcesAdapter implements PlatformAdapter
         return app(UserImporter::class);
     }
 }
+

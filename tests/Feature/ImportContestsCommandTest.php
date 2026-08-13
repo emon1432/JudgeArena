@@ -57,10 +57,21 @@ class ImportContestsCommandTest extends TestCase
                 return new class($self) {
                     public function __construct(private readonly Contest $contest) {}
 
+                    public function where($column, $value = null)
+                    {
+                        return $this;
+                    }
+
+                    public function first()
+                    {
+                        return null;
+                    }
+
                     public function updateOrCreate(array $lookup, array $values): Contest
                     {
                         $this->contest->capturedLookup = $lookup;
                         $this->contest->capturedValues = $values;
+                        $this->contest->id = 10;
                         $this->contest->wasRecentlyCreated = true;
 
                         return $this->contest;
@@ -89,7 +100,7 @@ class ImportContestsCommandTest extends TestCase
             'platform' => $platformSlug,
             'platformContestId' => 'contest-1',
             'title' => 'Contest 1',
-            'phase' => 'BEFORE',
+            'phase' => 'FINISHED',
             'startedAt' => null,
             'durationSeconds' => 7200,
             'raw' => ['id' => 'contest-1'],
@@ -107,19 +118,17 @@ class ImportContestsCommandTest extends TestCase
                 });
         });
 
-        $this->app->instance(ApplicationLogger::class, new class {
-            public function info() {}
-            public function warning() {}
-            public function error() {}
-            public function critical() {}
+        $this->app->instance(ApplicationLogger::class, new class extends ApplicationLogger {
+            public function info(string $message, array $context = [], ?\Throwable $exception = null): void {}
+            public function warning(string $message, array $context = [], ?\Throwable $exception = null): void {}
+            public function error(string $message, array $context = [], ?\Throwable $exception = null): void {}
+            public function critical(string $message, array $context = [], ?\Throwable $exception = null): void {}
         });
 
         $fakeState = new PlatformSyncState();
         $fakeState->sync_status = PlatformSyncStatus::Pending->value;
 
         $this->mock(PlatformSyncStateService::class, function ($mock) use ($fakeState): void {
-            $mock->shouldReceive('findState')->once()->andReturn(null);
-            $mock->shouldReceive('canBeRetried')->once()->andReturn(true);
             $mock->shouldReceive('isSynced')->once()->andReturn(false);
             $mock->shouldReceive('markSyncing')->once()->andReturn($fakeState);
             $mock->shouldReceive('markSynced')->once()->andReturn($fakeState);
@@ -133,9 +142,25 @@ class ImportContestsCommandTest extends TestCase
         $contestQuery = new class($contest) {
             public function __construct(private readonly Contest $contest) {}
 
+            public function where($column, $value = null)
+            {
+                return $this;
+            }
+
+            public function first()
+            {
+                return null;
+            }
+
             public function updateOrCreate(array $lookup, array $values): Contest
             {
-                return $this->contest->newQuery()->updateOrCreate($lookup, $values);
+                $this->contest->capturedLookup = $lookup;
+                $this->contest->capturedValues = $values;
+                $this->contest->id = 10;
+                $this->contest->phase = $values['phase'] ?? 'FINISHED';
+                $this->contest->wasRecentlyCreated = true;
+
+                return $this->contest;
             }
         };
 
@@ -151,16 +176,16 @@ class ImportContestsCommandTest extends TestCase
 
         $this->assertSame(0, $exitCode, "Import command failed with output:\n" . $output);
         $this->assertStringContainsString('Platform: ' . $platformSlug, $output);
-        $this->assertStringContainsString('Contests Checked: 1', $output);
-        $this->assertStringContainsString('Contests Synced: 1', $output);
-        $this->assertStringContainsString('Contests Already Synced: 0', $output);
-        $this->assertStringContainsString('Contests Failed: 0', $output);
+        $this->assertStringContainsString('Checked: 1', $output);
+        $this->assertStringContainsString('Synced: 1', $output);
+        $this->assertStringContainsString('Skipped: 0', $output);
+        $this->assertStringContainsString('Failed: 0', $output);
         $this->assertSame([
             'platform_id' => 1,
             'platform_contest_id' => 'contest-1',
         ], $contest->capturedLookup);
         $this->assertSame('Contest 1', $contest->capturedValues['name']);
-        $this->assertSame('BEFORE', $contest->capturedValues['phase']);
+        $this->assertSame('FINISHED', $contest->capturedValues['phase']);
         $this->assertSame(7200, $contest->capturedValues['duration_seconds']);
         $this->assertSame(['id' => 'contest-1'], $contest->capturedValues['raw']);
         $this->assertSame('adapter', $contest->capturedValues['metadata']['source'] ?? null);

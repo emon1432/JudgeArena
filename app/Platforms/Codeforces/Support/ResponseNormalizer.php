@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Platforms\Codeforces\Support;
 
 final class ResponseNormalizer
@@ -354,3 +356,4 @@ final class ResponseNormalizer
         return array_map([self::class, 'hack'], $hacks);
     }
 }
+

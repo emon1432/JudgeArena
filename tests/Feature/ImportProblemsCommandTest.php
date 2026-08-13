@@ -38,9 +38,18 @@ class ImportProblemsCommandTest extends TestCase
 
         $platformQuery = new class($platform) {
             private $platform;
-            public function __construct($platform) { $this->platform = $platform; }
-            public function where($column, $value) { return $this; }
-            public function first() { return $this->platform; }
+            public function __construct($platform)
+            {
+                $this->platform = $platform;
+            }
+            public function where($column, $value)
+            {
+                return $this;
+            }
+            public function first()
+            {
+                return $this->platform;
+            }
         };
 
         // Prepare DTOs that the adapter will return
@@ -138,10 +147,22 @@ class ImportProblemsCommandTest extends TestCase
         // Mock the Contest model's query so the command receives our single contest
         $queryFake = new class($realContest) {
             private $contest;
-            public function __construct($contest) { $this->contest = $contest; }
-            public function with($arg) { return $this; }
-            public function whereHas($rel, $cb) { return $this; }
-            public function get() { return collect([$this->contest]); }
+            public function __construct($contest)
+            {
+                $this->contest = $contest;
+            }
+            public function with($arg)
+            {
+                return $this;
+            }
+            public function whereHas($rel, $cb)
+            {
+                return $this;
+            }
+            public function get()
+            {
+                return collect([$this->contest]);
+            }
         };
 
         $this->mock(\App\Models\Contest::class, function ($mock) use ($queryFake) {
@@ -152,13 +173,21 @@ class ImportProblemsCommandTest extends TestCase
         $created = [];
         $fakeProblemModel = new class($created) extends \App\Models\Problem {
             private $created;
-            public function __construct(&$created) { $this->created = &$created; }
-            public function newQuery() {
+            public function __construct(&$created)
+            {
+                $this->created = &$created;
+            }
+            public function newQuery()
+            {
                 $self = $this;
                 return new class($self) {
                     private $self;
-                    public function __construct($self) { $this->self = $self; }
-                    public function updateOrCreate($keys, $values) {
+                    public function __construct($self)
+                    {
+                        $this->self = $self;
+                    }
+                    public function updateOrCreate($keys, $values)
+                    {
                         $obj = (object) array_merge($keys, $values);
                         $obj->wasRecentlyCreated = true;
                         $this->self->created[] = $obj;

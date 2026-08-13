@@ -20,6 +20,14 @@
 
 ---
 
+## 🌐 Integrated Platform Specifications Index (`.agents/platforms/`)
+
+| Platform | Documentation Path | Key Architecture |
+| :--- | :--- | :--- |
+| **Codeforces** | **[API.md](./platforms/codeforces/API.md)** | Codeforces REST API spec, HMAC SHA-512 `apiSig`, rate limits, DTO mappers. |
+
+---
+
 ## ⚡ Quick Start Local Commands
 
 - **Dependencies**: `composer install` && `npm install`

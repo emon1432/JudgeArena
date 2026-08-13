@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Platforms\Codeforces\Transformers;
 
 use App\Core\DTOs\SubmissionDTO;
@@ -43,3 +45,4 @@ class SubmissionTransformer
         return array_map(fn (CodeforcesSubmissionDTO $submission): SubmissionDTO => $this->fromApiSubmission($submission), $submissions);
     }
 }
+

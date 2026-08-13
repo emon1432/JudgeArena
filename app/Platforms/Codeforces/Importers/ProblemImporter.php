@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Platforms\Codeforces\Importers;
 
 use App\Core\Contracts\Importers\ProblemImporter as ProblemImporterContract;
@@ -159,3 +161,4 @@ class ProblemImporter implements ProblemImporterContract
         return $result;
     }
 }
+

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Platforms\Codeforces\Mappers;
 
 use App\Platforms\Codeforces\DTOs\CodeforcesProblemResultDTO;
@@ -65,3 +67,4 @@ final class CodeforcesStandingsMapper
         );
     }
 }
+

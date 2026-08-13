@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Platforms\Codeforces\DTOs;
 
 readonly class CodeforcesProblemResultDTO
@@ -12,3 +14,4 @@ readonly class CodeforcesProblemResultDTO
         public ?int $bestSubmissionTimeSeconds,
     ) {}
 }
+
