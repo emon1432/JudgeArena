@@ -15,6 +15,7 @@ class ImportStandingsCommand extends Command
 
     public function __construct(
         private readonly PlatformRegistry $platformRegistry,
+        private readonly ApplicationLogger $logger,
     ) {
         parent::__construct();
     }
@@ -23,7 +24,7 @@ class ImportStandingsCommand extends Command
     {
         $platformSlug = strtolower(trim((string) $this->argument('platform')));
 
-        app(ApplicationLogger::class)->info('Standings import started', [
+        $this->logger->info('Standings import started', [
             'category' => 'import',
             'platform' => $platformSlug,
             'source' => self::class,
@@ -32,7 +33,7 @@ class ImportStandingsCommand extends Command
         $adapter = $this->platformRegistry->resolve($platformSlug);
 
         if ($adapter === null) {
-            app(ApplicationLogger::class)->warning(
+            $this->logger->warning(
                 'Standings import skipped: unsupported platform',
                 [
                     'category' => 'import',
@@ -77,7 +78,7 @@ class ImportStandingsCommand extends Command
 
             $this->info('Standings import completed successfully.');
 
-            app(ApplicationLogger::class)->info(
+            $this->logger->info(
                 'Standings import completed',
                 [
                     'category' => 'import',
@@ -89,7 +90,7 @@ class ImportStandingsCommand extends Command
 
             return self::SUCCESS;
         } catch (Throwable $e) {
-            app(ApplicationLogger::class)->error(
+            $this->logger->error(
                 'Standings import failed',
                 [
                     'category' => 'import',
