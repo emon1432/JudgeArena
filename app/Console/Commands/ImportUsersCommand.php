@@ -15,6 +15,7 @@ class ImportUsersCommand extends Command
 
     public function __construct(
         private readonly PlatformRegistry $platformRegistry,
+        private readonly ApplicationLogger $logger,
     ) {
         parent::__construct();
     }
@@ -24,7 +25,7 @@ class ImportUsersCommand extends Command
         $platformSlug = strtolower(trim((string) $this->argument('platform')));
         $handle = trim((string) $this->argument('handle')) ?: null;
 
-        app(ApplicationLogger::class)->info('User import started', [
+        $this->logger->info('User import started', [
             'category' => 'import',
             'platform' => $platformSlug,
             'source' => self::class,
@@ -33,7 +34,7 @@ class ImportUsersCommand extends Command
         $adapter = $this->platformRegistry->resolve($platformSlug);
 
         if ($adapter === null) {
-            app(ApplicationLogger::class)->warning('User import skipped: unsupported platform', [
+            $this->logger->warning('User import skipped: unsupported platform', [
                 'category' => 'import',
                 'platform' => $platformSlug,
                 'source' => self::class,
@@ -57,7 +58,7 @@ class ImportUsersCommand extends Command
             $this->line('Skipped: ' . $result->skipped);
             $this->info('User import completed successfully.');
 
-            app(ApplicationLogger::class)->info('User import completed', [
+            $this->logger->info('User import completed', [
                 'category' => 'import',
                 'platform' => $platformSlug,
                 'source' => self::class,
@@ -66,7 +67,7 @@ class ImportUsersCommand extends Command
 
             return self::SUCCESS;
         } catch (Throwable $e) {
-            app(ApplicationLogger::class)->error('User import failed', [
+            $this->logger->error('User import failed', [
                 'category' => 'import',
                 'platform' => $platformSlug,
                 'source' => self::class,
