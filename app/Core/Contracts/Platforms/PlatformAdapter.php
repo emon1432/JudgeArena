@@ -9,6 +9,7 @@ use App\Core\Contracts\Importers\RatingChangeImporter;
 use App\Core\Contracts\Importers\StandingImporter;
 use App\Core\Contracts\Importers\UserImporter;
 use App\Core\Contracts\Importers\UserRatingHistoryImporter;
+use App\Core\Contracts\Importers\UserStandingImporter;
 use App\Core\Contracts\Importers\UserSubmissionImporter;
 use App\Core\DTOs\ContestDTO;
 use App\Core\DTOs\ContestStandingsDTO;
@@ -87,5 +88,6 @@ interface PlatformAdapter
     public function standingImporter(): StandingImporter;
     public function userRatingHistoryImporter(): UserRatingHistoryImporter;
     public function userSubmissionImporter(): UserSubmissionImporter;
+    public function userStandingImporter(): UserStandingImporter;
     public function userImporter(): UserImporter;
 }

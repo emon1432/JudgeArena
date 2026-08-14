@@ -102,6 +102,10 @@ class StandingImporter implements StandingImporterContract
                         ? ($platformProfilesByHandle[mb_strtolower($identity['handle'])] ?? null)
                         : null;
 
+                    if ($platformProfile === null) {
+                        continue;
+                    }
+
                     $standing = $this->standingModel->newQuery()->updateOrCreate(
                         [
                             'contest_id' => $contest->id,
