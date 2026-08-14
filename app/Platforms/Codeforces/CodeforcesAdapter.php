@@ -6,31 +6,33 @@ namespace App\Platforms\Codeforces;
 
 use App\Core\Contracts\Importers\ContestImporter as ContestImporterContract;
 use App\Core\Contracts\Importers\ProblemImporter as ProblemImporterContract;
-use App\Core\Contracts\Importers\SubmissionImporter as SubmissionImporterContract;
 use App\Core\Contracts\Importers\RatingChangeImporter as RatingChangeImporterContract;
 use App\Core\Contracts\Importers\StandingImporter as StandingImporterContract;
+use App\Core\Contracts\Importers\SubmissionImporter as SubmissionImporterContract;
 use App\Core\Contracts\Importers\UserImporter as UserImporterContract;
 use App\Core\Contracts\Importers\UserRatingHistoryImporter as UserRatingHistoryImporterContract;
+use App\Core\Contracts\Importers\UserStandingImporter as UserStandingImporterContract;
 use App\Core\Contracts\Importers\UserSubmissionImporter as UserSubmissionImporterContract;
 use App\Core\Contracts\Platforms\PlatformAdapter;
 use App\Core\DTOs\ContestStandingsDTO;
 use App\Core\DTOs\UserDTO;
 use App\Platforms\Codeforces\Importers\ContestImporter;
-use App\Platforms\Codeforces\Importers\RatingChangeImporter;
 use App\Platforms\Codeforces\Importers\ProblemImporter;
-use App\Platforms\Codeforces\Importers\SubmissionImporter;
+use App\Platforms\Codeforces\Importers\RatingChangeImporter;
 use App\Platforms\Codeforces\Importers\StandingImporter;
+use App\Platforms\Codeforces\Importers\SubmissionImporter;
 use App\Platforms\Codeforces\Importers\UserImporter;
 use App\Platforms\Codeforces\Importers\UserRatingHistoryImporter;
+use App\Platforms\Codeforces\Importers\UserStandingImporter;
 use App\Platforms\Codeforces\Importers\UserSubmissionImporter;
 use App\Platforms\Codeforces\Services\Contests;
 use App\Platforms\Codeforces\Services\Problems;
 use App\Platforms\Codeforces\Services\Users;
 use App\Platforms\Codeforces\Transformers\ContestTransformer;
 use App\Platforms\Codeforces\Transformers\ProblemTransformer;
+use App\Platforms\Codeforces\Transformers\StandingsTransformer;
 use App\Platforms\Codeforces\Transformers\SubmissionTransformer;
 use App\Platforms\Codeforces\Transformers\UserTransformer;
-use App\Platforms\Codeforces\Transformers\StandingsTransformer;
 
 class CodeforcesAdapter implements PlatformAdapter
 {
@@ -43,7 +45,8 @@ class CodeforcesAdapter implements PlatformAdapter
         private readonly UserTransformer $userTransformer,
         private readonly SubmissionTransformer $submissionTransformer,
         private readonly StandingsTransformer $standingsTransformer,
-    ) {}
+    ) {
+    }
 
     //==================================Used==================================
 
@@ -130,6 +133,11 @@ class CodeforcesAdapter implements PlatformAdapter
     public function userSubmissionImporter(): UserSubmissionImporterContract
     {
         return app(UserSubmissionImporter::class);
+    }
+
+    public function userStandingImporter(): UserStandingImporterContract
+    {
+        return app(UserStandingImporter::class);
     }
 
     public function userImporter(): UserImporterContract
