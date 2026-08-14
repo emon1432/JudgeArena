@@ -8,6 +8,11 @@ use Illuminate\Console\Command;
 
 class CleanupLogsCommand extends Command
 {
+    public function __construct(
+        private readonly ApplicationLogger $logger,
+    ) {
+        parent::__construct();
+    }
     protected $signature = 'judgearena:cleanup-logs {--retention-days=} {--critical-retention-days=}';
 
     protected $description = 'Remove old application logs according to configured retention policies.';
@@ -17,8 +22,7 @@ class CleanupLogsCommand extends Command
         $retentionDays = (int) ($this->option('retention-days') ?: config('app.application_logs.retention_days', 90));
         $criticalRetentionDays = (int) ($this->option('critical-retention-days') ?: config('app.application_logs.critical_retention_days', 365));
 
-        $logger = app(ApplicationLogger::class);
-        $logger->info('Application log cleanup started', [
+        $this->logger->info('Application log cleanup started', [
             'category' => 'system',
             'source' => self::class,
             'retention_days' => $retentionDays,
@@ -38,7 +42,7 @@ class CleanupLogsCommand extends Command
             ->where('created_at', '<', $criticalCutoff)
             ->delete();
 
-        $logger->info('Application log cleanup completed', [
+        $this->logger->info('Application log cleanup completed', [
             'category' => 'system',
             'source' => self::class,
             'deleted_normal_logs' => $deletedNormalLogs,

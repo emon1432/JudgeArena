@@ -15,6 +15,7 @@ class ImportRatingChangesCommand extends Command
 
     public function __construct(
         private readonly PlatformRegistry $platformRegistry,
+        private readonly ApplicationLogger $logger,
     ) {
         parent::__construct();
     }
@@ -23,7 +24,7 @@ class ImportRatingChangesCommand extends Command
     {
         $platformSlug = strtolower(trim((string) $this->argument('platform')));
 
-        app(ApplicationLogger::class)->info('Rating change import started', [
+        $this->logger->info('Rating change import started', [
             'category' => 'import',
             'platform' => $platformSlug,
             'source' => self::class,
@@ -32,7 +33,7 @@ class ImportRatingChangesCommand extends Command
         $adapter = $this->platformRegistry->resolve($platformSlug);
 
         if ($adapter === null) {
-            app(ApplicationLogger::class)->warning('Rating change import skipped: unsupported platform', [
+            $this->logger->warning('Rating change import skipped: unsupported platform', [
                 'category' => 'import',
                 'platform' => $platformSlug,
                 'source' => self::class,
@@ -57,7 +58,7 @@ class ImportRatingChangesCommand extends Command
             $this->line('Synced: ' . ($result->synced ?? 0));
             $this->info('Rating change import completed successfully.');
 
-            app(ApplicationLogger::class)->info(
+            $this->logger->info(
                 'Rating change import completed',
                 [
                     'category' => 'import',
@@ -78,7 +79,7 @@ class ImportRatingChangesCommand extends Command
             }
             return self::SUCCESS;
         } catch (Throwable $e) {
-            app(ApplicationLogger::class)->error('Rating change import failed', [
+            $this->logger->error('Rating change import failed', [
                 'category' => 'import',
                 'platform' => $platformSlug,
                 'source' => self::class,

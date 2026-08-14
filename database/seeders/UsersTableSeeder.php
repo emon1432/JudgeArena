@@ -73,7 +73,7 @@ class UsersTableSeeder extends Seeder
                 'two_factor_secret' => NULL,
                 'two_factor_recovery_codes' => NULL,
                 'two_factor_confirmed_at' => NULL,
-                'remember_token' => NULL,
+                'remember_token' => 'EuBa2LN16zNzTzN6aWiFpq5fKczpVFXdXk6g3e8ZfltC8DTwPljYC4jGwY7v',
                 'current_team_id' => NULL,
                 'image' => 'uploads/users/khairul-islam-emon1748759077683bf225059ea.jpg',
                 'created_at' => NULL,

@@ -15,6 +15,7 @@ class ImportSubmissionsCommand extends Command
 
     public function __construct(
         private readonly PlatformRegistry $platformRegistry,
+        private readonly ApplicationLogger $logger,
     ) {
         parent::__construct();
     }
@@ -23,7 +24,7 @@ class ImportSubmissionsCommand extends Command
     {
         $platformSlug = strtolower(trim((string) $this->argument('platform')));
 
-        app(ApplicationLogger::class)->info(
+        $this->logger->info(
             'Submission import started',
             [
                 'category' => 'import',
@@ -35,7 +36,7 @@ class ImportSubmissionsCommand extends Command
         $adapter = $this->platformRegistry->resolve($platformSlug);
 
         if ($adapter === null) {
-            app(ApplicationLogger::class)->warning(
+            $this->logger->warning(
                 'Submission import skipped: unsupported platform',
                 [
                     'category' => 'import',
@@ -83,7 +84,7 @@ class ImportSubmissionsCommand extends Command
 
             $this->info('Submission import completed successfully.');
 
-            app(ApplicationLogger::class)->info(
+            $this->logger->info(
                 'Submission import completed',
                 [
                     'category' => 'import',
@@ -97,7 +98,7 @@ class ImportSubmissionsCommand extends Command
                 ? self::FAILURE
                 : self::SUCCESS;
         } catch (Throwable $e) {
-            app(ApplicationLogger::class)->error(
+            $this->logger->error(
                 'Submission import failed',
                 [
                     'category' => 'import',
