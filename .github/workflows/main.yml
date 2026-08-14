@@ -31,9 +31,6 @@ jobs:
       - name: Build assets
         run: npm ci && npm run build
 
-      - name: Create database migration and seed
-        run: php artisan migrate:fresh --seed
-
       - name: 📂 Sync files
         uses: SamKirkland/FTP-Deploy-Action@4.0.0
         with:
