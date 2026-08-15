@@ -27,13 +27,13 @@ class AtCoderHtmlScraper
     }
 
     //used
-    public function getContests(): array
+    public function getContests(?callable $pageProcessor = null, bool $fullSync = false): array
     {
         $contests = [];
 
-        $contests = array_merge($contests, $this->getNormalContests());
-        $contests = array_merge($contests, $this->getWeekDayContests());
-        $contests = array_merge($contests, $this->getDailyTrainingContests());
+        $contests = array_merge($contests, $this->getNormalContests($pageProcessor, $fullSync));
+        $contests = array_merge($contests, $this->getWeekDayContests($pageProcessor, $fullSync));
+        $contests = array_merge($contests, $this->getDailyTrainingContests($pageProcessor, $fullSync));
         $contests = array_merge($contests, $this->getPermanentContests());
         $contests = array_merge($contests, $this->getHiddenContests());
 
@@ -515,7 +515,7 @@ class AtCoderHtmlScraper
     }
 
     //used
-    private function getNormalContests(): array
+    private function getNormalContests(?callable $pageProcessor = null, bool $fullSync = false): array
     {
         $contests = [];
         $page = 1;
@@ -523,6 +523,7 @@ class AtCoderHtmlScraper
 
         while (true) {
             $html = $this->fetchPage(self::ATCODER_BASE_URL . '/contests/archive?lang=ja&page=' . $page);
+            $enTitlesMap = $this->fetchEnglishTitlesMap(self::ATCODER_BASE_URL . '/contests/archive?lang=en&page=' . $page);
 
             if ($maxPages === null) {
                 $maxPages = $this->extractMaxPages($html);
@@ -534,6 +535,7 @@ class AtCoderHtmlScraper
 
             $rows = $xpath->query('//table//tbody//tr');
             $pageHasContests = false;
+            $pageContests = [];
 
             foreach ($rows as $row) {
                 $cells = $xpath->query('.//td', $row);
@@ -549,11 +551,12 @@ class AtCoderHtmlScraper
 
                 $href = $link->getAttribute('href');
                 $contestId = basename($href);
-                $title = $link->nodeValue;
+                $jaTitle = trim($link->nodeValue);
+                $title = $enTitlesMap[$contestId] ?? $this->translateJapaneseTitle($jaTitle);
                 $duration = trim($cells->item(2)?->nodeValue ?? '');
                 $rateChange = trim($cells->item(3)?->nodeValue ?? '');
 
-                $contests[] = [
+                $item = [
                     'id' => $contestId,
                     'title' => $title,
                     'url' => self::ATCODER_BASE_URL . $href,
@@ -563,11 +566,27 @@ class AtCoderHtmlScraper
                     'type' => 'normal',
                 ];
 
+                $contests[] = $item;
+                $pageContests[] = $item;
                 $pageHasContests = true;
             }
 
             if (!$pageHasContests) {
                 break;
+            }
+
+            if ($pageProcessor !== null && !empty($pageContests)) {
+                $shouldContinue = $pageProcessor($pageContests, 'normal');
+                if ($shouldContinue === false && !$fullSync) {
+                    break;
+                }
+            }
+
+            if ($maxPages !== null) {
+                $dynamicMax = $this->extractMaxPages($html);
+                if ($dynamicMax > $maxPages) {
+                    $maxPages = $dynamicMax;
+                }
             }
 
             if ($maxPages !== null && $page >= $maxPages) {
@@ -582,14 +601,16 @@ class AtCoderHtmlScraper
     }
 
     //used
-    private function getWeekDayContests(): array
+    //used
+    private function getWeekDayContests(?callable $pageProcessor = null, bool $fullSync = false): array
     {
         $contests = [];
         $page = 1;
         $maxPages = null;
 
         while (true) {
-            $html = $this->fetchPage(self::ATCODER_BASE_URL . '/contests/archive?category=20&page=' . $page);
+            $html = $this->fetchPage(self::ATCODER_BASE_URL . '/contests/archive?category=20&lang=ja&page=' . $page);
+            $enTitlesMap = $this->fetchEnglishTitlesMap(self::ATCODER_BASE_URL . '/contests/archive?category=20&lang=en&page=' . $page);
 
             if ($maxPages === null) {
                 $maxPages = $this->extractMaxPages($html);
@@ -601,6 +622,7 @@ class AtCoderHtmlScraper
 
             $rows = $xpath->query('//table//tbody//tr');
             $pageHasContests = false;
+            $pageContests = [];
 
             foreach ($rows as $row) {
                 $cells = $xpath->query('.//td', $row);
@@ -616,11 +638,12 @@ class AtCoderHtmlScraper
 
                 $href = $link->getAttribute('href');
                 $contestId = basename($href);
-                $title = $link->nodeValue;
+                $jaTitle = trim($link->nodeValue);
+                $title = $enTitlesMap[$contestId] ?? $this->translateJapaneseTitle($jaTitle);
                 $duration = trim($cells->item(2)?->nodeValue ?? '');
                 $rateChange = trim($cells->item(3)?->nodeValue ?? '');
 
-                $contests[] = [
+                $item = [
                     'id' => $contestId,
                     'title' => $title,
                     'url' => self::ATCODER_BASE_URL . $href,
@@ -630,11 +653,27 @@ class AtCoderHtmlScraper
                     'type' => 'weekday',
                 ];
 
+                $contests[] = $item;
+                $pageContests[] = $item;
                 $pageHasContests = true;
             }
 
             if (!$pageHasContests) {
                 break;
+            }
+
+            if ($pageProcessor !== null && !empty($pageContests)) {
+                $shouldContinue = $pageProcessor($pageContests, 'weekday');
+                if ($shouldContinue === false && !$fullSync) {
+                    break;
+                }
+            }
+
+            if ($maxPages !== null) {
+                $dynamicMax = $this->extractMaxPages($html);
+                if ($dynamicMax > $maxPages) {
+                    $maxPages = $dynamicMax;
+                }
             }
 
             if ($maxPages !== null && $page >= $maxPages) {
@@ -654,10 +693,11 @@ class AtCoderHtmlScraper
         $contests = [];
 
         try {
-            $html = $this->fetchPage(self::ATCODER_BASE_URL . '/contests/?lang=ja');
+            $htmlJa = $this->fetchPage(self::ATCODER_BASE_URL . '/contests/?lang=ja');
+            $enTitlesMap = $this->fetchEnglishTitlesMap(self::ATCODER_BASE_URL . '/contests/?lang=en');
 
             $doc = new DOMDocument;
-            @$doc->loadHTML($html);
+            @$doc->loadHTML($htmlJa);
             $xpath = new DOMXPath($doc);
 
             $tables = $xpath->query('//table');
@@ -668,7 +708,6 @@ class AtCoderHtmlScraper
                 }
 
                 $rows = $xpath->query('.//tr', $tbody->item(0));
-                $foundPermanent = false;
 
                 foreach ($rows as $row) {
                     $cells = $xpath->query('.//td', $row);
@@ -676,42 +715,60 @@ class AtCoderHtmlScraper
                         continue;
                     }
 
-                    $firstCellText = trim($cells->item(0)?->nodeValue ?? '');
-                    if (preg_match('/^\d{4}-\d{2}-\d{2}/', $firstCellText)) {
-                        break;
-                    }
-
-                    $link = $xpath->query('.//a', $cells->item(0))->item(0);
+                    $link = $xpath->query('.//a[contains(@href, "/contests/")]', $row)->item(0);
                     if (!$link instanceof \DOMElement) {
                         continue;
                     }
 
                     $href = $link->getAttribute('href');
                     $contestId = basename($href);
-                    $title = trim($link->nodeValue);
-                    $rateChange = $cells->length > 1 ? trim($cells->item(1)?->nodeValue ?? '') : '';
+
+                    if (empty($contestId) || str_contains($href, '/contests/archive')) {
+                        continue;
+                    }
+
+                    $col0Text = trim($cells->item(0)?->nodeValue ?? '');
+                    $col1Text = trim($cells->item(1)?->nodeValue ?? '');
+                    $col2Text = $cells->length > 2 ? trim($cells->item(2)?->nodeValue ?? '') : '';
+                    $col3Text = $cells->length > 3 ? trim($cells->item(3)?->nodeValue ?? '') : '';
+
+                    $jaTitle = trim($link->nodeValue);
+                    $title = $enTitlesMap[$contestId] ?? $this->translateJapaneseTitle($jaTitle);
+
+                    $date = '';
+                    $duration = 'Permanent';
+                    $rateChange = '';
+                    $type = 'permanent';
+
+                    if (preg_match('/^\d{4}-\d{2}-\d{2}/', $col0Text)) {
+                        $date = $col0Text;
+                        $duration = $col2Text;
+                        $rateChange = $col3Text;
+                        $type = str_contains(strtolower($contestId), 'adt_') ? 'daily_training' : 'normal';
+                    } else {
+                        $rateChange = $col1Text;
+                        $type = 'permanent';
+                        $times = $this->getContestTimesFromDetail($contestId);
+                        if (!empty($times['start_time'])) {
+                            $date = $times['start_time'];
+                        }
+                    }
 
                     $contests[] = [
                         'id' => $contestId,
                         'title' => $title,
                         'url' => self::ATCODER_BASE_URL . $href,
-                        'date' => '',
-                        'duration' => 'Permanent',
+                        'date' => $date,
+                        'duration' => $duration,
                         'rate_change' => $rateChange,
-                        'type' => 'permanent',
+                        'type' => $type,
                     ];
-
-                    $foundPermanent = true;
-                }
-
-                if ($foundPermanent) {
-                    break;
                 }
             }
 
             $this->respectRateLimit();
         } catch (\Exception $exception) {
-            app(ApplicationLogger::class)->warning('AtCoder scraper failed while reading permanent contests', [
+            app(ApplicationLogger::class)->warning('AtCoder scraper failed while reading home page contests', [
                 'category' => 'scraper',
                 'platform' => 'atcoder',
                 'source' => self::class,
@@ -776,7 +833,7 @@ class AtCoderHtmlScraper
     }
 
     //used
-    private function getDailyTrainingContests(): array
+    private function getDailyTrainingContests(?callable $pageProcessor = null, bool $fullSync = false): array
     {
         $contests = [];
         $page = 1;
@@ -784,6 +841,7 @@ class AtCoderHtmlScraper
 
         while (true) {
             $html = $this->fetchPage(self::ATCODER_BASE_URL . '/contests/archive?category=60&lang=ja&page=' . $page);
+            $enTitlesMap = $this->fetchEnglishTitlesMap(self::ATCODER_BASE_URL . '/contests/archive?category=60&lang=en&page=' . $page);
 
             if ($maxPages === null) {
                 $maxPages = $this->extractMaxPages($html);
@@ -795,6 +853,7 @@ class AtCoderHtmlScraper
 
             $rows = $xpath->query('//table//tbody//tr');
             $pageHasContests = false;
+            $pageContests = [];
 
             foreach ($rows as $row) {
                 $cells = $xpath->query('.//td', $row);
@@ -810,25 +869,42 @@ class AtCoderHtmlScraper
 
                 $href = $link->getAttribute('href');
                 $contestId = basename($href);
-                $title = $link->nodeValue;
+                $jaTitle = trim($link->nodeValue);
+                $title = $enTitlesMap[$contestId] ?? $this->translateJapaneseTitle($jaTitle);
                 $duration = trim($cells->item(2)?->nodeValue ?? '');
                 $rateChange = trim($cells->item(3)?->nodeValue ?? '');
 
-                $contests[] = [
+                $item = [
                     'id' => $contestId,
                     'title' => $title,
                     'url' => self::ATCODER_BASE_URL . $href,
                     'date' => $startText,
                     'duration' => $duration,
                     'rate_change' => $rateChange,
-                    'type' => 'weekday',
+                    'type' => 'daily_training',
                 ];
 
+                $contests[] = $item;
+                $pageContests[] = $item;
                 $pageHasContests = true;
             }
 
             if (!$pageHasContests) {
                 break;
+            }
+
+            if ($pageProcessor !== null && !empty($pageContests)) {
+                $shouldContinue = $pageProcessor($pageContests, 'daily_training');
+                if ($shouldContinue === false && !$fullSync) {
+                    break;
+                }
+            }
+
+            if ($maxPages !== null) {
+                $dynamicMax = $this->extractMaxPages($html);
+                if ($dynamicMax > $maxPages) {
+                    $maxPages = $dynamicMax;
+                }
             }
 
             if ($maxPages !== null && $page >= $maxPages) {
@@ -840,6 +916,101 @@ class AtCoderHtmlScraper
         }
 
         return $contests;
+    }
+
+    private function fetchEnglishTitlesMap(string $url): array
+    {
+        $html = $this->fetchPage($url);
+        if ($html === '') {
+            return [];
+        }
+
+        $doc = new DOMDocument();
+        @$doc->loadHTML($html);
+        $xpath = new DOMXPath($doc);
+
+        $titlesMap = [];
+        $rows = $xpath->query('//table//tbody//tr');
+        foreach ($rows as $row) {
+            $cells = $xpath->query('.//td', $row);
+            if ($cells->length >= 2) {
+                $link = $xpath->query('.//a', $cells->item(1))->item(0);
+                if ($link instanceof DOMElement) {
+                    $id = basename($link->getAttribute('href'));
+                    $titlesMap[$id] = trim($link->nodeValue);
+                }
+            }
+        }
+
+        return $titlesMap;
+    }
+
+    private function translateJapaneseTitle(string $text): string
+    {
+        $dictionary = [
+            'プログラミングコンテスト' => ' Programming Contest ',
+            'プログラミング' => ' Programming ',
+            'コンテスト' => ' Contest ',
+            'ハーフマラソン' => ' Half Marathon ',
+            'マラソン' => ' Marathon ',
+            '決勝' => ' Finals ',
+            '予選' => ' Qualifier ',
+            '本戦' => ' Main Round ',
+            '夏' => ' Summer ',
+            '秋' => ' Autumn ',
+            '冬' => ' Winter ',
+            '春' => ' Spring ',
+            '第' => ' Round ',
+            '回' => ' ',
+            '学生' => ' Student ',
+            '選手権' => ' Championship ',
+            '日本橋' => ' Nihonbashi ',
+            'ユニークビジョン' => ' Unique Vision ',
+        ];
+
+        $translated = strtr($text, $dictionary);
+
+        if (preg_match('/[\x{4E00}-\x{9FBF}\x{3040}-\x{309F}\x{30A0}-\x{30FF}]/u', $translated)) {
+            try {
+                $url = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=ja&tl=en&dt=t&q=' . urlencode($translated);
+                $request = $this->httpRequest();
+                $response = $request->get($url);
+                if ($response->successful()) {
+                    $json = $response->json();
+                    if (isset($json[0][0][0])) {
+                        $translated = (string) $json[0][0][0];
+                    }
+                }
+            } catch (\Throwable $e) {
+            }
+        }
+
+        return trim((string) preg_replace('/\s+/', ' ', $translated));
+    }
+
+    public function getContestTimesFromDetail(string $contestId): array
+    {
+        try {
+            $html = $this->fetchPage(self::ATCODER_BASE_URL . '/contests/' . $contestId . '?lang=en');
+            if ($html === '') {
+                return ['start_time' => null, 'end_time' => null];
+            }
+
+            $doc = new DOMDocument();
+            @$doc->loadHTML($html);
+            $xpath = new DOMXPath($doc);
+
+            $timeNodes = $xpath->query('//small[contains(@class, "contest-duration")]//time');
+            $startTime = $timeNodes->length >= 1 ? trim($timeNodes->item(0)->nodeValue) : null;
+            $endTime = $timeNodes->length >= 2 ? trim($timeNodes->item(1)->nodeValue) : null;
+
+            return [
+                'start_time' => $startTime,
+                'end_time' => $endTime,
+            ];
+        } catch (\Throwable $e) {
+            return ['start_time' => null, 'end_time' => null];
+        }
     }
 
     //used

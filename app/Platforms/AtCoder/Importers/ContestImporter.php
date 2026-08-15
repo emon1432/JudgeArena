@@ -23,7 +23,7 @@ class ContestImporter implements ContestImporterContract
     ) {
     }
 
-    public function import(): ImportResult
+    public function import(bool $fullSync = false): ImportResult
     {
         $result = new ImportResult();
 
@@ -45,7 +45,33 @@ class ContestImporter implements ContestImporterContract
             return $result;
         }
 
-        $contests = $this->adapter->getContests();
+        $pageProcessor = function (array $pageRawContests) use ($platform, $fullSync): bool {
+            $pageDtos = \App\Platforms\AtCoder\Mappers\AtCoderContestMapper::fromNormalizedList($pageRawContests);
+            $pageContestDtos = (new \App\Platforms\AtCoder\Transformers\ContestTransformer())->fromApiContests($pageDtos);
+
+            $allSyncedInDb = true;
+
+            foreach ($pageContestDtos as $contestDto) {
+                $existing = $this->contestModel->newQuery()
+                    ->where('platform_id', $platform->id)
+                    ->where('platform_contest_id', $contestDto->platformContestId)
+                    ->first();
+
+                if ($existing === null || strtoupper((string) $existing->phase) !== 'FINISHED') {
+                    $allSyncedInDb = false;
+
+                    break;
+                }
+            }
+
+            if ($allSyncedInDb && !$fullSync && count($pageContestDtos) > 0) {
+                return false;
+            }
+
+            return true;
+        };
+
+        $contests = $this->adapter->getContests($pageProcessor, $fullSync);
 
         if (!is_array($contests)) {
             $contests = [];
@@ -89,6 +115,8 @@ class ContestImporter implements ContestImporterContract
                     ],
                     [
                         'name' => $contestDto->title,
+                        'slug' => $contestDto->slug ?? \Illuminate\Support\Str::slug($contestDto->platformContestId . '-' . $contestDto->title),
+                        'type' => $contestDto->type,
                         'phase' => $contestDto->phase,
                         'duration_seconds' => $contestDto->durationSeconds,
                         'start_time' => $contestDto->startedAt,
@@ -102,10 +130,18 @@ class ContestImporter implements ContestImporterContract
                     ],
                 );
 
-                $this->platformSyncStateService->markSynced($syncState, [
-                    'contest_id' => $contest->id,
-                    'contest_platform_id' => $contestDto->platformContestId,
-                ]);
+                if ($contestDto->phase === 'FINISHED' || $contestDto->type === 'permanent') {
+                    $this->platformSyncStateService->markSynced($syncState, [
+                        'contest_id' => $contest->id,
+                        'contest_platform_id' => $contestDto->platformContestId,
+                    ]);
+                } else {
+                    $this->platformSyncStateService->resetForRetry($syncState, [
+                        'contest_id' => $contest->id,
+                        'contest_platform_id' => $contestDto->platformContestId,
+                        'phase' => $contestDto->phase,
+                    ]);
+                }
 
                 if ($contest->wasRecentlyCreated) {
                     $result->incrementCreated();

@@ -25,6 +25,7 @@
 | Platform | Documentation Path | Key Architecture |
 | :--- | :--- | :--- |
 | **Codeforces** | **[API.md](./platforms/codeforces/API.md)** | Codeforces REST API spec, HMAC SHA-512 `apiSig`, rate limits, DTO mappers. |
+| **AtCoder** | **[API.md](./platforms/atcoder/API.md)** | AtCoder Native JSON endpoints, DOM scraping spec, category handling. |
 
 ---
 

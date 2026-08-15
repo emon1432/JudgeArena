@@ -15,10 +15,16 @@ class ContestTransformer
      */
     public function fromApiContest(CodeforcesContestDTO $contest): ContestDTO
     {
+        $platformContestId = (string) ($contest->id ?? '');
+        $title = (string) ($contest->name ?? '');
+        $slug = \Illuminate\Support\Str::slug($platformContestId . '-' . $title);
+
         return new ContestDTO(
             platform: 'codeforces',
-            platformContestId: (string) ($contest->id ?? ''),
-            title: (string) ($contest->name ?? ''),
+            platformContestId: $platformContestId,
+            title: $title,
+            slug: $slug,
+            type: $contest->type ?? null,
             phase: $contest->phase ?? null,
             startedAt: isset($contest->startTimeSeconds)
             ? (new DateTimeImmutable())->setTimestamp((int) $contest->startTimeSeconds)

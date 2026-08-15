@@ -18,11 +18,16 @@ class Contests
     ) {}
 
     //used
-    public function list(): array
+    public function all(?callable $pageProcessor = null, bool $fullSync = false): array
     {
         return AtCoderContestMapper::fromNormalizedList(
-            ResponseNormalizer::contests($this->scraper->getContests())
+            ResponseNormalizer::contests($this->scraper->getContests($pageProcessor, $fullSync))
         );
+    }
+
+    public function list(?callable $pageProcessor = null, bool $fullSync = false): array
+    {
+        return $this->all($pageProcessor, $fullSync);
     }
 
     //used

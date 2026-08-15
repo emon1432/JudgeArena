@@ -25,7 +25,7 @@ class ContestImporter implements ContestImporterContract
     ) {
     }
 
-    public function import(): ImportResult
+    public function import(bool $fullSync = false): ImportResult
     {
         $result = new ImportResult();
 

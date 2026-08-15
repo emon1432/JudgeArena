@@ -13,16 +13,28 @@ class ContestTransformer
      */
     public function fromApiContest(AtCoderContestDTO $contest): ContestDTO
     {
+        $startedAt = $this->parseStartTime($contest->date);
+        $durationSeconds = $this->parseDurationSeconds($contest->duration);
+        $endedAt = ($startedAt !== null && $durationSeconds !== null)
+            ? $startedAt->add(new \DateInterval('PT' . $durationSeconds . 'S'))
+            : null;
+
+        $phase = $this->determinePhase($startedAt, $endedAt, $contest->type);
+
+        $platformContestId = (string) ($contest->id ?? '');
+        $title = (string) ($contest->title ?? '');
+        $slug = \Illuminate\Support\Str::slug($platformContestId . '-' . $title);
+
         return new ContestDTO(
             platform: 'atcoder',
-            platformContestId: (string) ($contest->id ?? ''),
-            title: (string) ($contest->title ?? ''),
-            phase: null,
-            startedAt: $this->parseStartTime($contest->date),
-            durationSeconds: $this->parseDurationSeconds($contest->duration),
-            endedAt: isset($contest->date, $contest->duration)
-            ? $this->parseStartTime($contest->date)?->add(new \DateInterval('PT' . $this->parseDurationSeconds($contest->duration) . 'S'))
-            : null,
+            platformContestId: $platformContestId,
+            title: $title,
+            slug: $slug,
+            type: $contest->type,
+            phase: $phase,
+            startedAt: $startedAt,
+            durationSeconds: $durationSeconds,
+            endedAt: $endedAt,
             url: $contest->url,
             raw: $contest->raw,
         );
@@ -34,6 +46,29 @@ class ContestTransformer
         return array_map(fn(AtCoderContestDTO $contest): ContestDTO => $this->fromApiContest($contest), $contests);
     }
 
+    private function determinePhase(?DateTimeImmutable $startedAt, ?DateTimeImmutable $endedAt, ?string $type = null): ?string
+    {
+        if ($type === 'permanent') {
+            return 'CODING';
+        }
+
+        if ($startedAt === null && $endedAt === null) {
+            return 'CODING';
+        }
+
+        $now = new DateTimeImmutable();
+
+        if ($startedAt !== null && $now < $startedAt) {
+            return 'BEFORE';
+        }
+
+        if ($endedAt !== null && $now > $endedAt) {
+            return 'FINISHED';
+        }
+
+        return 'CODING';
+    }
+
     private function parseStartTime(?string $date): ?DateTimeImmutable
     {
         if ($date === null) {
@@ -41,7 +76,7 @@ class ContestTransformer
         }
 
         $date = trim($date);
-        if ($date === '' || strcasecmp($date, 'Permanent') === 0) {
+        if ($date === '' || strcasecmp($date, 'Permanent') === 0 || $date === '-') {
             return null;
         }
 
@@ -57,8 +92,12 @@ class ContestTransformer
         }
 
         $duration = trim($duration);
-        if ($duration === '' || $duration === '-' || strcasecmp($duration, 'Permanent') === 0) {
+        if ($duration === '' || $duration === '-') {
             return null;
+        }
+
+        if (strcasecmp($duration, 'Permanent') === 0) {
+            return 3153600000; // 100 years in seconds
         }
 
         if (preg_match('/^(\d+):(\d+)(?::(\d+))?$/', $duration, $matches)) {

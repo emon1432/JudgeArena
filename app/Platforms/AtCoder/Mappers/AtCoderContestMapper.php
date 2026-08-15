@@ -14,7 +14,7 @@ final class AtCoderContestMapper
             url: $contest['url'] ?? null,
             date: $contest['date'] ?? null,
             duration: $contest['duration'] ?? null,
-            rateChange: $contest['rateChange'] ?? null,
+            rateChange: $contest['rate_change'] ?? $contest['rateChange'] ?? null,
             type: $contest['type'] ?? null,
             raw: $contest,
         );
