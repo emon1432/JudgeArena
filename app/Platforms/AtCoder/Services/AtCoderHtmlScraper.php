@@ -244,9 +244,9 @@ class AtCoderHtmlScraper
     //used
     public function getTasks(string $contestId): array
     {
-        $response = $this->httpRequest()->get(self::ATCODER_BASE_URL . '/contests/' . $contestId . '/tasks');
+        $response = $this->httpRequest()->get(self::ATCODER_BASE_URL . '/contests/' . $contestId . '/tasks?lang=en');
         if (!$response->successful()) {
-            throw new RuntimeException('AtCoder tasks request failed with HTTP ' . $response->status());
+            return ['result' => []];
         }
 
         $doc = new DOMDocument;
@@ -254,52 +254,41 @@ class AtCoderHtmlScraper
         $xpath = new DOMXPath($doc);
 
         $tasks = [];
-        $rows = $xpath->query('//table//tr');
+        $rows = $xpath->query('//table[contains(@class, "table")]//tbody//tr | //table//tbody//tr | //table//tr');
 
         foreach ($rows as $row) {
             $cells = $xpath->query('.//td', $row);
-            if ($cells->length < 3) {
+            if ($cells->length < 2) {
                 continue;
             }
 
-            $link = $xpath->query('.//a', $cells->item(0))->item(0);
+            $position = trim($cells->item(0)?->nodeValue ?? '');
+            $link = $xpath->query('.//a[contains(@href, "/tasks/")]', $cells->item(1))->item(0)
+                ?? $xpath->query('.//a', $cells->item(0))->item(0);
+
             if (!$link instanceof \DOMElement) {
                 continue;
             }
 
-            $taskId = basename($link->getAttribute('href'));
-            $title = trim($cells->item(1)?->nodeValue ?? '');
-            $position = trim($cells->item(0)?->nodeValue ?? '');
-            $timeLimit = trim($cells->item(2)?->nodeValue ?? '');
-            $memoryLimit = trim($cells->item(3)?->nodeValue ?? '');
-            $taskUrl = self::ATCODER_BASE_URL . $link->getAttribute('href');
-            $score = null;
+            $href = $link->getAttribute('href');
+            $taskId = basename($href);
 
-            $taskResponse = $this->httpRequest()->get(self::ATCODER_BASE_URL . '/contests/' . $contestId . '/tasks/' . $taskId);
-            if ($taskResponse->successful()) {
-                $taskDoc = new DOMDocument;
-                @$taskDoc->loadHTML($taskResponse->body());
-                $taskXpath = new DOMXPath($taskDoc);
-
-                $scoreNode = $taskXpath->query('//p[contains(text(), "Score") or contains(text(), "配点")]')->item(0);
-                if ($scoreNode) {
-                    $scoreVar = $taskXpath->query('.//var', $scoreNode)->item(0);
-                    if ($scoreVar) {
-                        $scoreText = $scoreVar->textContent;
-                        preg_match('/\d+/', $scoreText, $matches);
-                        if (isset($matches[0])) {
-                            $score = (int) $matches[0];
-                        }
-                    }
-                }
+            if (empty($taskId) || str_contains($href, '/tasks/archive')) {
+                continue;
             }
+
+            $rawTitle = trim($link->nodeValue);
+            $title = $this->translateJapaneseTitle($rawTitle);
+            $timeLimit = $cells->length > 2 ? trim($cells->item(2)?->nodeValue ?? '') : '';
+            $memoryLimit = $cells->length > 3 ? trim($cells->item(3)?->nodeValue ?? '') : '';
+            $taskUrl = self::ATCODER_BASE_URL . $href;
 
             $tasks[] = [
                 'id' => $taskId,
                 'contest_id' => $contestId,
                 'title' => $title,
                 'position' => $position,
-                'score' => $score,
+                'score' => null,
                 'time_limit' => $timeLimit,
                 'memory_limit' => $memoryLimit,
                 'url' => $taskUrl,

@@ -92,7 +92,7 @@ class ProblemImporter implements ProblemImporterContract
                             ],
                             [
                                 'contest_id' => $contest->id,
-                                'slug' => slugify($problemDto->title),
+                                'slug' => \Illuminate\Support\Str::slug($contest->platform_contest_id . '-' . strtolower((string) ($problemDto->code ?? '')) . '-' . $problemDto->title),
                                 'name' => $problemDto->title,
                                 'code' => $problemDto->code,
                                 'points' => $problemDto->points,
