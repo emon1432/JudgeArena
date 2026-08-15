@@ -6,5 +6,5 @@ use App\Core\Results\ImportResult;
 
 interface ContestImporter
 {
-    public function import(): ImportResult;
+    public function import(bool $fullSync = false): ImportResult;
 }

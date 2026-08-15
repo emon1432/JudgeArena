@@ -10,6 +10,8 @@ readonly class ContestDTO
 		public string $platform,
 		public string $platformContestId,
 		public string $title,
+		public ?string $slug = null,
+		public ?string $type = null,
 		public ?string $phase = null,
 		public ?DateTimeImmutable $startedAt = null,
 		public ?int $durationSeconds = null,

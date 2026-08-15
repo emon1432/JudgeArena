@@ -6,6 +6,7 @@ use App\Core\Contracts\Importers\ContestImporter as ContestImporterContract;
 use App\Core\Contracts\Importers\ProblemImporter as ProblemImporterContract;
 use App\Core\Contracts\Importers\UserImporter as UserImporterContract;
 use App\Core\Contracts\Importers\UserRatingHistoryImporter as UserRatingHistoryImporterContract;
+use App\Core\Contracts\Importers\UserStandingImporter as UserStandingImporterContract;
 use App\Core\Contracts\Importers\UserSubmissionImporter as UserSubmissionImporterContract;
 use App\Core\Contracts\Platforms\PlatformAdapter;
 use App\Core\DTOs\ContestStandingsDTO;
@@ -40,10 +41,10 @@ class AtCoderAdapter implements PlatformAdapter
     //================================Used==================================
 
     //================================Getters==================================
-    public function getContests(): array
+    public function getContests(?callable $pageProcessor = null, bool $fullSync = false): array
     {
         return $this->contestTransformer->fromApiContests(
-            $this->contests->list(),
+            $this->contests->all($pageProcessor, $fullSync)
         );
     }
 
@@ -52,24 +53,6 @@ class AtCoderAdapter implements PlatformAdapter
         return $this->problemTransformer->fromApiProblems(
             $this->problems->getContestProblems($contestId)
         );
-    }
-
-    public function getSubmissions(string $contestId): array
-    {
-        return $this->submissionTransformer->fromApiSubmissions(
-            $this->contests->submissions($contestId)
-        );
-    }
-
-    public function getRatingChanges(string $contestId): array
-    {
-        return $this->contests->ratingChanges((string) $contestId);
-    }
-
-    public function getStandings(string $id): ContestStandingsDTO
-    {
-        return $this->standingsTransformer
-            ->fromApiStandings($this->contests->standings($id));
     }
 
     public function getUserRatingHistory(string $handle): array
@@ -103,6 +86,12 @@ class AtCoderAdapter implements PlatformAdapter
         ];
     }
 
+    public function getUserStandings(string $id): ContestStandingsDTO
+    {
+        return $this->standingsTransformer
+            ->fromApiStandings($this->contests->standings($id));
+    }
+
     public function getUser(string $username): UserDTO
     {
         return $this->userTransformer->fromApiUser($this->users->info($username));
@@ -127,6 +116,11 @@ class AtCoderAdapter implements PlatformAdapter
     public function userSubmissionImporter(): UserSubmissionImporterContract
     {
         return app(UserSubmissionImporter::class);
+    }
+
+    public function userStandingImporter(): UserStandingImporterContract
+    {
+        throw new \BadMethodCallException('User standing importer is not implemented for AtCoder yet.');
     }
 
     public function userImporter(): UserImporterContract

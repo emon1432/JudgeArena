@@ -24,6 +24,15 @@ class ImportContestsCommandTest extends TestCase
         );
     }
 
+    public function test_atcoder_contest_import_uses_platform_sync_states(): void
+    {
+        $this->assertContestImportUsesPlatformSyncState(
+            'atcoder',
+            \App\Platforms\AtCoder\AtCoderAdapter::class,
+            \App\Platforms\AtCoder\Importers\ContestImporter::class
+        );
+    }
+
     private function assertContestImportUsesPlatformSyncState(string $platformSlug, string $adapterClass, string $importerClass): void
     {
         $platform = new class extends Platform {
@@ -89,9 +98,13 @@ class ImportContestsCommandTest extends TestCase
             'platform' => $platformSlug,
             'platformContestId' => 'contest-1',
             'title' => 'Contest 1',
+            'slug' => 'contest-1-contest-1',
+            'type' => 'normal',
             'phase' => 'FINISHED',
             'startedAt' => null,
             'durationSeconds' => 7200,
+            'endedAt' => null,
+            'url' => 'https://atcoder.jp/contests/contest-1',
             'raw' => ['id' => 'contest-1'],
         ];
 
