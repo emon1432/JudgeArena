@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Core\Contracts\Platforms;
 
 use App\Core\Contracts\Importers\ContestImporter;
@@ -31,24 +33,6 @@ interface PlatformAdapter
     public function getContestProblems(string $contestId): array;
 
     /**
-     * @param string $contestId
-     * @return SubmissionDTO[]
-     */
-    public function getSubmissions(string $contestId): array;
-
-    /**
-     * @param string $contestId
-     * @return RatingChangeDTO[]
-     */
-    public function getRatingChanges(string $contestId): array;
-
-    /**
-     * @param string $id
-     * @return ContestStandingsDTO
-     */
-    public function getStandings(string $id): ContestStandingsDTO;
-
-    /**
      * @param string $handle
      * @return RatingChangeDTO[]
      */
@@ -69,6 +53,12 @@ interface PlatformAdapter
      * }
      */
     public function getUserSubmissions(array $params): array;
+
+    /**
+     * @param string $id
+     * @return ContestStandingsDTO
+     */
+    public function getUserStandings(string $id): ContestStandingsDTO;
 
     /**
      * @param string $username

@@ -92,7 +92,7 @@ class ProblemImporter implements ProblemImporterContract
                 }
 
                 try {
-                    $standings = $this->adapter->getStandings($contestPlatformId);
+                    $standings = $this->adapter->getUserStandings($contestPlatformId);
                     $problems = $standings->problems ?? [];
                     $participantCount = count($standings->rows ?? []);
 

@@ -58,24 +58,6 @@ class CodeforcesAdapter implements PlatformAdapter
         return $this->problemTransformer->fromApiProblems($contest->problems);
     }
 
-    public function getSubmissions(string $contestId): array
-    {
-        return $this->submissionTransformer->fromApiSubmissions(
-            $this->contests->status((int) $contestId)
-        );
-    }
-
-    public function getRatingChanges(string $contestId): array
-    {
-        return $this->contests->ratingChanges($contestId);
-    }
-
-    public function getStandings(string $id): ContestStandingsDTO
-    {
-        return $this->standingsTransformer
-            ->fromApiStandings($this->contests->standings((int) $id));
-    }
-
     public function getUserRatingHistory(string $handle): array
     {
         return $this->users->ratingHistory($handle);
@@ -86,6 +68,12 @@ class CodeforcesAdapter implements PlatformAdapter
         return $this->submissionTransformer->fromApiSubmissions(
             $this->users->submissions($params['handle'], $params['from'], $params['count'])
         );
+    }
+
+    public function getUserStandings(string $id): ContestStandingsDTO
+    {
+        return $this->standingsTransformer
+            ->fromApiStandings($this->contests->standings((int) $id));
     }
 
     public function getUser(string $username): UserDTO

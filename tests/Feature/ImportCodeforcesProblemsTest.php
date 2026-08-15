@@ -124,7 +124,7 @@ class ImportCodeforcesProblemsTest extends TestCase
         );
 
         $this->mock(CodeforcesAdapter::class, function ($mock) use ($standingsDto): void {
-            $mock->shouldReceive('getStandings')
+            $mock->shouldReceive('getUserStandings')
                 ->once()
                 ->andReturn($standingsDto);
         });
