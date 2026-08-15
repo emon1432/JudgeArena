@@ -4,9 +4,6 @@ namespace App\Core\Contracts\Platforms;
 
 use App\Core\Contracts\Importers\ContestImporter;
 use App\Core\Contracts\Importers\ProblemImporter;
-use App\Core\Contracts\Importers\SubmissionImporter;
-use App\Core\Contracts\Importers\RatingChangeImporter;
-use App\Core\Contracts\Importers\StandingImporter;
 use App\Core\Contracts\Importers\UserImporter;
 use App\Core\Contracts\Importers\UserRatingHistoryImporter;
 use App\Core\Contracts\Importers\UserStandingImporter;
@@ -83,9 +80,6 @@ interface PlatformAdapter
     //==============================Importers==================================
     public function contestImporter(): ContestImporter;
     public function problemImporter(): ProblemImporter;
-    public function submissionImporter(): SubmissionImporter;
-    public function ratingChangeImporter(): RatingChangeImporter;
-    public function standingImporter(): StandingImporter;
     public function userRatingHistoryImporter(): UserRatingHistoryImporter;
     public function userSubmissionImporter(): UserSubmissionImporter;
     public function userStandingImporter(): UserStandingImporter;

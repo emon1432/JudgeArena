@@ -13,11 +13,9 @@ enum PlatformSyncJobEntity: string
     case Contest = 'contest';
     case Problem = 'problem';
     case User = 'user';
-    case Submission = 'submission';
-    case Standing = 'standing';
-    case RatingChange = 'rating_change';
     case UserRatingHistory = 'user_rating_history';
     case UserSubmissions = 'user_submissions';
+    case UserStandings = 'user_standings';
 
     public function importerMethod(): string
     {
@@ -25,11 +23,9 @@ enum PlatformSyncJobEntity: string
             self::Contest => 'contestImporter',
             self::Problem => 'problemImporter',
             self::User => 'userImporter',
-            self::Submission => 'submissionImporter',
-            self::Standing => 'standingImporter',
-            self::RatingChange => 'ratingChangeImporter',
             self::UserRatingHistory => 'userRatingHistoryImporter',
             self::UserSubmissions => 'userSubmissionImporter',
+            self::UserStandings => 'userStandingImporter',
         };
     }
 }

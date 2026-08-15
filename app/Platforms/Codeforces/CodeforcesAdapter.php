@@ -6,9 +6,6 @@ namespace App\Platforms\Codeforces;
 
 use App\Core\Contracts\Importers\ContestImporter as ContestImporterContract;
 use App\Core\Contracts\Importers\ProblemImporter as ProblemImporterContract;
-use App\Core\Contracts\Importers\RatingChangeImporter as RatingChangeImporterContract;
-use App\Core\Contracts\Importers\StandingImporter as StandingImporterContract;
-use App\Core\Contracts\Importers\SubmissionImporter as SubmissionImporterContract;
 use App\Core\Contracts\Importers\UserImporter as UserImporterContract;
 use App\Core\Contracts\Importers\UserRatingHistoryImporter as UserRatingHistoryImporterContract;
 use App\Core\Contracts\Importers\UserStandingImporter as UserStandingImporterContract;
@@ -18,9 +15,6 @@ use App\Core\DTOs\ContestStandingsDTO;
 use App\Core\DTOs\UserDTO;
 use App\Platforms\Codeforces\Importers\ContestImporter;
 use App\Platforms\Codeforces\Importers\ProblemImporter;
-use App\Platforms\Codeforces\Importers\RatingChangeImporter;
-use App\Platforms\Codeforces\Importers\StandingImporter;
-use App\Platforms\Codeforces\Importers\SubmissionImporter;
 use App\Platforms\Codeforces\Importers\UserImporter;
 use App\Platforms\Codeforces\Importers\UserRatingHistoryImporter;
 use App\Platforms\Codeforces\Importers\UserStandingImporter;
@@ -108,21 +102,6 @@ class CodeforcesAdapter implements PlatformAdapter
     public function problemImporter(): ProblemImporterContract
     {
         return app(ProblemImporter::class);
-    }
-
-    public function submissionImporter(): SubmissionImporterContract
-    {
-        return app(SubmissionImporter::class);
-    }
-
-    public function ratingChangeImporter(): RatingChangeImporterContract
-    {
-        return app(RatingChangeImporter::class);
-    }
-
-    public function standingImporter(): StandingImporterContract
-    {
-        return app(StandingImporter::class);
     }
 
     public function userRatingHistoryImporter(): UserRatingHistoryImporterContract
