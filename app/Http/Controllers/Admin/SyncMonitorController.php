@@ -253,13 +253,10 @@ class SyncMonitorController extends Controller
         return [
             PlatformSyncEntityType::Contest->value => 'Contest syncs',
             PlatformSyncEntityType::ContestProblems->value => 'Problem syncs',
-            PlatformSyncEntityType::ContestSubmissions->value => 'Submission syncs',
-            PlatformSyncEntityType::ContestStandings->value => 'Standing syncs',
-            PlatformSyncEntityType::Problem->value => 'Problem syncs',
             PlatformSyncEntityType::User->value => 'User syncs',
-            PlatformSyncEntityType::Submission->value => 'Submission syncs',
-            PlatformSyncEntityType::RatingChange->value => 'Rating change syncs',
             PlatformSyncEntityType::UserRatingHistory->value => 'User rating history syncs',
+            PlatformSyncEntityType::UserSubmissions->value => 'User submission syncs',
+            PlatformSyncEntityType::UserStandings->value => 'User standing syncs',
         ];
     }
 
@@ -272,9 +269,9 @@ class SyncMonitorController extends Controller
             PlatformSyncEntityType::Contest->value,
             PlatformSyncEntityType::ContestProblems->value,
             PlatformSyncEntityType::User->value,
-            PlatformSyncEntityType::RatingChange->value,
-            PlatformSyncEntityType::ContestStandings->value,
-            PlatformSyncEntityType::ContestSubmissions->value,
+            PlatformSyncEntityType::UserRatingHistory->value,
+            PlatformSyncEntityType::UserSubmissions->value,
+            PlatformSyncEntityType::UserStandings->value,
         ];
     }
 
