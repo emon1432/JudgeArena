@@ -4,22 +4,35 @@ namespace App\Platforms\AtCoder\Transformers;
 
 use App\Core\DTOs\ProblemDTO;
 use App\Platforms\AtCoder\DTOs\AtCoderProblemDTO;
+use App\Platforms\AtCoder\Services\AtCoderCategoryTagService;
 
 class ProblemTransformer
 {
+    private readonly AtCoderCategoryTagService $categoryTagService;
+
+    public function __construct(
+        ?AtCoderCategoryTagService $categoryTagService = null
+    ) {
+        $this->categoryTagService = $categoryTagService ?? app(AtCoderCategoryTagService::class);
+    }
+
     public function fromApiProblem(AtCoderProblemDTO $problem): ProblemDTO
     {
+        $problemId = (string) ($problem->id ?? '');
+        $enriched = $this->categoryTagService->enrichProblem($problemId, null, []);
+
         return new ProblemDTO(
             platform: 'atcoder',
-            platformProblemId: (string) ($problem->id ?? ''),
+            platformProblemId: $problemId,
             title: (string) ($problem->title ?? ''),
             contestPlatformId: $problem->contestId,
             code: $problem->position,
             points: $problem->points,
+            rating: $enriched['rating'],
             timeLimit: isset($problem->timeLimit) ? $this->parseTimeLimit($problem->timeLimit) : null,
             memoryLimit: isset($problem->memoryLimit) ? $this->parseMemoryLimit($problem->memoryLimit) : null,
+            tags: $enriched['tags'],
             url: $problem->url,
-            tags: [],
             raw: $problem->raw,
         );
     }

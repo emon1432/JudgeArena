@@ -131,6 +131,13 @@ class ImportAtCoderProblemsTest extends TestCase
             public function critical(string $message, array $context = [], ?\Throwable $exception = null): void {}
         });
 
+        $this->mock(\App\Platforms\AtCoder\Services\AtCoderCategoryTagService::class, function ($mock): void {
+            $mock->shouldReceive('enrichProblem')->andReturn([
+                'rating' => 1200,
+                'tags' => ['Dynamic Programming'],
+            ]);
+        });
+
         $fakeState = new PlatformSyncState();
         $fakeState->sync_status = PlatformSyncStatus::Pending->value;
 
