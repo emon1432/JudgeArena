@@ -11,20 +11,14 @@ use RuntimeException;
 
 class AtCoderHtmlScraper
 {
-    private const ATCODER_BASE_URL = 'https://atcoder.jp';
-
-    private const LOGIN_URL = 'https://atcoder.jp/login';
+    private function baseUrl(): string
+    {
+        return rtrim((string) config('platforms.atcoder.base_url', 'https://atcoder.jp'), '/');
+    }
 
     private const REQUEST_DELAY_MS = 500;
 
     private static int $lastRequestTime = 0;
-
-    private ?string $sessionCookies = null;
-
-    public function __construct()
-    {
-        $this->authenticate();
-    }
 
     //used
     public function getContests(?callable $pageProcessor = null, bool $fullSync = false): array
@@ -43,19 +37,19 @@ class AtCoderHtmlScraper
     //used
     public function getStandings(string $contestId): array
     {
-        return $this->fetchJson(self::ATCODER_BASE_URL . '/contests/' . $contestId . '/standings/json');
+        return $this->fetchJson($this->baseUrl() . '/contests/' . $contestId . '/standings/json');
     }
 
     //used
     public function getStandingsVirtual(string $contestId): array
     {
-        return $this->fetchJson(self::ATCODER_BASE_URL . '/contests/' . $contestId . '/standings/virtual/json');
+        return $this->fetchJson($this->baseUrl() . '/contests/' . $contestId . '/standings/virtual/json');
     }
 
     //used
     public function getResults(string $contestId): array
     {
-        return $this->fetchJson(self::ATCODER_BASE_URL . '/contests/' . $contestId . '/results/json');
+        return $this->fetchJson($this->baseUrl() . '/contests/' . $contestId . '/results/json');
     }
 
     //used
@@ -70,7 +64,7 @@ class AtCoderHtmlScraper
 
         while (true) {
 
-            $url = self::ATCODER_BASE_URL .
+            $url = $this->baseUrl() .
                 '/contests/' . $contestId .
                 '/submissions?page=' . $page;
 
@@ -119,7 +113,7 @@ class AtCoderHtmlScraper
 
                     $taskTitle = trim($taskLink->textContent);
 
-                    $taskUrl = self::ATCODER_BASE_URL . $taskHref;
+                    $taskUrl = $this->baseUrl() . $taskHref;
                 } else {
 
                     $taskTitle = trim($cells->item(1)?->textContent ?? '');
@@ -175,7 +169,7 @@ class AtCoderHtmlScraper
 
                 if ($submissionId !== null) {
 
-                    $detailUrl = self::ATCODER_BASE_URL .
+                    $detailUrl = $this->baseUrl() .
                         '/contests/' .
                         $contestId .
                         '/submissions/' .
@@ -191,7 +185,7 @@ class AtCoderHtmlScraper
 
                         $detailHref = $detailLink->getAttribute('href');
 
-                        $detailUrl = self::ATCODER_BASE_URL . $detailHref;
+                        $detailUrl = $this->baseUrl() . $detailHref;
                     }
 
                     if ($submissionId === null && $detailUrl !== null) {
@@ -244,9 +238,9 @@ class AtCoderHtmlScraper
     //used
     public function getTasks(string $contestId): array
     {
-        $response = $this->httpRequest()->get(self::ATCODER_BASE_URL . '/contests/' . $contestId . '/tasks');
+        $response = $this->httpRequest()->get($this->baseUrl() . '/contests/' . $contestId . '/tasks?lang=en');
         if (!$response->successful()) {
-            throw new RuntimeException('AtCoder tasks request failed with HTTP ' . $response->status());
+            return ['result' => []];
         }
 
         $doc = new DOMDocument;
@@ -254,45 +248,35 @@ class AtCoderHtmlScraper
         $xpath = new DOMXPath($doc);
 
         $tasks = [];
-        $rows = $xpath->query('//table//tr');
+        $rows = $xpath->query('//table[contains(@class, "table")]//tbody//tr | //table//tbody//tr | //table//tr');
 
         foreach ($rows as $row) {
             $cells = $xpath->query('.//td', $row);
-            if ($cells->length < 3) {
+            if ($cells->length < 2) {
                 continue;
             }
 
-            $link = $xpath->query('.//a', $cells->item(0))->item(0);
+            $position = trim($cells->item(0)?->nodeValue ?? '');
+            $link = $xpath->query('.//a[contains(@href, "/tasks/")]', $cells->item(1))->item(0)
+                ?? $xpath->query('.//a', $cells->item(0))->item(0);
+
             if (!$link instanceof \DOMElement) {
                 continue;
             }
 
-            $taskId = basename($link->getAttribute('href'));
-            $title = trim($cells->item(1)?->nodeValue ?? '');
-            $position = trim($cells->item(0)?->nodeValue ?? '');
-            $timeLimit = trim($cells->item(2)?->nodeValue ?? '');
-            $memoryLimit = trim($cells->item(3)?->nodeValue ?? '');
-            $taskUrl = self::ATCODER_BASE_URL . $link->getAttribute('href');
-            $score = null;
+            $href = $link->getAttribute('href');
+            $taskId = basename($href);
 
-            $taskResponse = $this->httpRequest()->get(self::ATCODER_BASE_URL . '/contests/' . $contestId . '/tasks/' . $taskId);
-            if ($taskResponse->successful()) {
-                $taskDoc = new DOMDocument;
-                @$taskDoc->loadHTML($taskResponse->body());
-                $taskXpath = new DOMXPath($taskDoc);
-
-                $scoreNode = $taskXpath->query('//p[contains(text(), "Score") or contains(text(), "配点")]')->item(0);
-                if ($scoreNode) {
-                    $scoreVar = $taskXpath->query('.//var', $scoreNode)->item(0);
-                    if ($scoreVar) {
-                        $scoreText = $scoreVar->textContent;
-                        preg_match('/\d+/', $scoreText, $matches);
-                        if (isset($matches[0])) {
-                            $score = (int) $matches[0];
-                        }
-                    }
-                }
+            if (empty($taskId) || str_contains($href, '/tasks/archive')) {
+                continue;
             }
+
+            $rawTitle = trim($link->nodeValue);
+            $title = $this->translateJapaneseTitle($rawTitle);
+            $timeLimit = $cells->length > 2 ? trim($cells->item(2)?->nodeValue ?? '') : '';
+            $memoryLimit = $cells->length > 3 ? trim($cells->item(3)?->nodeValue ?? '') : '';
+            $taskUrl = $this->baseUrl() . $href;
+            $score = $this->getTaskScore($contestId, $taskId);
 
             $tasks[] = [
                 'id' => $taskId,
@@ -309,6 +293,38 @@ class AtCoderHtmlScraper
         return ['result' => $tasks];
     }
 
+    public function getTaskScore(string $contestId, string $taskId): ?float
+    {
+        try {
+            $html = $this->fetchPage($this->baseUrl() . '/contests/' . $contestId . '/tasks/' . $taskId . '?lang=en');
+            if ($html === '') {
+                return null;
+            }
+
+            $doc = new DOMDocument();
+            @$doc->loadHTML($html);
+            $xpath = new DOMXPath($doc);
+
+            $nodes = $xpath->query('//p[contains(text(), "Score") or contains(text(), "配点") or contains(., "Score")]');
+            foreach ($nodes as $node) {
+                $text = trim($node->textContent);
+                if (preg_match('/(?:Score|配点)\s*[:：]?\s*(\d+)/i', $text, $matches)) {
+                    return (float) $matches[1];
+                }
+                $varNode = $xpath->query('.//var', $node)->item(0);
+                if ($varNode) {
+                    $varText = trim($varNode->textContent);
+                    if (is_numeric($varText)) {
+                        return (float) $varText;
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+        }
+
+        return null;
+    }
+
     //used
     public function getUserProfile(string $username): array
     {
@@ -316,7 +332,7 @@ class AtCoderHtmlScraper
         $result = [];
 
         foreach ($types as $index => $type) {
-            $html = $this->fetchPage(self::ATCODER_BASE_URL . '/users/' . $username . '?contestType=' . $type);
+            $html = $this->fetchPage($this->baseUrl() . '/users/' . $username . '?contestType=' . $type);
 
             $doc = new DOMDocument;
             @$doc->loadHTML($html);
@@ -390,7 +406,7 @@ class AtCoderHtmlScraper
         $history = [];
 
         foreach ($types as $type) {
-            $data = $this->fetchJson(self::ATCODER_BASE_URL . '/users/' . $username . '/history/json?contestType=' . $type);
+            $data = $this->fetchJson($this->baseUrl() . '/users/' . $username . '/history/json?contestType=' . $type);
             foreach ($data as $entry) {
                 if (is_array($entry)) {
                     $entry['contest_type'] = $type;
@@ -402,289 +418,103 @@ class AtCoderHtmlScraper
         return ['result' => $history];
     }
 
-    private function authenticate(): void
-    {
-        $sessionCookieEnv = env('ATCODER_SESSION_COOKIES') ?? (string) config('platforms.atcoder.credentials.atcoder_session_cookies', '');
-        if ($sessionCookieEnv !== '') {
-            $this->sessionCookies = $sessionCookieEnv;
-
-            return;
-        }
-
-        $username = (string) config('platforms.atcoder.credentials.atcoder_username', '');
-        $password = (string) config('platforms.atcoder.credentials.atcoder_password', '');
-
-        if ($username === '' || $password === '') {
-            app(ApplicationLogger::class)->info('AtCoder authentication skipped', [
-                'category' => 'authentication',
-                'platform' => 'atcoder',
-                'source' => self::class,
-                'reason' => 'no credentials or session cookie configured',
-            ]);
-
-            return;
-        }
-
-        try {
-            $getResp = Http::timeout(15)
-                ->withHeaders(['User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'])
-                ->get(self::LOGIN_URL);
-
-            if (!$getResp->successful()) {
-                app(ApplicationLogger::class)->warning('AtCoder login page request failed', [
-                    'category' => 'scraper',
-                    'platform' => 'atcoder',
-                    'source' => self::class,
-                    'status' => $getResp->status(),
-                ]);
-
-                return;
-            }
-
-            $csrf = $this->extractCsrfToken($getResp->body());
-            if ($csrf === null) {
-                app(ApplicationLogger::class)->warning('AtCoder login page missing csrf token', [
-                    'category' => 'scraper',
-                    'platform' => 'atcoder',
-                    'source' => self::class,
-                ]);
-
-                return;
-            }
-
-            $cookiePairs = [];
-            $getHeaders = $getResp->headers();
-            $setCookieHeaders = $getHeaders['Set-Cookie'] ?? $getHeaders['set-cookie'] ?? [];
-            if (!is_array($setCookieHeaders) && $setCookieHeaders !== []) {
-                $setCookieHeaders = [$setCookieHeaders];
-            }
-            foreach ($setCookieHeaders as $setCookieHeader) {
-                $cookiePairs[] = trim(explode(';', $setCookieHeader)[0]);
-            }
-
-            $cookieHeader = count($cookiePairs) > 0 ? implode('; ', $cookiePairs) : null;
-
-            $postReq = Http::asForm()->timeout(15)
-                ->withHeaders(['User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36', 'Referer' => self::LOGIN_URL]);
-
-            if ($cookieHeader !== null) {
-                $postReq = $postReq->withHeaders(['Cookie' => $cookieHeader]);
-            }
-
-            $postResp = $postReq->post(self::LOGIN_URL, [
-                'username' => $username,
-                'password' => $password,
-                'csrf_token' => $csrf,
-            ]);
-
-            $postHeaders = $postResp->headers();
-            $postSetCookieHeaders = $postHeaders['Set-Cookie'] ?? $postHeaders['set-cookie'] ?? [];
-            if (!is_array($postSetCookieHeaders) && $postSetCookieHeaders !== []) {
-                $postSetCookieHeaders = [$postSetCookieHeaders];
-            }
-            foreach ($postSetCookieHeaders as $setCookieHeader) {
-                $cookiePairs[] = trim(explode(';', $setCookieHeader)[0]);
-            }
-
-            $cookiePairs = array_values(array_unique($cookiePairs));
-            $this->sessionCookies = implode('; ', $cookiePairs);
-        } catch (\Exception $exception) {
-            app(ApplicationLogger::class)->error('AtCoder authentication failed', [
-                'category' => 'authentication',
-                'platform' => 'atcoder',
-                'source' => self::class,
-            ], $exception);
-        }
-    }
-
-    private function extractCsrfToken(string $html): ?string
-    {
-        $doc = new DOMDocument;
-        @$doc->loadHTML($html);
-        $xpath = new DOMXPath($doc);
-        $scriptNodes = $xpath->query('//script[contains(text(), "var csrfToken")]');
-
-        foreach ($scriptNodes as $node) {
-            $scriptContent = $node->textContent;
-            if (preg_match('/var csrfToken\s*=\s*"([^"]+)"/', $scriptContent, $matches)) {
-                return $matches[1];
-            }
-        }
-
-        return null;
-    }
-
     //used
+    private function scrapeCategoryArchive(string $categoryParam, string $type, ?callable $pageProcessor, bool $fullSync): array
+    {
+        $contests = [];
+        $page = 1;
+        $maxPages = null;
+
+        while (true) {
+            $query = $categoryParam !== '' ? 'category=' . $categoryParam . '&' : '';
+            $jaUrl = $this->baseUrl() . '/contests/archive?' . $query . 'lang=ja&page=' . $page;
+            $enUrl = $this->baseUrl() . '/contests/archive?' . $query . 'lang=en&page=' . $page;
+
+            $html = $this->fetchPage($jaUrl);
+            $enTitlesMap = $this->fetchEnglishTitlesMap($enUrl);
+
+            if ($maxPages === null) {
+                $maxPages = $this->extractMaxPages($html);
+            }
+
+            $doc = new DOMDocument;
+            @$doc->loadHTML($html);
+            $xpath = new DOMXPath($doc);
+
+            $rows = $xpath->query('//table//tbody//tr');
+            $pageHasContests = false;
+            $pageContests = [];
+
+            foreach ($rows as $row) {
+                $cells = $xpath->query('.//td', $row);
+                if ($cells->length < 4) {
+                    continue;
+                }
+
+                $startText = trim($cells->item(0)?->nodeValue ?? '');
+                $link = $xpath->query('.//a', $cells->item(1))->item(0);
+                if (!$link instanceof \DOMElement) {
+                    continue;
+                }
+
+                $href = $link->getAttribute('href');
+                $contestId = basename($href);
+                $jaTitle = trim($link->nodeValue);
+                $title = $enTitlesMap[$contestId] ?? $this->translateJapaneseTitle($jaTitle);
+                $duration = trim($cells->item(2)?->nodeValue ?? '');
+                $rateChange = trim($cells->item(3)?->nodeValue ?? '');
+
+                $item = [
+                    'id' => $contestId,
+                    'title' => $title,
+                    'url' => $this->baseUrl() . $href,
+                    'date' => $startText,
+                    'duration' => $duration,
+                    'rate_change' => $rateChange,
+                    'type' => $type,
+                ];
+
+                $contests[] = $item;
+                $pageContests[] = $item;
+                $pageHasContests = true;
+            }
+
+            if (!$pageHasContests) {
+                break;
+            }
+
+            if ($pageProcessor !== null && !empty($pageContests)) {
+                $shouldContinue = $pageProcessor($pageContests, $type);
+                if ($shouldContinue === false && !$fullSync) {
+                    break;
+                }
+            }
+
+            if ($maxPages !== null) {
+                $dynamicMax = $this->extractMaxPages($html);
+                if ($dynamicMax > $maxPages) {
+                    $maxPages = $dynamicMax;
+                }
+            }
+
+            if ($maxPages !== null && $page >= $maxPages) {
+                break;
+            }
+
+            $page++;
+            $this->respectRateLimit();
+        }
+        return $contests;
+    }
+
     private function getNormalContests(?callable $pageProcessor = null, bool $fullSync = false): array
     {
-        $contests = [];
-        $page = 1;
-        $maxPages = null;
-
-        while (true) {
-            $html = $this->fetchPage(self::ATCODER_BASE_URL . '/contests/archive?lang=ja&page=' . $page);
-            $enTitlesMap = $this->fetchEnglishTitlesMap(self::ATCODER_BASE_URL . '/contests/archive?lang=en&page=' . $page);
-
-            if ($maxPages === null) {
-                $maxPages = $this->extractMaxPages($html);
-            }
-
-            $doc = new DOMDocument;
-            @$doc->loadHTML($html);
-            $xpath = new DOMXPath($doc);
-
-            $rows = $xpath->query('//table//tbody//tr');
-            $pageHasContests = false;
-            $pageContests = [];
-
-            foreach ($rows as $row) {
-                $cells = $xpath->query('.//td', $row);
-                if ($cells->length < 4) {
-                    continue;
-                }
-
-                $startText = trim($cells->item(0)?->nodeValue ?? '');
-                $link = $xpath->query('.//a', $cells->item(1))->item(0);
-                if (!$link instanceof \DOMElement) {
-                    continue;
-                }
-
-                $href = $link->getAttribute('href');
-                $contestId = basename($href);
-                $jaTitle = trim($link->nodeValue);
-                $title = $enTitlesMap[$contestId] ?? $this->translateJapaneseTitle($jaTitle);
-                $duration = trim($cells->item(2)?->nodeValue ?? '');
-                $rateChange = trim($cells->item(3)?->nodeValue ?? '');
-
-                $item = [
-                    'id' => $contestId,
-                    'title' => $title,
-                    'url' => self::ATCODER_BASE_URL . $href,
-                    'date' => $startText,
-                    'duration' => $duration,
-                    'rate_change' => $rateChange,
-                    'type' => 'normal',
-                ];
-
-                $contests[] = $item;
-                $pageContests[] = $item;
-                $pageHasContests = true;
-            }
-
-            if (!$pageHasContests) {
-                break;
-            }
-
-            if ($pageProcessor !== null && !empty($pageContests)) {
-                $shouldContinue = $pageProcessor($pageContests, 'normal');
-                if ($shouldContinue === false && !$fullSync) {
-                    break;
-                }
-            }
-
-            if ($maxPages !== null) {
-                $dynamicMax = $this->extractMaxPages($html);
-                if ($dynamicMax > $maxPages) {
-                    $maxPages = $dynamicMax;
-                }
-            }
-
-            if ($maxPages !== null && $page >= $maxPages) {
-                break;
-            }
-
-            $page++;
-            $this->respectRateLimit();
-        }
-
-        return $contests;
+        return $this->scrapeCategoryArchive('', 'normal', $pageProcessor, $fullSync);
     }
 
-    //used
-    //used
     private function getWeekDayContests(?callable $pageProcessor = null, bool $fullSync = false): array
     {
-        $contests = [];
-        $page = 1;
-        $maxPages = null;
-
-        while (true) {
-            $html = $this->fetchPage(self::ATCODER_BASE_URL . '/contests/archive?category=20&lang=ja&page=' . $page);
-            $enTitlesMap = $this->fetchEnglishTitlesMap(self::ATCODER_BASE_URL . '/contests/archive?category=20&lang=en&page=' . $page);
-
-            if ($maxPages === null) {
-                $maxPages = $this->extractMaxPages($html);
-            }
-
-            $doc = new DOMDocument;
-            @$doc->loadHTML($html);
-            $xpath = new DOMXPath($doc);
-
-            $rows = $xpath->query('//table//tbody//tr');
-            $pageHasContests = false;
-            $pageContests = [];
-
-            foreach ($rows as $row) {
-                $cells = $xpath->query('.//td', $row);
-                if ($cells->length < 4) {
-                    continue;
-                }
-
-                $startText = trim($cells->item(0)?->nodeValue ?? '');
-                $link = $xpath->query('.//a', $cells->item(1))->item(0);
-                if (!$link instanceof \DOMElement) {
-                    continue;
-                }
-
-                $href = $link->getAttribute('href');
-                $contestId = basename($href);
-                $jaTitle = trim($link->nodeValue);
-                $title = $enTitlesMap[$contestId] ?? $this->translateJapaneseTitle($jaTitle);
-                $duration = trim($cells->item(2)?->nodeValue ?? '');
-                $rateChange = trim($cells->item(3)?->nodeValue ?? '');
-
-                $item = [
-                    'id' => $contestId,
-                    'title' => $title,
-                    'url' => self::ATCODER_BASE_URL . $href,
-                    'date' => $startText,
-                    'duration' => $duration,
-                    'rate_change' => $rateChange,
-                    'type' => 'weekday',
-                ];
-
-                $contests[] = $item;
-                $pageContests[] = $item;
-                $pageHasContests = true;
-            }
-
-            if (!$pageHasContests) {
-                break;
-            }
-
-            if ($pageProcessor !== null && !empty($pageContests)) {
-                $shouldContinue = $pageProcessor($pageContests, 'weekday');
-                if ($shouldContinue === false && !$fullSync) {
-                    break;
-                }
-            }
-
-            if ($maxPages !== null) {
-                $dynamicMax = $this->extractMaxPages($html);
-                if ($dynamicMax > $maxPages) {
-                    $maxPages = $dynamicMax;
-                }
-            }
-
-            if ($maxPages !== null && $page >= $maxPages) {
-                break;
-            }
-
-            $page++;
-            $this->respectRateLimit();
-        }
-
-        return $contests;
+        return $this->scrapeCategoryArchive('20', 'weekday', $pageProcessor, $fullSync);
     }
 
     //used
@@ -693,8 +523,8 @@ class AtCoderHtmlScraper
         $contests = [];
 
         try {
-            $htmlJa = $this->fetchPage(self::ATCODER_BASE_URL . '/contests/?lang=ja');
-            $enTitlesMap = $this->fetchEnglishTitlesMap(self::ATCODER_BASE_URL . '/contests/?lang=en');
+            $htmlJa = $this->fetchPage($this->baseUrl() . '/contests/?lang=ja');
+            $enTitlesMap = $this->fetchEnglishTitlesMap($this->baseUrl() . '/contests/?lang=en');
 
             $doc = new DOMDocument;
             @$doc->loadHTML($htmlJa);
@@ -757,7 +587,7 @@ class AtCoderHtmlScraper
                     $contests[] = [
                         'id' => $contestId,
                         'title' => $title,
-                        'url' => self::ATCODER_BASE_URL . $href,
+                        'url' => $this->baseUrl() . $href,
                         'date' => $date,
                         'duration' => $duration,
                         'rate_change' => $rateChange,
@@ -813,7 +643,7 @@ class AtCoderHtmlScraper
                 $contests[] = [
                     'id' => $contest['id'],
                     'title' => $contest['title'] ?? $contest['id'],
-                    'url' => self::ATCODER_BASE_URL . '/contests/' . $contest['id'],
+                    'url' => $this->baseUrl() . '/contests/' . $contest['id'],
                     'date' => $startTime,
                     'duration' => $duration ?: 'Archived',
                     'rate_change' => $contest['rate_change'] ?? '-',
@@ -835,87 +665,7 @@ class AtCoderHtmlScraper
     //used
     private function getDailyTrainingContests(?callable $pageProcessor = null, bool $fullSync = false): array
     {
-        $contests = [];
-        $page = 1;
-        $maxPages = null;
-
-        while (true) {
-            $html = $this->fetchPage(self::ATCODER_BASE_URL . '/contests/archive?category=60&lang=ja&page=' . $page);
-            $enTitlesMap = $this->fetchEnglishTitlesMap(self::ATCODER_BASE_URL . '/contests/archive?category=60&lang=en&page=' . $page);
-
-            if ($maxPages === null) {
-                $maxPages = $this->extractMaxPages($html);
-            }
-
-            $doc = new DOMDocument;
-            @$doc->loadHTML($html);
-            $xpath = new DOMXPath($doc);
-
-            $rows = $xpath->query('//table//tbody//tr');
-            $pageHasContests = false;
-            $pageContests = [];
-
-            foreach ($rows as $row) {
-                $cells = $xpath->query('.//td', $row);
-                if ($cells->length < 4) {
-                    continue;
-                }
-
-                $startText = trim($cells->item(0)?->nodeValue ?? '');
-                $link = $xpath->query('.//a', $cells->item(1))->item(0);
-                if (!$link instanceof \DOMElement) {
-                    continue;
-                }
-
-                $href = $link->getAttribute('href');
-                $contestId = basename($href);
-                $jaTitle = trim($link->nodeValue);
-                $title = $enTitlesMap[$contestId] ?? $this->translateJapaneseTitle($jaTitle);
-                $duration = trim($cells->item(2)?->nodeValue ?? '');
-                $rateChange = trim($cells->item(3)?->nodeValue ?? '');
-
-                $item = [
-                    'id' => $contestId,
-                    'title' => $title,
-                    'url' => self::ATCODER_BASE_URL . $href,
-                    'date' => $startText,
-                    'duration' => $duration,
-                    'rate_change' => $rateChange,
-                    'type' => 'daily_training',
-                ];
-
-                $contests[] = $item;
-                $pageContests[] = $item;
-                $pageHasContests = true;
-            }
-
-            if (!$pageHasContests) {
-                break;
-            }
-
-            if ($pageProcessor !== null && !empty($pageContests)) {
-                $shouldContinue = $pageProcessor($pageContests, 'daily_training');
-                if ($shouldContinue === false && !$fullSync) {
-                    break;
-                }
-            }
-
-            if ($maxPages !== null) {
-                $dynamicMax = $this->extractMaxPages($html);
-                if ($dynamicMax > $maxPages) {
-                    $maxPages = $dynamicMax;
-                }
-            }
-
-            if ($maxPages !== null && $page >= $maxPages) {
-                break;
-            }
-
-            $page++;
-            $this->respectRateLimit();
-        }
-
-        return $contests;
+        return $this->scrapeCategoryArchive('60', 'daily_training', $pageProcessor, $fullSync);
     }
 
     private function fetchEnglishTitlesMap(string $url): array
@@ -991,7 +741,7 @@ class AtCoderHtmlScraper
     public function getContestTimesFromDetail(string $contestId): array
     {
         try {
-            $html = $this->fetchPage(self::ATCODER_BASE_URL . '/contests/' . $contestId . '?lang=en');
+            $html = $this->fetchPage($this->baseUrl() . '/contests/' . $contestId . '?lang=en');
             if ($html === '') {
                 return ['start_time' => null, 'end_time' => null];
             }
@@ -1018,14 +768,10 @@ class AtCoderHtmlScraper
     {
         $this->respectRateLimit();
 
-        $request = $this->httpRequest();
-        $response = $this->sessionCookies !== null
-            ? $request->withHeaders(['Cookie' => $this->sessionCookies])->get($url)
-            : $request->get($url);
+        $response = $this->httpRequest()->get($url);
 
         if (!$response->successful()) {
             return '';
-            // throw new RuntimeException('AtCoder page request failed with HTTP ' . $response->status());
         }
 
         return $response->body();
@@ -1037,15 +783,11 @@ class AtCoderHtmlScraper
         $this->respectRateLimit();
 
         $request = $this->httpRequest();
-        $response = $this->sessionCookies !== null
-            ? $request->withHeaders(['Cookie' => $this->sessionCookies])->get($url)
-            : $request->get($url);
+        $response = $request->get($url);
 
         if ($response->status() === 404 && str_contains($url, '/standings/json')) {
             $fallbackUrl = str_replace('/standings/json', '/standings/team/json', $url);
-            $response = $this->sessionCookies !== null
-                ? $request->withHeaders(['Cookie' => $this->sessionCookies])->get($fallbackUrl)
-                : $request->get($fallbackUrl);
+            $response = $request->get($fallbackUrl);
         }
 
         if (!$response->successful()) {

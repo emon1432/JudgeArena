@@ -4,22 +4,35 @@ namespace App\Platforms\AtCoder\Transformers;
 
 use App\Core\DTOs\ProblemDTO;
 use App\Platforms\AtCoder\DTOs\AtCoderProblemDTO;
+use App\Platforms\AtCoder\Services\AtCoderCategoryTagService;
 
 class ProblemTransformer
 {
+    private readonly AtCoderCategoryTagService $categoryTagService;
+
+    public function __construct(
+        ?AtCoderCategoryTagService $categoryTagService = null
+    ) {
+        $this->categoryTagService = $categoryTagService ?? app(AtCoderCategoryTagService::class);
+    }
+
     public function fromApiProblem(AtCoderProblemDTO $problem): ProblemDTO
     {
+        $problemId = (string) ($problem->id ?? '');
+        $enriched = $this->categoryTagService->enrichProblem($problemId, null, []);
+
         return new ProblemDTO(
             platform: 'atcoder',
-            platformProblemId: (string) ($problem->id ?? ''),
+            platformProblemId: $problemId,
             title: (string) ($problem->title ?? ''),
             contestPlatformId: $problem->contestId,
             code: $problem->position,
             points: $problem->points,
+            rating: $enriched['rating'],
             timeLimit: isset($problem->timeLimit) ? $this->parseTimeLimit($problem->timeLimit) : null,
             memoryLimit: isset($problem->memoryLimit) ? $this->parseMemoryLimit($problem->memoryLimit) : null,
+            tags: $enriched['tags'],
             url: $problem->url,
-            tags: [],
             raw: $problem->raw,
         );
     }
@@ -31,13 +44,11 @@ class ProblemTransformer
 
     private function parseTimeLimit(string $timeLimit): ?int
     {
-        //timeLimit is a string like "2 sec" or "1000 ms"
-        //we convert it to milliseconds in integer format
-        if (str_ends_with($timeLimit, 'sec')) {
-            $seconds = floatval(str_replace('sec', '', $timeLimit));
-            return (int) ($seconds * 1000);
-        } elseif (str_ends_with($timeLimit, 'ms')) {
-            return (int) str_replace('ms', '', $timeLimit);
+        if (preg_match('/([\d\.]+)\s*sec/i', $timeLimit, $matches)) {
+            return (int) (floatval($matches[1]) * 1000);
+        }
+        if (preg_match('/(\d+)\s*ms/i', $timeLimit, $matches)) {
+            return (int) $matches[1];
         }
 
         return null;
@@ -45,10 +56,11 @@ class ProblemTransformer
 
     private function parseMemoryLimit(string $memoryLimit): ?int
     {
-        //memoryLimit is a string like "256 MiB"
-        //we convert it to megabytes in integer format
-        if (str_ends_with($memoryLimit, 'MiB')) {
-            return (int) str_replace('MiB', '', $memoryLimit);
+        if (preg_match('/(\d+)\s*(MiB|MB)/i', $memoryLimit, $matches)) {
+            return (int) $matches[1];
+        }
+        if (preg_match('/([\d\.]+)\s*GB/i', $memoryLimit, $matches)) {
+            return (int) (floatval($matches[1]) * 1024);
         }
 
         return null;

@@ -9,7 +9,7 @@
             -> Standings should be dynamic.
             -> Action should be our implemented page
         -> Problems Directory
-            -> Rating and point should be collect
+            -> [DONE] Rating and point should be collect (via getTaskScore and category parser)
             -> Solved Count should be manage
             -> Action should be our page
         -> Platform Ranking
@@ -27,4 +27,4 @@
     -> All importer should be incremental sync
     -> Atcoder contest importer should be improve (upcoming contest not found)
     -> Atcoder contests,problems name lang=ja to lang=en
-    -> Atcoder problems tag should be manage from  https://atcoder-categories.github.io/
+    -> [DONE] Atcoder problems tag should be manage from  https://atcoder-categories.github.io/
