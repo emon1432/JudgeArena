@@ -32,6 +32,8 @@ final class AtCoderRatingChangeTransformer
 
         $handle = $ratingChange->userScreenName ?? $ratingChange->userName ?? $handle ?? '';
 
+        $performance = $ratingChange->performance ?? $ratingChange->innerPerformance;
+
         return new RatingChangeDTO(
             platform: 'atcoder',
             contestPlatformId: $contestPlatformId,
@@ -41,7 +43,7 @@ final class AtCoderRatingChangeTransformer
             oldRating: $ratingChange->oldRating,
             newRating: $ratingChange->newRating,
             ratingChange: $ratingChangeDelta,
-            performance: $ratingChange->performance,
+            performance: $performance,
             metadata: [
                 'contest_name' => $ratingChange->contestName,
                 'contest_screen_name' => $ratingChange->contestScreenName,

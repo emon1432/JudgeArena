@@ -28,3 +28,4 @@
     -> Atcoder contest importer should be improve (upcoming contest not found)
     -> Atcoder contests,problems name lang=ja to lang=en
     -> [DONE] Atcoder problems tag should be manage from  https://atcoder-categories.github.io/
+    -> Codeforces User Rating History: Calculate/extract Performance rating from rank and rating changes (Codeforces API user.rating does not return performance natively)
