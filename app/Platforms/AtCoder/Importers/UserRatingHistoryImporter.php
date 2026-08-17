@@ -17,9 +17,6 @@ use Throwable;
 
 class UserRatingHistoryImporter implements UserRatingHistoryImporterContract
 {
-
-    private object $contest;
-
     public function __construct(
         private readonly Contest $contestModel,
         private readonly ContestRatingChange $contestRatingChangeModel,
@@ -27,9 +24,7 @@ class UserRatingHistoryImporter implements UserRatingHistoryImporterContract
         private readonly PlatformProfile $platformProfileModel,
         private readonly AtCoderAdapter $adapter,
         private readonly PlatformSyncStateService $platformSyncStateService,
-    ) {
-        $this->contest = new Contest();
-    }
+    ) {}
 
     public function import(?string $handle = null): ImportResult
     {
@@ -70,14 +65,12 @@ class UserRatingHistoryImporter implements UserRatingHistoryImporterContract
         $result->incrementChecked($profiles->count());
 
         foreach ($profiles as $profile) {
-
             $normalizedHandle = mb_strtolower(
                 trim((string) $profile->handle)
             );
 
             if ($normalizedHandle === '') {
                 $result->incrementSkipped();
-
                 continue;
             }
 
@@ -100,7 +93,7 @@ class UserRatingHistoryImporter implements UserRatingHistoryImporterContract
             try {
                 $ratingChanges = $this->adapter->getUserRatingHistory($normalizedHandle);
 
-                if (! is_array($ratingChanges)) {
+                if (!is_array($ratingChanges)) {
                     $ratingChanges = [];
                 }
 
@@ -109,38 +102,41 @@ class UserRatingHistoryImporter implements UserRatingHistoryImporterContract
                 $platformProfilesByHandle = $this->platformProfilesByHandle((int) $platform->id);
 
                 foreach ($ratingChanges as $ratingChange) {
-
-                    if (! ($ratingChange instanceof RatingChangeDTO)) {
+                    if (!($ratingChange instanceof RatingChangeDTO)) {
                         continue;
                     }
 
-                    $handle = trim($ratingChange->handle);
+                    $itemHandle = trim($ratingChange->handle);
+                    if ($itemHandle === '') {
+                        $itemHandle = $normalizedHandle;
+                    }
 
-                    $this->contest = $this->contestModel->newQuery()->where('platform_contest_id', $ratingChange->contestPlatformId)->first();
+                    $contest = $this->contestModel->newQuery()
+                        ->where('platform_id', $platform->id)
+                        ->where('platform_contest_id', $ratingChange->contestPlatformId)
+                        ->first();
 
-                    if ($handle === '') {
-                        app(ApplicationLogger::class)->warning('Skipping rating change with missing handle', [
+                    if ($contest === null) {
+                        app(ApplicationLogger::class)->warning('Skipping rating change: contest not found in DB', [
                             'category' => 'import',
                             'platform' => 'atcoder',
                             'source' => self::class,
-                            'contest_id' => $this->contest->id,
-                            'platform_contest_id' => $this->contest->platform_contest_id,
-                            'contest_name' => $this->contest->name,
-                            'raw' => $ratingChange->raw,
+                            'contest_platform_id' => $ratingChange->contestPlatformId,
+                            'handle' => $itemHandle,
                         ]);
 
                         continue;
                     }
 
-                    $platformProfile = $platformProfilesByHandle[mb_strtolower($handle)] ?? null;
+                    $platformProfile = $platformProfilesByHandle[mb_strtolower($itemHandle)] ?? $profile;
 
                     $contestRatingChange = $this->contestRatingChangeModel->newQuery()->updateOrCreate(
                         [
-                            'contest_id' => $this->contest->id,
-                            'handle' => $handle,
+                            'contest_id' => $contest->id,
+                            'handle' => $itemHandle,
                         ],
                         [
-                            'platform_id' => $this->contest->platform_id,
+                            'platform_id' => $platform->id,
                             'platform_profile_id' => $platformProfile?->id,
                             'is_rated' => $ratingChange->isRated,
                             'rank' => $ratingChange->rank,
@@ -153,9 +149,9 @@ class UserRatingHistoryImporter implements UserRatingHistoryImporterContract
                                 [
                                     'source' => 'rating-change-import',
                                     'platform' => 'atcoder',
-                                    'contest_platform_id' => $this->contest->platform_contest_id,
-                                    'contest_name' => $this->contest->name,
-                                    'handle' => $handle,
+                                    'contest_platform_id' => $contest->platform_contest_id,
+                                    'contest_name' => $contest->name,
+                                    'handle' => $itemHandle,
                                     'synced_at' => now(),
                                 ],
                                 $ratingChange->metadata
@@ -167,36 +163,31 @@ class UserRatingHistoryImporter implements UserRatingHistoryImporterContract
 
                     if ($contestRatingChange->wasRecentlyCreated) {
                         $result->incrementCreated();
-                        continue;
+                    } else {
+                        $result->incrementUpdated();
                     }
-
-                    $result->incrementUpdated();
                 }
 
                 $this->platformSyncStateService->markSynced($syncState, [
-                    'contest_id' => $this->contest->id,
-                    'contest_name' => $this->contest->name,
+                    'profile_id' => $profile->id,
+                    'handle' => $profile->handle,
                     'platform_slug' => 'atcoder',
-                    'platform_contest_id' => $this->contest->platform_contest_id,
                     'rating_changes_fetched' => count($ratingChanges),
                 ]);
             } catch (Throwable $e) {
                 $result->incrementFailed();
 
                 $this->platformSyncStateService->markFailed($syncState, $e, [
-                    'contest_id' => $this->contest->id,
-                    'contest_name' => $this->contest->name,
+                    'profile_id' => $profile->id,
+                    'handle' => $profile->handle,
                     'platform_slug' => 'atcoder',
-                    'platform_contest_id' => $this->contest->platform_contest_id,
                 ]);
 
                 app(ApplicationLogger::class)->error('Rating change sync failed', [
                     'category' => 'import',
                     'platform' => 'atcoder',
                     'source' => self::class,
-                    'contest_id' => $this->contest->id,
-                    'platform_contest_id' => $this->contest->platform_contest_id,
-                    'contest_name' => $this->contest->name,
+                    'handle' => $profile->handle,
                     'message' => $e->getMessage(),
                     'exception' => get_class($e),
                     'file' => $e->getFile(),
