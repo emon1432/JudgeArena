@@ -11,7 +11,7 @@ use Throwable;
 
 class ImportUserSubmissionsCommand extends Command
 {
-    protected $signature = 'judgearena:import-user-submissions {platform} {handle?}';
+    protected $signature = 'judgearena:import-user-submissions {platform} {handle?} {--full : Force a full scan of all contests}';
 
     protected $description = 'Import user submissions by delegating synchronization to the platform submissions table.';
 
@@ -26,11 +26,14 @@ class ImportUserSubmissionsCommand extends Command
     {
         $platformSlug = strtolower(trim((string) $this->argument('platform')));
         $handle = trim((string) $this->argument('handle')) ?: null;
+        $full = (bool) $this->option('full');
 
         $this->logger->info('User submissions import started', [
             'category' => 'import',
             'platform' => $platformSlug,
             'source' => self::class,
+            'handle' => $handle,
+            'full' => $full,
         ]);
 
         $adapter = $this->platformRegistry->resolve($platformSlug);
@@ -51,7 +54,7 @@ class ImportUserSubmissionsCommand extends Command
         try {
             $result = $adapter
                 ->userSubmissionImporter()
-                ->import($handle);
+                ->import($handle, $full);
 
             $this->line('Platform: ' . $platformSlug);
             $this->line('Checked: ' . ($result->checked ?? 0));

@@ -64,12 +64,15 @@ class AtCoderHtmlScraper
 
         while (true) {
 
-            $url = $this->baseUrl() .
-                '/contests/' . $contestId .
-                '/submissions?page=' . $page;
-
             if ($user !== null && $user !== '') {
-                $url .= '&f.User=' . urlencode($user);
+                $url = $this->baseUrl() .
+                    '/contests/' . $contestId .
+                    '/submissions?f.User=' . urlencode($user) .
+                    '&page=' . $page;
+            } else {
+                $url = $this->baseUrl() .
+                    '/contests/' . $contestId .
+                    '/submissions?page=' . $page;
             }
 
             $html = $this->fetchPage($url);
@@ -842,8 +845,19 @@ class AtCoderHtmlScraper
     //used
     private function httpRequest()
     {
-        return Http::timeout(15)
-            ->withHeaders(['User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36']);
+        $headers = [
+            'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept-Language' => 'en-US,en;q=0.9',
+        ];
+
+        $cookies = config('platforms.atcoder.credentials.atcoder_session_cookies')
+            ?? env('ATCODER_SESSION_COOKIES');
+
+        if ($cookies !== null && trim((string) $cookies) !== '') {
+            $headers['Cookie'] = trim((string) $cookies);
+        }
+
+        return Http::timeout(15)->withHeaders($headers);
     }
 
     //used
