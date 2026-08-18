@@ -9,7 +9,7 @@ use App\Core\Results\ImportResult;
 interface UserStandingImporter
 {
     /**
-     * Import historical user standings for the specified handle.
+     * Import user standings for the specified handle or all active profiles.
      *
      * @param string|null $handle
      * @return ImportResult

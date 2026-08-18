@@ -189,6 +189,23 @@ class PlatformSyncJobsTableSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ),
+            10 =>
+            array(
+                'id' => 11,
+                'platform_id' => 2,
+                'entity' => 'user_standings',
+                'enabled' => 1,
+                'priority' => 50,
+                'interval_minutes' => 60,
+                'last_started_at' => NULL,
+                'last_finished_at' => NULL,
+                'last_failed_at' => NULL,
+                'last_success_at' => NULL,
+                'last_error' => NULL,
+                'metadata' => NULL,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ),
         ));
     }
 }

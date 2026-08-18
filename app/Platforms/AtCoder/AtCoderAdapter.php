@@ -15,6 +15,7 @@ use App\Platforms\AtCoder\Importers\ContestImporter;
 use App\Platforms\AtCoder\Importers\ProblemImporter;
 use App\Platforms\AtCoder\Importers\UserImporter;
 use App\Platforms\AtCoder\Importers\UserRatingHistoryImporter;
+use App\Platforms\AtCoder\Importers\UserStandingsImporter;
 use App\Platforms\AtCoder\Importers\UserSubmissionImporter;
 use App\Platforms\AtCoder\Services\Contests;
 use App\Platforms\AtCoder\Services\Problems;
@@ -120,7 +121,7 @@ class AtCoderAdapter implements PlatformAdapter
 
     public function userStandingImporter(): UserStandingImporterContract
     {
-        throw new \BadMethodCallException('User standing importer is not implemented for AtCoder yet.');
+        return app(UserStandingsImporter::class);
     }
 
     public function userImporter(): UserImporterContract
