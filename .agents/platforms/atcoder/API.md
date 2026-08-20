@@ -1,17 +1,17 @@
-# AtCoder Platform Specifications & Web Scraping Specification
+# AtCoder Platform Specifications & Ingestion Master Reference
 
 ## Overview & System Axioms
 
-AtCoder does not provide a public official REST API. Rather than relying on third-party services (e.g. Kenkoooo API), **JudgeArena directly ingests data via AtCoder's native web JSON endpoints and HTML DOM scraping**.
+AtCoder does not provide an official public REST API for all resources. Rather than relying on third-party services (e.g. Kenkoooo API), **JudgeArena directly ingests data via AtCoder's native web JSON endpoints, DOM scraping, and session-authenticated scrapers**.
 
-This document serves as the authoritative specification for AtCoder data ingestion, endpoints, JSON structures, HTML selectors, and fallback strategies.
+This document serves as the authoritative specification for AtCoder data ingestion, endpoints, JSON structures, HTML selectors, DTO mappings, rate limits, and Importer implementations.
 
 ---
 
-## 🌐 Endpoints Specification Map
+## 🌐 Endpoints & Scraping Specification Map
 
 ### 1. User Rating History (Native Web JSON)
-- **Endpoint**: `GET https://atcoder.jp/users/{handle}/history/json?contestType=algo`
+- **Algorithm Endpoint**: `GET https://atcoder.jp/users/{handle}/history/json?contestType=algo`
 - **Heuristic Endpoint**: `GET https://atcoder.jp/users/{handle}/history/json?contestType=heuristic`
 - **Format**: Native JSON Array
 - **Key Fields**:
@@ -19,72 +19,115 @@ This document serves as the authoritative specification for AtCoder data ingesti
   - `Place` (int - rank)
   - `OldRating` (int)
   - `NewRating` (int)
-  - `Performance` (int)
+  - `Performance` (int) / `InnerPerformance` (int - fallback when `Performance` is null)
   - `ContestName` (string)
   - `ContestScreenName` (string - e.g. `abc350`)
   - `EndTime` (ISO 8601 string timestamp)
 
 ### 2. Contest Standings (Native Web JSON)
-- **Endpoint**: `GET https://atcoder.jp/contests/{contestScreenName}/standings/json`
-- **Virtual Standings Endpoint**: `GET https://atcoder.jp/contests/{contestScreenName}/standings/virtual/json`
+- **Live Standings Endpoint**: `GET https://atcoder.jp/contests/{contest_id}/standings/json`
 - **Format**: Native JSON Object
-- **Key Fields**:
-  - `TaskDetails`: Array of problem IDs, titles, and maximum scores.
-  - `StandingsData`: Array of participant rows containing `UserScreenName`, `Rank`, `TotalResult` (score, penalty, time), and `TaskResults` (per-problem score, penalty count, status).
+- **Key Fields & Scaling**:
+  - `TaskResults`: Array of problem IDs, titles, and maximum scores.
+  - `StandingsData`: Array of participant rows containing `UserScreenName`, `Rank`, `TotalResult` (Score, Penalty, Elapsed time in nanoseconds), and `TaskResults`.
+  - **Score Scaling**: Points in JSON are multiplied by 100 (e.g., `255000` = `2550.00` points). Must divide by `100` before saving.
+  - **Time Scaling**: Elapsed time is in nanoseconds (e.g., `1977000000000` ns). Must divide by `10^9` to get seconds (`1977` sec).
 
-### 3. Contest Results & Rating Changes (Native Web JSON)
-- **Endpoint**: `GET https://atcoder.jp/contests/{contestScreenName}/results/json`
-- **Format**: Native JSON Array
-- **Key Fields**: `IsRated`, `Place`, `OldRating`, `NewRating`, `Performance`, `UserScreenName`.
+### 3. User Profile (DOM Scraping & Dual Contest Types)
+- **Algorithm Profile URL**: `GET https://atcoder.jp/users/{handle}?contestType=algo`
+- **Heuristic Profile URL**: `GET https://atcoder.jp/users/{handle}?contestType=heuristic`
+- **Scraped Data**:
+  - `avatar_url`: Avatar image link (`https://img.atcoder.jp/icons/...`)
+  - `country`: Country or region
+  - `birth_year`: Birth year
+  - `affiliation`: University or company
+  - Social Handles: `twitter_id`, `topcoder_id`, `codeforces_id`
+  - Dual Ratings (`algo` vs `heuristic`): `rank` (clean integer), `percentile` (e.g., `"Top <0.01%"`), `rating` (clean integer), `is_provisional` (boolean), `highest_rating` (clean integer), `user_title` (e.g., `"King"`), `rated_matches` (integer), `last_competed` (`YYYY-MM-DD`).
 
----
-
-## 📄 HTML Scraping Specification Map
-
-### 1. Contests Ingestion Specification (DOM Scraping & Incremental Early-Break)
-- **Primary Catalog Scrape**: `https://atcoder.jp/contests/archive?lang=ja&page={page}` (with `lang=ja` to ensure 100% complete catalog coverage of 6,320+ contests).
-- **Categories Crawled**:
-  - Main Archive: `https://atcoder.jp/contests/archive?lang=ja&page={page}`
-  - Category 20 (Weekday Contests): `https://atcoder.jp/contests/archive?category=20&lang=ja&page={page}`
-  - Category 60 (Daily Training): `https://atcoder.jp/contests/archive?category=60&lang=ja&page={page}`
-  - Home Page (4 Tables: Permanent, Active, Scheduled, Daily): `https://atcoder.jp/contests/?lang=ja`
-  - Unlisted/Hidden Contests: `storage/app/private/atcoder_hidden_contests.json`
-- **English Titles Resolution (3-Layer Hybrid)**:
-  1. Official English Title Lookup (`lang=en` overlay archive lookup).
-  2. Local In-Memory Dictionary (`決勝` ➔ `Finals`, `予選` ➔ `Qualifier`, `夏` ➔ `Summer`, `プログラミングコンテスト` ➔ `Programming Contest`).
-  3. Automatic Fallback Translator (`Google Translate API` for remaining Japanese characters).
-- **Slug Generation**: `Str::slug($platformContestId . '-' . $englishTitle)`
-- **Contest Types**: `'normal'`, `'weekday'`, `'daily_training'`, `'permanent'`, `'hidden'`.
-- **Permanent Contests Detail Scraping**:
-  - Detail URL: `https://atcoder.jp/contests/{contest_id}?lang=en`
-  - DOM Selector: `//small[contains(@class, "contest-duration")]//time`
-  - 1st `<time>`: `start_time` (e.g. `2012-06-25 00:00:00+0900`)
-  - 2nd `<time>`: `end_time` (e.g. `3038-01-19 12:14:07+0900`)
-  - Phase: `CODING` (permanently ongoing practice).
-- **Smart Incremental Early-Break Strategy**:
-  - On scheduled/hourly runs, each category checks Page 1. If all contests on Page 1 are already in DB and marked `FINISHED` & `Synced`, it triggers an immediate early break for that category (~2 seconds total execution time).
-  - Admin CLI Option: `php artisan judgearena:import-contests atcoder --full` forces a complete multi-page deep sweep.
-
-### 2. Contest Problems List (`tasks`)
-- **URL**: `https://atcoder.jp/contests/{contestScreenName}/tasks`
-- **DOM Selectors**: `table.table tbody tr`
-- **Fields Extracted**: Problem ID/Code (e.g. `abc350_a`), Title, Time Limit, Memory Limit, Task URL.
-
-### 3. User Submissions (`submissions`)
-- **URL**: `https://atcoder.jp/contests/{contestScreenName}/submissions?f.User={handle}&page={page}`
-- **DOM Selectors**: `table.table tbody tr`
-- **Fields Extracted**: Submission ID, Submission Time, Task Name, User, Language, Score, Code Size, Status (`AC`, `WA`, `TLE`, `MLE`, `CE`, `RE`), Execution Time (`ms`), Memory Used (`KB`).
+### 4. User Submissions (Cookie Authenticated DOM Scraping)
+- **URL**: `GET https://atcoder.jp/contests/{contest_id}/submissions?f.User={handle}&page={page}`
+- **Authentication**: Requires `Cookie: RE_session=...` header from `config('platforms.atcoder.credentials.atcoder_session_cookies')` / `.env`.
+- **DOM Table Parsing**:
+  - `submission_id`: `td[4]->data-id` or detail URL
+  - `submitted_at`: Timestamp string
+  - `task_id`: Problem ID (e.g. `abc399_a`)
+  - `username`: Author handle
+  - `language`: Programming language
+  - `score`: Points obtained
+  - `verdict`: `AC`, `WA`, `TLE`, `MLE`, `CE`, `RE`
+  - `exec_time`: Converted from `109 ms` to `109` milliseconds integer.
+  - `memory`: Converted from `37376 KiB` to `38273024` bytes integer.
 
 ---
 
-## 🛠️ Data Handling Guidelines
-1. **Verdicts Normalization**:
-   - `AC` ➔ `AC`
-   - `WA` ➔ `WA`
-   - `TLE` ➔ `TLE`
-   - `MLE` ➔ `MLE`
-   - `CE` ➔ `CE`
-   - `RE` ➔ `RE`
-   - `WJ` / `QJ` ➔ `Pending` / `SystemTest`
-2. **Slug Generation**:
-   - `Str::slug($title . '-' . $platformProblemId)`
+## ⚡ Command Taxonomy & Ingestion Workflows
+
+| Command | Signature | Scope & Strategy |
+| :--- | :--- | :--- |
+| **Import Contests** | `judgearena:import-contests atcoder {--full}` | Scrapes AtCoder contest archives with English title auto-translation and early pagination exit. |
+| **Import Problems** | `judgearena:import-problems atcoder` | Contest-scoped scraping of tasks and problem score extraction from task detail pages. |
+| **Import Users** | `judgearena:import-users atcoder {handle?}` | Scrapes AtCoder user profiles with clean parsing of rank, rating, highest rating, and user titles. |
+| **Import Rating History** | `judgearena:import-user-rating-history atcoder {handle?}` | Native JSON sync for `algo` and `heuristic` rating changes with `innerPerformance` fallback. |
+| **Import Submissions** | `judgearena:import-user-submissions atcoder {handle?} {--full}` | Cookie-authenticated submission table scraping with `stopSubmissionId` early exit. |
+| **Import Standings** | `judgearena:import-user-standings atcoder {handle?}` | Native JSON standings ingestion, history-guided contest discovery, registered users filter. |
+
+---
+
+## 🏗️ Detailed Importer Implementation Specifications
+
+### 1. `ContestImporter.php`
+- **Catalog Archives**: Scrapes `Normal`, `Weekday`, `Daily Training`, and `Permanent` contest tables.
+- **English Title Resolution**: Uses English title map overlay, falling back to built-in Japanese translation dictionary (`translateJapaneseTitle`).
+- **Early-Break Optimization**: Checks if all contests on Page 1 are already in DB and marked `FINISHED`. If so, stops scraping further pages on incremental runs.
+
+### 2. `ProblemImporter.php`
+- **Contest Task Scraper**: Scrapes `/contests/{contest_id}/tasks`.
+- **Score Extraction**: Visits `/contests/{contest_id}/tasks/{task_id}?lang=en` and parses regex `Score: 100` / `<var>100</var>`.
+- **Triple-Fallback Problem Matcher**:
+  ```php
+  $problem = $this->problemMap[$probId]
+      ?? $this->problemMap[strtolower($probId)]
+      ?? $this->problemMap[str_replace('_', '-', $probId)]
+      ?? null;
+  ```
+
+### 3. `UserImporter.php`
+- **Scrapes Both Contest Types**: Fetches `algo` and `heuristic` profile HTML pages.
+- **Clean Field Parsers**:
+  - `rating`: Integer extraction via regex (`/^\d+/`)
+  - `is_provisional`: Checks for `(Provisional)` string
+  - `highest_rating` & `user_title`: Parses integer rating and title (e.g. `"King"`)
+  - `rank` & `percentile`: Parses numeric rank and percentile string (`"Top <0.01%"`)
+  - `last_competed`: Standardized YYYY-MM-DD date string.
+- **Primary Rating Resolution**: Prioritizes clean `algo` rating as primary `$userDto->rating`, falling back to `heuristic` rating.
+
+### 4. `UserRatingHistoryImporter.php`
+- **Dual JSON Sync**: Ingests both `algo` and `heuristic` rating history JSONs.
+- **InnerPerformance Fallback**:
+  `$performance = $ratingChange->performance ?? $ratingChange->innerPerformance;`
+- **Contest Safety Check**: Logs warning and skips if referenced contest is not in DB without crashing.
+
+### 5. `UserSubmissionImporter.php`
+- **Cookie Session Auth**: Passes `Cookie: RE_session=...` header.
+- **Unit Standardization**:
+  - Execution Time: `109 ms` ➔ `109` ms
+  - Memory Consumption: `37376 KiB` ➔ `38273024` bytes
+- **Incremental Early Exit**: Tracks `last_submission_id` in `PlatformSyncState`. When encountered, breaks pagination loop immediately.
+
+### 6. `UserStandingsImporter.php`
+- **History-Guided Contest Discovery**: Queries `contest_rating_changes` and `submissions` to discover only contests where active registered JudgeArena users participated.
+- **Score & Time Scaling**: Divides JSON score by `100` and converts nanoseconds to seconds (`floor(elapsed / 1e9)`).
+- **Registered User Filter**: Persists standings and `standing_task_results` ONLY for registered JudgeArena users (`$rowProfile !== null`).
+
+---
+
+## 🛠️ Data Handling & Verdict Mapping Rules
+
+### Verdict Mapping
+- `AC` ➔ `AC` (Accepted)
+- `WA` ➔ `WA` (Wrong Answer)
+- `TLE` ➔ `TLE` (Time Limit Exceeded)
+- `MLE` ➔ `MLE` (Memory Limit Exceeded)
+- `CE` ➔ `CE` (Compilation Error)
+- `RE` ➔ `RE` (Runtime Error)
+- `WJ` / `QJ` ➔ `Pending` / `SystemTest` (Waiting for Judging)

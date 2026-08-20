@@ -1,6 +1,6 @@
-# CODEFORCES API — Platform Specification & Master Reference
+# CODEFORCES API & IMPORTERS — Master Architectural Reference
 
-> **Purpose for AI Agents**: This document captures the complete API specifications, rate limits, request signature algorithms, return object schemas, and internal JudgeArena DTO mapping rules for **Codeforces** (`codeforces.com`). All Codeforces adapter, client, transformer, and importer implementations MUST comply with this specification.
+> **Purpose for AI Agents**: This document captures the complete API specifications, rate limits, request signature algorithms, return object schemas, internal JudgeArena DTO mapping rules, and exact Importer implementation standards for **Codeforces** (`codeforces.com`). All Codeforces adapters, clients, transformers, and importers MUST strictly comply with this specification.
 
 ---
 
@@ -39,7 +39,7 @@ When making authenticated API requests:
 ### A. User Methods
 | Endpoint | Required Params | Optional Params | Return Type | Purpose in JudgeArena |
 | :--- | :--- | :--- | :--- | :--- |
-| `user.info` | `handles` (semicolon separated, max 10000) | `checkHistoricHandles` (bool) | `User[]` | Syncing user profile metadata (rating, rank, avatar, country). |
+| `user.info` | `handles` (semicolon separated, max 10000) | `checkHistoricHandles` (bool) | `User[]` | Syncing user profile metadata (rating, rank, avatar, country). Batch chunks of 50. |
 | `user.status` | `handle` | `from` (1-based), `count`, `includeSources` | `Submission[]` | Historical and incremental sync of user submissions. |
 | `user.rating` | `handle` | None | `RatingChange[]` | Syncing user contest rating history. |
 | `user.ratedList` | None | `activeOnly`, `includeRetired`, `contestId` | `User[]` | Fetching global Codeforces rated leaderboards. |
@@ -98,32 +98,82 @@ Codeforces verdicts MUST be mapped to `App\Enums\Verdict` as follows:
 
 ---
 
-## 6. Directory Structure & Architecture
+## 6. Detailed Importers Architectural Specifications
+
+### A. Contest Importer (`ContestImporter.php`)
+- **CLI Command**: `php artisan judgearena:import-contests codeforces {--full}`
+- **Endpoint**: `contest.list?gym=false`
+- **Incremental Sync Rule**:
+  - Checks `PlatformSyncStateService::isSynced($platform, Contest, $contestPlatformId)`.
+  - If contest exists, phase is `FINISHED`, and sync state is `Synced`, it is **skipped** (`incrementSkipped()`).
+  - If contest phase is `BEFORE` or `CODING`, it saves/updates the record and calls `resetForRetry()` so future syncs will update progress in real time.
+
+### B. Problem Importer (`ProblemImporter.php`)
+- **CLI Command**: `php artisan judgearena:import-problems codeforces`
+- **Strategy**: Contest-Scoped Problem Sync via `$adapter->getUserStandings($contestPlatformId)`.
+- **Dual Benefit**: Fetches both contest problem set and updates `$contest->participant_count = count($standings->rows)`.
+- **Incremental Sync Rule**: Skips finished contests whose problems are already marked `Synced`.
+
+### C. User Importer (`UserImporter.php`)
+- **CLI Command**: `php artisan judgearena:import-user codeforces {handle?}`
+- **Strategy**: Batch API fetching in chunks of 50 (`array_chunk($profiles, 50)`).
+- **Fault-Tolerant Fallback**:
+  - Executes batch API call `user.info?handles=h1;h2;h3...`.
+  - If any handle is deleted/invalid on Codeforces (causing API error 400), catches the exception and falls back to **sequential 1-by-1 fetching** (`processUsersSequentially`). Valid handles succeed; invalid handle is marked `Failed`.
+
+### D. User Rating History Importer (`UserRatingHistoryImporter.php`)
+- **CLI Command**: `php artisan judgearena:import-user-rating-history codeforces {handle?}`
+- **Endpoint**: `user.rating?handle={handle}`
+- **N+1 SQL Optimization**: Pre-indexes all DB contests and profiles into memory maps (`keyBy('platform_contest_id')`), reducing database queries to zero inside the loop.
+- **Persisted Entity**: `contest_rating_changes` table (`old_rating`, `new_rating`, `rating_change`, `rank`, `performance`).
+
+### E. User Submission Importer (`UserSubmissionImporter.php`)
+- **CLI Command**: `php artisan judgearena:import-user-submissions codeforces {handle?} {--full}`
+- **Endpoint**: `user.status?handle={handle}&from=1&count=100`
+- **Incremental Stop Condition**: Reads `last_submission_id` from `$syncState->metadata['last_submission_id']`. Pages through submissions newest-first; as soon as `$submission->id === last_submission_id` is encountered, pagination immediately exits (`break;`), saving 99% bandwidth and time.
+
+### F. User Standings Importer (`UserStandingImporter.php`)
+- **CLI Command**: `php artisan judgearena:import-user-standings codeforces {handle?}`
+- **Endpoint**: `contest.standings?contestId={id}`
+- **History-Guided Contest Discovery**: Discovers participated contest IDs for a user by unioning `contest_rating_changes` and `submissions`.
+- **Rate-Limit Friendly Batching**: Differential calculation (`$missingContestIds`), processes max 50 missing contests per run (`MAX_CONTESTS_PER_RUN = 50`), calls `resetForRetry()` for remaining contests.
+- **Strict User Filtering**: Standings and task results are ONLY persisted for registered JudgeArena users. Unregistered public contestants are skipped.
+
+---
+
+## 7. Directory Structure & Architecture
 
 ```
 app/Platforms/Codeforces/
 ├── CodeforcesAdapter.php        # Implements PlatformAdapter interface
-├── Clients/
-│   └── CodeforcesApiClient.php  # Low-level HTTP client with rate limiting & apiSig
+├── Client/
+│   └── BaseClient.php           # Low-level HTTP client with rate limiting & apiSig
 ├── DTOs/
 │   ├── CodeforcesUserDTO.php
 │   ├── CodeforcesContestDTO.php
 │   ├── CodeforcesProblemDTO.php
-│   └── CodeforcesSubmissionDTO.php
+│   ├── CodeforcesSubmissionDTO.php
+│   └── CodeforcesStandingsDTO.php
 ├── Mappers/
 │   ├── CodeforcesUserMapper.php
 │   ├── CodeforcesContestMapper.php
 │   ├── CodeforcesProblemMapper.php
-│   └── CodeforcesSubmissionMapper.php
+│   ├── CodeforcesSubmissionMapper.php
+│   ├── CodeforcesRatingChangeMapper.php
+│   └── CodeforcesStandingsMapper.php
 ├── Transformers/
 │   ├── UserTransformer.php
 │   ├── ContestTransformer.php
 │   ├── ProblemTransformer.php
-│   └── SubmissionTransformer.php
+│   ├── SubmissionTransformer.php
+│   └── StandingsTransformer.php
+├── Support/
+│   └── ResponseNormalizer.php   # API JSON response normalizer
 └── Importers/
-    ├── UserImporter.php
     ├── ContestImporter.php
     ├── ProblemImporter.php
+    ├── UserImporter.php
+    ├── UserRatingHistoryImporter.php
     ├── UserSubmissionImporter.php
-    └── RatingChangeImporter.php
+    └── UserStandingImporter.php
 ```

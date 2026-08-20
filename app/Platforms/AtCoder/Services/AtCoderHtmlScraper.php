@@ -376,26 +376,73 @@ class AtCoderHtmlScraper
             }
 
             $rankNode = $xpath->query('//div[contains(@class, "col-md-9")]//table//tr[th[contains(text(), "Rank")]]/td')->item(0);
-            $rank = $rankNode ? trim($rankNode->nodeValue) : null;
+            $rawRank = $rankNode ? trim($rankNode->nodeValue) : null;
 
             $ratingNode = $xpath->query('//div[contains(@class, "col-md-9")]//table//tr[th[contains(text(), "Rating")]]/td')->item(0);
-            $rating = $ratingNode ? trim($ratingNode->nodeValue) : null;
+            $rawRating = $ratingNode ? trim($ratingNode->nodeValue) : null;
 
             $highestRatingNode = $xpath->query('//div[contains(@class, "col-md-9")]//table//tr[th[contains(text(), "Highest Rating")]]/td')->item(0);
-            $highestRating = $highestRatingNode ? trim($highestRatingNode->nodeValue) : null;
+            $rawHighestRating = $highestRatingNode ? trim($highestRatingNode->nodeValue) : null;
 
             $ratedMatchesNode = $xpath->query('//div[contains(@class, "col-md-9")]//table//tr[th[contains(text(), "Rated Matches")]]/td')->item(0);
-            $ratedMatches = $ratedMatchesNode ? trim($ratedMatchesNode->nodeValue) : null;
+            $rawRatedMatches = $ratedMatchesNode ? trim($ratedMatchesNode->nodeValue) : null;
 
             $lastCompetedNode = $xpath->query('//div[contains(@class, "col-md-9")]//table//tr[th[contains(text(), "Last Competed")]]/td')->item(0);
-            $lastCompeted = $lastCompetedNode ? trim($lastCompetedNode->nodeValue) : null;
+            $rawLastCompeted = $lastCompetedNode ? trim($lastCompetedNode->nodeValue) : null;
+
+            $parsedRating = null;
+            $isProvisional = false;
+            if ($rawRating !== null) {
+                if (preg_match('/^(\d+)/', $rawRating, $m)) {
+                    $parsedRating = (int) $m[1];
+                }
+                $isProvisional = str_contains($rawRating, '(Provisional)');
+            }
+
+            $parsedHighestRating = null;
+            $userTitle = null;
+            if ($rawHighestRating !== null) {
+                if (preg_match('/^(\d+)/', $rawHighestRating, $m)) {
+                    $parsedHighestRating = (int) $m[1];
+                }
+                $lines = array_values(array_filter(array_map('trim', explode("\n", $rawHighestRating))));
+                foreach ($lines as $line) {
+                    if ($line !== '' && $line !== '―' && !is_numeric($line) && !str_contains($line, 'to promote') && !str_contains($line, 'Provisional')) {
+                        $userTitle = $line;
+                        break;
+                    }
+                }
+            }
+
+            $parsedRank = null;
+            $percentile = null;
+            if ($rawRank !== null) {
+                if (preg_match('/^(\d+)/', $rawRank, $m)) {
+                    $parsedRank = (int) $m[1];
+                }
+                if (preg_match('/\(([^)]+)\)/', $rawRank, $m)) {
+                    $percentile = $m[1];
+                }
+            }
+
+            $parsedRatedMatches = null;
+            if ($rawRatedMatches !== null && preg_match('/^(\d+)/', $rawRatedMatches, $m)) {
+                $parsedRatedMatches = (int) $m[1];
+            }
+
+            $cleanLastCompeted = $rawLastCompeted !== null ? str_replace('/', '-', trim($rawLastCompeted)) : null;
 
             $result['contest_status'][$type] = [
-                'rank' => $rank,
-                'rating' => $rating,
-                'highest_rating' => $highestRating,
-                'rated_matches' => $ratedMatches,
-                'last_competed' => $lastCompeted,
+                'rank' => $parsedRank,
+                'rank_text' => $rawRank,
+                'percentile' => $percentile,
+                'rating' => $parsedRating,
+                'is_provisional' => $isProvisional,
+                'highest_rating' => $parsedHighestRating,
+                'user_title' => $userTitle,
+                'rated_matches' => $parsedRatedMatches,
+                'last_competed' => $cleanLastCompeted,
+                'raw_highest_rating' => $rawHighestRating,
             ];
         }
 

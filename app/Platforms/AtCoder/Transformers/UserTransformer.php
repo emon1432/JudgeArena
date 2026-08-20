@@ -30,10 +30,12 @@ class UserTransformer
             return null;
         }
 
-        $algoRating = $contestStatus['algo']['rating'] ?? null;
-        $heuristicRating = $contestStatus['heuristic']['rating'] ?? null;
+        $algoRating = $this->parseRatingValue($contestStatus['algo']['rating'] ?? null);
+        if ($algoRating !== null) {
+            return $algoRating;
+        }
 
-        return $this->parseRatingValue(is_string($algoRating) ? $algoRating : $heuristicRating);
+        return $this->parseRatingValue($contestStatus['heuristic']['rating'] ?? null);
     }
 
     private function parseRatingValue(mixed $rating): ?int
