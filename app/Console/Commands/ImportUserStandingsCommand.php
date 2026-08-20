@@ -13,7 +13,7 @@ class ImportUserStandingsCommand extends Command
 {
     protected $signature = 'judgearena:import-user-standings {platform} {handle?}';
 
-    protected $description = 'Import user standings by delegating synchronization to the platform standings endpoint.';
+    protected $description = 'Import contest standings for registered users from a supported platform.';
 
     public function __construct(
         private readonly PlatformRegistry $platformRegistry,
@@ -31,6 +31,7 @@ class ImportUserStandingsCommand extends Command
             'category' => 'import',
             'platform' => $platformSlug,
             'source' => self::class,
+            'handle' => $handle,
         ]);
 
         $adapter = $this->platformRegistry->resolve($platformSlug);

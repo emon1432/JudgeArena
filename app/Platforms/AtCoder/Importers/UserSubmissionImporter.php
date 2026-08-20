@@ -32,7 +32,7 @@ class UserSubmissionImporter implements UserSubmissionImporterContract
         private readonly PlatformSyncStateService $platformSyncStateService,
     ) {}
 
-    public function import(?string $handle = null): ImportResult
+    public function import(?string $handle = null, bool $full = false): ImportResult
     {
         $result = new ImportResult();
 
@@ -151,7 +151,11 @@ class UserSubmissionImporter implements UserSubmissionImporterContract
                             $highestSubmissionId = $submissionDto->platformSubmissionId;
                         }
 
-                        $problem = $this->problemMap[$submissionDto->problemPlatformId] ?? null;
+                        $probId = (string) $submissionDto->problemPlatformId;
+                        $problem = $this->problemMap[$probId]
+                            ?? $this->problemMap[strtolower($probId)]
+                            ?? $this->problemMap[str_replace('_', '-', $probId)]
+                            ?? null;
 
                         $submission = $this->persistSubmission(
                             $profile,

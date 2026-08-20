@@ -36,7 +36,7 @@ class UserSubmissionImporter implements UserSubmissionImporterContract
         private readonly PlatformSyncStateService $platformSyncStateService,
     ) {}
 
-    public function import(?string $handle = null): ImportResult
+    public function import(?string $handle = null, bool $full = false): ImportResult
     {
         $result = new ImportResult();
 
