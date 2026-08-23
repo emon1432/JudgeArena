@@ -12,14 +12,13 @@ use RuntimeException;
 
 class AtCoderHtmlScraper
 {
+    private const REQUEST_DELAY_MS = 500;
+    private static int $lastRequestTime = 0;
+
     private function baseUrl(): string
     {
         return rtrim((string) config('platforms.atcoder.base_url', 'https://atcoder.jp'), '/');
     }
-
-    private const REQUEST_DELAY_MS = 500;
-
-    private static int $lastRequestTime = 0;
 
     public function getContests(?callable $pageProcessor = null, bool $fullSync = false): array
     {
@@ -280,7 +279,7 @@ class AtCoderHtmlScraper
             }
 
             $rawTitle = trim($link->nodeValue);
-            $title = $this->translateJapaneseTitle($rawTitle);
+            $title = $rawTitle;
             $timeLimit = $cells->length > 2 ? trim($cells->item(2)?->nodeValue ?? '') : '';
             $memoryLimit = $cells->length > 3 ? trim($cells->item(3)?->nodeValue ?? '') : '';
             $taskUrl = $this->baseUrl() . $href;
@@ -524,7 +523,7 @@ class AtCoderHtmlScraper
                 $href = $link->getAttribute('href');
                 $contestId = basename($href);
                 $jaTitle = trim($link->nodeValue);
-                $title = $enTitlesMap[$contestId] ?? $this->translateJapaneseTitle($jaTitle);
+                $title = $enTitlesMap[$contestId] ?? $jaTitle;
                 $duration = trim($cells->item(2)?->nodeValue ?? '');
                 $rateChange = trim($cells->item(3)?->nodeValue ?? '');
 
@@ -630,7 +629,7 @@ class AtCoderHtmlScraper
                     $col3Text = $cells->length > 3 ? trim($cells->item(3)?->nodeValue ?? '') : '';
 
                     $jaTitle = trim($link->nodeValue);
-                    $title = $enTitlesMap[$contestId] ?? $this->translateJapaneseTitle($jaTitle);
+                    $title = $enTitlesMap[$contestId] ?? $jaTitle;
 
                     $date = '';
                     $duration = 'Permanent';
@@ -760,49 +759,6 @@ class AtCoderHtmlScraper
         }
 
         return $titlesMap;
-    }
-
-    private function translateJapaneseTitle(string $text): string
-    {
-        $dictionary = [
-            'プログラミングコンテスト' => ' Programming Contest ',
-            'プログラミング' => ' Programming ',
-            'コンテスト' => ' Contest ',
-            'ハーフマラソン' => ' Half Marathon ',
-            'マラソン' => ' Marathon ',
-            '決勝' => ' Finals ',
-            '予選' => ' Qualifier ',
-            '本戦' => ' Main Round ',
-            '夏' => ' Summer ',
-            '秋' => ' Autumn ',
-            '冬' => ' Winter ',
-            '春' => ' Spring ',
-            '第' => ' Round ',
-            '回' => ' ',
-            '学生' => ' Student ',
-            '選手権' => ' Championship ',
-            '日本橋' => ' Nihonbashi ',
-            'ユニークビジョン' => ' Unique Vision ',
-        ];
-
-        $translated = strtr($text, $dictionary);
-
-        if (preg_match('/[\x{4E00}-\x{9FBF}\x{3040}-\x{309F}\x{30A0}-\x{30FF}]/u', $translated)) {
-            try {
-                $url = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=ja&tl=en&dt=t&q=' . urlencode($translated);
-                $request = $this->httpRequest();
-                $response = $request->get($url);
-                if ($response->successful()) {
-                    $json = $response->json();
-                    if (isset($json[0][0][0])) {
-                        $translated = (string) $json[0][0][0];
-                    }
-                }
-            } catch (\Throwable $e) {
-            }
-        }
-
-        return trim((string) preg_replace('/\s+/', ' ', $translated));
     }
 
     public function getContestTimesFromDetail(string $contestId): array

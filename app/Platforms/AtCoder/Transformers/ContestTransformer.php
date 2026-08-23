@@ -4,10 +4,19 @@ namespace App\Platforms\AtCoder\Transformers;
 
 use App\Core\DTOs\ContestDTO;
 use App\Platforms\AtCoder\DTOs\AtCoderContestDTO;
+use App\Platforms\AtCoder\Services\AtCoderTitleTranslatorService;
 use DateTimeImmutable;
 
 class ContestTransformer
 {
+    private readonly AtCoderTitleTranslatorService $translator;
+
+    public function __construct(
+        ?AtCoderTitleTranslatorService $translator = null
+    ) {
+        $this->translator = $translator ?? app(AtCoderTitleTranslatorService::class);
+    }
+
     /**
      * @return ContestDTO
      */
@@ -22,7 +31,8 @@ class ContestTransformer
         $phase = $this->determinePhase($startedAt, $endedAt, $contest->type);
 
         $platformContestId = (string) ($contest->id ?? '');
-        $title = (string) ($contest->title ?? '');
+        $rawTitle = (string) ($contest->title ?? '');
+        $title = $this->translator->formatContestTitle($platformContestId, $rawTitle);
         $slug = \Illuminate\Support\Str::slug($platformContestId . '-' . $title);
 
         return new ContestDTO(
@@ -111,4 +121,3 @@ class ContestTransformer
         return null;
     }
 }
-
