@@ -5,26 +5,31 @@ namespace App\Platforms\AtCoder\Transformers;
 use App\Core\DTOs\ProblemDTO;
 use App\Platforms\AtCoder\DTOs\AtCoderProblemDTO;
 use App\Platforms\AtCoder\Services\AtCoderCategoryTagService;
+use App\Platforms\AtCoder\Services\AtCoderTitleTranslatorService;
 
 class ProblemTransformer
 {
     private readonly AtCoderCategoryTagService $categoryTagService;
+    private readonly AtCoderTitleTranslatorService $translator;
 
     public function __construct(
-        ?AtCoderCategoryTagService $categoryTagService = null
+        ?AtCoderCategoryTagService $categoryTagService = null,
+        ?AtCoderTitleTranslatorService $translator = null
     ) {
         $this->categoryTagService = $categoryTagService ?? app(AtCoderCategoryTagService::class);
+        $this->translator = $translator ?? app(AtCoderTitleTranslatorService::class);
     }
 
     public function fromApiProblem(AtCoderProblemDTO $problem): ProblemDTO
     {
         $problemId = (string) ($problem->id ?? '');
         $enriched = $this->categoryTagService->enrichProblem($problemId, null, []);
+        $title = $this->translator->translate((string) ($problem->title ?? ''));
 
         return new ProblemDTO(
             platform: 'atcoder',
             platformProblemId: $problemId,
-            title: (string) ($problem->title ?? ''),
+            title: $title,
             contestPlatformId: $problem->contestId,
             code: $problem->position,
             points: $problem->points,
@@ -66,4 +71,3 @@ class ProblemTransformer
         return null;
     }
 }
-

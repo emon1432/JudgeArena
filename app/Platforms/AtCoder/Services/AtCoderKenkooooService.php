@@ -4,10 +4,13 @@ namespace App\Platforms\AtCoder\Services;
 
 use App\Services\ApplicationLogger;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Cache;
+use Throwable;
 
 class AtCoderKenkooooService
 {
     private const BASE_URL = 'https://kenkoooo.com/atcoder';
+    private const CACHE_TTL_IN_SECONDS = 60 * 60 * 24 * 7;
 
     /**
      * Fetch all AtCoder contests from Kenkoooo API resource.
@@ -54,8 +57,6 @@ class AtCoderKenkooooService
                             $type = 'daily_training';
                         }
 
-                        // $title = $this->formatEnglishTitle($contestId, $rawTitle);
-
                         $contests[] = [
                             'id' => $contestId,
                             'title' => $rawTitle,
@@ -68,7 +69,7 @@ class AtCoderKenkooooService
                     }
                 }
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             app(ApplicationLogger::class)->error('Kenkoooo API contests fetch failed', [
                 'category' => 'scraper',
                 'platform' => 'atcoder',
@@ -80,54 +81,75 @@ class AtCoderKenkooooService
         return $contests;
     }
 
-    private function formatEnglishTitle(string $contestId, string $rawTitle): string
+    /**
+     * Fetch problems for a specific contest from Kenkoooo API resources.
+     */
+    public function getContestProblems(string $contestId): array
     {
-        if (preg_match('/[（\(]\s*(AtCoder\s+[^）\)]+)[）\)]/u', $rawTitle, $m)) {
-            return trim($m[1]);
-        }
+        try {
+            $contestProblemMap = Cache::remember('kenkoooo_contest_problem_map', self::CACHE_TTL_IN_SECONDS, function () {
+                $response = Http::timeout(20)->get(self::BASE_URL . '/resources/contest-problem.json');
+                return $response->successful() && is_array($response->json()) ? $response->json() : [];
+            });
 
-        $lowerId = strtolower($contestId);
+            $mergedProblems = Cache::remember('kenkoooo_merged_problems', self::CACHE_TTL_IN_SECONDS, function () {
+                $response = Http::timeout(20)->get(self::BASE_URL . '/resources/merged-problems.json');
+                $data = $response->successful() && is_array($response->json()) ? $response->json() : [];
+                $indexed = [];
+                foreach ($data as $p) {
+                    if (isset($p['id'])) {
+                        $indexed[$p['id']] = $p;
+                    }
+                }
+                return $indexed;
+            });
 
-        if (preg_match('/^abc(\d+)/', $lowerId, $m)) {
-            return 'AtCoder Beginner Contest ' . (int) $m[1];
-        }
-        if (preg_match('/^arc(\d+)/', $lowerId, $m)) {
-            return 'AtCoder Regular Contest ' . (int) $m[1];
-        }
-        if (preg_match('/^agc(\d+)/', $lowerId, $m)) {
-            return 'AtCoder Grand Contest ' . (int) $m[1];
-        }
-        if (preg_match('/^ahc(\d+)/', $lowerId, $m)) {
-            return 'AtCoder Heuristic Contest ' . (int) $m[1];
-        }
+            $problemModels = Cache::remember('kenkoooo_problem_models', self::CACHE_TTL_IN_SECONDS, function () {
+                $response = Http::timeout(20)->get(self::BASE_URL . '/resources/problem-models.json');
+                return $response->successful() && is_array($response->json()) ? $response->json() : [];
+            });
 
-        $dictionary = [
-            'プログラミングコンテスト' => ' Programming Contest ',
-            'プログラミング' => ' Programming ',
-            'コンテスト' => ' Contest ',
-            'ハーフマラソン' => ' Half Marathon ',
-            'マラソン' => ' Marathon ',
-            '決勝' => ' Finals ',
-            '予選' => ' Qualifier ',
-            '本戦' => ' Main Round ',
-            '夏' => ' Summer ',
-            '秋' => ' Autumn ',
-            '冬' => ' Winter ',
-            '春' => ' Spring ',
-            '第' => ' Round ',
-            '回' => ' ',
-            '学生' => ' Student ',
-            '選手権' => ' Championship ',
-            '日本橋' => ' Nihonbashi ',
-            'ユニークビジョン' => ' Unique Vision ',
-            '日本最強' => ' Japan Strongest ',
-            '入門' => ' Introduction ',
-        ];
+            $problems = [];
 
-        $translated = strtr($rawTitle, $dictionary);
-        $clean = preg_replace('/[\x{4E00}-\x{9FBF}\x{3040}-\x{309F}\x{30A0}-\x{30FF}]/u', '', $translated);
-        $clean = trim((string) preg_replace('/\s+/', ' ', $clean));
+            foreach ($contestProblemMap as $cp) {
+                if (($cp['contest_id'] ?? '') === $contestId) {
+                    $problemId = (string) ($cp['problem_id'] ?? '');
+                    $position = (string) ($cp['problem_index'] ?? '');
 
-        return $clean !== '' ? $clean : $contestId;
+                    $meta = $mergedProblems[$problemId] ?? null;
+                    $model = $problemModels[$problemId] ?? null;
+
+                    $rawTitle = (string) ($meta['title'] ?? ($meta['name'] ?? $problemId));
+                    $cleanTitle = preg_replace('/^[A-Z1-9]\.\s*/', '', $rawTitle);
+
+                    $score = $meta['point'] ?? ($model['raw_point'] ?? null);
+                    $execTimeMs = isset($meta['execution_time']) ? (int) $meta['execution_time'] : null;
+
+                    $problems[] = [
+                        'id' => $problemId,
+                        'contest_id' => $contestId,
+                        'title' => $cleanTitle,
+                        'position' => $position,
+                        'score' => $score,
+                        'rating' => $model['difficulty'] ?? null,
+                        'time_limit' => $execTimeMs !== null ? $execTimeMs . ' ms' : null,
+                        'memory_limit' => null,
+                        'url' => 'https://atcoder.jp/contests/' . $contestId . '/tasks/' . $problemId,
+                    ];
+                }
+            }
+
+            return $problems;
+        } catch (Throwable $e) {
+            app(ApplicationLogger::class)->error('Kenkoooo API contest problems fetch failed', [
+                'category' => 'scraper',
+                'platform' => 'atcoder',
+                'source' => self::class,
+                'contest_id' => $contestId,
+                'message' => $e->getMessage(),
+            ], $e);
+
+            return [];
+        }
     }
 }
