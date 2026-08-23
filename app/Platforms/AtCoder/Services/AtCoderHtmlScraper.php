@@ -6,6 +6,7 @@ use App\Services\ApplicationLogger;
 use DOMDocument;
 use DOMElement;
 use DOMXPath;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
 
@@ -20,7 +21,6 @@ class AtCoderHtmlScraper
 
     private static int $lastRequestTime = 0;
 
-    //used
     public function getContests(?callable $pageProcessor = null, bool $fullSync = false): array
     {
         $contests = [];
@@ -246,8 +246,13 @@ class AtCoderHtmlScraper
             return ['result' => []];
         }
 
+        $body = $response->body();
+        if (empty($body) || trim($body) === '') {
+            return ['result' => []];
+        }
+
         $doc = new DOMDocument;
-        @$doc->loadHTML($response->body());
+        @$doc->loadHTML($body);
         $xpath = new DOMXPath($doc);
 
         $tasks = [];
@@ -481,6 +486,15 @@ class AtCoderHtmlScraper
             $enUrl = $this->baseUrl() . '/contests/archive?' . $query . 'lang=en&page=' . $page;
 
             $html = $this->fetchPage($jaUrl);
+            if (empty($html) || trim($html) === '') {
+                $fallbackUrl = $this->baseUrl() . '/contests/archive?' . ($categoryParam !== '' ? 'category=' . $categoryParam . '&' : '') . 'page=' . $page;
+                $html = $this->fetchPage($fallbackUrl);
+            }
+
+            if (empty($html) || trim($html) === '') {
+                break;
+            }
+
             $enTitlesMap = $this->fetchEnglishTitlesMap($enUrl);
 
             if ($maxPages === null) {
@@ -574,6 +588,9 @@ class AtCoderHtmlScraper
 
         try {
             $htmlJa = $this->fetchPage($this->baseUrl() . '/contests/?lang=ja');
+            if (empty($htmlJa) || trim($htmlJa) === '') {
+                return [];
+            }
             $enTitlesMap = $this->fetchEnglishTitlesMap($this->baseUrl() . '/contests/?lang=en');
 
             $doc = new DOMDocument;
@@ -818,13 +835,34 @@ class AtCoderHtmlScraper
     {
         $this->respectRateLimit();
 
-        $response = $this->httpRequest()->get($url);
+        try {
+            $response = $this->httpRequest()->get($url);
 
-        if (!$response->successful()) {
+            if (!$response->successful()) {
+                app(ApplicationLogger::class)->warning('AtCoder HTTP request failed', [
+                    'category' => 'scraper',
+                    'platform' => 'atcoder',
+                    'source' => self::class,
+                    'url' => $url,
+                    'status' => $response->status(),
+                    'response' => $response->body(),
+                ]);
+
+                return '';
+            }
+
+            return $response->body();
+        } catch (\Throwable $e) {
+            app(ApplicationLogger::class)->warning('AtCoder HTTP request exception', [
+                'category' => 'scraper',
+                'platform' => 'atcoder',
+                'source' => self::class,
+                'url' => $url,
+                'message' => $e->getMessage(),
+            ], $e);
+
             return '';
         }
-
-        return $response->body();
     }
 
     //used
@@ -855,6 +893,10 @@ class AtCoderHtmlScraper
     //used
     private function extractMaxPages(string $html): int
     {
+        if (empty($html) || trim($html) === '') {
+            return 100;
+        }
+
         try {
             $doc = new DOMDocument;
             @$doc->loadHTML($html);
@@ -893,18 +935,143 @@ class AtCoderHtmlScraper
     private function httpRequest()
     {
         $headers = [
-            'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Accept-Language' => 'en-US,en;q=0.9',
+            'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+            'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Accept-Language' => 'ja,en-US;q=0.9,en;q=0.8',
         ];
 
-        $cookies = config('platforms.atcoder.credentials.atcoder_session_cookies')
-            ?? env('ATCODER_SESSION_COOKIES');
-
-        if ($cookies !== null && trim((string) $cookies) !== '') {
-            $headers['Cookie'] = trim((string) $cookies);
+        $cookies = $this->getAuthenticatedCookie();
+        if ($cookies !== '') {
+            $headers['Cookie'] = $cookies;
         }
 
-        return Http::timeout(15)->withHeaders($headers);
+        $curlOptions = [
+            CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
+            CURLOPT_ENCODING => 'gzip, deflate, br',
+            CURLOPT_SSL_VERIFYPEER => true,
+        ];
+
+        return Http::timeout(15)
+            ->withOptions([
+                'curl' => $curlOptions,
+            ])
+            ->withHeaders($headers);
+    }
+
+    private function getAuthenticatedCookie(): string
+    {
+        $envCookie = config('platforms.atcoder.credentials.atcoder_session_cookies')
+            ?? env('ATCODER_SESSION_COOKIES');
+
+        if ($envCookie !== null && trim((string) $envCookie) !== '') {
+            $cookieStr = trim((string) $envCookie);
+            if (!str_contains($cookieStr, '=')) {
+                $cookieStr = 'REVEL_SESSION=' . $cookieStr;
+            }
+            if (str_contains($cookieStr, 'REVEL_SESSION=') && !str_contains($cookieStr, 'RE_session=')) {
+                $val = str_replace('REVEL_SESSION=', '', $cookieStr);
+                $cookieStr .= '; RE_session=' . $val;
+            }
+            return $cookieStr;
+        }
+
+        $cachedCookie = Cache::get('atcoder_auto_session_cookie');
+        if ($cachedCookie !== null && trim((string) $cachedCookie) !== '') {
+            return (string) $cachedCookie;
+        }
+
+        $username = config('platforms.atcoder.credentials.atcoder_username') ?? env('ATCODER_USERNAME');
+        $password = config('platforms.atcoder.credentials.atcoder_password') ?? env('ATCODER_PASSWORD');
+
+        if (empty($username) || empty($password)) {
+            return '';
+        }
+
+        try {
+            $loginPageResponse = Http::withOptions([
+                'curl' => [
+                    CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
+                    CURLOPT_ENCODING => 'gzip, deflate, br',
+                ],
+            ])->withHeaders([
+                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+                'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Language' => 'ja,en-US;q=0.9,en;q=0.8',
+            ])->get($this->baseUrl() . '/login');
+
+            if (!$loginPageResponse->successful()) {
+                return '';
+            }
+
+            $html = $loginPageResponse->body();
+            $doc = new DOMDocument;
+            @$doc->loadHTML($html);
+            $xpath = new DOMXPath($doc);
+
+            $csrfInput = $xpath->query('//input[@name="csrf_token"]')->item(0);
+            $csrfToken = $csrfInput instanceof DOMElement ? $csrfInput->getAttribute('value') : null;
+
+            if (empty($csrfToken)) {
+                return '';
+            }
+
+            $cookieHeader = $loginPageResponse->header('Set-Cookie');
+            $initialCookie = '';
+            if (is_array($cookieHeader)) {
+                foreach ($cookieHeader as $c) {
+                    if (preg_match('/REVEL_SESSION=([^;]+)/', $c, $m)) {
+                        $initialCookie = 'REVEL_SESSION=' . $m[1];
+                        break;
+                    }
+                }
+            } elseif (is_string($cookieHeader) && preg_match('/REVEL_SESSION=([^;]+)/', $cookieHeader, $m)) {
+                $initialCookie = 'REVEL_SESSION=' . $m[1];
+            }
+
+            $postResponse = Http::asForm()->withOptions([
+                'curl' => [
+                    CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
+                    CURLOPT_ENCODING => 'gzip, deflate, br',
+                ],
+            ])->withHeaders([
+                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+                'Cookie' => $initialCookie,
+                'Referer' => $this->baseUrl() . '/login',
+            ])->post($this->baseUrl() . '/login', [
+                'username' => $username,
+                'password' => $password,
+                'csrf_token' => $csrfToken,
+            ]);
+
+            $postCookieHeader = $postResponse->header('Set-Cookie');
+            $loggedSession = '';
+            if (is_array($postCookieHeader)) {
+                foreach ($postCookieHeader as $c) {
+                    if (preg_match('/REVEL_SESSION=([^;]+)/', $c, $m)) {
+                        $val = $m[1];
+                        $loggedSession = 'REVEL_SESSION=' . $val . '; RE_session=' . $val;
+                        break;
+                    }
+                }
+            } elseif (is_string($postCookieHeader) && preg_match('/REVEL_SESSION=([^;]+)/', $postCookieHeader, $m)) {
+                $val = $m[1];
+                $loggedSession = 'REVEL_SESSION=' . $val . '; RE_session=' . $val;
+            }
+
+            if (!empty($loggedSession)) {
+                Cache::put('atcoder_auto_session_cookie', $loggedSession, 86400 * 7);
+                return $loggedSession;
+            }
+        } catch (\Throwable $e) {
+            app(ApplicationLogger::class)->warning('Automated AtCoder login exception', [
+                'category' => 'scraper',
+                'platform' => 'atcoder',
+                'source' => self::class,
+                'message' => $e->getMessage(),
+            ], $e);
+        }
+
+        return '';
     }
 
     //used

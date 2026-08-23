@@ -15,13 +15,26 @@ class Contests
 {
     public function __construct(
         private readonly AtCoderHtmlScraper $scraper,
+        private readonly AtCoderKenkooooService $kenkooooService,
+        private readonly AtCoderReachabilityService $reachabilityService,
     ) {}
 
     //used
     public function all(?callable $pageProcessor = null, bool $fullSync = false): array
     {
+        if (!$this->reachabilityService->isReachable()) {
+            return AtCoderContestMapper::fromNormalizedList(
+                ResponseNormalizer::contests($this->kenkooooService->getContests())
+            );
+        }
+
+        $contests = $this->scraper->getContests($pageProcessor, $fullSync);
+        if (empty($contests)) {
+            $contests = $this->kenkooooService->getContests();
+        }
+
         return AtCoderContestMapper::fromNormalizedList(
-            ResponseNormalizer::contests($this->scraper->getContests($pageProcessor, $fullSync))
+            ResponseNormalizer::contests($contests)
         );
     }
 
