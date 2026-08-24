@@ -79,6 +79,12 @@
             </a>
         </li>
         <li class="menu-item">
+            <a href="{{ route('admin.platform-sync-jobs.index') }}" class="menu-link">
+                <i class="menu-icon icon-base ti tabler-settings-automation"></i>
+                <div>{{ __('Sync Jobs') }}</div>
+            </a>
+        </li>
+        <li class="menu-item">
             <a href="{{ route('admin.admins.index') }}" class="menu-link">
                 <i class="menu-icon icon-base ti tabler-shield-check"></i>
                 <div>{{ __('Admins') }}</div>
