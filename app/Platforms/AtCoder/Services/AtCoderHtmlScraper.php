@@ -12,7 +12,9 @@ use RuntimeException;
 
 class AtCoderHtmlScraper
 {
-    private const REQUEST_DELAY_MS = 500;
+    // ১. ডিলে বাড়িয়ে ১৫০০-২৫০০ms এর মধ্যে র‍্যান্ডমাইজ করা হয়েছে (Anti-Bot Bypass)
+    private const MIN_DELAY_MS = 1200;
+    private const MAX_DELAY_MS = 2500;
     private static int $lastRequestTime = 0;
 
     private function baseUrl(): string
@@ -33,25 +35,21 @@ class AtCoderHtmlScraper
         return $contests;
     }
 
-    //used
     public function getStandings(string $contestId): array
     {
         return $this->fetchJson($this->baseUrl() . '/contests/' . $contestId . '/standings/json');
     }
 
-    //used
     public function getStandingsVirtual(string $contestId): array
     {
         return $this->fetchJson($this->baseUrl() . '/contests/' . $contestId . '/standings/virtual/json');
     }
 
-    //used
     public function getResults(string $contestId): array
     {
         return $this->fetchJson($this->baseUrl() . '/contests/' . $contestId . '/results/json');
     }
 
-    //used
     public function getSubmissions(
         string $contestId,
         ?string $user = null,
@@ -62,17 +60,9 @@ class AtCoderHtmlScraper
         $reachedStop = false;
 
         while (true) {
-
-            if ($user !== null && $user !== '') {
-                $url = $this->baseUrl() .
-                    '/contests/' . $contestId .
-                    '/submissions?f.User=' . urlencode($user) .
-                    '&page=' . $page;
-            } else {
-                $url = $this->baseUrl() .
-                    '/contests/' . $contestId .
-                    '/submissions?page=' . $page;
-            }
+            $url = $user !== null && $user !== ''
+                ? $this->baseUrl() . '/contests/' . $contestId . '/submissions?f.User=' . urlencode($user) . '&page=' . $page
+                : $this->baseUrl() . '/contests/' . $contestId . '/submissions?page=' . $page;
 
             $html = $this->fetchPage($url);
 
@@ -84,7 +74,6 @@ class AtCoderHtmlScraper
             @$doc->loadHTML($html);
 
             $xpath = new DOMXPath($doc);
-
             $rows = $xpath->query('//table//tbody//tr');
 
             if ($rows->length === 0) {
@@ -92,7 +81,6 @@ class AtCoderHtmlScraper
             }
 
             foreach ($rows as $row) {
-
                 $cells = $xpath->query('.//td', $row);
 
                 if ($cells->length < 2) {
@@ -102,46 +90,35 @@ class AtCoderHtmlScraper
                 $time = trim($cells->item(0)?->textContent ?? '');
 
                 $taskLink = $xpath->query('.//a', $cells->item(1))->item(0);
-
                 $taskId = null;
                 $taskTitle = null;
                 $taskUrl = null;
 
                 if ($taskLink instanceof DOMElement) {
-
                     $taskHref = $taskLink->getAttribute('href');
-
                     $taskId = basename($taskHref);
-
                     $taskTitle = trim($taskLink->textContent);
-
                     $taskUrl = $this->baseUrl() . $taskHref;
                 } else {
-
                     $taskTitle = trim($cells->item(1)?->textContent ?? '');
                 }
 
                 $userLink = $xpath->query('.//a', $cells->item(2))->item(0);
-
                 $username = $userLink instanceof DOMElement
                     ? trim(basename($userLink->getAttribute('href')))
                     : trim($cells->item(2)?->textContent ?? '');
 
                 $langLink = $xpath->query('.//a', $cells->item(3))->item(0);
-
                 $language = $langLink instanceof DOMElement
                     ? trim($langLink->textContent)
                     : trim($cells->item(3)?->textContent ?? '');
 
                 $scoreTd = $cells->item(4);
-
                 $score = null;
                 $submissionId = null;
 
                 if ($scoreTd instanceof DOMElement) {
-
                     $scoreText = trim($scoreTd->textContent ?? '');
-
                     if (is_numeric($scoreText)) {
                         $score = (int) $scoreText;
                     } elseif ($scoreText !== '') {
@@ -149,44 +126,27 @@ class AtCoderHtmlScraper
                     }
 
                     $dataId = $scoreTd->getAttribute('data-id');
-
                     if ($dataId !== '') {
                         $submissionId = $dataId;
                     }
                 }
 
                 $codeSize = trim($cells->item(5)?->textContent ?? '');
-
                 $statusSpan = $xpath->query('.//span', $cells->item(6))->item(0);
-
                 $status = $statusSpan instanceof DOMElement
                     ? trim($statusSpan->textContent)
                     : trim($cells->item(6)?->textContent ?? '');
 
                 $execTime = trim($cells->item(7)?->textContent ?? '');
-
                 $memory = trim($cells->item(8)?->textContent ?? '');
-
                 $detailUrl = null;
 
                 if ($submissionId !== null) {
-
-                    $detailUrl = $this->baseUrl() .
-                        '/contests/' .
-                        $contestId .
-                        '/submissions/' .
-                        $submissionId;
+                    $detailUrl = $this->baseUrl() . '/contests/' . $contestId . '/submissions/' . $submissionId;
                 } else {
-
-                    $detailLink = $xpath->query(
-                        './/a[contains(@class,"submission-details-link")]',
-                        $cells->item(9)
-                    )->item(0);
-
+                    $detailLink = $xpath->query('.//a[contains(@class,"submission-details-link")]', $cells->item(9))->item(0);
                     if ($detailLink instanceof DOMElement) {
-
                         $detailHref = $detailLink->getAttribute('href');
-
                         $detailUrl = $this->baseUrl() . $detailHref;
                     }
 
@@ -195,10 +155,7 @@ class AtCoderHtmlScraper
                     }
                 }
 
-                if (
-                    $stopSubmissionId !== null &&
-                    $submissionId === $stopSubmissionId
-                ) {
+                if ($stopSubmissionId !== null && $submissionId === $stopSubmissionId) {
                     $reachedStop = true;
                     break;
                 }
@@ -220,14 +177,12 @@ class AtCoderHtmlScraper
                     'detail_url' => $detailUrl,
                 ];
             }
+
             if ($reachedStop) {
                 break;
             }
-            if ($rows->length === 0) {
-                break;
-            }
-            $page++;
 
+            $page++;
             $this->respectRateLimit();
         }
 
@@ -237,21 +192,15 @@ class AtCoderHtmlScraper
         ];
     }
 
-    //used
     public function getTasks(string $contestId): array
     {
-        $response = $this->httpRequest()->get($this->baseUrl() . '/contests/' . $contestId . '/tasks?lang=en');
-        if (!$response->successful()) {
-            return ['result' => []];
-        }
-
-        $body = $response->body();
-        if (empty($body) || trim($body) === '') {
+        $html = $this->fetchPage($this->baseUrl() . '/contests/' . $contestId . '/tasks?lang=en');
+        if (empty($html)) {
             return ['result' => []];
         }
 
         $doc = new DOMDocument;
-        @$doc->loadHTML($body);
+        @$doc->loadHTML($html);
         $xpath = new DOMXPath($doc);
 
         $tasks = [];
@@ -267,7 +216,7 @@ class AtCoderHtmlScraper
             $link = $xpath->query('.//a[contains(@href, "/tasks/")]', $cells->item(1))->item(0)
                 ?? $xpath->query('.//a', $cells->item(0))->item(0);
 
-            if (!$link instanceof \DOMElement) {
+            if (!$link instanceof DOMElement) {
                 continue;
             }
 
@@ -278,8 +227,7 @@ class AtCoderHtmlScraper
                 continue;
             }
 
-            $rawTitle = trim($link->nodeValue);
-            $title = $rawTitle;
+            $title = trim($link->nodeValue);
             $timeLimit = $cells->length > 2 ? trim($cells->item(2)?->nodeValue ?? '') : '';
             $memoryLimit = $cells->length > 3 ? trim($cells->item(3)?->nodeValue ?? '') : '';
             $taskUrl = $this->baseUrl() . $href;
@@ -332,7 +280,6 @@ class AtCoderHtmlScraper
         return null;
     }
 
-    //used
     public function getUserProfile(string $username): array
     {
         $types = ['algo', 'heuristic'];
@@ -347,7 +294,7 @@ class AtCoderHtmlScraper
 
             if ($index === 0) {
                 $avatarNode = $xpath->query('//div[contains(@class, "col-md-3")]//img[contains(@class, "avatar")]')->item(0);
-                $avatarUrl = $avatarNode instanceof \DOMElement ? $avatarNode->getAttribute('src') : null;
+                $avatarUrl = $avatarNode instanceof DOMElement ? $avatarNode->getAttribute('src') : null;
 
                 $countryNode = $xpath->query('//div[contains(@class, "col-md-3")]//table//tr[th[contains(text(), "Country/Region")]]/td')->item(0);
                 $country = $countryNode ? trim($countryNode->nodeValue) : null;
@@ -453,7 +400,6 @@ class AtCoderHtmlScraper
         return ['result' => $result];
     }
 
-    //used
     public function getUserRatingHistory(string $username): array
     {
         $types = ['algo', 'heuristic'];
@@ -472,7 +418,6 @@ class AtCoderHtmlScraper
         return ['result' => $history];
     }
 
-    //used
     private function scrapeCategoryArchive(string $categoryParam, string $type, ?callable $pageProcessor, bool $fullSync): array
     {
         $contests = [];
@@ -481,20 +426,13 @@ class AtCoderHtmlScraper
 
         while (true) {
             $query = $categoryParam !== '' ? 'category=' . $categoryParam . '&' : '';
-            $jaUrl = $this->baseUrl() . '/contests/archive?' . $query . 'lang=ja&page=' . $page;
+            // lang=en দিয়ে সরাসরি একটি রিকোয়েস্টেই ইংলিশ ডেটা টানা হচ্ছে
             $enUrl = $this->baseUrl() . '/contests/archive?' . $query . 'lang=en&page=' . $page;
 
-            $html = $this->fetchPage($jaUrl);
-            if (empty($html) || trim($html) === '') {
-                $fallbackUrl = $this->baseUrl() . '/contests/archive?' . ($categoryParam !== '' ? 'category=' . $categoryParam . '&' : '') . 'page=' . $page;
-                $html = $this->fetchPage($fallbackUrl);
-            }
-
-            if (empty($html) || trim($html) === '') {
+            $html = $this->fetchPage($enUrl);
+            if (empty($html)) {
                 break;
             }
-
-            $enTitlesMap = $this->fetchEnglishTitlesMap($enUrl);
 
             if ($maxPages === null) {
                 $maxPages = $this->extractMaxPages($html);
@@ -516,14 +454,13 @@ class AtCoderHtmlScraper
 
                 $startText = trim($cells->item(0)?->nodeValue ?? '');
                 $link = $xpath->query('.//a', $cells->item(1))->item(0);
-                if (!$link instanceof \DOMElement) {
+                if (!$link instanceof DOMElement) {
                     continue;
                 }
 
                 $href = $link->getAttribute('href');
                 $contestId = basename($href);
-                $jaTitle = trim($link->nodeValue);
-                $title = $enTitlesMap[$contestId] ?? $jaTitle;
+                $title = trim($link->nodeValue);
                 $duration = trim($cells->item(2)?->nodeValue ?? '');
                 $rateChange = trim($cells->item(3)?->nodeValue ?? '');
 
@@ -553,13 +490,6 @@ class AtCoderHtmlScraper
                 }
             }
 
-            if ($maxPages !== null) {
-                $dynamicMax = $this->extractMaxPages($html);
-                if ($dynamicMax > $maxPages) {
-                    $maxPages = $dynamicMax;
-                }
-            }
-
             if ($maxPages !== null && $page >= $maxPages) {
                 break;
             }
@@ -580,20 +510,18 @@ class AtCoderHtmlScraper
         return $this->scrapeCategoryArchive('20', 'weekday', $pageProcessor, $fullSync);
     }
 
-    //used
     private function getPermanentContests(): array
     {
         $contests = [];
 
         try {
-            $htmlJa = $this->fetchPage($this->baseUrl() . '/contests/?lang=ja');
-            if (empty($htmlJa) || trim($htmlJa) === '') {
+            $htmlEn = $this->fetchPage($this->baseUrl() . '/contests/?lang=en');
+            if (empty($htmlEn)) {
                 return [];
             }
-            $enTitlesMap = $this->fetchEnglishTitlesMap($this->baseUrl() . '/contests/?lang=en');
 
             $doc = new DOMDocument;
-            @$doc->loadHTML($htmlJa);
+            @$doc->loadHTML($htmlEn);
             $xpath = new DOMXPath($doc);
 
             $tables = $xpath->query('//table');
@@ -612,7 +540,7 @@ class AtCoderHtmlScraper
                     }
 
                     $link = $xpath->query('.//a[contains(@href, "/contests/")]', $row)->item(0);
-                    if (!$link instanceof \DOMElement) {
+                    if (!$link instanceof DOMElement) {
                         continue;
                     }
 
@@ -628,9 +556,7 @@ class AtCoderHtmlScraper
                     $col2Text = $cells->length > 2 ? trim($cells->item(2)?->nodeValue ?? '') : '';
                     $col3Text = $cells->length > 3 ? trim($cells->item(3)?->nodeValue ?? '') : '';
 
-                    $jaTitle = trim($link->nodeValue);
-                    $title = $enTitlesMap[$contestId] ?? $jaTitle;
-
+                    $title = trim($link->nodeValue);
                     $date = '';
                     $duration = 'Permanent';
                     $rateChange = '';
@@ -675,7 +601,6 @@ class AtCoderHtmlScraper
         return $contests;
     }
 
-    //used
     private function getHiddenContests(): array
     {
         $contests = [];
@@ -728,37 +653,9 @@ class AtCoderHtmlScraper
         return $contests;
     }
 
-    //used
     private function getDailyTrainingContests(?callable $pageProcessor = null, bool $fullSync = false): array
     {
         return $this->scrapeCategoryArchive('60', 'daily_training', $pageProcessor, $fullSync);
-    }
-
-    private function fetchEnglishTitlesMap(string $url): array
-    {
-        $html = $this->fetchPage($url);
-        if ($html === '') {
-            return [];
-        }
-
-        $doc = new DOMDocument();
-        @$doc->loadHTML($html);
-        $xpath = new DOMXPath($doc);
-
-        $titlesMap = [];
-        $rows = $xpath->query('//table//tbody//tr');
-        foreach ($rows as $row) {
-            $cells = $xpath->query('.//td', $row);
-            if ($cells->length >= 2) {
-                $link = $xpath->query('.//a', $cells->item(1))->item(0);
-                if ($link instanceof DOMElement) {
-                    $id = basename($link->getAttribute('href'));
-                    $titlesMap[$id] = trim($link->nodeValue);
-                }
-            }
-        }
-
-        return $titlesMap;
     }
 
     public function getContestTimesFromDetail(string $contestId): array
@@ -786,13 +683,17 @@ class AtCoderHtmlScraper
         }
     }
 
-    //used
     private function fetchPage(string $url): string
     {
         $this->respectRateLimit();
 
         try {
             $response = $this->httpRequest()->get($url);
+
+            // ৪০৩ আসলে ক্যাশ কুকি ডিলিট করে রিলগিন ট্রাই করবে
+            if ($response->status() === 403) {
+                Cache::forget('atcoder_auto_session_cookie');
+            }
 
             if (!$response->successful()) {
                 app(ApplicationLogger::class)->warning('AtCoder HTTP request failed', [
@@ -801,7 +702,6 @@ class AtCoderHtmlScraper
                     'source' => self::class,
                     'url' => $url,
                     'status' => $response->status(),
-                    'response' => $response->body(),
                 ]);
 
                 return '';
@@ -821,7 +721,6 @@ class AtCoderHtmlScraper
         }
     }
 
-    //used
     private function fetchJson(string $url): array
     {
         $this->respectRateLimit();
@@ -832,6 +731,10 @@ class AtCoderHtmlScraper
         if ($response->status() === 404 && str_contains($url, '/standings/json')) {
             $fallbackUrl = str_replace('/standings/json', '/standings/team/json', $url);
             $response = $request->get($fallbackUrl);
+        }
+
+        if ($response->status() === 403) {
+            Cache::forget('atcoder_auto_session_cookie');
         }
 
         if (!$response->successful()) {
@@ -846,7 +749,6 @@ class AtCoderHtmlScraper
         return $payload;
     }
 
-    //used
     private function extractMaxPages(string $html): int
     {
         if (empty($html) || trim($html) === '') {
@@ -865,7 +767,7 @@ class AtCoderHtmlScraper
 
             $maxPage = 1;
             foreach ($paginationLinks as $link) {
-                $href = $link instanceof \DOMElement ? $link->getAttribute('href') : '';
+                $href = $link instanceof DOMElement ? $link->getAttribute('href') : '';
                 if (preg_match('/page=(\d+)/', $href, $matches)) {
                     $pageNum = (int) $matches[1];
                     if ($pageNum > $maxPage) {
@@ -876,24 +778,27 @@ class AtCoderHtmlScraper
 
             return $maxPage;
         } catch (\Exception $exception) {
-            app(ApplicationLogger::class)->warning('AtCoder scraper failed to detect max pages', [
-                'category' => 'scraper',
-                'platform' => 'atcoder',
-                'source' => self::class,
-                'operation' => 'extractMaxPages',
-            ], $exception);
-
             return 100;
         }
     }
 
-    //used
+    // ২. ফুল ব্রাউজার হেডার ও HTTP/2 কনফিগারেশন
     private function httpRequest()
     {
         $headers = [
-            'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-            'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            'Accept-Language' => 'ja,en-US;q=0.9,en;q=0.8',
+            'User-Agent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+            'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+            'Accept-Language' => 'en-US,en;q=0.9',
+            'Accept-Encoding' => 'gzip, deflate, br',
+            'Sec-Ch-Ua' => '"Chromium";v="128", "Not;A=Brand";v="24", "Google Chrome";v="128"',
+            'Sec-Ch-Ua-Mobile' => '?0',
+            'Sec-Ch-Ua-Platform' => '"Linux"',
+            'Sec-Fetch-Dest' => 'document',
+            'Sec-Fetch-Mode' => 'navigate',
+            'Sec-Fetch-Site' => 'none',
+            'Sec-Fetch-User' => '?1',
+            'Upgrade-Insecure-Requests' => '1',
+            'Connection' => 'keep-alive',
         ];
 
         $cookies = $this->getAuthenticatedCookie();
@@ -903,14 +808,13 @@ class AtCoderHtmlScraper
 
         $curlOptions = [
             CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_2_0, // HTTP/2
             CURLOPT_ENCODING => 'gzip, deflate, br',
             CURLOPT_SSL_VERIFYPEER => true,
         ];
 
-        return Http::timeout(15)
-            ->withOptions([
-                'curl' => $curlOptions,
-            ])
+        return Http::timeout(20)
+            ->withOptions(['curl' => $curlOptions])
             ->withHeaders($headers);
     }
 
@@ -947,13 +851,13 @@ class AtCoderHtmlScraper
             $loginPageResponse = Http::withOptions([
                 'curl' => [
                     CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
-                    CURLOPT_ENCODING => 'gzip, deflate, br',
+                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_2_0,
                 ],
             ])->withHeaders([
-                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-                'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                'Accept-Language' => 'ja,en-US;q=0.9,en;q=0.8',
-            ])->get($this->baseUrl() . '/login');
+                        'User-Agent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+                        'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                        'Accept-Language' => 'en-US,en;q=0.9',
+                    ])->get($this->baseUrl() . '/login');
 
             if (!$loginPageResponse->successful()) {
                 return '';
@@ -987,17 +891,17 @@ class AtCoderHtmlScraper
             $postResponse = Http::asForm()->withOptions([
                 'curl' => [
                     CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
-                    CURLOPT_ENCODING => 'gzip, deflate, br',
+                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_2_0,
                 ],
             ])->withHeaders([
-                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-                'Cookie' => $initialCookie,
-                'Referer' => $this->baseUrl() . '/login',
-            ])->post($this->baseUrl() . '/login', [
-                'username' => $username,
-                'password' => $password,
-                'csrf_token' => $csrfToken,
-            ]);
+                        'User-Agent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+                        'Cookie' => $initialCookie,
+                        'Referer' => $this->baseUrl() . '/login',
+                    ])->post($this->baseUrl() . '/login', [
+                        'username' => $username,
+                        'password' => $password,
+                        'csrf_token' => $csrfToken,
+                    ]);
 
             $postCookieHeader = $postResponse->header('Set-Cookie');
             $loggedSession = '';
@@ -1015,7 +919,8 @@ class AtCoderHtmlScraper
             }
 
             if (!empty($loggedSession)) {
-                Cache::put('atcoder_auto_session_cookie', $loggedSession, 86400 * 7);
+                // সেশন মেয়াদ ৩ দিন রাখা নিরাপদ
+                Cache::put('atcoder_auto_session_cookie', $loggedSession, 86400 * 3);
                 return $loggedSession;
             }
         } catch (\Throwable $e) {
@@ -1030,13 +935,15 @@ class AtCoderHtmlScraper
         return '';
     }
 
-    //used
+    // ৩. রিকোয়েস্টের মাঝে হিউম্যান-লাইক জ্যামিতিক র‍্যান্ডম ডিলে
     private function respectRateLimit(): void
     {
         if (self::$lastRequestTime > 0) {
             $elapsed = (int) ((microtime(true) * 1000) - self::$lastRequestTime);
-            if ($elapsed < self::REQUEST_DELAY_MS) {
-                usleep((self::REQUEST_DELAY_MS - $elapsed) * 1000);
+            $requiredDelay = rand(self::MIN_DELAY_MS, self::MAX_DELAY_MS);
+
+            if ($elapsed < $requiredDelay) {
+                usleep(($requiredDelay - $elapsed) * 1000);
             }
         }
 
