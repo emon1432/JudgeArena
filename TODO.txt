@@ -1,31 +1,165 @@
--> Web
-    -> platform details page
-        -> platform description and more information.
-        -> Platform user counting(if possible otherwise contests participants form standings)
-        -> Contests Directory
-            -> Contests phase should be update realtime
-            -> Contests category define
-            -> Time should be universal and user region wise
-            -> Standings should be dynamic.
-            -> Action should be our implemented page
-        -> Problems Directory
-            -> [DONE] Rating and point should be collect (via getTaskScore and category parser)
-            -> Solved Count should be manage
-            -> Action should be our page
-        -> Platform Ranking
-            -> Data collect and implement
-        -> Official Feed & Blogs
-            -> Data collect and implement
-    -> Contests index page
-        -> Live & upcoming contest section should update
-        -> Table need more valuable information
+================================================================================
+                        JUDGEARENA MASTER ROADMAP & TODO
+================================================================================
+Generated & Structured: 2026-08-30
+Architecture: Clean Layered Architecture + Platform Adapter Pattern
+Status Legend:
+  [ ] Pending / Planned
+  [-] In Progress
+  [x] Completed / Verified
+Priority Legend:
+  [P0 - CRITICAL] Urgent Security & System Stability
+  [P1 - HIGH]     Core Architecture, Sync Correctness & Data Integrity
+  [P2 - MEDIUM]   Performance Optimization, Queue & Background Scheduling
+  [P3 - LOW]      UI/UX Polish, Advanced Analytics & New Features
 
--> Core Platforms
-    -> Global Rating Changes and User Rating Changes should be merge
-    -> Contests phase should be update realtime
-    -> Global Submissions and User Submissions should be merge
-    -> All importer should be incremental sync
-    -> Atcoder contest importer should be improve (upcoming contest not found)
-    -> Atcoder contests,problems name lang=ja to lang=en
-    -> [DONE] Atcoder problems tag should be manage from  https://atcoder-categories.github.io/
-    -> Codeforces User Rating History: Calculate/extract Performance rating from rank and rating changes (Codeforces API user.rating does not return performance natively)
+================================================================================
+📌 PHASE 0: CRITICAL SECURITY & DESTRUCTIVE ROUTE SAFEGUARDS [P0]
+================================================================================
+[ ] 0.1 [SECURITY] Remove / Protect Unauthenticated Destructive Endpoints
+    - File: routes/web.php (Lines 17-23) & app/Http/Controllers/Admin/OthersController.php
+    - Task: Remove unauthenticated `GET /migrate` (which executes `migrate:fresh --seed` wiping database),
+            `GET /composer` (executing shell commands), `GET /iseed`, and `GET /clear`.
+    - Rule: Restrict any administrative actions strictly to `admin` middleware + `local` environment checks.
+
+================================================================================
+📌 PHASE 1: CORE ARCHITECTURE & DOMAIN NORMALIZATION [P1]
+================================================================================
+[ ] 1.1 [ARCHITECTURE] Implement Standardized SubmissionVerdict Enum
+    - Files: app/Enums/SubmissionVerdict.php (NEW), app/Core/DTOs/SubmissionDTO.php
+    - Task: Create backed PHP Enum `SubmissionVerdict` (AC, WA, TLE, MLE, RE, CE, PE, SKIPPED, OTHER).
+    - Task: Map platform-specific strings in Transformers before leaving Platform Adapter:
+            * Codeforces: OK -> AC, WRONG_ANSWER -> WA, TIME_LIMIT_EXCEEDED -> TLE, etc.
+            * AtCoder: AC -> AC, WA -> WA, TLE -> TLE, MLE -> MLE, etc.
+    - Rule: Adhere to BACKEND_LARAVEL.md Rule 1.1 & Rule 2.2.
+
+[ ] 1.2 [BUG FIX] Fix User Solved Count & Verdict Query in UserController
+    - File: app/Http/Controllers/Web/UserController.php (Line 19)
+    - Task: Change query from `where('verdict', 'Accepted')` to use `SubmissionVerdict::AC->value` (or 'AC').
+    - Impact: Fixes bug where user profile total solved count always displayed 0.
+
+[ ] 1.3 [CONTRACT] Standardize PlatformAdapter::getUserSubmissions Return Contract
+    - Files: app/Core/Contracts/Platforms/PlatformAdapter.php,
+             app/Platforms/Codeforces/CodeforcesAdapter.php,
+             app/Platforms/Codeforces/Importers/UserSubmissionImporter.php
+    - Task: Align CodeforcesAdapter return type with AtCoderAdapter and interface docblock:
+            `array{ submissions: SubmissionDTO[], reached_stop: bool }`
+    - Task: Update Codeforces UserSubmissionImporter to read `$response['submissions']`.
+
+[ ] 1.4 [CONVENTION] Standardize Importer Class & File Naming
+    - Files: app/Platforms/AtCoder/Importers/UserStandingsImporter.php -> UserStandingImporter.php,
+             app/Core/Contracts/Importers/UserStandingImporter.php
+    - Task: Rename AtCoder `UserStandingsImporter` (plural) to `UserStandingImporter` (singular).
+
+================================================================================
+📌 PHASE 2: PLATFORM INGESTION & SCRAPER PERFORMANCE [P1 / P2]
+================================================================================
+[ ] 2.1 [PERFORMANCE] Optimize AtCoder User Submission Ingestion (Eliminate Contest Loop)
+    - File: app/Platforms/AtCoder/Importers/UserSubmissionImporter.php (Lines 97-100)
+    - Problem: Currently iterates through ALL ~1000+ contests sequentially per profile, causing severe timeouts.
+    - Solution: Discover participated contests from existing user rating history and standings first,
+                then scrape only those specific contests (identical to Codeforces strategy).
+
+[ ] 2.2 [PERFORMANCE] Optimize Codeforces Problemset Ingestion via Single API Endpoint
+    - File: app/Platforms/Codeforces/Importers/ProblemImporter.php (Lines 94-96)
+    - Problem: Currently calls `getUserStandings` per contest (1500+ API requests).
+    - Solution: Utilize Codeforces single API endpoint `problemset.problems` (already mapped in
+                `app/Platforms/Codeforces/Services/Problems.php::list()`) to sync all problems in 1 request.
+
+[ ] 2.3 [PERFORMANCE] Eliminate N+1 SQL Queries in AtCoder UserRatingHistoryImporter
+    - File: app/Platforms/AtCoder/Importers/UserRatingHistoryImporter.php (Lines 114-129)
+    - Solution: Pre-index contests by `platform_contest_id` via `keyBy()` before loop (mirror Codeforces).
+
+[ ] 2.4 [FEATURE] Codeforces User Rating History: Calculate Performance Rating
+    - File: app/Platforms/Codeforces/Importers/UserRatingHistoryImporter.php
+    - Task: Calculate/extract Performance rating from rank, participants, and rating changes
+            (Codeforces API `user.rating` does not return performance natively).
+
+[ ] 2.5 [SCRAPER] Improve AtCoder Upcoming Contests Scraper
+    - File: app/Platforms/AtCoder/Services/AtCoderHtmlScraper.php
+    - Task: Improve parsing of upcoming and active contest schedules from `/contests/?lang=en`.
+
+[ ] 2.6 [I18N] AtCoder Contests & Problems English Translation
+    - File: app/Platforms/AtCoder/Services/AtCoderHtmlScraper.php
+    - Task: Ensure all contest and task detail pages append `?lang=en` to eliminate Japanese titles.
+
+================================================================================
+📌 PHASE 3: QUEUE, SCHEDULER & AUTOMATION ENGINE [P1 / P2]
+================================================================================
+[ ] 3.1 [SCHEDULER] Register Central Sync Command in Cron Schedule
+    - File: routes/console.php
+    - Task: Add `Schedule::command('judgearena:sync')->everyMinute()->withoutOverlapping();`
+    - Verify: `SyncSchedulerService` checks interval_minutes and triggers due platform jobs smoothly.
+
+[ ] 3.2 [QUEUE] Asynchronous Queue Worker Jobs
+    - Directory: app/Jobs/
+    - Task: Implement `App\Jobs\ExecutePlatformSyncJob` implementing `ShouldQueue` with
+            retry limits ($tries = 3) and exponential backoff ([60, 300, 900]) according to BACKEND_LARAVEL.md.
+
+[ ] 3.3 [STORAGE] Verify Unified Storage Model (No Data Duplication)
+    - Files: app/Models/Submission.php, app/Models/ContestRatingChange.php
+    - Task: Ensure all global and user submissions persist cleanly into unified `submissions` table.
+
+================================================================================
+📌 PHASE 4: WEB FRONTEND & USER EXPERIENCE [P2 / P3]
+================================================================================
+[ ] 4.1 [FRONTEND] Dynamic Data Binding on User Platform Profile Page
+    - File: resources/views/web/pages/user/platform.blade.php
+    - Task: Replace hardcoded demo values ("Khairul Islam Emon", "@tourist", dummy alerts)
+            with real Eloquent PlatformProfile relationships, stats, charts, and rating change history.
+
+[ ] 4.2 [FRONTEND] Platform Details Page Enhancements
+    - File: resources/views/web/pages/platforms/show.blade.php
+    - Tasks:
+        * Platform user count aggregation (from PlatformProfile / Standings).
+        * Real-time contest phase badges & countdown timers.
+        * Dynamic Standings preview tab for recent contests.
+        * Official Feed & Blogs data sync and rendering tab.
+
+[ ] 4.3 [FRONTEND] Contests Directory Enhancements
+    - File: resources/views/web/pages/contests/index.blade.php
+    - Tasks:
+        * Real-time live & upcoming contest section state updates.
+        * User timezone auto-detection (convert UTC+06:00 to browser local time).
+
+[ ] 4.4 [FEATURE] Global Rankings & Leaderboard Engine
+    - Files: app/Http/Controllers/Web/WebsiteController.php (rankings),
+             resources/views/web/pages/rankings/index.blade.php
+    - Tasks:
+        * Implement cross-platform aggregated CP ranking algorithm.
+        * Country-wise and Institute-wise leaderboard tabs.
+
+================================================================================
+📌 PHASE 5: CODE QUALITY, TESTING & CI/CD [P2 / P3]
+================================================================================
+[ ] 5.1 [TESTING] Configure Pest Testing Bootstrap
+    - File: tests/Pest.php (NEW)
+    - Task: Create `tests/Pest.php` with:
+            ```php
+            uses(
+                Tests\TestCase::class,
+                Illuminate\Foundation\Testing\RefreshDatabase::class,
+            )->in('Feature');
+            ```
+    - Impact: Fixes 15 failing Jetstream feature tests during `php artisan test`.
+
+[ ] 5.2 [TYPES] Enforce Strict Type Declarations Across All Files
+    - Files: app/Platforms/AtCoder/**/*.php, app/Models/**/*.php, app/Services/**/*.php
+    - Task: Add `declare(strict_types=1);` to all PHP files (adhering to BACKEND_LARAVEL.md Rule 1.2).
+
+[ ] 5.3 [PERFORMANCE] Bulk Database Operations in Importers (Upsert Batches)
+    - Files: app/Platforms/**/Importers/*.php
+    - Task: Refactor large row loops to use chunked `Submission::upsert()` instead of `updateOrCreate()`.
+
+================================================================================
+✅ COMPLETED MILESTONES [DONE]
+================================================================================
+[x] AtCoder category tags management integrated via https://atcoder-categories.github.io/ (AtCoderCategoryTagService).
+[x] Rating and points collection for AtCoder problems via getTaskScore & category parser.
+[x] Universal Infinite Scrolling implemented across Platforms, Contests, and Problems tables.
+[x] 300ms Debounced live AJAX search & filter toolbars without page reloads.
+[x] 5-Layer Clean Architecture & DTO isolation established.
+[x] Codeforces SHA-512 API signature generator and retry handler implemented.
+[x] AtCoder Anti-bot detection bypass, HTTP/2 curl options, and automated cookie session management implemented.
+[x] State tracking machine (`PlatformSyncState` & `PlatformSyncJob`) implemented.
+================================================================================
