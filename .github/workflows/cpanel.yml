@@ -1,0 +1,130 @@
+name: CI & Deploy to cPanel
+
+on:
+  push:
+    branches:
+      - master
+      - main
+  pull_request:
+    branches:
+      - master
+      - main
+
+jobs:
+  test:
+    name: 🧪 Run Tests & Quality Assurance
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: judgearena_testing
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - name: 🚚 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🐘 Setup PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql, curl, bcmath
+          tools: composer:v2
+          coverage: none
+
+      - name: 🟢 Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: 📦 Install Composer Dependencies
+        run: composer install --prefer-dist --no-interaction
+
+      - name: 🔨 Install & Build Assets
+        run: |
+          npm ci
+          npm run build
+
+      - name: ⚙️ Setup Test Environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+        env:
+          APP_ENV: testing
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: judgearena_testing
+          DB_USERNAME: root
+          DB_PASSWORD: password
+
+      - name: 🚀 Run Test Suite (Pest / PHPUnit)
+        run: php artisan test --compact
+        env:
+          APP_ENV: testing
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: judgearena_testing
+          DB_USERNAME: root
+          DB_PASSWORD: password
+
+  deploy:
+    name: 🎉 Deploy to cPanel (Live)
+    needs: [test]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🚚 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🐘 Setup PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          extensions: mbstring, xml, ctype, iconv, intl, curl, bcmath
+          tools: composer:v2
+
+      - name: 🟢 Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: 📦 Install Composer Dependencies (Production)
+        run: composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction
+
+      - name: 🔨 Build Vite Assets
+        run: |
+          npm ci
+          npm run build
+
+      - name: 📂 Sync files to cPanel via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: ${{ secrets.FTP_SERVER_DIR || './judgearena.bdusedautoparts.com/' }}
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/.github/**
+            **/node_modules/**
+            .env
+            .env.*
+            .editorconfig
+            README.md
+            phpunit.xml
+            tests/**
+            storage/logs/**
+            storage/framework/sessions/**
+            storage/framework/cache/**
+            public/uploads/**

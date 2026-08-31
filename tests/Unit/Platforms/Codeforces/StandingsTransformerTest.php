@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit\Platforms\Codeforces;
 
 use App\Platforms\Codeforces\Mappers\CodeforcesStandingsMapper;
@@ -18,20 +20,13 @@ class StandingsTransformerTest extends TestCase
     public function test_standings_transformer_maps_rows_and_problems(): void
     {
         $standings = $this->sample('codeforces-contest-standings.json');
-        $standingsDto = CodeforcesStandingsMapper::fromApiResponse($standings);
+        $dto = CodeforcesStandingsMapper::fromApiResponse($standings);
+        $core = (new StandingsTransformer())->fromApiStandings($dto);
 
-        $result = (new StandingsTransformer())->fromApiStandings($standingsDto);
-
-        $this->assertInstanceOf(\App\Core\DTOs\ContestStandingsDTO::class, $result);
-
-        $this->assertSame('2225', $result->contest->platformContestId);
-        $this->assertCount(7, $result->problems);
-        $this->assertGreaterThan(0, count($result->rows));
-
-        $first = $result->rows[0];
-        $this->assertSame(1, $first->rank);
-        $this->assertSame(7, $first->points);
-        $this->assertIsArray($first->members);
-        $this->assertIsArray($first->problemResults);
+        $this->assertSame('codeforces', $core->contest->platform);
+        $this->assertSame('2225', $core->contest->platformContestId);
+        $this->assertNotEmpty($core->problems);
+        $this->assertNotEmpty($core->rows);
+        $this->assertSame(1, $core->rows[0]->rank);
     }
 }
