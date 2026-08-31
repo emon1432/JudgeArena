@@ -1,22 +1,27 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Web;
 
+use App\Enums\SubmissionVerdict;
 use App\Http\Controllers\Controller;
+use App\Models\Submission;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
     public function show(string $username)
     {
-        $user = \App\Models\User::where('username', $username)
+        $user = User::where('username', $username)
             ->with(['platformProfiles.platform', 'institute', 'country'])
             ->firstOrFail();
 
         // Calculate global stats using cache for performance
         $totalSolved = cache()->remember("user_{$user->id}_total_solved", 3600, function () use ($user) {
-            return \App\Models\Submission::whereIn('platform_profile_id', $user->platformProfiles->pluck('id'))
-                ->where('verdict', 'Accepted')
+            return Submission::whereIn('platform_profile_id', $user->platformProfiles->pluck('id'))
+                ->where('verdict', SubmissionVerdict::AC->value)
                 ->count();
         });
 
@@ -28,13 +33,14 @@ class UserController extends Controller
         $platformCounts = cache()->remember("user_{$user->id}_platform_counts", 3600, function () use ($user) {
             $counts = collect();
             foreach ($user->platformProfiles as $profile) {
-                $solved = $profile->submissions()->where('verdict', 'Accepted')->count();
+                $solved = $profile->submissions()->where('verdict', SubmissionVerdict::AC->value)->count();
                 if ($solved > 0) {
                     $counts->put($profile->platform->name, $solved);
                 }
             }
             return $counts;
         });
+
 
         $verdictCounts = cache()->remember("user_{$user->id}_verdict_counts", 3600, function () use ($user) {
             return \App\Models\Submission::whereIn('platform_profile_id', $user->platformProfiles->pluck('id'))

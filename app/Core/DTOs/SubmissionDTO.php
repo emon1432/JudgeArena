@@ -1,6 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Core\DTOs;
+
+use App\Enums\SubmissionVerdict;
 
 readonly class SubmissionDTO
 {
@@ -9,7 +13,7 @@ readonly class SubmissionDTO
         public string $platformSubmissionId,
         public string $problemPlatformId,
         public string $authorHandle,
-        public ?string $verdict = null,
+        public SubmissionVerdict|string|null $verdict = null,
         public ?string $language = null,
         public ?int $passedTestCount = null,
         public ?int $timeConsumedMillis = null,
@@ -22,3 +26,4 @@ readonly class SubmissionDTO
     ) {
     }
 }
+

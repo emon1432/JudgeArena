@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Platforms\AtCoder\Transformers;
 
 use App\Core\DTOs\SubmissionDTO;
+use App\Enums\SubmissionVerdict;
 use App\Platforms\AtCoder\DTOs\AtCoderSubmissionDTO;
 
 class SubmissionTransformer
@@ -20,7 +23,7 @@ class SubmissionTransformer
             platformSubmissionId: (string) ($submission->id ?? ''),
             problemPlatformId: $problemId,
             authorHandle: $handle,
-            verdict: $submission->verdict ?? null,
+            verdict: SubmissionVerdict::fromAtCoder($submission->verdict),
             language: $submission->programmingLanguage ?? null,
             passedTestCount: $submission->passedTestCount,
             timeConsumedMillis: $submission->timeConsumedMillis,
@@ -42,3 +45,4 @@ class SubmissionTransformer
         return array_map(fn (AtCoderSubmissionDTO $submission): SubmissionDTO => $this->fromApiSubmission($submission), $submissions);
     }
 }
+

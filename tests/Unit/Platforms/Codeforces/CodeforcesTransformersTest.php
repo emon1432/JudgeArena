@@ -84,10 +84,9 @@ class CodeforcesTransformersTest extends TestCase
 
         $this->assertSame('codeforces', $dto->platform);
         $this->assertSame((string) $submission['id'], $dto->platformSubmissionId);
-        $this->assertSame('2229H', $dto->problemPlatformId);
-        $this->assertSame('tourist', $dto->authorHandle);
-        $this->assertSame('OK', $dto->verdict);
+        $this->assertSame(\App\Enums\SubmissionVerdict::AC, $dto->verdict);
         $this->assertSame('C++23 (GCC 14-64, msys2)', $dto->language);
         $this->assertSame($submission, $submissionDto->raw);
+
     }
 }

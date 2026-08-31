@@ -63,12 +63,34 @@ class CodeforcesAdapter implements PlatformAdapter
         return $this->users->ratingHistory($handle);
     }
 
+    /**
+     * @param array{
+     *     handle:string,
+     *     contestId?:string,
+     *     from?:int,
+     *     count?:int,
+     *     stopSubmissionId?:string
+     * } $params
+     *
+     * @return array{
+     *     submissions: SubmissionDTO[],
+     *     reached_stop: bool
+     * }
+     */
     public function getUserSubmissions(array $params): array
     {
-        return $this->submissionTransformer->fromApiSubmissions(
-            $this->users->submissions($params['handle'], $params['from'], $params['count'])
+        $from = $params['from'] ?? 1;
+        $count = $params['count'] ?? 100;
+        $submissions = $this->submissionTransformer->fromApiSubmissions(
+            $this->users->submissions($params['handle'], $from, $count)
         );
+
+        return [
+            'submissions' => $submissions,
+            'reached_stop' => count($submissions) < $count,
+        ];
     }
+
 
     public function getUserStandings(string $id): ContestStandingsDTO
     {

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Platforms\Codeforces\Transformers;
 
 use App\Core\DTOs\SubmissionDTO;
+use App\Enums\SubmissionVerdict;
 use App\Platforms\Codeforces\DTOs\CodeforcesSubmissionDTO;
 
 class SubmissionTransformer
@@ -23,7 +24,7 @@ class SubmissionTransformer
             platformSubmissionId: (string) ($submission->id ?? ''),
             problemPlatformId: $contestId . $index,
             authorHandle: $handle,
-            verdict: $submission->verdict ?? null,
+            verdict: SubmissionVerdict::fromCodeforces($submission->verdict),
             language: $submission->programmingLanguage ?? null,
             passedTestCount: $submission->passedTestCount,
             timeConsumedMillis: $submission->timeConsumedMillis,
@@ -45,4 +46,5 @@ class SubmissionTransformer
         return array_map(fn (CodeforcesSubmissionDTO $submission): SubmissionDTO => $this->fromApiSubmission($submission), $submissions);
     }
 }
+
 
