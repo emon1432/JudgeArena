@@ -10,16 +10,20 @@ use Tests\TestCase;
 
 class RatingChangeTransformerTest extends TestCase
 {
-    private function sample(string $fileName): array
-    {
-        $path = base_path('docs/platforms/codeforces.com/sample-response/' . $fileName);
-
-        return json_decode((string) file_get_contents($path), true, flags: JSON_THROW_ON_ERROR);
-    }
-
     public function test_rating_change_transformer_maps_rating_changes(): void
     {
-        $ratingChanges = $this->sample('codeforces-contest-rating-changes.json');
+        $ratingChanges = [
+            [
+                'contestId' => 2225,
+                'contestName' => 'Educational Codeforces Round 189 (Rated for Div. 2)',
+                'handle' => 'vietbachleonkroos2326',
+                'rank' => 1,
+                'ratingUpdateTimeSeconds' => 1776789300,
+                'oldRating' => 1664,
+                'newRating' => 2060,
+            ],
+        ];
+
         $dtos = CodeforcesRatingChangeMapper::fromNormalizedList($ratingChanges);
         $coreDtos = CodeforcesRatingChangeTransformer::fromApiRatingChanges($dtos, '2225');
 

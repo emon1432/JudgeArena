@@ -10,17 +10,20 @@ use Tests\TestCase;
 
 class ContestTransformerTest extends TestCase
 {
-    private function sample(string $fileName): array
-    {
-        $path = base_path('docs/platforms/codeforces.com/sample-response/' . $fileName);
-
-        return json_decode((string) file_get_contents($path), true, flags: JSON_THROW_ON_ERROR);
-    }
-
     public function test_contest_transformer_maps_standings_contest(): void
     {
-        $standings = $this->sample('codeforces-contest-standings.json');
-        $contestDto = CodeforcesContestMapper::fromNormalized($standings['contest']);
+        $contestData = [
+            'id' => 2225,
+            'name' => 'Educational Codeforces Round 189 (Rated for Div. 2)',
+            'type' => 'CF',
+            'phase' => 'FINISHED',
+            'frozen' => false,
+            'durationSeconds' => 7200,
+            'startTimeSeconds' => 1776782100,
+            'relativeTimeSeconds' => 7200,
+        ];
+
+        $contestDto = CodeforcesContestMapper::fromNormalized($contestData);
         $dto = (new ContestTransformer())->fromApiContest($contestDto);
 
         $this->assertSame('codeforces', $dto->platform);
@@ -29,6 +32,6 @@ class ContestTransformerTest extends TestCase
         $this->assertSame('FINISHED', $dto->phase);
         $this->assertSame(7200, $dto->durationSeconds);
         $this->assertSame(1776782100, $dto->startedAt?->getTimestamp());
-        $this->assertSame($standings['contest'], $contestDto->raw);
+        $this->assertSame($contestData, $contestDto->raw);
     }
 }

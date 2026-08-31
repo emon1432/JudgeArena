@@ -10,16 +10,59 @@ use Tests\TestCase;
 
 class StandingsTransformerTest extends TestCase
 {
-    private function sample(string $fileName): array
-    {
-        $path = base_path('docs/platforms/codeforces.com/sample-response/' . $fileName);
-
-        return json_decode((string) file_get_contents($path), true, flags: JSON_THROW_ON_ERROR);
-    }
-
     public function test_standings_transformer_maps_rows_and_problems(): void
     {
-        $standings = $this->sample('codeforces-contest-standings.json');
+        $standings = [
+            'contest' => [
+                'id' => 2225,
+                'name' => 'Educational Codeforces Round 189 (Rated for Div. 2)',
+                'type' => 'CF',
+                'phase' => 'FINISHED',
+                'frozen' => false,
+                'durationSeconds' => 7200,
+                'startTimeSeconds' => 1776782100,
+                'relativeTimeSeconds' => 7200,
+            ],
+            'problems' => [
+                [
+                    'contestId' => 2225,
+                    'index' => 'A',
+                    'name' => 'A Number Between Two Others',
+                    'type' => 'PROGRAMMING',
+                    'points' => 500,
+                    'rating' => 800,
+                    'tags' => ['greedy', 'math'],
+                ],
+            ],
+            'rows' => [
+                [
+                    'party' => [
+                        'contestId' => 2225,
+                        'members' => [
+                            ['handle' => 'tourist'],
+                        ],
+                        'participantType' => 'CONTESTANT',
+                        'ghost' => false,
+                        'startTimeSeconds' => 1776782100,
+                    ],
+                    'rank' => 1,
+                    'points' => 500,
+                    'penalty' => 0,
+                    'successfulHackCount' => 0,
+                    'unsuccessfulHackCount' => 0,
+                    'problemResults' => [
+                        [
+                            'points' => 500.0,
+                            'penalty' => 0,
+                            'rejectedAttemptCount' => 0,
+                            'type' => 'FINAL',
+                            'bestSubmissionTimeSeconds' => 300,
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
         $dto = CodeforcesStandingsMapper::fromApiResponse($standings);
         $core = (new StandingsTransformer())->fromApiStandings($dto);
 

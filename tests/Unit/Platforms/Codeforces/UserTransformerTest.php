@@ -10,16 +10,22 @@ use Tests\TestCase;
 
 class UserTransformerTest extends TestCase
 {
-    private function sample(string $fileName): array
-    {
-        $path = base_path('docs/platforms/codeforces.com/sample-response/' . $fileName);
-
-        return json_decode((string) file_get_contents($path), true, flags: JSON_THROW_ON_ERROR);
-    }
-
     public function test_user_transformer_maps_profile_payload(): void
     {
-        $profile = $this->sample('codeforces-profile.json');
+        $profile = [
+            'handle' => 'tourist',
+            'firstName' => 'Gennady',
+            'lastName' => 'Korotkevich',
+            'country' => 'Belarus',
+            'city' => 'Gomel',
+            'organization' => 'ITMO University',
+            'contribution' => 175,
+            'rank' => 'legendary grandmaster',
+            'rating' => 3428,
+            'maxRank' => 'tourist',
+            'maxRating' => 4009,
+        ];
+
         $userDto = CodeforcesUserMapper::fromNormalized($profile);
         $dto = (new UserTransformer())->fromApiUser($userDto);
 
