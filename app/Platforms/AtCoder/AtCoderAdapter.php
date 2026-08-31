@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Platforms\AtCoder;
 
 use App\Core\Contracts\Importers\ContestImporter as ContestImporterContract;
@@ -15,7 +17,7 @@ use App\Platforms\AtCoder\Importers\ContestImporter;
 use App\Platforms\AtCoder\Importers\ProblemImporter;
 use App\Platforms\AtCoder\Importers\UserImporter;
 use App\Platforms\AtCoder\Importers\UserRatingHistoryImporter;
-use App\Platforms\AtCoder\Importers\UserStandingsImporter;
+use App\Platforms\AtCoder\Importers\UserStandingImporter;
 use App\Platforms\AtCoder\Importers\UserSubmissionImporter;
 use App\Platforms\AtCoder\Services\Contests;
 use App\Platforms\AtCoder\Services\Problems;
@@ -23,6 +25,7 @@ use App\Platforms\AtCoder\Services\Users;
 use App\Platforms\AtCoder\Transformers\ContestTransformer;
 use App\Platforms\AtCoder\Transformers\ProblemTransformer;
 use App\Platforms\AtCoder\Transformers\StandingsTransformer;
+
 use App\Platforms\AtCoder\Transformers\SubmissionTransformer;
 use App\Platforms\AtCoder\Transformers\UserTransformer;
 
@@ -121,8 +124,9 @@ class AtCoderAdapter implements PlatformAdapter
 
     public function userStandingImporter(): UserStandingImporterContract
     {
-        return app(UserStandingsImporter::class);
+        return app(UserStandingImporter::class);
     }
+
 
     public function userImporter(): UserImporterContract
     {

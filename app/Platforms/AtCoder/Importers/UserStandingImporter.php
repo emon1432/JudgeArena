@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Platforms\AtCoder\Importers;
 
-use App\Core\Contracts\Importers\UserStandingImporter;
+use App\Core\Contracts\Importers\UserStandingImporter as UserStandingImporterContract;
 use App\Core\DTOs\ContestStandingsDTO;
 use App\Core\Results\ImportResult;
 use App\Enums\PlatformSyncEntityType;
@@ -19,8 +21,9 @@ use App\Services\ApplicationLogger;
 use App\Services\PlatformSyncStateService;
 use Throwable;
 
-class UserStandingsImporter implements UserStandingImporter
+class UserStandingImporter implements UserStandingImporterContract
 {
+
     private array $contestMap = [];
     private array $problemMap = [];
 

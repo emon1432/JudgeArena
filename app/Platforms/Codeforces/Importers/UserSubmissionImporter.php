@@ -145,13 +145,16 @@ class UserSubmissionImporter implements UserSubmissionImporterContract
                         'from' => $from,
                         'count' => self::PAGE_SIZE,
                     ];
-                    $submissions = $this->adapter->getUserSubmissions(
+                    $response = $this->adapter->getUserSubmissions(
                         $params,
                     );
 
-                    if (! is_array($submissions) || $submissions === []) {
+                    $submissions = $response['submissions'] ?? (is_array($response) ? $response : []);
+
+                    if ($submissions === []) {
                         break;
                     }
+
 
                     $result->incrementFetched(count($submissions));
 

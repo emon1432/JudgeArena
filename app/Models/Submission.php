@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
+use App\Enums\SubmissionVerdict;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -28,6 +31,7 @@ class Submission extends Model
     ];
 
     protected $casts = [
+        'verdict' => SubmissionVerdict::class,
         'points' => 'float',
         'passed_test_count' => 'integer',
         'time_consumed_ms' => 'integer',
@@ -38,6 +42,7 @@ class Submission extends Model
         'raw' => 'array',
         'status' => 'string',
     ];
+
 
     public function platform(): BelongsTo
     {

@@ -20,8 +20,9 @@ use App\Models\Standing;
 use App\Models\StandingTaskResult;
 use App\Models\Submission;
 use App\Platforms\AtCoder\AtCoderAdapter;
-use App\Platforms\AtCoder\Importers\UserStandingsImporter;
+use App\Platforms\AtCoder\Importers\UserStandingImporter;
 use App\Services\ApplicationLogger;
+
 use App\Services\PlatformSyncStateService;
 use Tests\TestCase;
 
@@ -303,8 +304,9 @@ class ImportAtCoderStandingsTest extends TestCase
             $mock->shouldReceive('markFailed')->never();
         });
 
-        $importer = new UserStandingsImporter(
+        $importer = new UserStandingImporter(
             $standingModel,
+
             $standingTaskResultModel,
             $problemModel,
             $contestModel,
