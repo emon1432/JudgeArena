@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Platforms\AtCoder\DTOs;
 
 readonly class AtCoderProblemDTO
@@ -13,11 +15,11 @@ readonly class AtCoderProblemDTO
         public ?string $title,
         public ?string $position,
         public ?float $points,
+        public ?int $rating,
         public ?string $timeLimit,
         public ?string $memoryLimit,
+        public ?int $solverCount,
         public ?string $url,
         public array $raw,
-    ) {
-    }
+    ) {}
 }
-
