@@ -11,7 +11,7 @@ use App\Platforms\Codeforces\Mappers\CodeforcesRatingChangeMapper;
 use App\Platforms\Codeforces\Mappers\CodeforcesStandingsMapper;
 use App\Platforms\Codeforces\Mappers\CodeforcesSubmissionMapper;
 use App\Platforms\Codeforces\Support\ResponseNormalizer;
-use App\Platforms\Codeforces\Transformers\CodeforcesRatingChangeTransformer;
+use App\Platforms\Codeforces\Transformers\RatingChangeTransformer;
 
 class Contests
 {
@@ -75,7 +75,7 @@ class Contests
 
         $platformDtos = CodeforcesRatingChangeMapper::fromNormalizedList($normalized);
 
-        return CodeforcesRatingChangeTransformer::fromApiRatingChanges($platformDtos, $contestId);
+        return RatingChangeTransformer::fromApiRatingChanges($platformDtos, $contestId);
     }
 
     public function hacks(int $contestId, bool $asManager = false): array

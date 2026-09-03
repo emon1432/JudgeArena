@@ -45,7 +45,7 @@ class CodeforcesAdapter implements PlatformAdapter
     //==================================Used==================================
 
     //===============================Getters==================================
-    public function getContests(?callable $pageProcessor = null, bool $fullSync = false): array
+    public function getContests(): array
     {
         return $this->contestTransformer->fromApiContests(
             $this->contests->list()

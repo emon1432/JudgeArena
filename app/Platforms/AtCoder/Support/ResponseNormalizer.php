@@ -19,6 +19,8 @@ final class ResponseNormalizer
             'duration' => null,
             'rateChange' => null,
             'type' => null,
+            'start_epoch_second' => null,
+            'duration_second' => null,
         ], [
             'id' => $contest['id'] ?? null,
             'title' => $contest['title'] ?? null,
@@ -27,6 +29,8 @@ final class ResponseNormalizer
             'duration' => $contest['duration'] ?? null,
             'rateChange' => $contest['rateChange'] ?? $contest['rate_change'] ?? null,
             'type' => $contest['type'] ?? null,
+            'start_epoch_second' => $contest['start_epoch_second'] ?? $contest['startEpochSecond'] ?? null,
+            'duration_second' => $contest['duration_second'] ?? $contest['durationSecond'] ?? null,
         ]);
     }
 

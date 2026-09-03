@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Platforms\Codeforces;
 
 use App\Platforms\Codeforces\Mappers\CodeforcesRatingChangeMapper;
-use App\Platforms\Codeforces\Transformers\CodeforcesRatingChangeTransformer;
+use App\Platforms\Codeforces\Transformers\RatingChangeTransformer;
 use Tests\TestCase;
 
 class RatingChangeTransformerTest extends TestCase
@@ -25,7 +25,7 @@ class RatingChangeTransformerTest extends TestCase
         ];
 
         $dtos = CodeforcesRatingChangeMapper::fromNormalizedList($ratingChanges);
-        $coreDtos = CodeforcesRatingChangeTransformer::fromApiRatingChanges($dtos, '2225');
+        $coreDtos = RatingChangeTransformer::fromApiRatingChanges($dtos, '2225');
 
         $this->assertNotEmpty($coreDtos);
         $first = $coreDtos[0];

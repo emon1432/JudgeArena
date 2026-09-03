@@ -22,11 +22,9 @@ interface PlatformAdapter
     //===============================Getters==================================
 
     /**
-     * @param (callable(array): bool)|null $pageProcessor
-     * @param bool $fullSync
      * @return ContestDTO[]
      */
-    public function getContests(?callable $pageProcessor = null, bool $fullSync = false): array;
+    public function getContests(): array;
 
     /**
      * @param string $contestId

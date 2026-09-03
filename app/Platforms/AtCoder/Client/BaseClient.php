@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Platforms\AtCoder\Client;
 
 use App\Services\ApplicationLogger;
@@ -10,47 +12,37 @@ use RuntimeException;
 
 class BaseClient
 {
-    private readonly string $apiBaseUrl;
     private readonly string $webBaseUrl;
+    private readonly string $resourcesUrl;
+    private readonly string $apiUrl;
 
-    protected const HTTP_TIMEOUT_SECONDS = 25;
+    protected const HTTP_TIMEOUT_SECONDS = 30;
     protected const HTTP_RETRY_ATTEMPTS = 3;
     protected const HTTP_RETRY_SLEEP_MS = 300;
     protected const API_RATE_LIMIT_SECONDS = 1;
 
     public function __construct()
     {
-        $this->webBaseUrl = (string) config('platforms.atcoder.base_url', '');
-
-        $apiBaseUrl = (string) config('platforms.atcoder.api_base_url', '');
-        if ($apiBaseUrl === '') {
-            $apiBaseUrl = rtrim($this->webBaseUrl, '/');
-            if ($apiBaseUrl !== '') {
-                $apiBaseUrl .= '/api/atcoder';
-            }
-        }
-
-        $this->apiBaseUrl = $apiBaseUrl;
+        $this->webBaseUrl = rtrim((string) config('platforms.atcoder.base_url', 'https://atcoder.jp'), '/');
+        $this->resourcesUrl = rtrim((string) config('platforms.atcoder.resources_url', 'https://kenkoooo.com/atcoder/resources'), '/');
+        $this->apiUrl = rtrim((string) config('platforms.atcoder.api_url', 'https://kenkoooo.com/atcoder/atcoder-api'), '/');
     }
 
     protected function http(): PendingRequest
     {
         return Http::acceptJson()
-            ->asJson()
             ->timeout(self::HTTP_TIMEOUT_SECONDS)
             ->retry(
                 self::HTTP_RETRY_ATTEMPTS,
                 self::HTTP_RETRY_SLEEP_MS,
-                function (\Exception $exception): bool {
-                    return true;
-                },
-                throw: false,
+                fn (\Exception $exception): bool => true,
+                throw: false
             );
     }
 
-    protected function respectRateLimit(string $method, array $query): void
+    protected function respectRateLimit(string $endpoint): void
     {
-        $cacheKey = 'atcoder:last_request_at:' . $method . ':' . md5(json_encode($query));
+        $cacheKey = 'atcoder:last_request_at:' . md5($endpoint);
         $lastRequestAt = (int) (cache()->get($cacheKey) ?? 0);
         $elapsed = time() - $lastRequestAt;
 
@@ -61,21 +53,69 @@ class BaseClient
         cache()->put($cacheKey, time(), self::API_RATE_LIMIT_SECONDS + 1);
     }
 
-    protected function sanitizeQuery(array $query): array
+    /**
+     * Request Kenkoooo static resources (e.g. contests.json, problems.json)
+     *
+     * @return array<mixed>
+     */
+    public function requestResource(string $resource): array
     {
-        $sanitized = [];
+        $url = $this->resourcesUrl . '/' . ltrim($resource, '/');
 
-        foreach ($query as $key => $value) {
-            if ($value === null || $value === '') {
-                continue;
-            }
-
-            $sanitized[$key] = (string) $value;
-        }
-
-        return $sanitized;
+        return $this->fetchJson($url, $resource);
     }
 
+    /**
+     * Request AtCoder internal web JSON endpoints (e.g. /contests/{id}/standings/json)
+     *
+     * @param array<string, mixed> $query
+     * @return array<mixed>
+     */
+    public function requestWebJson(string $path, array $query = []): array
+    {
+        $this->respectRateLimit($path);
+        $url = $this->webBaseUrl . '/' . ltrim($path, '/');
+
+        return $this->fetchJson($url, $path, $query);
+    }
+
+    /**
+     * Request Kenkoooo API endpoints (e.g. /v3/user/submissions)
+     *
+     * @param array<string, mixed> $query
+     * @return array<mixed>
+     */
+    public function requestApi(string $path, array $query = []): array
+    {
+        $url = $this->apiUrl . '/' . ltrim($path, '/');
+
+        return $this->fetchJson($url, $path, $query);
+    }
+
+    /**
+     * @param array<string, mixed> $query
+     * @return array<mixed>
+     */
+    private function fetchJson(string $url, string $identifier, array $query = []): array
+    {
+        $sanitizedQuery = [];
+        foreach ($query as $key => $value) {
+            if ($value !== null && $value !== '') {
+                $sanitizedQuery[$key] = (string) $value;
+            }
+        }
+
+        $response = empty($sanitizedQuery)
+            ? $this->http()->get($url)
+            : $this->http()->get($url, $sanitizedQuery);
+
+        return $this->decodeApiResponse($response, $identifier, $sanitizedQuery);
+    }
+
+    /**
+     * @param array<string, string> $query
+     * @return array<mixed>
+     */
     protected function decodeApiResponse(Response $response, string $method, array $query): array
     {
         if (! $response->ok()) {
@@ -104,21 +144,5 @@ class BaseClient
     public function webBaseUrl(): string
     {
         return $this->webBaseUrl;
-    }
-
-    public function apiBaseUrl(): string
-    {
-        return $this->apiBaseUrl;
-    }
-
-    public function requestApi(string $path, array $query = []): array
-    {
-        $finalQuery = $this->sanitizeQuery($query);
-        $this->respectRateLimit($path, $finalQuery);
-
-        $url = rtrim($this->apiBaseUrl, '/') . '/' . ltrim($path, '/');
-        $response = $this->http()->get($url, $finalQuery);
-
-        return $this->decodeApiResponse($response, $path, $query);
     }
 }
