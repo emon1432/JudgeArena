@@ -45,10 +45,10 @@ class AtCoderAdapter implements PlatformAdapter
     //================================Used==================================
 
     //================================Getters==================================
-    public function getContests(?callable $pageProcessor = null, bool $fullSync = false): array
+    public function getContests(): array
     {
         return $this->contestTransformer->fromApiContests(
-            $this->contests->all($pageProcessor, $fullSync)
+            $this->contests->all()
         );
     }
 

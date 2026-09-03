@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Platforms\AtCoder\Importers;
 
 use App\Core\Contracts\Importers\ContestImporter as ContestImporterContract;
@@ -10,8 +12,8 @@ use App\Models\Platform;
 use App\Platforms\AtCoder\AtCoderAdapter;
 use App\Services\ApplicationLogger;
 use App\Services\PlatformSyncStateService;
+use Illuminate\Support\Str;
 use Throwable;
-
 
 class ContestImporter implements ContestImporterContract
 {
@@ -20,10 +22,9 @@ class ContestImporter implements ContestImporterContract
         private readonly Platform $platformModel,
         private readonly AtCoderAdapter $adapter,
         private readonly PlatformSyncStateService $platformSyncStateService,
-    ) {
-    }
+    ) {}
 
-    public function import(bool $fullSync = false): ImportResult
+    public function import(): ImportResult
     {
         $result = new ImportResult();
 
@@ -45,33 +46,7 @@ class ContestImporter implements ContestImporterContract
             return $result;
         }
 
-        $pageProcessor = function (array $pageRawContests) use ($platform, $fullSync): bool {
-            $pageDtos = \App\Platforms\AtCoder\Mappers\AtCoderContestMapper::fromNormalizedList($pageRawContests);
-            $pageContestDtos = (new \App\Platforms\AtCoder\Transformers\ContestTransformer())->fromApiContests($pageDtos);
-
-            $allSyncedInDb = true;
-
-            foreach ($pageContestDtos as $contestDto) {
-                $existing = $this->contestModel->newQuery()
-                    ->where('platform_id', $platform->id)
-                    ->where('platform_contest_id', $contestDto->platformContestId)
-                    ->first();
-
-                if ($existing === null || strtoupper((string) $existing->phase) !== 'FINISHED') {
-                    $allSyncedInDb = false;
-
-                    break;
-                }
-            }
-
-            if ($allSyncedInDb && !$fullSync && count($pageContestDtos) > 0) {
-                return false;
-            }
-
-            return true;
-        };
-
-        $contests = $this->adapter->getContests($pageProcessor, $fullSync);
+        $contests = $this->adapter->getContests();
 
         if (!is_array($contests)) {
             $contests = [];
@@ -81,22 +56,35 @@ class ContestImporter implements ContestImporterContract
         $result->incrementChecked(count($contests));
 
         foreach ($contests as $contestDto) {
+            $contestPlatformId = (string) ($contestDto->platformContestId ?? '');
+
+            $existingContest = $this->contestModel->newQuery()
+                ->where('platform_id', $platform->id)
+                ->where('platform_contest_id', $contestPlatformId)
+                ->first();
+
+            $isSynced = $this->platformSyncStateService->isSynced(
+                $platform,
+                PlatformSyncEntityType::Contest,
+                $contestPlatformId
+            );
+
+            // Skip if contest exists, its phase is 'FINISHED', and it is already synced
             if (
-                $this->platformSyncStateService->isSynced(
-                    $platform,
-                    PlatformSyncEntityType::Contest,
-                    (string) $contestDto->platformContestId
-                )
+                $existingContest !== null &&
+                strtoupper((string) $existingContest->phase) === 'FINISHED' &&
+                $isSynced
             ) {
                 $result->incrementSkipped();
                 continue;
             }
+
             $syncState = $this->platformSyncStateService->markSyncing(
                 $platform,
                 PlatformSyncEntityType::Contest,
-                (string) $contestDto->platformContestId,
+                $contestPlatformId,
                 [
-                    'contest_platform_id' => $contestDto->platformContestId,
+                    'contest_platform_id' => $contestPlatformId,
                     'contest_title' => $contestDto->title,
                     'platform_slug' => $platform->slug,
                 ]
@@ -108,22 +96,33 @@ class ContestImporter implements ContestImporterContract
             }
 
             try {
+                $rateSpec = is_array($contestDto->raw['rate_change_spec'] ?? null)
+                    ? $contestDto->raw['rate_change_spec']
+                    : [];
+
+                $isRated = (bool) ($rateSpec['is_rated'] ?? ($contestDto->raw['is_rated'] ?? false));
+
                 $contest = $this->contestModel->newQuery()->updateOrCreate(
                     [
                         'platform_id' => $platform->id,
-                        'platform_contest_id' => $contestDto->platformContestId,
+                        'platform_contest_id' => $contestPlatformId,
                     ],
                     [
                         'name' => $contestDto->title,
-                        'slug' => $contestDto->slug ?? \Illuminate\Support\Str::slug($contestDto->platformContestId . '-' . $contestDto->title),
+                        'slug' => $contestDto->slug ?? Str::slug($contestPlatformId . '-' . $contestDto->title),
                         'type' => $contestDto->type,
                         'phase' => $contestDto->phase,
+                        'is_rated' => $isRated,
                         'duration_seconds' => $contestDto->durationSeconds,
                         'start_time' => $contestDto->startedAt,
                         'end_time' => $contestDto->endedAt,
                         'url' => $contestDto->url,
                         'metadata' => [
-                            'source' => 'adapter',
+                            'source' => 'kenkoooo-api',
+                            'rate_change' => $rateSpec['raw'] ?? null,
+                            'rate_change_label' => $rateSpec['label'] ?? null,
+                            'min_rated_rating' => $rateSpec['min_rating'] ?? null,
+                            'max_rated_rating' => $rateSpec['max_rating'] ?? null,
                             'imported_at' => now(),
                         ],
                         'raw' => $contestDto->raw,
@@ -133,12 +132,12 @@ class ContestImporter implements ContestImporterContract
                 if ($contestDto->phase === 'FINISHED' || $contestDto->type === 'permanent') {
                     $this->platformSyncStateService->markSynced($syncState, [
                         'contest_id' => $contest->id,
-                        'contest_platform_id' => $contestDto->platformContestId,
+                        'contest_platform_id' => $contestPlatformId,
                     ]);
                 } else {
                     $this->platformSyncStateService->resetForRetry($syncState, [
                         'contest_id' => $contest->id,
-                        'contest_platform_id' => $contestDto->platformContestId,
+                        'contest_platform_id' => $contestPlatformId,
                         'phase' => $contestDto->phase,
                     ]);
                 }
@@ -152,7 +151,7 @@ class ContestImporter implements ContestImporterContract
                 $result->incrementFailed();
 
                 $this->platformSyncStateService->markFailed($syncState, $e, [
-                    'contest_platform_id' => $contestDto->platformContestId,
+                    'contest_platform_id' => $contestPlatformId,
                     'contest_title' => $contestDto->title,
                 ]);
 
@@ -162,23 +161,13 @@ class ContestImporter implements ContestImporterContract
                         'category' => 'import',
                         'platform' => 'atcoder',
                         'source' => self::class,
+                        'contest_platform_id' => $contestPlatformId,
                         'message' => $e->getMessage(),
-                        'exception' => get_class($e),
-                        'file' => $e->getFile(),
-                        'line' => $e->getLine(),
                     ],
                     $e
                 );
             }
         }
-
-        $result->metadata = array_merge(
-            $result->metadata,
-            [
-                'platform' => 'atcoder',
-                'entity' => 'contest',
-            ]
-        );
 
         return $result;
     }

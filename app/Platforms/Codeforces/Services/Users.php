@@ -10,7 +10,7 @@ use App\Platforms\Codeforces\Mappers\CodeforcesRatingChangeMapper;
 use App\Platforms\Codeforces\Mappers\CodeforcesUserMapper;
 use App\Platforms\Codeforces\Mappers\CodeforcesSubmissionMapper;
 use App\Platforms\Codeforces\Support\ResponseNormalizer;
-use App\Platforms\Codeforces\Transformers\CodeforcesRatingChangeTransformer;
+use App\Platforms\Codeforces\Transformers\RatingChangeTransformer;
 use App\Services\ApplicationLogger;
 use Illuminate\Support\Arr;
 use RuntimeException;
@@ -35,7 +35,7 @@ class Users
     //used
     public function ratingHistory(string $handle): array
     {
-        return CodeforcesRatingChangeTransformer::fromApiRatingChanges(
+        return RatingChangeTransformer::fromApiRatingChanges(
             CodeforcesRatingChangeMapper::fromNormalizedList(
                 ResponseNormalizer::ratingChanges($this->client->requestApi('user.rating', [
                     'handle' => $handle,

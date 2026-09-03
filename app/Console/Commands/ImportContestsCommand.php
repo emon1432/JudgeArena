@@ -11,7 +11,7 @@ use Throwable;
 
 class ImportContestsCommand extends Command
 {
-    protected $signature = 'judgearena:import-contests {platform} {--full : Force a full deep scan of all archive pages}';
+    protected $signature = 'judgearena:import-contests {platform}';
 
     protected $description = 'Import contests from a supported platform.';
 
@@ -25,7 +25,6 @@ class ImportContestsCommand extends Command
     public function handle(): int
     {
         $platformSlug = strtolower(trim((string) $this->argument('platform')));
-        $fullSync = (bool) $this->option('full');
 
         $adapter = $this->platformRegistry->resolve($platformSlug);
 
@@ -54,16 +53,15 @@ class ImportContestsCommand extends Command
             [
                 'category' => 'import',
                 'platform' => $platformSlug,
-                'full_sync' => $fullSync,
                 'source' => self::class,
             ]
         );
-        $this->info('Starting contest import for platform: ' . $platformSlug . ($fullSync ? ' [FULL SCAN]' : ' [INCREMENTAL]'));
+        $this->info('Starting contest import for platform: ' . $platformSlug);
 
         try {
             $result = $adapter
                 ->contestImporter()
-                ->import($fullSync);
+                ->import();
 
             $this->line('Platform: ' . $platformSlug);
             $this->line('Checked: ' . $result->checked);

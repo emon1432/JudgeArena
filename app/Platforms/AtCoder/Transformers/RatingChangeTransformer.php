@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Platforms\AtCoder\Transformers;
 
 use App\Core\DTOs\RatingChangeDTO;
 use App\Platforms\AtCoder\DTOs\AtCoderRatingChangeDTO;
 
-final class AtCoderRatingChangeTransformer
+final class RatingChangeTransformer
 {
     /**
      * @param AtCoderRatingChangeDTO[] $ratingChanges

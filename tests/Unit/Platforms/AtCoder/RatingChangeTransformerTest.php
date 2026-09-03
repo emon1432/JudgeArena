@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Platforms\AtCoder;
 
 use App\Platforms\AtCoder\DTOs\AtCoderRatingChangeDTO;
-use App\Platforms\AtCoder\Transformers\AtCoderRatingChangeTransformer;
+use App\Platforms\AtCoder\Transformers\RatingChangeTransformer;
 use Tests\TestCase;
 
 class RatingChangeTransformerTest extends TestCase
@@ -31,7 +31,7 @@ class RatingChangeTransformerTest extends TestCase
             raw: ['place' => 1],
         );
 
-        $coreDtos = AtCoderRatingChangeTransformer::fromApiRatingChanges([$dto], 'abc350', 'chokudai');
+        $coreDtos = RatingChangeTransformer::fromApiRatingChanges([$dto], 'abc350', 'chokudai');
 
         $this->assertNotEmpty($coreDtos);
         $first = $coreDtos[0];

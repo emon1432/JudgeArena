@@ -1,72 +1,82 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Platforms\AtCoder\Services;
 
-use App\Platforms\AtCoder\Services\AtCoderHtmlScraper;
+use App\Platforms\AtCoder\Client\BaseClient;
 use App\Platforms\AtCoder\DTOs\AtCoderStandingsDTO;
 use App\Platforms\AtCoder\Mappers\AtCoderContestMapper;
-use App\Platforms\AtCoder\Mappers\AtCoderRatingChangeMapper;
 use App\Platforms\AtCoder\Mappers\AtCoderStandingsMapper;
-use App\Platforms\AtCoder\Mappers\AtCoderSubmissionMapper;
 use App\Platforms\AtCoder\Support\ResponseNormalizer;
-use App\Platforms\AtCoder\Transformers\AtCoderRatingChangeTransformer;
 
 class Contests
 {
     public function __construct(
-        private readonly AtCoderHtmlScraper $scraper,
+        private readonly BaseClient $client,
     ) {}
 
-    //used
-    public function all(?callable $pageProcessor = null, bool $fullSync = false): array
+    public function all(): array
     {
-        $contests = $this->scraper->getContests($pageProcessor, $fullSync);
+        $rawContests = $this->client->requestResource('contests.json');
 
         return AtCoderContestMapper::fromNormalizedList(
-            ResponseNormalizer::contests($contests)
+            ResponseNormalizer::contests($rawContests)
         );
     }
 
-    public function list(?callable $pageProcessor = null, bool $fullSync = false): array
+    public function list(): array
     {
-        return $this->all($pageProcessor, $fullSync);
+        return $this->all();
     }
 
-    //used
+    /**
+     * Fetch contest standings from AtCoder native web JSON endpoint.
+     */
     public function standings(string $contestId, bool $virtual = false): AtCoderStandingsDTO
     {
-        $normalized = ResponseNormalizer::standings(
-            $virtual ? $this->scraper->getStandingsVirtual($contestId) : $this->scraper->getStandings($contestId),
-        );
+        $path = $virtual
+            ? "contests/{$contestId}/standings/virtual/json"
+            : "contests/{$contestId}/standings/json";
 
-        return AtCoderStandingsMapper::fromApiResponse($normalized);
-    }
+        $response = $this->client->requestWebJson($path);
 
-    //used
-    public function submissions(string $contestId): array
-    {
-        return AtCoderSubmissionMapper::fromNormalizedList(
-            ResponseNormalizer::submissions($this->scraper->getSubmissions($contestId))
+        return AtCoderStandingsMapper::fromApiResponse(
+            ResponseNormalizer::standings($response)
         );
     }
 
-    //used
-    public function ratingChanges(string $contestId): array
-    {
-        return AtCoderRatingChangeTransformer::fromApiRatingChanges(
-            AtCoderRatingChangeMapper::fromNormalizedList(
-                ResponseNormalizer::ratingChanges(
-                    $this->scraper->getResults($contestId)
-                )
-            ),
-            $contestId,
-            null
-        );
-    }
-
-    //used
+    /**
+     * Get tasks for a contest from the standings TaskInfo JSON.
+     *
+     * @return array<string, mixed>
+     */
     public function tasks(string $contestId): array
     {
-        return $this->scraper->getTasks($contestId);
+        $standings = $this->client->requestWebJson("contests/{$contestId}/standings/json");
+        $taskInfoList = $standings['TaskInfo'] ?? [];
+        $tasks = [];
+
+        foreach ($taskInfoList as $task) {
+            $taskId = $task['TaskScreenName'] ?? $task['TaskName'] ?? null;
+            if ($taskId === null || $taskId === '') {
+                continue;
+            }
+
+            $tasks[] = [
+                'id' => (string) $taskId,
+                'contest_id' => $contestId,
+                'title' => (string) ($task['TaskName'] ?? $taskId),
+                'position' => (string) ($task['Assignment'] ?? ''),
+                'score' => isset($task['MaximumScore']) && is_numeric($task['MaximumScore'])
+                    ? ((float) $task['MaximumScore']) / 100
+                    : null,
+                'time_limit' => '',
+                'memory_limit' => '',
+                'url' => "https://atcoder.jp/contests/{$contestId}/tasks/{$taskId}",
+            ];
+        }
+
+        return ['result' => $tasks];
     }
 }

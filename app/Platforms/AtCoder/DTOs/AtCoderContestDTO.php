@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Platforms\AtCoder\DTOs;
 
 readonly class AtCoderContestDTO
@@ -16,5 +18,7 @@ readonly class AtCoderContestDTO
         public ?string $rateChange,
         public ?string $type,
         public array $raw,
+        public ?int $startEpochSecond = null,
+        public ?int $durationSecond = null,
     ) {}
 }

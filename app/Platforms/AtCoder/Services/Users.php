@@ -9,7 +9,7 @@ use App\Platforms\AtCoder\Mappers\AtCoderRatingChangeMapper;
 use App\Platforms\AtCoder\Mappers\AtCoderSubmissionMapper;
 use App\Platforms\AtCoder\Mappers\AtCoderUserMapper;
 use App\Platforms\AtCoder\Support\ResponseNormalizer;
-use App\Platforms\AtCoder\Transformers\AtCoderRatingChangeTransformer;
+use App\Platforms\AtCoder\Transformers\RatingChangeTransformer;
 use App\Services\ApplicationLogger;
 use RuntimeException;
 
@@ -17,8 +17,6 @@ class Users
 {
     public function __construct(
         private readonly AtCoderHtmlScraper $scraper,
-        private readonly Contests $contests,
-        private readonly Contest $contestModel,
     ) {}
 
     //used
@@ -63,7 +61,7 @@ class Users
     //used
     public function ratingHistory(string $handle): array
     {
-        return AtCoderRatingChangeTransformer::fromApiRatingChanges(
+        return RatingChangeTransformer::fromApiRatingChanges(
             AtCoderRatingChangeMapper::fromNormalizedList(
                 ResponseNormalizer::ratingChanges(
                     $this->scraper->getUserRatingHistory($handle)
