@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Platforms\AtCoder\Transformers;
 
 use App\Core\DTOs\ProblemDTO;
@@ -23,8 +25,14 @@ class ProblemTransformer
     public function fromApiProblem(AtCoderProblemDTO $problem): ProblemDTO
     {
         $problemId = (string) ($problem->id ?? '');
-        $enriched = $this->categoryTagService->enrichProblem($problemId, null, []);
-        $title = $this->translator->translate((string) ($problem->title ?? ''));
+        $rating = $problem->rating;
+        $enriched = $this->categoryTagService->enrichProblem($problemId, $rating, []);
+
+        $rawTitle = (string) ($problem->title ?? '');
+        $cleanTitle = preg_replace('/^[A-Z1-9]\.\s*/', '', $rawTitle);
+        $title = $this->translator->translate($cleanTitle);
+
+        $finalRating = $enriched['rating'] ?? $rating;
 
         return new ProblemDTO(
             platform: 'atcoder',
@@ -33,12 +41,13 @@ class ProblemTransformer
             contestPlatformId: $problem->contestId,
             code: $problem->position,
             points: $problem->points,
-            rating: $enriched['rating'],
+            rating: $finalRating,
             timeLimit: isset($problem->timeLimit) ? $this->parseTimeLimit($problem->timeLimit) : null,
-            memoryLimit: isset($problem->memoryLimit) ? $this->parseMemoryLimit($problem->memoryLimit) : null,
+            memoryLimit: isset($problem->memoryLimit) ? $this->parseMemoryLimit($problem->memoryLimit) : 1024,
             tags: $enriched['tags'],
             url: $problem->url,
             raw: $problem->raw,
+            solvedCount: $problem->solverCount ?? 0,
         );
     }
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Platforms\AtCoder\Importers;
 
 use App\Core\Contracts\Importers\ProblemImporter as ProblemImporterContract;
@@ -11,6 +13,7 @@ use App\Models\Problem;
 use App\Platforms\AtCoder\AtCoderAdapter;
 use App\Services\ApplicationLogger;
 use App\Services\PlatformSyncStateService;
+use Illuminate\Support\Str;
 use Throwable;
 
 class ProblemImporter implements ProblemImporterContract
@@ -59,10 +62,24 @@ class ProblemImporter implements ProblemImporterContract
 
         foreach ($contestsByPlatform as $platformSlugKey => $platformContests) {
             foreach ($platformContests as $contest) {
+                $contestPlatformId = (string) ($contest->platform_contest_id ?? '');
+
+                $isSynced = $this->platformSyncStateService->isSynced(
+                    $contest->platform,
+                    PlatformSyncEntityType::ContestProblems,
+                    $contestPlatformId
+                );
+
+                // Skip only if contest is FINISHED and its problems are already marked Synced
+                if (strtoupper((string) $contest->phase) === 'FINISHED' && $isSynced) {
+                    $result->incrementSkipped();
+                    continue;
+                }
+
                 $syncState = $this->platformSyncStateService->markSyncing(
                     $contest->platform,
                     PlatformSyncEntityType::ContestProblems,
-                    (string) $contest->platform_contest_id,
+                    $contestPlatformId,
                     [
                         'contest_id' => $contest->id,
                         'contest_name' => $contest->name,
@@ -76,7 +93,7 @@ class ProblemImporter implements ProblemImporterContract
                 }
 
                 try {
-                    $problems = $this->adapter->getContestProblems((string) $contest->platform_contest_id);
+                    $problems = $this->adapter->getContestProblems($contestPlatformId);
 
                     if (! is_array($problems)) {
                         $problems = [];
@@ -85,27 +102,37 @@ class ProblemImporter implements ProblemImporterContract
                     $result->incrementFetched(count($problems));
 
                     foreach ($problems as $problemDto) {
+                        $problemPlatformId = (string) ($problemDto->platformProblemId ?? '');
+                        $code = (string) ($problemDto->code ?? '');
+                        $title = (string) ($problemDto->title ?? '');
+
+                        $slug = Str::slug($contestPlatformId . '-' . strtolower($code) . '-' . $title);
+                        if ($slug === '' || $slug === '-') {
+                            $slug = Str::slug($problemPlatformId . '-' . $title);
+                        }
+
                         $problem = $this->problemModel->newQuery()->updateOrCreate(
                             [
                                 'platform_id' => $contest->platform_id,
-                                'platform_problem_id' => $problemDto->platformProblemId,
+                                'platform_problem_id' => $problemPlatformId,
                             ],
                             [
                                 'contest_id' => $contest->id,
-                                'slug' => \Illuminate\Support\Str::slug($contest->platform_contest_id . '-' . strtolower((string) ($problemDto->code ?? '')) . '-' . $problemDto->title),
-                                'name' => $problemDto->title,
-                                'code' => $problemDto->code,
+                                'slug' => $slug,
+                                'name' => $title,
+                                'code' => $code !== '' ? $code : null,
                                 'points' => $problemDto->points,
                                 'rating' => $problemDto->rating,
                                 'time_limit_ms' => $problemDto->timeLimit,
                                 'memory_limit_mb' => $problemDto->memoryLimit,
+                                'solved_count' => $problemDto->solvedCount ?? 0,
                                 'tags' => $problemDto->tags,
                                 'url' => $problemDto->url,
                                 'last_synced_at' => now(),
                                 'metadata' => [
-                                    'source' => 'contest-scoped-sync',
-                                    'platform' => $problemDto->platform,
-                                    'contest_platform_id' => $contest->platform_contest_id,
+                                    'source' => 'kenkoooo-api',
+                                    'platform' => 'atcoder',
+                                    'contest_platform_id' => $contestPlatformId,
                                 ],
                                 'raw' => $problemDto->raw,
                                 'status' => 'Active',
@@ -120,9 +147,15 @@ class ProblemImporter implements ProblemImporterContract
                         $result->incrementUpdated();
                     }
 
-                    $this->platformSyncStateService->markSynced($syncState, [
-                        'problem_count' => count($problems),
-                    ]);
+                    if (strtoupper((string) $contest->phase) === 'FINISHED') {
+                        $this->platformSyncStateService->markSynced($syncState, [
+                            'problem_count' => count($problems),
+                        ]);
+                    } else {
+                        $this->platformSyncStateService->resetForRetry($syncState, [
+                            'problem_count' => count($problems),
+                        ]);
+                    }
                 } catch (Throwable $e) {
                     $result->incrementFailed();
 

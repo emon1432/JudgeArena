@@ -31,6 +31,9 @@ class BaseClient
     protected function http(): PendingRequest
     {
         return Http::acceptJson()
+            ->withHeaders([
+                'Accept-Encoding' => 'gzip, deflate, br',
+            ])
             ->timeout(self::HTTP_TIMEOUT_SECONDS)
             ->retry(
                 self::HTTP_RETRY_ATTEMPTS,
@@ -54,7 +57,7 @@ class BaseClient
     }
 
     /**
-     * Request Kenkoooo static resources (e.g. contests.json, problems.json)
+     * Request Kenkoooo static resources (e.g. contests.json, problems.json, merged-problems.json, contest-problem.json, problem-models.json)
      *
      * @return array<mixed>
      */
@@ -66,7 +69,7 @@ class BaseClient
     }
 
     /**
-     * Request AtCoder internal web JSON endpoints (e.g. /contests/{id}/standings/json)
+     * Request AtCoder internal web JSON endpoints (e.g. /contests/{id}/standings/json, /users/{handle}/history/json)
      *
      * @param array<string, mixed> $query
      * @return array<mixed>
@@ -80,13 +83,14 @@ class BaseClient
     }
 
     /**
-     * Request Kenkoooo API endpoints (e.g. /v3/user/submissions)
+     * Request Kenkoooo API endpoints (e.g. /v3/user/submissions, /v3/user_info)
      *
      * @param array<string, mixed> $query
      * @return array<mixed>
      */
     public function requestApi(string $path, array $query = []): array
     {
+        $this->respectRateLimit($path);
         $url = $this->apiUrl . '/' . ltrim($path, '/');
 
         return $this->fetchJson($url, $path, $query);
@@ -144,5 +148,15 @@ class BaseClient
     public function webBaseUrl(): string
     {
         return $this->webBaseUrl;
+    }
+
+    public function resourcesUrl(): string
+    {
+        return $this->resourcesUrl;
+    }
+
+    public function apiUrl(): string
+    {
+        return $this->apiUrl;
     }
 }
