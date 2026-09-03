@@ -28,9 +28,9 @@ class PlatformProfilesTableSeeder extends Seeder
                 'raw' => NULL,
                 'metadata' => NULL,
                 'status' => 'Active',
-                'last_synced_at' => '2026-07-13 20:02:13',
+                'last_synced_at' => '2026-09-02 15:09:50',
                 'created_at' => '2026-05-31 14:49:48',
-                'updated_at' => '2026-07-13 20:02:13',
+                'updated_at' => '2026-09-02 15:09:50',
             ),
             1 => 
             array (
@@ -41,9 +41,9 @@ class PlatformProfilesTableSeeder extends Seeder
                 'raw' => NULL,
                 'metadata' => NULL,
                 'status' => 'Active',
-                'last_synced_at' => '2026-08-14 18:59:02',
+                'last_synced_at' => '2026-08-23 10:03:33',
                 'created_at' => '2026-05-31 14:49:48',
-                'updated_at' => '2026-08-14 18:59:02',
+                'updated_at' => '2026-08-23 10:03:33',
             ),
             2 => 
             array (
@@ -67,9 +67,9 @@ class PlatformProfilesTableSeeder extends Seeder
                 'raw' => NULL,
                 'metadata' => NULL,
                 'status' => 'Active',
-                'last_synced_at' => '2026-08-14 18:59:02',
+                'last_synced_at' => '2026-08-23 10:03:33',
                 'created_at' => '2026-06-01 12:40:13',
-                'updated_at' => '2026-08-14 18:59:02',
+                'updated_at' => '2026-08-23 10:03:33',
             ),
         ));
         
