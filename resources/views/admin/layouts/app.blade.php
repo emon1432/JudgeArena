@@ -37,6 +37,7 @@
     <script src="{{ asset('admin') }}/vendor/js/helpers.js"></script>
     <script src="{{ asset('admin') }}/vendor/js/template-customizer.js"></script>
     <script src="{{ asset('admin') }}/js/config.js"></script>
+    @livewireStyles
     @stack('styles')
 </head>
 
@@ -84,6 +85,7 @@
     <script src="{{ asset('admin') }}/vendor/libs/cleave-zen/cleave-zen.js"></script>
     <script src="{{ asset('admin') }}/js/main.js"></script>
     @include('admin.layouts.includes.scripts')
+    @livewireScripts
     @stack('scripts')
 </body>
 
