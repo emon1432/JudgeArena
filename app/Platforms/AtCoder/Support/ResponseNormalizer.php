@@ -75,37 +75,43 @@ final class ResponseNormalizer
 
     public static function submission(array $submission): array
     {
-        return array_merge([
-            'submissionId' => null,
-            'time' => null,
-            'taskId' => null,
-            'taskTitle' => null,
-            'taskUrl' => null,
-            'userName' => null,
-            'language' => null,
-            'score' => null,
-            'codeSize' => null,
-            'result' => null,
-            'status' => null,
-            'execTime' => null,
-            'memory' => null,
-            'detailUrl' => null,
-        ], [
-            'submissionId' => $submission['submissionId'] ?? $submission['submission_id'] ?? null,
-            'time' => $submission['time'] ?? null,
-            'taskId' => $submission['taskId'] ?? $submission['task_id'] ?? null,
-            'taskTitle' => $submission['taskTitle'] ?? $submission['task_title'] ?? null,
-            'taskUrl' => $submission['taskUrl'] ?? $submission['task_url'] ?? null,
-            'userName' => $submission['userName'] ?? $submission['username'] ?? null,
+        $submissionId = $submission['id'] ?? $submission['submissionId'] ?? $submission['submission_id'] ?? null;
+        $contestId = $submission['contest_id'] ?? $submission['contestId'] ?? null;
+        $problemId = $submission['problem_id'] ?? $submission['taskId'] ?? $submission['task_id'] ?? null;
+        $userName = $submission['user_id'] ?? $submission['userName'] ?? $submission['username'] ?? $submission['user'] ?? null;
+        $time = $submission['epoch_second'] ?? $submission['epochSecond'] ?? $submission['time'] ?? null;
+        $score = $submission['point'] ?? $submission['score'] ?? null;
+        $codeSize = $submission['length'] ?? $submission['codeSize'] ?? $submission['code_size'] ?? null;
+        $result = $submission['result'] ?? $submission['status'] ?? $submission['verdict'] ?? null;
+        $execTime = $submission['execution_time'] ?? $submission['execTime'] ?? $submission['exec_time'] ?? null;
+
+        $taskUrl = null;
+        if ($contestId && $problemId) {
+            $taskUrl = "https://atcoder.jp/contests/{$contestId}/tasks/{$problemId}";
+        }
+
+        $detailUrl = null;
+        if ($contestId && $submissionId) {
+            $detailUrl = "https://atcoder.jp/contests/{$contestId}/submissions/{$submissionId}";
+        }
+
+        return [
+            'submissionId' => $submissionId !== null ? (string) $submissionId : null,
+            'contestId' => $contestId !== null ? (string) $contestId : null,
+            'time' => $time !== null ? (string) $time : null,
+            'taskId' => $problemId !== null ? (string) $problemId : null,
+            'taskTitle' => $submission['taskTitle'] ?? $submission['task_title'] ?? $problemId,
+            'taskUrl' => $submission['taskUrl'] ?? $submission['task_url'] ?? $taskUrl,
+            'userName' => $userName !== null ? (string) $userName : null,
             'language' => $submission['language'] ?? null,
-            'score' => $submission['score'] ?? null,
-            'codeSize' => $submission['codeSize'] ?? $submission['code_size'] ?? null,
-            'result' => $submission['result'] ?? null,
-            'status' => $submission['status'] ?? null,
-            'execTime' => $submission['execTime'] ?? $submission['exec_time'] ?? null,
+            'score' => $score !== null ? (float) $score : null,
+            'codeSize' => $codeSize !== null ? (int) $codeSize : null,
+            'result' => $result !== null ? (string) $result : null,
+            'status' => $result !== null ? (string) $result : null,
+            'execTime' => $execTime !== null ? (is_numeric($execTime) ? (int) $execTime : (string) $execTime) : null,
             'memory' => $submission['memory'] ?? null,
-            'detailUrl' => $submission['detailUrl'] ?? $submission['detail_url'] ?? null,
-        ]);
+            'detailUrl' => $submission['detailUrl'] ?? $submission['detail_url'] ?? $detailUrl,
+        ];
     }
 
     public static function user(array $payload): array

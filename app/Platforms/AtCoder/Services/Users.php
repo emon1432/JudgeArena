@@ -36,27 +36,33 @@ class Users
     }
 
     /**
+     * @param array{
+     *     handle: string,
+     *     from_second?: int,
+     *     fromSecond?: int
+     * } $params
      * @return array{
-     *     submissions: AtCoderSubmissionDTO[],
+     *     submissions: \App\Platforms\AtCoder\DTOs\AtCoderSubmissionDTO[],
      *     reached_stop: bool
      * }
      */
     public function submissions(array $params): array
     {
-        $response = $this->scraper->getSubmissions(
-            $params['contestId'],
-            $params['handle'],
-            $params['stopSubmissionId'] ?? null,
-        );
+        $handle = $params['handle'] ?? '';
+        $fromSecond = (int) ($params['from_second'] ?? $params['fromSecond'] ?? 0);
+
+        $payload = $this->client->requestApi('v3/user/submissions', [
+            'user' => $handle,
+            'from_second' => $fromSecond,
+        ]);
+
+        $rawList = is_array($payload) ? $payload : [];
 
         return [
             'submissions' => AtCoderSubmissionMapper::fromNormalizedList(
-                ResponseNormalizer::submissions(
-                    $response['result']
-                )
+                ResponseNormalizer::submissions($rawList)
             ),
-
-            'reached_stop' => $response['reached_stop'],
+            'reached_stop' => count($rawList) < 500,
         ];
     }
 
