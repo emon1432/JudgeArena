@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Platforms\AtCoder\Importers;
 
 use App\Core\Contracts\Importers\UserSubmissionImporter as UserSubmissionImporterContract;
@@ -17,10 +19,11 @@ use App\Services\PlatformSyncStateService;
 use Carbon\Carbon;
 use Throwable;
 
-
 class UserSubmissionImporter implements UserSubmissionImporterContract
 {
+    private array $contestMap = [];
     private array $problemMap = [];
+    private const PAGE_SIZE = 500;
 
     public function __construct(
         private readonly Submission $submissionModel,
@@ -48,6 +51,7 @@ class UserSubmissionImporter implements UserSubmissionImporterContract
                     'category' => 'import',
                     'platform' => 'atcoder',
                     'source' => self::class,
+                    'message' => 'Platform "atcoder" not found in database',
                 ]
             );
 
@@ -67,24 +71,23 @@ class UserSubmissionImporter implements UserSubmissionImporterContract
         }
 
         $profiles = $query->get();
-
         $result->incrementChecked($profiles->count());
 
-        $contests = $this->contestModel
+        $this->contestMap = $this->contestModel
             ->newQuery()
             ->where('platform_id', $platform->id)
-            ->latest('start_time')
-            ->get();
+            ->get()
+            ->keyBy(fn (Contest $c): string => (string) $c->platform_contest_id)
+            ->all();
 
         $this->problemMap = $this->problemModel
             ->newQuery()
             ->where('platform_id', $platform->id)
             ->get()
-            ->keyBy('platform_problem_id')
+            ->keyBy(fn (Problem $p): string => (string) $p->platform_problem_id)
             ->all();
 
         foreach ($profiles as $profile) {
-
             $normalizedHandle = mb_strtolower(
                 trim((string) $profile->handle)
             );
@@ -94,61 +97,74 @@ class UserSubmissionImporter implements UserSubmissionImporterContract
                 continue;
             }
 
-            foreach ($contests as $contest) {
+            $isSynced = $this->platformSyncStateService->isSynced(
+                $platform,
+                PlatformSyncEntityType::UserSubmissions,
+                $normalizedHandle
+            );
 
-                $syncState = $this->platformSyncStateService->markSyncing(
-                    $platform,
-                    PlatformSyncEntityType::UserSubmissions,
-                    $normalizedHandle . '::' . $contest->platform_contest_id,
-                    [
-                        'profile_id' => $profile->id,
-                        'handle' => $normalizedHandle,
-                        'contest_id' => $contest->id,
-                        'contest_platform_id' => $contest->platform_contest_id,
-                        'platform_slug' => 'atcoder',
-                    ]
-                );
+            // If handle is not explicitly specified and profile submissions were already synced, skip!
+            if ($handle === null && $isSynced && ! $full) {
+                $result->incrementSkipped();
+                continue;
+            }
 
-                if ($syncState === null) {
-                    $result->incrementSkipped();
-                    continue;
+            $syncState = $this->platformSyncStateService->markSyncing(
+                $platform,
+                PlatformSyncEntityType::UserSubmissions,
+                $normalizedHandle,
+                [
+                    'profile_id' => $profile->id,
+                    'handle' => $normalizedHandle,
+                    'platform_slug' => 'atcoder',
+                ]
+            );
+
+            if ($syncState === null) {
+                $result->incrementSkipped();
+                continue;
+            }
+
+            try {
+                $fromSecond = 0;
+                if (! $full) {
+                    $fromSecond = (int) data_get($syncState->metadata, 'last_epoch_second', 0);
                 }
 
-                try {
+                $highestEpochSecond = $fromSecond;
+                $submissionCount = 0;
 
-                    $lastSubmissionId = data_get(
-                        $syncState->metadata,
-                        'last_submission_id'
-                    );
-
-                    /** @var array{
-                     *     submissions: SubmissionDTO[],
-                     *     reached_stop: bool
-                     * } $response
-                     */
+                while (true) {
                     $response = $this->adapter->getUserSubmissions([
-                        'contestId' => $contest->platform_contest_id,
                         'handle' => $normalizedHandle,
-                        'stopSubmissionId' => $lastSubmissionId,
+                        'from_second' => $fromSecond,
                     ]);
 
-                    $submissions = $response['submissions'];
-                    $reachedStop = $response['reached_stop'];
+                    $submissions = $response['submissions'] ?? (is_array($response) ? $response : []);
+
+                    if ($submissions === []) {
+                        break;
+                    }
 
                     $result->incrementFetched(count($submissions));
 
-                    $highestSubmissionId = null;
-                    $submissionCount = 0;
+                    $batchMaxEpoch = $fromSecond;
 
                     foreach ($submissions as $submissionDto) {
-
                         if (! $submissionDto instanceof SubmissionDTO) {
-                            $result->incrementMetadata('submissions_skipped');
                             continue;
                         }
 
-                        if ($highestSubmissionId === null) {
-                            $highestSubmissionId = $submissionDto->platformSubmissionId;
+                        if ($submissionDto->createdAtSeconds !== null && $submissionDto->createdAtSeconds > $highestEpochSecond) {
+                            $highestEpochSecond = $submissionDto->createdAtSeconds;
+                        }
+                        if ($submissionDto->createdAtSeconds !== null && $submissionDto->createdAtSeconds > $batchMaxEpoch) {
+                            $batchMaxEpoch = $submissionDto->createdAtSeconds;
+                        }
+
+                        $contest = null;
+                        if ($submissionDto->contestPlatformId !== null) {
+                            $contest = $this->contestMap[$submissionDto->contestPlatformId] ?? null;
                         }
 
                         $probId = (string) $submissionDto->problemPlatformId;
@@ -173,50 +189,50 @@ class UserSubmissionImporter implements UserSubmissionImporterContract
                         $submissionCount++;
                     }
 
-                    $this->platformSyncStateService->markSynced(
-                        $syncState,
-                        [
-                            'profile_id' => $profile->id,
-                            'handle' => $normalizedHandle,
-                            'contest_platform_id' => $contest->platform_contest_id,
-                            'submission_count' => $submissionCount,
-                            'last_submission_id' => $highestSubmissionId,
-                            'reached_stop' => $reachedStop,
-                            'last_synced_at' => now(),
-                        ]
-                    );
-                } catch (Throwable $e) {
+                    if (count($submissions) < self::PAGE_SIZE) {
+                        break;
+                    }
 
-                    $result->incrementFailed();
-
-                    $this->platformSyncStateService->markFailed(
-                        $syncState,
-                        $e,
-                        [
-                            'profile_id' => $profile->id,
-                            'contest_platform_id' => $contest->platform_contest_id,
-                            'handle' => $normalizedHandle,
-                        ]
-                    );
-
-                    app(ApplicationLogger::class)->error(
-                        'AtCoder user submission import failed',
-                        [
-                            'category' => 'import',
-                            'platform' => 'atcoder',
-                            'source' => self::class,
-                            'profile_id' => $profile->id,
-                            'contest_id' => $contest->id,
-                            'contest_platform_id' => $contest->platform_contest_id,
-                            'handle' => $normalizedHandle,
-                            'message' => $e->getMessage(),
-                            'exception' => get_class($e),
-                            'file' => $e->getFile(),
-                            'line' => $e->getLine(),
-                        ],
-                        $e
-                    );
+                    $fromSecond = $batchMaxEpoch > $fromSecond ? $batchMaxEpoch + 1 : $fromSecond + 1;
                 }
+
+                $this->platformSyncStateService->markSynced(
+                    $syncState,
+                    [
+                        'profile_id' => $profile->id,
+                        'handle' => $normalizedHandle,
+                        'submission_count' => $submissionCount,
+                        'last_epoch_second' => $highestEpochSecond,
+                        'last_synced_at' => now(),
+                    ]
+                );
+            } catch (Throwable $e) {
+                $result->incrementFailed();
+
+                $this->platformSyncStateService->markFailed(
+                    $syncState,
+                    $e,
+                    [
+                        'profile_id' => $profile->id,
+                        'handle' => $normalizedHandle,
+                    ]
+                );
+
+                app(ApplicationLogger::class)->error(
+                    'AtCoder user submission import failed',
+                    [
+                        'category' => 'import',
+                        'platform' => 'atcoder',
+                        'source' => self::class,
+                        'profile_id' => $profile->id,
+                        'handle' => $normalizedHandle,
+                        'message' => $e->getMessage(),
+                        'exception' => get_class($e),
+                        'file' => $e->getFile(),
+                        'line' => $e->getLine(),
+                    ],
+                    $e
+                );
             }
         }
 
@@ -233,68 +249,45 @@ class UserSubmissionImporter implements UserSubmissionImporterContract
 
     private function persistSubmission(
         PlatformProfile $profile,
-        Contest $contest,
+        ?Contest $contest,
         ?Problem $problem,
         SubmissionDTO $dto,
     ): Submission {
-
         return $this->submissionModel
             ->newQuery()
             ->updateOrCreate(
-
                 [
                     'platform_id' => $profile->platform_id,
                     'platform_submission_id' => $dto->platformSubmissionId,
                 ],
-
                 [
-
-                    'contest_id' => $contest->id,
-
-                    'problem_id' => $problem?->id,
-
                     'platform_profile_id' => $profile->id,
-
-                    'author_handle' => $dto->authorHandle,
-
+                    'contest_id' => $contest?->id,
+                    'problem_id' => $problem?->id,
+                    'author_handle' => $dto->authorHandle ?: $profile->handle,
                     'verdict' => $dto->verdict,
-
                     'language' => $dto->language,
-
                     'points' => $dto->points,
-
                     'passed_test_count' => $dto->passedTestCount,
-
                     'time_consumed_ms' => $dto->timeConsumedMillis,
-
                     'memory_consumed_bytes' => $dto->memoryConsumedBytes,
-
                     'submitted_at' => $dto->createdAtSeconds !== null
                         ? Carbon::createFromTimestamp($dto->createdAtSeconds)
                         : null,
-
                     'last_synced_at' => now(),
-
-                    'metadata' => [
-
-                        'source' => 'user-submission-import',
-
-                        'platform' => 'atcoder',
-
-                        'handle' => $profile->handle,
-
-                        'contest_platform_id' => $contest->platform_contest_id,
-
-                        'problem_platform_id' => $dto->problemPlatformId,
-
-                        'synced_at' => now(),
-
-                    ],
-
+                    'metadata' => array_merge(
+                        [
+                            'source' => 'user-submission-import',
+                            'platform' => 'atcoder',
+                            'handle' => $profile->handle,
+                            'contest_platform_id' => $dto->contestPlatformId,
+                            'problem_platform_id' => $dto->problemPlatformId,
+                            'synced_at' => now(),
+                        ],
+                        $dto->raw
+                    ),
                     'raw' => $dto->raw,
-
                     'status' => 'Active',
-
                 ]
             );
     }

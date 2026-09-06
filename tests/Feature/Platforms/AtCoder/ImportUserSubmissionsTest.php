@@ -39,9 +39,8 @@ class ImportUserSubmissionsTest extends TestCase
         $mock->shouldReceive('getUserSubmissions')
             ->once()
             ->with([
-                'contestId' => 'abc350',
                 'handle' => 'chokudai',
-                'stopSubmissionId' => null,
+                'from_second' => 0,
             ])
             ->andReturn([
                 'submissions' => [
@@ -82,7 +81,7 @@ class ImportUserSubmissionsTest extends TestCase
         $this->assertDatabaseHas('platform_sync_states', [
             'platform_id' => $platform->id,
             'entity_type' => 'user_submissions',
-            'entity_platform_id' => 'chokudai::abc350',
+            'entity_platform_id' => 'chokudai',
             'sync_status' => 'synced',
         ]);
     }

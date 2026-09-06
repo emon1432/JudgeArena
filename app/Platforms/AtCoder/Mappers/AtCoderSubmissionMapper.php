@@ -10,6 +10,7 @@ final class AtCoderSubmissionMapper
     {
         $taskId = isset($submission['taskId']) ? (string) $submission['taskId'] : null;
         $contestId = self::extractContestId($taskId);
+        $contestId = ! empty($submission['contestId']) ? (string) $submission['contestId'] : self::extractContestId($taskId);
         $problemPosition = self::extractProblemPosition($taskId);
 
         $problem = AtCoderProblemMapper::fromNormalized([
@@ -92,37 +93,49 @@ final class AtCoderSubmissionMapper
         return strtoupper(substr($taskId, $pos + 1));
     }
 
-    private static function parseTimestamp(?string $time): ?int
+    private static function parseTimestamp(mixed $time): ?int
     {
-        if ($time === null || trim($time) === '') {
+        if ($time === null || $time === '') {
             return null;
         }
 
-        $timestamp = strtotime($time);
+        if (is_numeric($time)) {
+            return (int) $time;
+        }
+
+        $timestamp = strtotime((string) $time);
 
         return $timestamp === false ? null : (int) $timestamp;
     }
 
-    private static function parseExecTime(?string $execTime): ?int
+    private static function parseExecTime(mixed $execTime): ?int
     {
-        if ($execTime === null || trim($execTime) === '') {
+        if ($execTime === null || $execTime === '') {
             return null;
         }
 
-        if (preg_match('/\d+/', $execTime, $matches)) {
+        if (is_numeric($execTime)) {
+            return (int) $execTime;
+        }
+
+        if (preg_match('/\d+/', (string) $execTime, $matches)) {
             return (int) $matches[0];
         }
 
         return null;
     }
 
-    private static function parseMemoryBytes(?string $memory): ?int
+    private static function parseMemoryBytes(mixed $memory): ?int
     {
-        if ($memory === null || trim($memory) === '') {
+        if ($memory === null || $memory === '') {
             return null;
         }
 
-        if (! preg_match('/([\d.]+)\s*([a-zA-Z]+)?/', $memory, $matches)) {
+        if (is_numeric($memory)) {
+            return (int) $memory;
+        }
+
+        if (! preg_match('/([\d.]+)\s*([a-zA-Z]+)?/', (string) $memory, $matches)) {
             return null;
         }
 
