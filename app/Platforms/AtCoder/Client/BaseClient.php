@@ -32,7 +32,7 @@ class BaseClient
     {
         return Http::acceptJson()
             ->withHeaders([
-                'Accept-Encoding' => 'gzip, deflate, br',
+                'Accept-Encoding' => 'gzip, deflate',
             ])
             ->timeout(self::HTTP_TIMEOUT_SECONDS)
             ->retry(
