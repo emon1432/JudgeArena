@@ -3,11 +3,12 @@
 namespace App\Platforms\AtCoder\Services;
 
 use App\Models\Contest;
-use App\Platforms\AtCoder\Services\AtCoderHtmlScraper;
+use App\Platforms\AtCoder\Client\BaseClient;
 use App\Platforms\AtCoder\DTOs\AtCoderUserDTO;
 use App\Platforms\AtCoder\Mappers\AtCoderRatingChangeMapper;
 use App\Platforms\AtCoder\Mappers\AtCoderSubmissionMapper;
 use App\Platforms\AtCoder\Mappers\AtCoderUserMapper;
+use App\Platforms\AtCoder\Services\AtCoderHtmlScraper;
 use App\Platforms\AtCoder\Support\ResponseNormalizer;
 use App\Platforms\AtCoder\Transformers\RatingChangeTransformer;
 use App\Services\ApplicationLogger;
@@ -16,6 +17,7 @@ use RuntimeException;
 class Users
 {
     public function __construct(
+        private readonly BaseClient $client,
         private readonly AtCoderHtmlScraper $scraper,
     ) {}
 
@@ -61,11 +63,24 @@ class Users
     //used
     public function ratingHistory(string $handle): array
     {
+        $types = ['algo', 'heuristic'];
+        $rawEntries = [];
+
+        foreach ($types as $type) {
+            $entries = $this->client->requestWebJson('/users/' . $handle . '/history/json?contestType=' . $type);
+            if (is_array($entries)) {
+                foreach ($entries as $entry) {
+                    if (is_array($entry)) {
+                        $entry['contest_type'] = $type;
+                        $rawEntries[] = $entry;
+                    }
+                }
+            }
+        }
+
         return RatingChangeTransformer::fromApiRatingChanges(
             AtCoderRatingChangeMapper::fromNormalizedList(
-                ResponseNormalizer::ratingChanges(
-                    $this->scraper->getUserRatingHistory($handle)
-                )
+                ResponseNormalizer::ratingChanges($rawEntries)
             ),
             null,
             $handle,
