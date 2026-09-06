@@ -61,8 +61,16 @@ class UserRatingHistoryImporter implements UserRatingHistoryImporterContract
         }
 
         $profiles = $query->get();
-
         $result->incrementChecked($profiles->count());
+
+        // Pre-index all contests by platform_contest_id to eliminate N+1 SQL queries
+        $contestsByPlatformId = $this->contestModel->newQuery()
+            ->where('platform_id', $platform->id)
+            ->whereNotNull('platform_contest_id')
+            ->get()
+            ->keyBy(fn(Contest $c): string => (string) $c->platform_contest_id);
+
+        $platformProfilesByHandle = $this->platformProfilesByHandle((int) $platform->id);
 
         foreach ($profiles as $profile) {
             $normalizedHandle = mb_strtolower(
@@ -70,6 +78,18 @@ class UserRatingHistoryImporter implements UserRatingHistoryImporterContract
             );
 
             if ($normalizedHandle === '') {
+                $result->incrementSkipped();
+                continue;
+            }
+
+            $isSynced = $this->platformSyncStateService->isSynced(
+                $platform,
+                PlatformSyncEntityType::UserRatingHistory,
+                $normalizedHandle
+            );
+
+            // If handle is not explicitly specified and profile rating history was already synced, skip!
+            if ($handle === null && $isSynced) {
                 $result->incrementSkipped();
                 continue;
             }
@@ -93,35 +113,31 @@ class UserRatingHistoryImporter implements UserRatingHistoryImporterContract
             try {
                 $ratingChanges = $this->adapter->getUserRatingHistory($normalizedHandle);
 
-                if (!is_array($ratingChanges)) {
+                if (! is_array($ratingChanges)) {
                     $ratingChanges = [];
                 }
 
                 $result->incrementFetched(count($ratingChanges));
 
-                $platformProfilesByHandle = $this->platformProfilesByHandle((int) $platform->id);
-
                 foreach ($ratingChanges as $ratingChange) {
-                    if (!($ratingChange instanceof RatingChangeDTO)) {
+                    if (! ($ratingChange instanceof RatingChangeDTO)) {
                         continue;
                     }
 
-                    $itemHandle = trim($ratingChange->handle);
+                    $itemHandle = trim((string) ($ratingChange->handle ?? ''));
                     if ($itemHandle === '') {
-                        $itemHandle = $normalizedHandle;
+                        $itemHandle = $profile->handle;
                     }
 
-                    $contest = $this->contestModel->newQuery()
-                        ->where('platform_id', $platform->id)
-                        ->where('platform_contest_id', $ratingChange->contestPlatformId)
-                        ->first();
+                    $contestPlatformId = (string) ($ratingChange->contestPlatformId ?? '');
+                    $contest = $contestsByPlatformId->get($contestPlatformId);
 
                     if ($contest === null) {
                         app(ApplicationLogger::class)->warning('Skipping rating change: contest not found in DB', [
                             'category' => 'import',
                             'platform' => 'atcoder',
                             'source' => self::class,
-                            'contest_platform_id' => $ratingChange->contestPlatformId,
+                            'contest_platform_id' => $contestPlatformId,
                             'handle' => $itemHandle,
                         ]);
 
@@ -138,12 +154,12 @@ class UserRatingHistoryImporter implements UserRatingHistoryImporterContract
                         [
                             'platform_id' => $platform->id,
                             'platform_profile_id' => $platformProfile?->id,
-                            'is_rated' => $ratingChange->isRated,
-                            'rank' => $ratingChange->rank,
-                            'old_rating' => $ratingChange->oldRating,
-                            'new_rating' => $ratingChange->newRating,
-                            'rating_change' => $ratingChange->ratingChange,
-                            'performance' => $ratingChange->performance,
+                            'is_rated' => $ratingChange->isRated ?? true,
+                            'rank' => $ratingChange->rank ?? null,
+                            'old_rating' => $ratingChange->oldRating ?? null,
+                            'new_rating' => $ratingChange->newRating ?? null,
+                            'rating_change' => $ratingChange->ratingChange ?? null,
+                            'performance' => $ratingChange->performance ?? null,
                             'last_synced_at' => now(),
                             'metadata' => array_merge(
                                 [
@@ -154,9 +170,9 @@ class UserRatingHistoryImporter implements UserRatingHistoryImporterContract
                                     'handle' => $itemHandle,
                                     'synced_at' => now(),
                                 ],
-                                $ratingChange->metadata
+                                $ratingChange->metadata ?? []
                             ),
-                            'raw' => $ratingChange->raw,
+                            'raw' => $ratingChange->raw ?? [],
                             'status' => 'Active',
                         ]
                     );

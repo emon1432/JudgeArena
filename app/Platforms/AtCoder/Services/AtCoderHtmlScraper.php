@@ -291,24 +291,6 @@ class AtCoderHtmlScraper
         return $result;
     }
 
-    public function getUserRatingHistory(string $username): array
-    {
-        $types = ['algo', 'heuristic'];
-        $history = [];
-
-        foreach ($types as $type) {
-            $data = $this->fetchJson($this->baseUrl() . '/users/' . $username . '/history/json?contestType=' . $type);
-            foreach ($data as $entry) {
-                if (is_array($entry)) {
-                    $entry['contest_type'] = $type;
-                    $history[] = $entry;
-                }
-            }
-        }
-
-        return $history;
-    }
-
     private function fetchPage(string $url): string
     {
         $this->respectRateLimit();

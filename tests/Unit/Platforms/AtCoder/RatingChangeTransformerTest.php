@@ -44,4 +44,39 @@ class RatingChangeTransformerTest extends TestCase
         $this->assertSame(3000, $first->newRating);
         $this->assertSame(50, $first->ratingChange);
     }
+
+    public function test_rating_change_normalization_and_mapping_from_atcoder_json(): void
+    {
+        $rawJsonEntry = [
+            'IsRated' => true,
+            'Place' => 2,
+            'OldRating' => 0,
+            'NewRating' => 2720,
+            'Performance' => 3920,
+            'InnerPerformance' => 3920,
+            'ContestScreenName' => 'agc004.contest.atcoder.jp',
+            'ContestName' => 'AtCoder Grand Contest 004',
+            'ContestNameEn' => '',
+            'EndTime' => '2016-09-04T22:50:00+09:00',
+            'contest_type' => 'algo',
+        ];
+
+        $normalizedList = \App\Platforms\AtCoder\Support\ResponseNormalizer::ratingChanges([$rawJsonEntry]);
+        $dtos = \App\Platforms\AtCoder\Mappers\AtCoderRatingChangeMapper::fromNormalizedList($normalizedList);
+        $coreDtos = RatingChangeTransformer::fromApiRatingChanges($dtos, null, 'tourist');
+
+        $this->assertCount(1, $coreDtos);
+        $change = $coreDtos[0];
+
+        $this->assertSame('atcoder', $change->platform);
+        $this->assertSame('agc004', $change->contestPlatformId);
+        $this->assertSame('tourist', $change->handle);
+        $this->assertTrue($change->isRated);
+        $this->assertSame(2, $change->rank);
+        $this->assertSame(0, $change->oldRating);
+        $this->assertSame(2720, $change->newRating);
+        $this->assertSame(2720, $change->ratingChange);
+        $this->assertSame(3920, $change->performance);
+        $this->assertSame('algo', $change->metadata['contest_type']);
+    }
 }
