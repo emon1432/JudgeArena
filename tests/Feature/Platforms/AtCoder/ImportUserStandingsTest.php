@@ -59,7 +59,15 @@ class ImportUserStandingsTest extends TestCase
                         platformContestId: 'abc350',
                         title: 'AtCoder Beginner Contest 350',
                     ),
-                    problems: [],
+                    problems: [
+                        new \App\Core\DTOs\ProblemDTO(
+                            platform: 'atcoder',
+                            platformProblemId: 'abc350_a',
+                            contestPlatformId: 'abc350',
+                            title: 'Past ABCs',
+                            code: 'A',
+                        ),
+                    ],
                     rows: [
                         new ParticipantDTO(
                             rank: 1,
@@ -71,11 +79,13 @@ class ImportUserStandingsTest extends TestCase
                             problemResults: [
                                 new ProblemResultDTO(
                                     points: 10000.0,
+                                    penalty: 0,
                                     rejectedAttemptCount: 0,
+                                    type: '1',
                                     bestSubmissionTimeSeconds: 120,
                                 ),
                             ],
-                            raw: ['userScreenName' => 'chokudai'],
+                            raw: ['userScreenName' => 'chokudai', 'TotalResult' => ['Elapsed' => 120000000000]],
                         ),
                     ],
                     raw: ['contestId' => 'abc350'],
@@ -95,6 +105,13 @@ class ImportUserStandingsTest extends TestCase
             'platform_profile_id' => $profile->id,
             'rank' => 1,
             'points' => 100.0,
+        ]);
+
+        $this->assertDatabaseHas('standing_task_results', [
+            'problem_id' => $problem->id,
+            'points' => 100.0,
+            'result_type' => 'AC',
+            'best_submission_time_seconds' => 120,
         ]);
 
         $this->assertDatabaseHas('platform_sync_states', [

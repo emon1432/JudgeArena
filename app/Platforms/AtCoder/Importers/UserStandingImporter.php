@@ -6,6 +6,8 @@ namespace App\Platforms\AtCoder\Importers;
 
 use App\Core\Contracts\Importers\UserStandingImporter as UserStandingImporterContract;
 use App\Core\DTOs\ContestStandingsDTO;
+use App\Core\DTOs\ParticipantDTO;
+use App\Core\DTOs\ProblemResultDTO;
 use App\Core\Results\ImportResult;
 use App\Enums\PlatformSyncEntityType;
 use App\Models\Contest;
@@ -23,9 +25,9 @@ use Throwable;
 
 class UserStandingImporter implements UserStandingImporterContract
 {
+    private const MAX_CONTESTS_PER_RUN = 50;
 
     private array $contestMap = [];
-    private array $problemMap = [];
 
     public function __construct(
         private readonly Standing $standingModel,
@@ -73,12 +75,6 @@ class UserStandingImporter implements UserStandingImporterContract
 
         $platformProfilesByHandle = $this->platformProfilesByHandle((int) $platform->id);
 
-        $this->problemMap = $this->problemModel->newQuery()
-            ->where('platform_id', $platform->id)
-            ->get()
-            ->keyBy('platform_problem_id')
-            ->all();
-
         $this->contestMap = $this->contestModel->newQuery()
             ->where('platform_id', $platform->id)
             ->get()
@@ -102,6 +98,17 @@ class UserStandingImporter implements UserStandingImporterContract
             if ($handle === null && $isSynced) {
                 $result->incrementSkipped();
                 continue;
+            }
+
+            if ($handle !== null) {
+                $existingState = $this->platformSyncStateService->findState(
+                    $platform,
+                    PlatformSyncEntityType::UserStandings,
+                    $normalizedHandle
+                );
+                if ($existingState !== null && $existingState->sync_status === \App\Enums\PlatformSyncStatus::Synced) {
+                    $this->platformSyncStateService->resetForRetry($existingState);
+                }
             }
 
             $syncState = $this->platformSyncStateService->markSyncing(
@@ -135,127 +142,203 @@ class UserStandingImporter implements UserStandingImporterContract
                     ->pluck('contest_id')
                     ->toArray();
 
-                $contestIds = array_unique(array_filter(array_merge($ratingContestIds, $submissionContestIds)));
+                $contestIds = array_values(array_unique(array_filter(array_merge($ratingContestIds, $submissionContestIds))));
+
+                if (empty($contestIds)) {
+                    $this->platformSyncStateService->markSynced($syncState, [
+                        'profile_id' => $profile->id,
+                        'handle' => $normalizedHandle,
+                        'platform_slug' => $platformSlug,
+                        'contests_synced' => 0,
+                        'status' => 'no_contests_found',
+                    ]);
+                    continue;
+                }
+
+                $existingContestIds = $this->standingModel->newQuery()
+                    ->where('platform_id', $platform->id)
+                    ->where('platform_profile_id', $profile->id)
+                    ->whereIn('contest_id', $contestIds)
+                    ->pluck('contest_id')
+                    ->toArray();
+
+                $contestsToProcess = array_values(array_diff($contestIds, $existingContestIds));
+
+                if (empty($contestsToProcess)) {
+                    $this->platformSyncStateService->markSynced($syncState, [
+                        'profile_id' => $profile->id,
+                        'handle' => $normalizedHandle,
+                        'platform_slug' => $platformSlug,
+                        'contests_synced' => count($contestIds),
+                        'status' => 'all_standings_exist',
+                    ]);
+                    continue;
+                }
+
+                $contestsBatch = array_slice($contestsToProcess, 0, self::MAX_CONTESTS_PER_RUN);
+                $hasMoreContests = count($contestsToProcess) > self::MAX_CONTESTS_PER_RUN;
 
                 $standingsFetched = 0;
 
-                foreach ($contestIds as $contestDbId) {
+                foreach ($contestsBatch as $contestDbId) {
                     $contest = $this->contestMap[$contestDbId] ?? null;
-                    if ($contest === null) {
+                    if ($contest === null || $contest->platform_contest_id === null) {
                         continue;
                     }
 
-                    $standingsDto = $this->adapter->getUserStandings($contest->platform_contest_id);
+                    try {
+                        $standingsDto = $this->adapter->getUserStandings((string) $contest->platform_contest_id);
 
-                    if (!($standingsDto instanceof ContestStandingsDTO)) {
-                        continue;
-                    }
-
-                    $standingsFetched++;
-
-                    foreach ($standingsDto->rows as $row) {
-                        $member = $row->members[0] ?? [];
-                        $rowHandle = mb_strtolower(trim((string) ($member['handle'] ?? $member['name'] ?? '')));
-
-                        if ($rowHandle === '') {
+                        if (! ($standingsDto instanceof ContestStandingsDTO)) {
                             continue;
                         }
 
-                        $rowProfile = $platformProfilesByHandle[$rowHandle] ?? null;
+                        $standingsFetched++;
 
-                        if ($rowProfile === null) {
-                            continue;
+                        $contestProblems = $this->problemModel->newQuery()
+                            ->where('contest_id', $contest->id)
+                            ->get();
+
+                        $problemMap = [];
+                        foreach ($contestProblems as $p) {
+                            $probPlatformId = (string) $p->platform_problem_id;
+                            $problemMap[$probPlatformId] = $p;
+                            $problemMap[strtolower($probPlatformId)] = $p;
+                            $problemMap[str_replace('_', '-', $probPlatformId)] = $p;
                         }
 
-                        $actualPoints = $row->points !== null ? (float) ($row->points / 100) : null;
-                        $elapsedNs = $row->raw['totalResult']['elapsed'] ?? $row->raw['TotalResult']['Elapsed'] ?? null;
-                        $elapsedSeconds = is_numeric($elapsedNs) ? (int) floor(((float) $elapsedNs) / 1000000000) : null;
-
-                        $standing = $this->standingModel->newQuery()->updateOrCreate(
-                            [
-                                'contest_id' => $contest->id,
-                                'participant_key' => $rowProfile->handle,
-                            ],
-                            [
-                                'platform_id' => $platform->id,
-                                'platform_profile_id' => $rowProfile->id,
-                                'participant_type' => 'CONTESTANT',
-                                'participant_name' => $rowProfile->handle,
-                                'rank' => $row->rank,
-                                'points' => $actualPoints,
-                                'penalty' => $row->penalty,
-                                'last_submission_time_seconds' => $elapsedSeconds,
-                                'last_synced_at' => now(),
-                                'metadata' => [
-                                    'source' => 'user-standings-import',
-                                    'platform' => $platformSlug,
-                                    'contest_platform_id' => $contest->platform_contest_id,
-                                    'handle' => $rowProfile->handle,
-                                    'synced_at' => now(),
-                                ],
-                                'raw' => $row->raw,
-                                'status' => 'Active',
-                            ]
-                        );
-
-                        if ($standing->wasRecentlyCreated) {
-                            $result->incrementCreated();
-                        } else {
-                            $result->incrementUpdated();
-                        }
-
-                        foreach ($row->problemResults as $idx => $pResult) {
-                            $problemDto = $standingsDto->problems[$idx] ?? null;
-                            if ($problemDto === null) {
+                        foreach ($standingsDto->rows as $row) {
+                            if (! ($row instanceof ParticipantDTO)) {
                                 continue;
                             }
 
-                            $probId = (string) $problemDto->platformProblemId;
-                            $problem = $this->problemMap[$probId]
-                                ?? $this->problemMap[strtolower($probId)]
-                                ?? $this->problemMap[str_replace('_', '-', $probId)]
-                                ?? null;
+                            $member = $row->members[0] ?? [];
+                            $rowHandle = mb_strtolower(trim((string) ($member['handle'] ?? $member['name'] ?? '')));
 
-                            if ($problem === null) {
+                            if ($rowHandle === '') {
                                 continue;
                             }
 
-                            $taskPoints = $pResult->points !== null ? (float) ($pResult->points / 100) : null;
-                            $resultType = $pResult->type;
-                            if ($resultType === '1' || $resultType === 1) {
-                                $resultType = 'AC';
-                            } elseif ($resultType === '0' || $resultType === 0) {
-                                $resultType = ($pResult->rejectedAttemptCount ?? 0) > 0 ? 'WA' : 'NO_SUBMISSION';
+                            $rowProfile = $platformProfilesByHandle[$rowHandle] ?? null;
+
+                            if ($rowProfile === null) {
+                                continue;
                             }
 
-                            $this->standingTaskResultModel->newQuery()->updateOrCreate(
+                            $actualPoints = $row->points !== null ? (float) ($row->points / 100) : null;
+                            $elapsedNs = $row->raw['totalResult']['elapsed'] ?? $row->raw['TotalResult']['Elapsed'] ?? null;
+                            $elapsedSeconds = is_numeric($elapsedNs) ? (int) floor(((float) $elapsedNs) / 1000000000) : null;
+
+                            $standing = $this->standingModel->newQuery()->updateOrCreate(
                                 [
-                                    'standing_id' => $standing->id,
-                                    'problem_id' => $problem->id,
+                                    'contest_id' => $contest->id,
+                                    'participant_key' => $rowProfile->handle,
                                 ],
                                 [
-                                    'points' => $taskPoints,
-                                    'penalty' => $pResult->penalty,
-                                    'rejected_attempt_count' => $pResult->rejectedAttemptCount,
-                                    'result_type' => $resultType,
-                                    'best_submission_time_seconds' => $pResult->bestSubmissionTimeSeconds,
+                                    'platform_id' => $platform->id,
+                                    'platform_profile_id' => $rowProfile->id,
+                                    'participant_type' => 'CONTESTANT',
+                                    'participant_name' => $rowProfile->handle,
+                                    'rank' => $row->rank,
+                                    'points' => $actualPoints,
+                                    'penalty' => $row->penalty,
+                                    'last_submission_time_seconds' => $elapsedSeconds,
+                                    'last_synced_at' => now(),
                                     'metadata' => [
+                                        'source' => 'user-standings-import',
+                                        'platform' => $platformSlug,
+                                        'contest_platform_id' => $contest->platform_contest_id,
+                                        'handle' => $rowProfile->handle,
                                         'synced_at' => now(),
                                     ],
+                                    'raw' => $row->raw,
+                                    'status' => 'Active',
                                 ]
                             );
+
+                            if ($standing->wasRecentlyCreated) {
+                                $result->incrementCreated();
+                            } else {
+                                $result->incrementUpdated();
+                            }
+
+                            foreach ($row->problemResults as $idx => $pResult) {
+                                if (! ($pResult instanceof ProblemResultDTO)) {
+                                    continue;
+                                }
+
+                                $problemDto = $standingsDto->problems[$idx] ?? null;
+                                if ($problemDto === null) {
+                                    continue;
+                                }
+
+                                $probId = (string) $problemDto->platformProblemId;
+                                $problem = $problemMap[$probId]
+                                    ?? $problemMap[strtolower($probId)]
+                                    ?? $problemMap[str_replace('_', '-', $probId)]
+                                    ?? null;
+
+                                if ($problem === null) {
+                                    continue;
+                                }
+
+                                $taskPoints = $pResult->points !== null ? (float) ($pResult->points / 100) : null;
+                                $resultType = $pResult->type;
+                                if ($resultType === '1' || $resultType === 1) {
+                                    $resultType = 'AC';
+                                } elseif ($resultType === '0' || $resultType === 0) {
+                                    $resultType = ($pResult->rejectedAttemptCount ?? 0) > 0 ? 'WA' : 'NO_SUBMISSION';
+                                }
+
+                                $this->standingTaskResultModel->newQuery()->updateOrCreate(
+                                    [
+                                        'standing_id' => $standing->id,
+                                        'problem_id' => $problem->id,
+                                    ],
+                                    [
+                                        'points' => $taskPoints,
+                                        'penalty' => $pResult->penalty,
+                                        'rejected_attempt_count' => $pResult->rejectedAttemptCount,
+                                        'result_type' => $resultType,
+                                        'best_submission_time_seconds' => $pResult->bestSubmissionTimeSeconds,
+                                        'metadata' => [
+                                            'synced_at' => now(),
+                                        ],
+                                    ]
+                                );
+                            }
                         }
+                    } catch (Throwable $contestEx) {
+                        app(ApplicationLogger::class)->warning('AtCoder standings import skipped for contest', [
+                            'category' => 'import',
+                            'platform' => $platformSlug,
+                            'source' => self::class,
+                            'contest_id' => $contest->id,
+                            'platform_contest_id' => $contest->platform_contest_id,
+                            'message' => $contestEx->getMessage(),
+                        ]);
                     }
                 }
 
                 $result->incrementFetched($standingsFetched);
 
-                $this->platformSyncStateService->markSynced($syncState, [
-                    'profile_id' => $profile->id,
-                    'handle' => $normalizedHandle,
-                    'platform_slug' => $platformSlug,
-                    'contests_synced' => count($contestIds),
-                ]);
+                if ($hasMoreContests) {
+                    $this->platformSyncStateService->resetForRetry($syncState, [
+                        'profile_id' => $profile->id,
+                        'handle' => $normalizedHandle,
+                        'platform_slug' => $platformSlug,
+                        'status' => 'partial_sync',
+                        'remaining' => count($contestsToProcess) - count($contestsBatch),
+                    ]);
+                } else {
+                    $this->platformSyncStateService->markSynced($syncState, [
+                        'profile_id' => $profile->id,
+                        'handle' => $normalizedHandle,
+                        'platform_slug' => $platformSlug,
+                        'contests_synced' => count($contestIds),
+                        'last_synced_at' => now(),
+                    ]);
+                }
             } catch (Throwable $e) {
                 $result->incrementFailed();
 
