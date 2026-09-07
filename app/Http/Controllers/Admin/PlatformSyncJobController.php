@@ -57,6 +57,39 @@ class PlatformSyncJobController extends Controller
         }
     }
 
+    public function toggleStatus(Request $request, PlatformSyncJob $platformSyncJob)
+    {
+        try {
+            $enabled = $request->has('enabled')
+                ? filter_var($request->input('enabled'), FILTER_VALIDATE_BOOLEAN)
+                : ! $platformSyncJob->enabled;
+
+            $platformSyncJob->update([
+                'enabled' => $enabled,
+            ]);
+
+            return response()->json([
+                'status' => 200,
+                'enabled' => $platformSyncJob->enabled,
+                'message' => $platformSyncJob->enabled
+                    ? __('Sync job enabled successfully')
+                    : __('Sync job disabled successfully'),
+            ]);
+        } catch (\Exception $e) {
+            app(ApplicationLogger::class)->error('Platform sync job toggle status failed', [
+                'category' => 'admin',
+                'source' => self::class,
+                'resource' => 'platform-sync-jobs',
+                'job_id' => $platformSyncJob->id,
+            ], $e);
+
+            return response()->json([
+                'status' => 500,
+                'message' => __('Whoops! Something went wrong. Error: ') . $e->getMessage(),
+            ], 500);
+        }
+    }
+
     protected function data(Request $request): array
     {
         return ServerSideDatatable::make(
@@ -75,6 +108,10 @@ class PlatformSyncJobController extends Controller
                     7 => 'last_failed_at',
                 ],
                 'defaultOrder' => [
+                    'column' => 'platform_id',
+                    'dir' => 'asc',
+                ],
+                'secondaryOrder' => [
                     'column' => 'priority',
                     'dir' => 'desc',
                 ],
@@ -92,14 +129,19 @@ class PlatformSyncJobController extends Controller
                     ],
                 ]))->render()->render();
 
+                $job->platform_name = $job->platform->name ?? 'Platform';
+                $job->platform_slug = $job->platform->slug ?? '';
                 $job->platform_info = (new PlatformInfo($job->platform))->render()->render();
                 
                 $job->entity_formatted = ucfirst(str_replace('_', ' ', $job->entity->value));
                 
-                $enabledBadge = $job->enabled 
-                    ? '<span class="badge bg-label-success">' . __('Enabled') . '</span>' 
-                    : '<span class="badge bg-label-secondary">' . __('Disabled') . '</span>';
-                $job->enabled_status = $enabledBadge;
+                $switchId = 'sync-job-switch-' . $job->id;
+                $isChecked = $job->enabled ? 'checked' : '';
+                $toggleUrl = route('admin.platform-sync-jobs.toggle-status', $job->id);
+
+                $job->enabled_status = '<div class="form-check form-switch d-inline-flex justify-content-center align-items-center mb-0">'
+                    . '<input class="form-check-input dt-status-toggle" type="checkbox" role="switch" id="' . $switchId . '" data-url="' . $toggleUrl . '" data-id="' . $job->id . '" ' . $isChecked . ' style="cursor: pointer; width: 2.3rem; height: 1.25rem;">'
+                    . '</div>';
                 
                 $job->last_started = $job->last_started_at ? $job->last_started_at->diffForHumans() : '<span class="text-muted">Never</span>';
                 $job->last_success = $job->last_success_at ? '<span class="text-success">' . $job->last_success_at->diffForHumans() . '</span>' : '<span class="text-muted">Never</span>';

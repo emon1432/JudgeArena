@@ -85,6 +85,11 @@
         // DataTable Initialization
         const datatableElement = document.querySelector(".common-datatable");
         if (datatableElement) {
+            const pageLength = datatableElement.dataset.pageLength ? parseInt(datatableElement.dataset.pageLength, 10) : 10;
+            const lengthMenu = datatableElement.dataset.lengthMenu 
+                ? JSON.parse(datatableElement.dataset.lengthMenu) 
+                : (pageLength === 6 ? [6,12, 24, 48, 96] : [10, 25, 50, 100]);
+
             const datatable = new DataTable(datatableElement, {
                 ajax: {
                     url: datatableElement.dataset.url,
@@ -98,6 +103,8 @@
                 searchDelay: 350,
                 ordering: true,
                 order: JSON.parse(datatableElement.dataset.order || "[]"),
+                pageLength: pageLength,
+                lengthMenu: lengthMenu,
                 layout: {
                     topStart: {
                         rowClass: "row m-1 my-0 justify-content-center",
@@ -182,6 +189,31 @@
                     }
                 },
                 drawCallback: function() {
+                    const api = this.api();
+                    const groupColumnAttr = datatableElement.dataset.groupColumn;
+
+                    if (groupColumnAttr !== undefined && groupColumnAttr !== null && groupColumnAttr !== "") {
+                        const rows = api.rows({ page: "current" }).nodes();
+                        const data = api.rows({ page: "current" }).data();
+                        let lastGroup = null;
+                        const visibleColsCount = api.columns(":visible").count() || 10;
+
+                        data.each(function(rowData, i) {
+                            const groupKey = rowData.platform_name || rowData.platform_id || (rowData.platform ? rowData.platform.name : null);
+                            if (groupKey && lastGroup !== groupKey) {
+                                const groupHtml = rowData.platform_info || groupKey;
+                                $(rows).eq(i).before(
+                                    '<tr class="group-header dtrg-group dtrg-level-0 bg-body-tertiary border-top border-bottom">' +
+                                        '<td colspan="' + visibleColsCount + '" class="py-2 px-3 fw-bold align-middle">' +
+                                            groupHtml +
+                                        '</td>' +
+                                    '</tr>'
+                                );
+                                lastGroup = groupKey;
+                            }
+                        });
+                    }
+
                     const tooltipTriggerList = [].slice.call(document.querySelectorAll(
                         '[data-bs-toggle="tooltip"]'));
                     tooltipTriggerList.map(function(tooltipTriggerEl) {
@@ -651,6 +683,51 @@
                             confirmButton: "btn btn-success waves-effect waves-light",
                         },
                     });
+                }
+            });
+        });
+
+        // DataTable Switch Toggle
+        $(document).on("change", ".dt-status-toggle", function() {
+            const checkbox = $(this);
+            const url = checkbox.data("url");
+            const isChecked = checkbox.is(":checked");
+
+            if (!url) return;
+
+            checkbox.prop("disabled", true);
+
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    _method: "PATCH",
+                    enabled: isChecked ? 1 : 0
+                },
+                success: function(response) {
+                    if (response.status === 200 || response.success) {
+                        iziToast.success({
+                            message: response.message || "Status updated successfully",
+                            position: "topRight"
+                        });
+                    } else {
+                        checkbox.prop("checked", !isChecked);
+                        iziToast.error({
+                            message: response.message || "Something went wrong",
+                            position: "topRight"
+                        });
+                    }
+                },
+                error: function(xhr) {
+                    checkbox.prop("checked", !isChecked);
+                    iziToast.error({
+                        message: xhr.responseJSON?.message || "Failed to update status",
+                        position: "topRight"
+                    });
+                },
+                complete: function() {
+                    checkbox.prop("disabled", false);
                 }
             });
         });

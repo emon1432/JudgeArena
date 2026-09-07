@@ -28,6 +28,7 @@
     <link rel="stylesheet"
         href="{{ asset('admin') }}/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css">
     <link rel="stylesheet" href="{{ asset('admin') }}/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css">
+    <link rel="stylesheet" href="{{ asset('admin') }}/vendor/libs/datatables-rowgroup-bs5/rowgroup.bootstrap5.css">
     <link rel="stylesheet" href="{{ asset('admin') }}/vendor/libs/select2/select2.css">
     <link rel="stylesheet" href="{{ asset('admin') }}/vendor/libs/tagify/tagify.css">
     <link rel="stylesheet" href="{{ asset('admin') }}/vendor/libs/bootstrap-select/bootstrap-select.css">
