@@ -41,6 +41,7 @@ class Users
                     'handle' => $handle,
                 ]))
             ),
+            null,
             $handle,
         );
     }

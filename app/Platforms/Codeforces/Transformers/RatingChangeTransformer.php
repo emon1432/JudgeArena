@@ -26,7 +26,7 @@ final class RatingChangeTransformer
         $oldRating = $ratingChange->oldRating;
         $newRating = $ratingChange->newRating;
         $ratingChangeDelta = null;
-        $contestPlatformId = (string) ($ratingChange->contestId ?? $platformContestId ?? '');
+        $contestPlatformId = (string) ($ratingChange->contestPlatformId ?? $ratingChange->contestId ?? $platformContestId ?? '');
 
         if ($oldRating !== null && $newRating !== null) {
             $ratingChangeDelta = $newRating - $oldRating;
