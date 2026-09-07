@@ -71,8 +71,15 @@ class ServerSideDatatable
         }
 
         $filteredQuery
-            ->orderBy($orderColumn, $orderDirection)
-            ->orderBy($qualifiedKey, 'desc');
+            ->orderBy($orderColumn, $orderDirection);
+
+        $secondaryOrder = $options['secondaryOrder'] ?? null;
+        if (is_array($secondaryOrder) && isset($secondaryOrder['column'])) {
+            $secondaryDir = strtolower((string) ($secondaryOrder['dir'] ?? 'desc')) === 'asc' ? 'asc' : 'desc';
+            $filteredQuery->orderBy($secondaryOrder['column'], $secondaryDir);
+        }
+
+        $filteredQuery->orderBy($qualifiedKey, 'desc');
 
         $recordsTotal = self::countDistinctByKey($totalQuery, $qualifiedKey);
         $recordsFiltered = self::countDistinctByKey($filteredQuery, $qualifiedKey);

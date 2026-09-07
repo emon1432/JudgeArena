@@ -21,6 +21,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified',
         Route::get('/dashboard', 'index')->name('dashboard');
     });
     Route::resource('platforms', PlatformController::class);
+    Route::patch('platform-sync-jobs/{platformSyncJob}/toggle-status', [PlatformSyncJobController::class, 'toggleStatus'])->name('platform-sync-jobs.toggle-status');
     Route::resource('platform-sync-jobs', PlatformSyncJobController::class)->only(['index', 'show', 'edit', 'update']);
     Route::resource('all-problems', ProblemController::class)->only(['index', 'show']);
     Route::resource('all-contests', ContestController::class)->only(['index', 'show']);
