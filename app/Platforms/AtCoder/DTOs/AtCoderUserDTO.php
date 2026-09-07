@@ -18,7 +18,11 @@ readonly class AtCoderUserDTO
         public ?string $codeforcesId,
         public ?string $affiliation,
         public ?array $contestStatus,
-        public array $raw,
+        public ?int $acceptedCount = null,
+        public ?int $acceptedCountRank = null,
+        public ?int $ratedPointSum = null,
+        public ?int $ratedPointSumRank = null,
+        public array $raw = [],
     ) {}
 }
 

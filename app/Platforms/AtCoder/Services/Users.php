@@ -24,14 +24,34 @@ class Users
     //used
     public function info(string $handle): AtCoderUserDTO
     {
-        $payload = $this->scraper->getUserProfile($handle);
+        $htmlPayload = $this->scraper->getUserProfile($handle);
 
-        if (! is_array($payload['result'] ?? null)) {
-            throw new RuntimeException('AtCoder user request failed.');
+        $kenkooooPayload = [];
+        try {
+            $response = $this->client->requestApi('v3/user_info', ['user' => $handle]);
+            if (is_array($response)) {
+                $kenkooooPayload = $response;
+            }
+        } catch (\Throwable $e) {
+            // Graceful fallback if Kenkoooo has not indexed this user
+            $kenkooooPayload = [];
+        }
+
+        $merged = array_merge($htmlPayload, [
+            'username' => !empty($htmlPayload['username']) ? $htmlPayload['username'] : ($kenkooooPayload['user_id'] ?? $handle),
+            'accepted_count' => $kenkooooPayload['accepted_count'] ?? null,
+            'accepted_count_rank' => $kenkooooPayload['accepted_count_rank'] ?? null,
+            'rated_point_sum' => $kenkooooPayload['rated_point_sum'] ?? null,
+            'rated_point_sum_rank' => $kenkooooPayload['rated_point_sum_rank'] ?? null,
+            'kenkoooo' => $kenkooooPayload,
+        ]);
+
+        if (empty($htmlPayload['avatarUrl']) && empty($htmlPayload['contestStatus']['algo']) && empty($kenkooooPayload['user_id'])) {
+            throw new RuntimeException("AtCoder user request failed for handle: {$handle}");
         }
 
         return AtCoderUserMapper::fromNormalized(
-            ResponseNormalizer::user($payload)
+            ResponseNormalizer::user($merged)
         );
     }
 
