@@ -27,31 +27,31 @@ class PlatformSyncJobsTableSeeder extends Seeder
                 'enabled' => 1,
                 'priority' => 100,
                 'interval_minutes' => 15,
-                'last_started_at' => '2026-09-03 16:41:10',
-                'last_finished_at' => '2026-09-03 16:42:32',
+                'last_started_at' => '2026-09-06 19:16:07',
+                'last_finished_at' => '2026-09-06 19:16:13',
                 'last_failed_at' => NULL,
-                'last_success_at' => '2026-09-03 16:42:32',
+                'last_success_at' => '2026-09-06 19:16:13',
                 'last_error' => NULL,
-                'metadata' => '{"last_stats":{"checked":2143,"fetched":2143,"created":2143,"updated":0,"failed":0,"skipped":0,"metadata":{"platform":"codeforces","entity":"contest"}}}',
+                'metadata' => '{"last_stats":{"checked":2146,"fetched":2146,"created":0,"updated":5,"failed":0,"skipped":2141,"metadata":{"platform":"codeforces","entity":"contest"}}}',
                 'created_at' => '2026-08-14 17:02:44',
-                'updated_at' => '2026-09-03 16:42:32',
+                'updated_at' => '2026-09-06 19:16:13',
             ),
             1 => 
             array (
                 'id' => 2,
                 'platform_id' => 1,
                 'entity' => 'problem',
-                'enabled' => 0,
+                'enabled' => 1,
                 'priority' => 90,
                 'interval_minutes' => 15,
-                'last_started_at' => NULL,
-                'last_finished_at' => NULL,
+                'last_started_at' => '2026-09-06 19:16:24',
+                'last_finished_at' => '2026-09-06 19:17:20',
                 'last_failed_at' => NULL,
-                'last_success_at' => NULL,
+                'last_success_at' => '2026-09-06 19:17:20',
                 'last_error' => NULL,
-                'metadata' => NULL,
+                'metadata' => '{"last_stats":{"checked":2146,"fetched":8,"created":8,"updated":0,"failed":27,"skipped":2118,"metadata":{"platform":"codeforces","entity":"problem"}}}',
                 'created_at' => '2026-08-14 17:02:44',
-                'updated_at' => '2026-08-27 10:21:14',
+                'updated_at' => '2026-09-06 19:17:20',
             ),
             2 => 
             array (
@@ -68,7 +68,7 @@ class PlatformSyncJobsTableSeeder extends Seeder
                 'last_error' => NULL,
                 'metadata' => NULL,
                 'created_at' => '2026-08-14 17:02:44',
-                'updated_at' => '2026-08-24 15:25:02',
+                'updated_at' => '2026-08-14 17:02:44',
             ),
             3 => 
             array (
@@ -85,7 +85,7 @@ class PlatformSyncJobsTableSeeder extends Seeder
                 'last_error' => NULL,
                 'metadata' => NULL,
                 'created_at' => '2026-08-14 17:02:44',
-                'updated_at' => '2026-08-24 14:40:01',
+                'updated_at' => '2026-08-14 17:02:44',
             ),
             4 => 
             array (
@@ -102,7 +102,7 @@ class PlatformSyncJobsTableSeeder extends Seeder
                 'last_error' => NULL,
                 'metadata' => NULL,
                 'created_at' => '2026-08-14 17:02:44',
-                'updated_at' => '2026-08-24 15:21:10',
+                'updated_at' => '2026-08-14 17:02:44',
             ),
             5 => 
             array (
@@ -119,7 +119,7 @@ class PlatformSyncJobsTableSeeder extends Seeder
                 'last_error' => NULL,
                 'metadata' => NULL,
                 'created_at' => '2026-08-14 17:02:44',
-                'updated_at' => '2026-08-24 14:50:03',
+                'updated_at' => '2026-08-14 17:02:44',
             ),
             6 => 
             array (
@@ -129,31 +129,31 @@ class PlatformSyncJobsTableSeeder extends Seeder
                 'enabled' => 1,
                 'priority' => 100,
                 'interval_minutes' => 15,
-                'last_started_at' => '2026-09-03 16:42:32',
-                'last_finished_at' => '2026-09-03 16:46:43',
+                'last_started_at' => '2026-09-06 19:16:13',
+                'last_finished_at' => '2026-09-06 19:16:24',
                 'last_failed_at' => NULL,
-                'last_success_at' => '2026-09-03 16:46:43',
+                'last_success_at' => '2026-09-06 19:16:24',
                 'last_error' => NULL,
-                'metadata' => '{"last_stats":{"checked":6397,"fetched":6397,"created":6397,"updated":0,"failed":0,"skipped":0,"metadata":[]}}',
-                'created_at' => '2026-08-18 05:56:17',
-                'updated_at' => '2026-09-03 16:46:43',
+                'metadata' => '{"last_stats":{"checked":6405,"fetched":6405,"created":0,"updated":17,"failed":0,"skipped":6388,"metadata":[]}}',
+                'created_at' => '2026-08-14 17:02:44',
+                'updated_at' => '2026-09-06 19:16:24',
             ),
             7 => 
             array (
                 'id' => 8,
                 'platform_id' => 2,
                 'entity' => 'problem',
-                'enabled' => 0,
+                'enabled' => 1,
                 'priority' => 90,
                 'interval_minutes' => 15,
-                'last_started_at' => NULL,
-                'last_finished_at' => NULL,
+                'last_started_at' => '2026-09-06 18:43:28',
+                'last_finished_at' => '2026-09-06 19:14:43',
                 'last_failed_at' => NULL,
-                'last_success_at' => NULL,
+                'last_success_at' => '2026-09-06 19:14:43',
                 'last_error' => NULL,
-                'metadata' => NULL,
-                'created_at' => '2026-08-18 05:56:17',
-                'updated_at' => '2026-08-27 10:21:14',
+                'metadata' => '{"last_stats":{"checked":6405,"fetched":39370,"created":9488,"updated":29882,"failed":0,"skipped":0,"metadata":{"platform":"atcoder","entity":"problem"}}}',
+                'created_at' => '2026-08-14 17:02:44',
+                'updated_at' => '2026-09-06 19:14:43',
             ),
             8 => 
             array (
@@ -170,7 +170,7 @@ class PlatformSyncJobsTableSeeder extends Seeder
                 'last_error' => NULL,
                 'metadata' => NULL,
                 'created_at' => '2026-08-14 17:02:44',
-                'updated_at' => '2026-08-20 10:16:12',
+                'updated_at' => '2026-08-14 17:02:44',
             ),
             9 => 
             array (
@@ -186,8 +186,8 @@ class PlatformSyncJobsTableSeeder extends Seeder
                 'last_success_at' => NULL,
                 'last_error' => NULL,
                 'metadata' => NULL,
-                'created_at' => '2026-08-18 05:56:17',
-                'updated_at' => '2026-08-20 10:16:13',
+                'created_at' => '2026-08-14 17:02:44',
+                'updated_at' => '2026-08-14 17:02:44',
             ),
             10 => 
             array (
@@ -203,8 +203,8 @@ class PlatformSyncJobsTableSeeder extends Seeder
                 'last_success_at' => NULL,
                 'last_error' => NULL,
                 'metadata' => NULL,
-                'created_at' => '2026-08-18 05:56:17',
-                'updated_at' => '2026-08-20 10:16:13',
+                'created_at' => '2026-08-14 17:02:44',
+                'updated_at' => '2026-08-14 17:02:44',
             ),
             11 => 
             array (
@@ -220,8 +220,8 @@ class PlatformSyncJobsTableSeeder extends Seeder
                 'last_success_at' => NULL,
                 'last_error' => NULL,
                 'metadata' => NULL,
-                'created_at' => '2026-08-18 05:56:17',
-                'updated_at' => '2026-08-20 10:16:13',
+                'created_at' => '2026-08-14 17:02:44',
+                'updated_at' => '2026-08-14 17:02:44',
             ),
         ));
         
