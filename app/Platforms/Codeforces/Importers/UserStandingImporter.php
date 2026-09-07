@@ -26,8 +26,6 @@ use Throwable;
 
 class UserStandingImporter implements UserStandingImporterContract
 {
-    private const MAX_CONTESTS_PER_RUN = 50;
-
     public function __construct(
         private readonly Contest $contestModel,
         private readonly Standing $standingModel,
@@ -155,11 +153,8 @@ class UserStandingImporter implements UserStandingImporterContract
                     continue;
                 }
 
-                $contestsToProcess = array_slice($missingContestIds, 0, self::MAX_CONTESTS_PER_RUN);
-                $hasMoreContests = count($missingContestIds) > self::MAX_CONTESTS_PER_RUN;
-
                 $contests = $this->contestModel->newQuery()
-                    ->whereIn('id', $contestsToProcess)
+                    ->whereIn('id', $missingContestIds)
                     ->whereNotNull('platform_contest_id')
                     ->get();
 
@@ -167,21 +162,11 @@ class UserStandingImporter implements UserStandingImporterContract
                     $this->processContest($contest, $platformSlug, $platformProfilesByHandle, $result);
                 }
 
-                if ($hasMoreContests) {
-                    // Mark failed or reset for retry so the next run picks it up
-                    $this->platformSyncStateService->resetForRetry($syncState, [
-                        'profile_id' => $profile->id,
-                        'handle' => $normalizedHandle,
-                        'status' => 'partial_sync',
-                        'remaining' => count($missingContestIds) - count($contestsToProcess),
-                    ]);
-                } else {
-                    $this->platformSyncStateService->markSynced($syncState, [
-                        'profile_id' => $profile->id,
-                        'handle' => $normalizedHandle,
-                        'status' => 'synced',
-                    ]);
-                }
+                $this->platformSyncStateService->markSynced($syncState, [
+                    'profile_id' => $profile->id,
+                    'handle' => $normalizedHandle,
+                    'status' => 'synced',
+                ]);
             } catch (Throwable $e) {
                 $result->incrementFailed();
 

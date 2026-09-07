@@ -39,6 +39,7 @@ class CodeforcesAdapter implements PlatformAdapter
         private readonly UserTransformer $userTransformer,
         private readonly SubmissionTransformer $submissionTransformer,
         private readonly StandingsTransformer $standingsTransformer,
+        private readonly \App\Services\StandingsCacheService $standingsCacheService,
     ) {
     }
 
@@ -54,8 +55,7 @@ class CodeforcesAdapter implements PlatformAdapter
 
     public function getContestProblems(string $contestId): array
     {
-        $contest = $this->contests->standings((int) $contestId);
-        return $this->problemTransformer->fromApiProblems($contest->problems);
+        return $this->getUserStandings($contestId)->problems;
     }
 
     public function getUserRatingHistory(string $handle): array
@@ -94,8 +94,22 @@ class CodeforcesAdapter implements PlatformAdapter
 
     public function getUserStandings(string $id): ContestStandingsDTO
     {
-        return $this->standingsTransformer
+        if ($this->standingsCacheService->has('codeforces', $id)) {
+            $cached = $this->standingsCacheService->get('codeforces', $id);
+            if ($cached instanceof ContestStandingsDTO) {
+                return $cached;
+            }
+        }
+
+        $standings = $this->standingsTransformer
             ->fromApiStandings($this->contests->standings((int) $id));
+
+        $phase = strtoupper((string) ($standings->contest->phase ?? ''));
+        if ($phase === 'FINISHED' || $phase === '') {
+            $this->standingsCacheService->put('codeforces', $id, $standings);
+        }
+
+        return $standings;
     }
 
     public function getUser(string $username): UserDTO
