@@ -33,16 +33,18 @@ This document serves as the authoritative specification for AtCoder data ingesti
   - **Score Scaling**: Points in JSON are multiplied by 100 (e.g., `255000` = `2550.00` points). Must divide by `100` before saving.
   - **Time Scaling**: Elapsed time is in nanoseconds (e.g., `1977000000000` ns). Must divide by `10^9` to get seconds (`1977` sec).
 
-### 3. User Profile (DOM Scraping & Dual Contest Types)
+### 3. User Profile (Dual Strategy: DOM Scraping + Kenkoooo API)
 - **Algorithm Profile URL**: `GET https://atcoder.jp/users/{handle}?contestType=algo`
 - **Heuristic Profile URL**: `GET https://atcoder.jp/users/{handle}?contestType=heuristic`
-- **Scraped Data**:
+- **Kenkoooo User Info Endpoint**: `GET https://kenkoooo.com/atcoder/atcoder-api/v3/user_info?user={handle}`
+- **Ingested Profile Data**:
   - `avatar_url`: Avatar image link (`https://img.atcoder.jp/icons/...`)
   - `country`: Country or region
   - `birth_year`: Birth year
   - `affiliation`: University or company
   - Social Handles: `twitter_id`, `topcoder_id`, `codeforces_id`
   - Dual Ratings (`algo` vs `heuristic`): `rank` (clean integer), `percentile` (e.g., `"Top <0.01%"`), `rating` (clean integer), `is_provisional` (boolean), `highest_rating` (clean integer), `user_title` (e.g., `"King"`), `rated_matches` (integer), `last_competed` (`YYYY-MM-DD`).
+  - Kenkoooo Metrics: `accepted_count`, `accepted_count_rank`, `rated_point_sum`, `rated_point_sum_rank`.
 
 ### 4. User Submissions (Cookie Authenticated DOM Scraping)
 - **URL**: `GET https://atcoder.jp/contests/{contest_id}/submissions?f.User={handle}&page={page}`
@@ -92,13 +94,14 @@ This document serves as the authoritative specification for AtCoder data ingesti
   ```
 
 ### 3. `UserImporter.php`
-- **Scrapes Both Contest Types**: Fetches `algo` and `heuristic` profile HTML pages.
+- **Dual Ingestion Sources**: Fetches `algo` and `heuristic` profile HTML pages via `AtCoderHtmlScraper` and queries Kenkoooo API (`/atcoder-api/v3/user_info?user={handle}`).
 - **Clean Field Parsers**:
   - `rating`: Integer extraction via regex (`/^\d+/`)
   - `is_provisional`: Checks for `(Provisional)` string
   - `highest_rating` & `user_title`: Parses integer rating and title (e.g. `"King"`)
   - `rank` & `percentile`: Parses numeric rank and percentile string (`"Top <0.01%"`)
   - `last_competed`: Standardized YYYY-MM-DD date string.
+  - Kenkoooo Stats: Parses `accepted_count`, `accepted_count_rank`, `rated_point_sum`, `rated_point_sum_rank`.
 - **Primary Rating Resolution**: Prioritizes clean `algo` rating as primary `$userDto->rating`, falling back to `heuristic` rating.
 
 ### 4. `UserRatingHistoryImporter.php`
@@ -114,8 +117,9 @@ This document serves as the authoritative specification for AtCoder data ingesti
   - Memory Consumption: `37376 KiB` ➔ `38273024` bytes
 - **Incremental Early Exit**: Tracks `last_submission_id` in `PlatformSyncState`. When encountered, breaks pagination loop immediately.
 
-### 6. `UserStandingsImporter.php`
+### 6. `UserStandingImporter.php`
 - **History-Guided Contest Discovery**: Queries `contest_rating_changes` and `submissions` to discover only contests where active registered JudgeArena users participated.
+- **Remote Caching & Single-Run Policy**: Wraps standings retrieval in `StandingsCacheService` (Google Drive Gzip level 9 caching). All un-synced contests for the user are processed in a single run without 50-chunk limits or `partial_sync` loops.
 - **Score & Time Scaling**: Divides JSON score by `100` and converts nanoseconds to seconds (`floor(elapsed / 1e9)`).
 - **Registered User Filter**: Persists standings and `standing_task_results` ONLY for registered JudgeArena users (`$rowProfile !== null`).
 

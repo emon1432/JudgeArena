@@ -116,31 +116,34 @@ final class ResponseNormalizer
 
     public static function user(array $payload): array
     {
-        if (is_array($payload['result'] ?? null)) {
-            $payload = $payload['result'];
+        $profile = $payload['profile'] ?? $payload;
+        $contestStatus = $payload['contestStatus'] ?? $payload['contest_status'] ?? ($profile['contestStatus'] ?? $profile['contest_status'] ?? null);
+
+        $acceptedCount = $payload['accepted_count'] ?? $payload['acceptedCount'] ?? null;
+        $acceptedCountRank = $payload['accepted_count_rank'] ?? $payload['acceptedCountRank'] ?? null;
+        $ratedPointSum = $payload['rated_point_sum'] ?? $payload['ratedPointSum'] ?? null;
+        $ratedPointSumRank = $payload['rated_point_sum_rank'] ?? $payload['ratedPointSumRank'] ?? null;
+
+        $avatarUrl = $profile['avatarUrl'] ?? $profile['avatar_url'] ?? $payload['avatarUrl'] ?? $payload['avatar_url'] ?? null;
+        if (empty($avatarUrl)) {
+            $avatarUrl = 'https://img.atcoder.jp/assets/icon/avatar.png';
         }
 
-        return array_merge([
-            'username' => null,
-            'avatarUrl' => null,
-            'country' => null,
-            'birthYear' => null,
-            'twitterId' => null,
-            'topcoderId' => null,
-            'codeforcesId' => null,
-            'affiliation' => null,
-            'contestStatus' => null,
-        ], [
-            'username' => $payload['username'] ?? $payload['userName'] ?? null,
-            'avatarUrl' => $payload['avatarUrl'] ?? $payload['avatar_url'] ?? null,
-            'country' => $payload['country'] ?? null,
-            'birthYear' => $payload['birthYear'] ?? $payload['birth_year'] ?? null,
-            'twitterId' => $payload['twitterId'] ?? $payload['twitter_id'] ?? null,
-            'topcoderId' => $payload['topcoderId'] ?? $payload['topcoder_id'] ?? null,
-            'codeforcesId' => $payload['codeforcesId'] ?? $payload['codeforces_id'] ?? null,
-            'affiliation' => $payload['affiliation'] ?? null,
-            'contestStatus' => $payload['contestStatus'] ?? $payload['contest_status'] ?? null,
-        ]);
+        return [
+            'username' => $profile['username'] ?? $payload['username'] ?? null,
+            'avatarUrl' => $avatarUrl,
+            'country' => $profile['country'] ?? $payload['country'] ?? null,
+            'birthYear' => isset($profile['birthYear']) ? (string) $profile['birthYear'] : (isset($profile['birth_year']) ? (string) $profile['birth_year'] : null),
+            'twitterId' => $profile['twitterId'] ?? $profile['twitter_id'] ?? $payload['twitterId'] ?? $payload['twitter_id'] ?? null,
+            'topcoderId' => $profile['topcoderId'] ?? $profile['topcoder_id'] ?? $payload['topcoderId'] ?? $payload['topcoder_id'] ?? null,
+            'codeforcesId' => $profile['codeforcesId'] ?? $profile['codeforces_id'] ?? $payload['codeforcesId'] ?? $payload['codeforces_id'] ?? null,
+            'affiliation' => $profile['affiliation'] ?? $payload['affiliation'] ?? null,
+            'contestStatus' => is_array($contestStatus) ? $contestStatus : null,
+            'acceptedCount' => $acceptedCount !== null ? (int) $acceptedCount : null,
+            'acceptedCountRank' => $acceptedCountRank !== null ? (int) $acceptedCountRank : null,
+            'ratedPointSum' => $ratedPointSum !== null ? (int) $ratedPointSum : null,
+            'ratedPointSumRank' => $ratedPointSumRank !== null ? (int) $ratedPointSumRank : null,
+        ];
     }
 
     public static function ratingChanges(array $payload): array

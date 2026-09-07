@@ -10,14 +10,23 @@ class UserTransformer
     /** @return UserDTO */
     public function fromApiUser(AtCoderUserDTO $user): UserDTO
     {
+        $rating = $this->extractRating($user->contestStatus);
+
+        $raw = $user->raw;
+        $raw['rating'] = $rating;
+        $raw['accepted_count'] = $user->acceptedCount;
+        $raw['accepted_count_rank'] = $user->acceptedCountRank;
+        $raw['rated_point_sum'] = $user->ratedPointSum;
+        $raw['rated_point_sum_rank'] = $user->ratedPointSumRank;
+
         return new UserDTO(
             platform: 'atcoder',
             platformHandle: (string) ($user->username ?? ''),
             firstName: null,
             lastName: null,
-            rating: $this->extractRating($user->contestStatus),
+            rating: $rating,
             country: $user->country,
-            raw: $user->raw,
+            raw: $raw,
         );
     }
 

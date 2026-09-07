@@ -25,130 +25,190 @@ class AtCoderHtmlScraper
     //used
     public function getUserProfile(string $username): array
     {
-        $types = ['algo', 'heuristic'];
-        $result = [];
+        $htmlAlgo = $this->fetchPage($this->baseUrl() . '/users/' . $username . '?contestType=algo');
+        $htmlHeuristic = $this->fetchPage($this->baseUrl() . '/users/' . $username . '?contestType=heuristic');
 
-        foreach ($types as $index => $type) {
-            $html = $this->fetchPage($this->baseUrl() . '/users/' . $username . '?contestType=' . $type);
+        return $this->parseUserProfileHtml($htmlAlgo, $htmlHeuristic, $username);
+    }
 
-            $doc = new DOMDocument;
-            @$doc->loadHTML($html);
-            $xpath = new DOMXPath($doc);
+    public function parseUserProfileHtml(string $htmlAlgo, ?string $htmlHeuristic = null, string $username = ''): array
+    {
+        $result = [
+            'username' => $username,
+            'avatarUrl' => null,
+            'country' => null,
+            'birthYear' => null,
+            'twitterId' => null,
+            'topcoderId' => null,
+            'codeforcesId' => null,
+            'affiliation' => null,
+            'contestStatus' => [
+                'algo' => null,
+                'heuristic' => null,
+            ],
+        ];
 
-            if ($index === 0) {
-                $rawCountry = null;
-                $rawAffiliation = null;
-                $rawBirthYear = null;
-                $rawTwitter = null;
+        if (trim($htmlAlgo) === '') {
+            return $result;
+        }
 
-                $profileRows = $xpath->query("//table[contains(@class, 'table-bordered')]//tr");
-                foreach ($profileRows as $row) {
-                    $th = $xpath->query('.//th', $row)->item(0);
-                    $td = $xpath->query('.//td', $row)->item(0);
+        $doc = new DOMDocument;
+        @$doc->loadHTML($htmlAlgo);
+        $xpath = new DOMXPath($doc);
 
-                    if ($th && $td) {
-                        $label = trim($th->nodeValue);
-                        $value = trim($td->nodeValue);
+        // Avatar
+        $avatarNode = $xpath->query("//div[contains(@class, 'col-md-3')]//img[contains(@class, 'avatar')]")->item(0)
+            ?? $xpath->query("//img[contains(@class, 'avatar')]")->item(0);
+        if ($avatarNode instanceof DOMElement) {
+            $src = $avatarNode->getAttribute('src');
+            $result['avatarUrl'] = str_starts_with($src, '//') ? 'https:' . $src : $src;
+        }
 
-                        if (str_contains($label, 'Country/Region')) {
-                            $rawCountry = $value;
-                        } elseif (str_contains($label, 'Affiliation')) {
-                            $rawAffiliation = $value;
-                        } elseif (str_contains($label, 'Birth Year')) {
-                            $rawBirthYear = is_numeric($value) ? (int) $value : null;
-                        } elseif (str_contains($label, 'Twitter')) {
-                            $rawTwitter = ltrim($value, '@');
-                        }
-                    }
-                }
+        if (empty($result['avatarUrl'])) {
+            $result['avatarUrl'] = 'https://img.atcoder.jp/assets/icon/avatar.png';
+        }
 
-                $avatarNode = $xpath->query("//img[contains(@class, 'avatar')]")->item(0);
-                $rawAvatar = $avatarNode instanceof DOMElement ? $avatarNode->getAttribute('src') : null;
+        // Username
+        $userNode = $xpath->query("//a[contains(@class, 'username')]")->item(0);
+        if ($userNode) {
+            $parsedUsername = trim($userNode->textContent);
+            if ($parsedUsername !== '') {
+                $result['username'] = $parsedUsername;
+            }
+        }
 
-                $result['profile'] = [
-                    'username' => $username,
-                    'country' => $rawCountry,
-                    'affiliation' => $rawAffiliation,
-                    'birth_year' => $rawBirthYear,
-                    'twitter_id' => $rawTwitter,
-                    'avatar_url' => $rawAvatar,
-                ];
+        // Profile Table (Left Column)
+        $leftRows = $xpath->query("//div[contains(@class, 'col-md-3')]//table[contains(@class, 'dl-table')]//tr");
+        if ($leftRows->length === 0) {
+            $leftRows = $xpath->query("//table[contains(@class, 'dl-table')][1]//tr");
+        }
+
+        foreach ($leftRows as $row) {
+            $th = $xpath->query('.//th', $row)->item(0);
+            $td = $xpath->query('.//td', $row)->item(0);
+            if (!$th || !$td) {
+                continue;
             }
 
-            $rawRank = null;
-            $rawRating = null;
-            $rawHighest = null;
-            $rawRatedMatches = null;
-            $rawLastCompeted = null;
+            $label = trim($th->textContent);
+            $val = trim(preg_replace('/\s+/', ' ', $td->textContent));
 
-            $rows = $xpath->query("//table[contains(@class, 'dl-table')]//tr");
-
-            foreach ($rows as $row) {
-                $th = $xpath->query('.//th', $row)->item(0);
-                $td = $xpath->query('.//td', $row)->item(0);
-
-                if ($th && $td) {
-                    $label = trim($th->nodeValue);
-                    $value = trim($td->nodeValue);
-
-                    if (str_contains($label, 'Rank')) {
-                        $rawRank = $value;
-                    } elseif (str_contains($label, 'Rating')) {
-                        $rawRating = $value;
-                    } elseif (str_contains($label, 'Highest Rating')) {
-                        $rawHighest = $value;
-                    } elseif (str_contains($label, 'Rated Matches')) {
-                        $rawRatedMatches = $value;
-                    } elseif (str_contains($label, 'Last Competed')) {
-                        $rawLastCompeted = $value;
-                    }
-                }
+            if (str_contains($label, 'Country/Region')) {
+                $result['country'] = $val;
+            } elseif (str_contains($label, 'Birth Year')) {
+                $result['birthYear'] = $val;
+            } elseif (str_contains($label, 'Twitter')) {
+                $result['twitterId'] = $val;
+            } elseif (str_contains($label, 'TopCoder')) {
+                $result['topcoderId'] = $val;
+            } elseif (str_contains($label, 'Codeforces')) {
+                $result['codeforcesId'] = $val;
+            } elseif (str_contains($label, 'Affiliation')) {
+                $result['affiliation'] = $val;
             }
+        }
 
-            $parsedRank = null;
-            if ($rawRank !== null && preg_match('/(\d+)/', str_replace(',', '', $rawRank), $matches)) {
-                $parsedRank = (int) $matches[1];
-            }
+        // Algo contest status
+        $result['contestStatus']['algo'] = $this->parseStatusTable($xpath);
 
-            $parsedRating = null;
-            $isProvisional = false;
-            if ($rawRating !== null && preg_match('/(\d+)/', $rawRating, $matches)) {
-                $parsedRating = (int) $matches[1];
-                if (str_contains($rawRating, 'Provisional') || str_contains($rawRating, '①') || str_contains($rawRating, '②')) {
-                    $isProvisional = true;
-                }
-            }
-
-            $parsedHighest = null;
-            if ($rawHighest !== null && preg_match('/(\d+)/', $rawHighest, $matches)) {
-                $parsedHighest = (int) $matches[1];
-            }
-
-            $parsedRatedMatches = null;
-            if ($rawRatedMatches !== null && preg_match('/(\d+)/', $rawRatedMatches, $matches)) {
-                $parsedRatedMatches = (int) $matches[1];
-            }
-
-            $percentile = null;
-            if ($rawRank !== null && preg_match('/Top\s*([\d\.]+)%/i', $rawRank, $matches)) {
-                $percentile = (float) $matches[1];
-            }
-
-            $cleanLastCompeted = $rawLastCompeted !== null ? str_replace('/', '-', trim($rawLastCompeted)) : null;
-
-            $result['contest_status'][$type] = [
-                'rank' => $parsedRank,
-                'rank_text' => $rawRank,
-                'percentile' => $percentile,
-                'rating' => $parsedRating,
-                'is_provisional' => $isProvisional,
-                'highest_rating' => $parsedHighest,
-                'rated_matches' => $parsedRatedMatches,
-                'last_competed' => $cleanLastCompeted,
-            ];
+        // Heuristic contest status
+        if ($htmlHeuristic !== null && trim($htmlHeuristic) !== '') {
+            $docH = new DOMDocument;
+            @$docH->loadHTML($htmlHeuristic);
+            $xpathH = new DOMXPath($docH);
+            $result['contestStatus']['heuristic'] = $this->parseStatusTable($xpathH);
         }
 
         return $result;
+    }
+
+    private function parseStatusTable(DOMXPath $xpath): ?array
+    {
+        $rows = $xpath->query("//div[contains(@class, 'col-md-9')]//table[contains(@class, 'dl-table')]//tr");
+        if ($rows->length === 0) {
+            return null;
+        }
+
+        $rawRank = null;
+        $rawRating = null;
+        $rawHighest = null;
+        $userTitle = null;
+        $rawRatedMatches = null;
+        $rawLastCompeted = null;
+
+        foreach ($rows as $row) {
+            $th = $xpath->query('.//th', $row)->item(0);
+            $td = $xpath->query('.//td', $row)->item(0);
+            if (!$th || !$td) {
+                continue;
+            }
+
+            $label = trim($th->textContent);
+            $val = trim($td->textContent);
+
+            if (str_contains($label, 'Rank')) {
+                $rawRank = $val;
+            } elseif (str_contains($label, 'Rating') && !str_contains($label, 'Highest')) {
+                $rawRating = $val;
+            } elseif (str_contains($label, 'Highest Rating')) {
+                $rawHighest = $val;
+                $bold = $xpath->query(".//span[contains(@class, 'bold')]", $td)->item(0);
+                if ($bold) {
+                    $userTitle = trim($bold->textContent);
+                }
+            } elseif (str_contains($label, 'Rated Matches')) {
+                $rawRatedMatches = $val;
+            } elseif (str_contains($label, 'Last Competed')) {
+                $rawLastCompeted = $val;
+            }
+        }
+
+        $parsedRank = null;
+        $percentile = null;
+        if ($rawRank !== null) {
+            if (preg_match('/(\d+)/', str_replace(',', '', $rawRank), $m)) {
+                $parsedRank = (int) $m[1];
+            }
+            if (preg_match('/\((Top\s*[^\)]+)\)/i', $rawRank, $m)) {
+                $percentile = trim($m[1]);
+            }
+        }
+
+        $parsedRating = null;
+        $isProvisional = false;
+        if ($rawRating !== null) {
+            if (preg_match('/-?\d+/', $rawRating, $m)) {
+                $parsedRating = (int) $m[0];
+            }
+            if (str_contains($rawRating, 'Provisional') || str_contains($rawRating, '①') || str_contains($rawRating, '②')) {
+                $isProvisional = true;
+            }
+        }
+
+        $parsedHighest = null;
+        if ($rawHighest !== null && preg_match('/-?\d+/', $rawHighest, $m)) {
+            $parsedHighest = (int) $m[0];
+        }
+
+        $parsedMatches = null;
+        if ($rawRatedMatches !== null && preg_match('/(\d+)/', $rawRatedMatches, $m)) {
+            $parsedMatches = (int) $m[1];
+        }
+
+        $lastCompeted = $rawLastCompeted !== null ? str_replace('/', '-', trim($rawLastCompeted)) : null;
+
+        return [
+            'rank' => $parsedRank,
+            'rank_text' => $rawRank !== null ? trim(preg_replace('/\s+/', ' ', $rawRank)) : null,
+            'percentile' => $percentile,
+            'rating' => $parsedRating,
+            'is_provisional' => $isProvisional,
+            'highest_rating' => $parsedHighest,
+            'user_title' => $userTitle,
+            'rated_matches' => $parsedMatches,
+            'last_competed' => $lastCompeted,
+            'raw_highest_rating' => $parsedHighest !== null ? (string) $parsedHighest : null,
+        ];
     }
 
     private function fetchPage(string $url): string
