@@ -50,6 +50,10 @@
 - **Instruction**: Service methods MUST return typed DTOs, Enums, or standardized Result objects. Returning untyped associative arrays or raw HTTP responses is forbidden.
 - **Why**: Guarantees deterministic interfaces for calling code and eliminates `undefined index` runtime notices.
 
+### Rule 3.3: Remote Standings Caching & Dynamic Platform Resolution
+- **Instruction**: When handling contest standings or large historical payloads, services and adapters MUST use `StandingsCacheService` to read/write compressed data to Google Drive via the Cache-Aside pattern. Local server storage or `storage/app` disk must NEVER be used for caching raw payloads. When resolving platform folder names for storage, ALWAYS use `PlatformRegistry::getPlatformName($platform)` (or `StandingsCacheService::platformFolder($platform)`). Hardcoded platform `match` or `switch` statements are strictly forbidden.
+- **Why**: Prevents server disk exhaustion on cPanel (3GB limit), compresses payloads by ~85-90% with Gzip level 9, and ensures zero-code modifications when scaling to 100+ platforms.
+
 ---
 
 ## 4. Queue & Asynchronous Processing Rules
@@ -73,3 +77,7 @@
 ### Rule 4.4: Incremental Sync Standard
 - **Instruction**: All platform importers MUST implement incremental sync logic using `PlatformSyncState` checkpoints (e.g., `last_submission_id`, `pagination_offset`).
 - **Why**: Re-fetching or re-processing full historical data (e.g., 5000 past submissions) during every sync cycle destroys performance and triggers rate limits. Syncs must only fetch the delta since the last checkpoint.
+
+### Rule 4.5: Standings Single-Run Policy (No Arbitrary 50-Chunking)
+- **Instruction**: Contest standings synchronization importers (`UserStandingImporter`) MUST process all un-synced contests for the user in a single, uninterrupted run. Arbitrary chunk limits (such as `MAX_CONTESTS_PER_RUN = 50`) and artificial `partial_sync` status transitions are strictly prohibited.
+- **Why**: Because contest standings payloads are cached remotely in Google Drive with Gzip compression, subsequent sync runs or multi-user syncs take milliseconds and do not incur external rate-limit penalties. Artificially throttling to 50 contests creates state-machine fragmentation, partial sync loops, and poor UX.

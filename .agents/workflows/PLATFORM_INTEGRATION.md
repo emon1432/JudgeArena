@@ -37,8 +37,10 @@ Use this workflow whenever adding support for a new Online Judge (e.g. LeetCode,
 3. **Implement Platform Adapter**:
    - Create `app/Platforms/<PlatformName>/<PlatformName>Adapter.php` implementing `App\Core\Contracts\Platforms\PlatformAdapter`.
    - Stub all getter methods (`getUser`, `getUserSubmissions`, `getContests`, etc.) and importer factory methods.
+   - For `getUserStandings(string $contestId)`, integrate `StandingsCacheService` using the Cache-Aside pattern (check Google Drive cache first; on miss, fetch from external OJ, compress Gzip level 9, upload to Drive, and parse).
 4. **Implement Entity Importers**:
-   - Create entity-specific importers in `app/Platforms/<PlatformName>/Importers/` (`UserImporter`, `UserSubmissionImporter`, `ProblemImporter`, `ContestImporter`, etc.).
+   - Create entity-specific importers in `app/Platforms/<PlatformName>/Importers/` (`UserImporter`, `UserSubmissionImporter`, `ProblemImporter`, `ContestImporter`, `UserStandingImporter`, etc.).
+   - Follow the **Single-Run Policy** for `UserStandingImporter`: process all un-synced contests in a single continuous run without arbitrary 50-chunk limits or `partial_sync` resets.
 5. **DTO Mapping & Verdict Normalization**:
    - Ensure all adapter getter methods map raw platform data into standardized `App\Core\DTOs\*` objects.
    - Map platform-specific verdict strings into standard verdict enums.
