@@ -31,10 +31,17 @@ class RatingChangeTransformerTest extends TestCase
         $first = $coreDtos[0];
 
         $this->assertSame('codeforces', $first->platform);
+        $this->assertSame('2225', $first->contestPlatformId);
         $this->assertSame('vietbachleonkroos2326', $first->handle);
         $this->assertTrue($first->isRated);
         $this->assertSame(1664, $first->oldRating);
         $this->assertSame(2060, $first->newRating);
         $this->assertSame(396, $first->ratingChange);
+
+        // Also test user history mapping where platformContestId is null and handle is passed as third parameter
+        $userHistoryDtos = RatingChangeTransformer::fromApiRatingChanges($dtos, null, 'vietbachleonkroos2326');
+        $this->assertNotEmpty($userHistoryDtos);
+        $this->assertSame('2225', $userHistoryDtos[0]->contestPlatformId);
+        $this->assertSame('vietbachleonkroos2326', $userHistoryDtos[0]->handle);
     }
 }
