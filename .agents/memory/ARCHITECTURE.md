@@ -21,6 +21,7 @@ JudgeArena follows a modified **Clean Architecture / Layered Architecture** patt
 │    • SyncRunnerService (Orchestrates sync execution across adapters)        │
 │    • SyncSchedulerService (Rate limits, cooldowns, scheduling)              │
 │    • PlatformSyncStateService (Checkpoint management & state machine)       │
+│    • StandingsCacheService & GoogleDriveClient (Remote Drive Gzip Caching)  │
 └───────────────────────────────────┬─────────────────────────────────────────┘
                                     │ Uses Contracts & DTOs
                                     ▼
@@ -52,8 +53,10 @@ JudgeArena follows a modified **Clean Architecture / Layered Architecture** patt
 | :--- | :--- | :--- | :--- |
 | **Delivery** | `app/Http/`, `app/Console/`, `app/Livewire/` | Services, Models, Core Contracts | Direct platform scraping / HTTP client calls |
 | **Services** | `app/Services/` | Core Contracts, Core DTOs, Models | Concrete Platform Adapters directly (use Factory/Registry) |
+| **Services** | `app/Services/` | Core Contracts, Core DTOs, Models, Remote Caching Clients | Concrete Platform Adapters directly (use Factory/Registry) |
 | **Core Contracts & DTOs** | `app/Core/` | Standalone PHP / Carbon / DTOs | Controllers, Blade views, Livewire, Concrete Adapters |
 | **Platform Adapters** | `app/Platforms/` | Core Contracts, Core DTOs, HTTP/Chrome Scraper | Controllers, Livewire components |
+| **Platform Adapters** | `app/Platforms/` | Core Contracts, Core DTOs, HTTP/Chrome Scraper, `StandingsCacheService` | Controllers, Livewire components |
 | **Persistence** | `app/Models/` | Eloquent, Database Drivers | Web Scrapers, HTTP Clients |
 
 ---
@@ -72,6 +75,23 @@ JudgeArena follows a modified **Clean Architecture / Layered Architecture** patt
    - The Adapter delegates persistence to entity importers (e.g. `userSubmissionImporter()`).
    - Importers compare DTO data with `App\Models\Submission` records using `PlatformSyncState` to avoid duplicate insertion.
 6. **State Update**: `PlatformSyncStateService` updates sync status, last submission ID, and checkpoint timestamps.
+
+### B. Contest Standings Remote Caching Flow (Cache-Aside Pattern)
+
+1. **Check Remote Cache First**: Before making external requests for contest standings in `getUserStandings(string $contestId)` or contest importers, query `StandingsCacheService::get($platform, 'Standings', $contestId)`.
+2. **Cache Hit**:
+   - The compressed Gzip payload is retrieved directly from Google Drive.
+   - Decompressed in-memory with `gzdecode()`, parsed into JSON/arrays, and returned immediately.
+   - External OJ servers are not touched, saving rate-limit quotas and eliminating network latency.
+3. **Cache Miss**:
+   - Raw payload is downloaded from the external platform's native API or scraper.
+   - Payload is compressed with Gzip (level 9) and uploaded to Google Drive via `StandingsCacheService::put($platform, 'Standings', $contestId, $rawJson)`.
+   - Resulting dataset is parsed and returned to the caller.
+4. **Dynamic Folder Hierarchy**:
+   - Folder paths follow the 3-level pattern: `JudgeArena -> <PlatformName> -> <Topic> -> <file>.json.gz`.
+   - Platform names are resolved dynamically via `PlatformRegistry::getPlatformName($platform)` (single source of truth in DB).
+5. **Zero Host Disk Usage**:
+   - Local web server / cPanel storage is never used for raw standings payloads, permanently protecting the 3GB host quota.
 
 ---
 
@@ -147,3 +167,4 @@ To add a new Online Judge platform (e.g. `LeetCode`):
    ],
    ```
 5. **Testing Contract**: Create Pest PHP feature test in `tests/Feature/Platforms/LeetCodeTest.php` ensuring DTO transformation and Importer behavior pass standard test suites.
+6. **Remote Standings Caching Integration**: When implementing contest standings retrieval (`getUserStandings(string $contestId)`), wrap the external network request using `StandingsCacheService` (Cache-Aside pattern). Remote Gzip-compressed caching on Google Drive ensures historical standings payloads are never re-fetched or saved to local host disk.

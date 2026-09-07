@@ -15,6 +15,9 @@ No HTTP Controller, Livewire Component, or Blade view render cycle is EVER permi
 ### Axiom 3: Complete Encapsulation via Adapter Protocol
 All interactions with external Online Judges MUST be encapsulated within concrete implementations of `App\Core\Contracts\Platforms\PlatformAdapter`. Models, services, and controllers MUST NEVER issue raw cURL, Guzzle, or Symfony Crawler calls directly to an external judge URL.
 
+### Axiom 4: Zero Local Disk Exhaustion & Remote Cloud Caching
+JudgeArena's host server (e.g., cPanel 3GB storage limit) MUST NEVER store growing bulk assets, heavy crawler payloads, or contest standings files. All bulk standings and contest payloads MUST be compressed (Gzip level 9) and stored on external remote object/drive storage (e.g., Google Drive) following the Cache-Aside pattern via `StandingsCacheService`. Local disk consumption for standings cache must remain strictly **0 Bytes**.
+
 ---
 
 ## 2. Non-Negotiable Engineering Rules
@@ -42,6 +45,10 @@ All interactions with external Online Judges MUST be encapsulated within concret
 | **Reusable UI Components** | Blade Components (`<x-breadcrumb>`, `<x-infinite-scroll>`) | Strictly enforce DRY syntax across all views. Manual raw HTML for breadcrumbs, headers, or infinite loaders is forbidden; ALWAYS invoke dedicated components from `resources/views/components/*`. |
 | **Data Lists & UI** | **Universal Infinite Scrolling (No Pagination)** | Traditional numbered pagination is strictly forbidden across the platform. Due to massive datasets (lakhs of submissions, problems, standings), seamless Infinite Loading / Scroll Loading via IntersectionObserver and Server-Side Cursor/Simple queries guarantees superior user experience and speed. |
 | **Detail Page Tables** | **Top 10 Recent Preview + View All CTA** | On detail/profile overview pages (like Platform detail or User profile) where widgets exist below tables, NEVER use infinite scroll (to prevent UX "Footer Trap"). Show only top 10 recent items with a link to the dedicated directory page. |
+| **Standings Storage** | Google Drive + Gzip (Level 9) via `StandingsCacheService` | Prevents host disk exhaustion on cPanel (3GB limit); compresses MB-scale standings JSON into KBs; zero external Composer dependencies via pure HTTP OAuth2 client (`GoogleDriveClient`). |
+| **Storage Hierarchy** | 3-Level Dynamic Path (`JudgeArena -> Platform -> Topic -> files`) | Clean hierarchical separation (`JudgeArena -> Codeforces -> Standings -> {contestId}.json.gz`); automatically scalable to 100+ platforms; extensible for future topics (`Problems`, `Submissions`). |
+| **Platform Naming** | Dynamic Resolution via `PlatformRegistry` | Single source of truth from database `platforms` table; runtime memory cached; zero code modifications or hardcoded `match()` statements needed when adding new judges. |
+| **Standings Sync Policy** | Single-Run Full Sync (No 50-Chunking) | Remote standings caching eliminates repeated external API calls; arbitrary 50-contest chunking (`MAX_CONTESTS_PER_RUN`) and `partial_sync` loops are permanently removed. |
 
 ---
 
