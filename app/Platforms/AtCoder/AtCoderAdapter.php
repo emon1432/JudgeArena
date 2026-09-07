@@ -40,6 +40,7 @@ class AtCoderAdapter implements PlatformAdapter
         private readonly UserTransformer $userTransformer,
         private readonly SubmissionTransformer $submissionTransformer,
         private readonly StandingsTransformer $standingsTransformer,
+        private readonly \App\Services\StandingsCacheService $standingsCacheService,
     ) {}
 
     //================================Used==================================
@@ -92,8 +93,22 @@ class AtCoderAdapter implements PlatformAdapter
 
     public function getUserStandings(string $id): ContestStandingsDTO
     {
-        return $this->standingsTransformer
+        if ($this->standingsCacheService->has('atcoder', $id)) {
+            $cached = $this->standingsCacheService->get('atcoder', $id);
+            if ($cached instanceof ContestStandingsDTO) {
+                return $cached;
+            }
+        }
+
+        $standings = $this->standingsTransformer
             ->fromApiStandings($this->contests->standings($id));
+
+        $phase = strtoupper((string) ($standings->contest->phase ?? ''));
+        if ($phase === 'FINISHED' || $phase === '') {
+            $this->standingsCacheService->put('atcoder', $id, $standings);
+        }
+
+        return $standings;
     }
 
     public function getUser(string $username): UserDTO

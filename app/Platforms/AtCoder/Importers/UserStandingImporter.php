@@ -25,8 +25,6 @@ use Throwable;
 
 class UserStandingImporter implements UserStandingImporterContract
 {
-    private const MAX_CONTESTS_PER_RUN = 50;
-
     private array $contestMap = [];
 
     public function __construct(
@@ -175,12 +173,9 @@ class UserStandingImporter implements UserStandingImporterContract
                     continue;
                 }
 
-                $contestsBatch = array_slice($contestsToProcess, 0, self::MAX_CONTESTS_PER_RUN);
-                $hasMoreContests = count($contestsToProcess) > self::MAX_CONTESTS_PER_RUN;
-
                 $standingsFetched = 0;
 
-                foreach ($contestsBatch as $contestDbId) {
+                foreach ($contestsToProcess as $contestDbId) {
                     $contest = $this->contestMap[$contestDbId] ?? null;
                     if ($contest === null || $contest->platform_contest_id === null) {
                         continue;
@@ -322,23 +317,13 @@ class UserStandingImporter implements UserStandingImporterContract
 
                 $result->incrementFetched($standingsFetched);
 
-                if ($hasMoreContests) {
-                    $this->platformSyncStateService->resetForRetry($syncState, [
-                        'profile_id' => $profile->id,
-                        'handle' => $normalizedHandle,
-                        'platform_slug' => $platformSlug,
-                        'status' => 'partial_sync',
-                        'remaining' => count($contestsToProcess) - count($contestsBatch),
-                    ]);
-                } else {
-                    $this->platformSyncStateService->markSynced($syncState, [
-                        'profile_id' => $profile->id,
-                        'handle' => $normalizedHandle,
-                        'platform_slug' => $platformSlug,
-                        'contests_synced' => count($contestIds),
-                        'last_synced_at' => now(),
-                    ]);
-                }
+                $this->platformSyncStateService->markSynced($syncState, [
+                    'profile_id' => $profile->id,
+                    'handle' => $normalizedHandle,
+                    'platform_slug' => $platformSlug,
+                    'contests_synced' => count($contestIds),
+                    'last_synced_at' => now(),
+                ]);
             } catch (Throwable $e) {
                 $result->incrementFailed();
 
