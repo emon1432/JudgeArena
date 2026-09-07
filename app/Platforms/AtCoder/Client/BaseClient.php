@@ -30,10 +30,25 @@ class BaseClient
 
     protected function http(): PendingRequest
     {
+        $headers = [
+            'User-Agent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+            'Accept' => 'application/json, text/javascript, */*; q=0.01',
+            'Accept-Encoding' => 'gzip, deflate',
+        ];
+
+        $sessionCookie = config('platforms.atcoder.credentials.atcoder_session_cookies')
+            ?? env('ATCODER_SESSION_COOKIES');
+
+        if ($sessionCookie !== null && trim((string) $sessionCookie) !== '') {
+            $cookieStr = trim((string) $sessionCookie);
+            if (! str_contains($cookieStr, '=')) {
+                $cookieStr = 'REVEL_SESSION=' . $cookieStr;
+            }
+            $headers['Cookie'] = $cookieStr;
+        }
+
         return Http::acceptJson()
-            ->withHeaders([
-                'Accept-Encoding' => 'gzip, deflate',
-            ])
+            ->withHeaders($headers)
             ->timeout(self::HTTP_TIMEOUT_SECONDS)
             ->retry(
                 self::HTTP_RETRY_ATTEMPTS,
@@ -112,6 +127,13 @@ class BaseClient
         $response = empty($sanitizedQuery)
             ? $this->http()->get($url)
             : $this->http()->get($url, $sanitizedQuery);
+
+        if ($response->status() === 404 && str_contains($url, '/standings/json')) {
+            $fallbackUrl = str_replace('/standings/json', '/standings/team/json', $url);
+            $response = empty($sanitizedQuery)
+                ? $this->http()->get($fallbackUrl)
+                : $this->http()->get($fallbackUrl, $sanitizedQuery);
+        }
 
         return $this->decodeApiResponse($response, $identifier, $sanitizedQuery);
     }

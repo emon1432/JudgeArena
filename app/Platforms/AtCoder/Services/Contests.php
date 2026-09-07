@@ -33,16 +33,12 @@ class Contests
     /**
      * Fetch contest standings from AtCoder native web JSON endpoint.
      */
-    public function standings(string $contestId, bool $virtual = false): AtCoderStandingsDTO
+    public function standings(string $contestId): AtCoderStandingsDTO
     {
-        $path = $virtual
-            ? "contests/{$contestId}/standings/virtual/json"
-            : "contests/{$contestId}/standings/json";
-
-        $response = $this->client->requestWebJson($path);
+        $response = $this->client->requestWebJson("contests/{$contestId}/standings/json");
 
         return AtCoderStandingsMapper::fromApiResponse(
-            ResponseNormalizer::standings($response)
+            ResponseNormalizer::standings($response, null, $contestId)
         );
     }
 
