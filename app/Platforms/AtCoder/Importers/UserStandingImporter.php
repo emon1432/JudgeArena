@@ -10,6 +10,7 @@ use App\Core\DTOs\ParticipantDTO;
 use App\Core\DTOs\ProblemResultDTO;
 use App\Core\Results\ImportResult;
 use App\Enums\PlatformSyncEntityType;
+use App\Enums\PlatformSyncStatus;
 use App\Models\Contest;
 use App\Models\ContestRatingChange;
 use App\Models\Platform;
@@ -42,7 +43,7 @@ class UserStandingImporter implements UserStandingImporterContract
 
     public function import(?string $handle = null): ImportResult
     {
-        $result = new ImportResult();
+        $result = new ImportResult;
         $platformSlug = 'atcoder';
 
         $platform = $this->platformModel->newQuery()
@@ -54,7 +55,7 @@ class UserStandingImporter implements UserStandingImporterContract
                 'category' => 'import',
                 'platform' => $platformSlug,
                 'source' => self::class,
-                'message' => 'Platform "' . $platformSlug . '" not found in database',
+                'message' => 'Platform "'.$platformSlug.'" not found in database',
             ]);
 
             return $result;
@@ -84,6 +85,7 @@ class UserStandingImporter implements UserStandingImporterContract
 
             if ($normalizedHandle === '') {
                 $result->incrementSkipped();
+
                 continue;
             }
 
@@ -95,6 +97,7 @@ class UserStandingImporter implements UserStandingImporterContract
 
             if ($handle === null && $isSynced) {
                 $result->incrementSkipped();
+
                 continue;
             }
 
@@ -104,7 +107,7 @@ class UserStandingImporter implements UserStandingImporterContract
                     PlatformSyncEntityType::UserStandings,
                     $normalizedHandle
                 );
-                if ($existingState !== null && $existingState->sync_status === \App\Enums\PlatformSyncStatus::Synced) {
+                if ($existingState !== null && $existingState->sync_status === PlatformSyncStatus::Synced) {
                     $this->platformSyncStateService->resetForRetry($existingState);
                 }
             }
@@ -122,6 +125,7 @@ class UserStandingImporter implements UserStandingImporterContract
 
             if ($syncState === null) {
                 $result->incrementSkipped();
+
                 continue;
             }
 
@@ -150,6 +154,7 @@ class UserStandingImporter implements UserStandingImporterContract
                         'contests_synced' => 0,
                         'status' => 'no_contests_found',
                     ]);
+
                     continue;
                 }
 
@@ -170,6 +175,7 @@ class UserStandingImporter implements UserStandingImporterContract
                         'contests_synced' => count($contestIds),
                         'status' => 'all_standings_exist',
                     ]);
+
                     continue;
                 }
 

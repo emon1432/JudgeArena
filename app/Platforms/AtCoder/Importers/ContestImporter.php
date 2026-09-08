@@ -26,7 +26,7 @@ class ContestImporter implements ContestImporterContract
 
     public function import(): ImportResult
     {
-        $result = new ImportResult();
+        $result = new ImportResult;
 
         $platform = $this->platformModel->newQuery()
             ->where('slug', 'atcoder')
@@ -48,7 +48,7 @@ class ContestImporter implements ContestImporterContract
 
         $contests = $this->adapter->getContests();
 
-        if (!is_array($contests)) {
+        if (! is_array($contests)) {
             $contests = [];
         }
 
@@ -76,6 +76,7 @@ class ContestImporter implements ContestImporterContract
                 $isSynced
             ) {
                 $result->incrementSkipped();
+
                 continue;
             }
 
@@ -92,6 +93,7 @@ class ContestImporter implements ContestImporterContract
 
             if ($syncState === null) {
                 $result->incrementSkipped();
+
                 continue;
             }
 
@@ -109,7 +111,7 @@ class ContestImporter implements ContestImporterContract
                     ],
                     [
                         'name' => $contestDto->title,
-                        'slug' => $contestDto->slug ?? Str::slug($contestPlatformId . '-' . $contestDto->title),
+                        'slug' => $contestDto->slug ?? Str::slug($contestPlatformId.'-'.$contestDto->title),
                         'type' => $contestDto->type,
                         'phase' => $contestDto->phase,
                         'is_rated' => $isRated,

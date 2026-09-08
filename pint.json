@@ -1,0 +1,9 @@
+{
+    "preset": "laravel",
+    "exclude": [
+        "database/seeders",
+        "storage",
+        "bootstrap/cache"
+    ]
+}
+

@@ -7,7 +7,6 @@ use App\Platforms\AtCoder\DTOs\AtCoderUserDTO;
 
 class UserTransformer
 {
-    /** @return UserDTO */
     public function fromApiUser(AtCoderUserDTO $user): UserDTO
     {
         $rating = $this->extractRating($user->contestStatus);
@@ -31,7 +30,7 @@ class UserTransformer
     }
 
     /**
-     * @param array<string, mixed>|null $contestStatus
+     * @param  array<string, mixed>|null  $contestStatus
      */
     private function extractRating(?array $contestStatus): ?int
     {

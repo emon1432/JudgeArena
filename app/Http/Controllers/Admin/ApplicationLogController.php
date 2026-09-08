@@ -45,13 +45,13 @@ class ApplicationLogController extends Controller
 
         if ($search !== '') {
             $query->where(function ($builder) use ($search): void {
-                $builder->where('message', 'like', '%' . $search . '%')
-                    ->orWhere('source', 'like', '%' . $search . '%')
-                    ->orWhere('category', 'like', '%' . $search . '%')
-                    ->orWhere('platform', 'like', '%' . $search . '%')
-                    ->orWhere('entity_type', 'like', '%' . $search . '%')
-                    ->orWhere('entity_id', 'like', '%' . $search . '%')
-                    ->orWhere('ip_address', 'like', '%' . $search . '%');
+                $builder->where('message', 'like', '%'.$search.'%')
+                    ->orWhere('source', 'like', '%'.$search.'%')
+                    ->orWhere('category', 'like', '%'.$search.'%')
+                    ->orWhere('platform', 'like', '%'.$search.'%')
+                    ->orWhere('entity_type', 'like', '%'.$search.'%')
+                    ->orWhere('entity_id', 'like', '%'.$search.'%')
+                    ->orWhere('ip_address', 'like', '%'.$search.'%');
             });
         }
 
@@ -116,7 +116,7 @@ class ApplicationLogController extends Controller
                 $log->level = $this->levelBadge((string) $log->level);
                 $log->category = e($log->category);
                 $log->platform = e($log->platform ?? '-');
-                $log->entity = e(trim(($log->entity_type ?? '-') . ($log->entity_id ? ' : ' . $log->entity_id : '')));
+                $log->entity = e(trim(($log->entity_type ?? '-').($log->entity_id ? ' : '.$log->entity_id : '')));
                 $log->source = e($log->source);
                 $log->message = e(str($log->message)->limit(100));
                 $log->userName = e($log->user?->name ?? 'System');
@@ -131,6 +131,7 @@ class ApplicationLogController extends Controller
                         ],
                     ],
                 ]))->render()->render();
+
                 return $log;
             }
         );
@@ -145,7 +146,7 @@ class ApplicationLogController extends Controller
             default => 'info',
         };
 
-        return '<span class="badge bg-label-' . $color . ' text-uppercase">' . e($level) . '</span>';
+        return '<span class="badge bg-label-'.$color.' text-uppercase">'.e($level).'</span>';
     }
 
     private function filterInput(Request $request, string $key): string

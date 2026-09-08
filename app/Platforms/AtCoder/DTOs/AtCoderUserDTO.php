@@ -5,8 +5,8 @@ namespace App\Platforms\AtCoder\DTOs;
 readonly class AtCoderUserDTO
 {
     /**
-     * @param array<string, mixed>|null $contestStatus
-     * @param array<string, mixed> $raw
+     * @param  array<string, mixed>|null  $contestStatus
+     * @param  array<string, mixed>  $raw
      */
     public function __construct(
         public ?string $username,
@@ -25,4 +25,3 @@ readonly class AtCoderUserDTO
         public array $raw = [],
     ) {}
 }
-

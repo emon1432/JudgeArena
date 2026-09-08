@@ -12,8 +12,8 @@ use App\Models\Platform;
 use App\Platforms\Codeforces\CodeforcesAdapter;
 use App\Services\ApplicationLogger;
 use App\Services\PlatformSyncStateService;
+use Illuminate\Support\Str;
 use Throwable;
-
 
 class ContestImporter implements ContestImporterContract
 {
@@ -22,12 +22,11 @@ class ContestImporter implements ContestImporterContract
         private readonly Platform $platformModel,
         private readonly CodeforcesAdapter $adapter,
         private readonly PlatformSyncStateService $platformSyncStateService,
-    ) {
-    }
+    ) {}
 
     public function import(): ImportResult
     {
-        $result = new ImportResult();
+        $result = new ImportResult;
 
         $platform = $this->platformModel->newQuery()
             ->where('slug', 'codeforces')
@@ -49,7 +48,7 @@ class ContestImporter implements ContestImporterContract
 
         $contests = $this->adapter->getContests();
 
-        if (!is_array($contests)) {
+        if (! is_array($contests)) {
             $contests = [];
         }
 
@@ -77,6 +76,7 @@ class ContestImporter implements ContestImporterContract
                 $isSynced
             ) {
                 $result->incrementSkipped();
+
                 continue;
             }
 
@@ -93,6 +93,7 @@ class ContestImporter implements ContestImporterContract
 
             if ($syncState === null) {
                 $result->incrementSkipped();
+
                 continue;
             }
 
@@ -104,7 +105,7 @@ class ContestImporter implements ContestImporterContract
                     ],
                     [
                         'name' => $contestDto->title ?? '',
-                        'slug' => \Illuminate\Support\Str::slug(($contestDto->title ?? 'contest') . '-' . ($contestDto->platformContestId ?? '')),
+                        'slug' => Str::slug(($contestDto->title ?? 'contest').'-'.($contestDto->platformContestId ?? '')),
                         'type' => $contestDto->raw['type'] ?? null,
                         'phase' => $contestDto->phase ?? null,
                         'duration_seconds' => $contestDto->durationSeconds ?? null,
@@ -174,4 +175,3 @@ class ContestImporter implements ContestImporterContract
         return $result;
     }
 }
-

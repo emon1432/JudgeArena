@@ -37,4 +37,3 @@ class RatingChangeTransformerTest extends TestCase
         $this->assertSame(50, $core->ratingChange);
     }
 }
-

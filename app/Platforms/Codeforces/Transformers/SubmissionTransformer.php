@@ -10,7 +10,6 @@ use App\Platforms\Codeforces\DTOs\CodeforcesSubmissionDTO;
 
 class SubmissionTransformer
 {
-    /** @return SubmissionDTO */
     public function fromApiSubmission(CodeforcesSubmissionDTO $submission): SubmissionDTO
     {
         $contestId = (string) ($submission->problem?->contestId ?? $submission->contestId ?? '0');
@@ -22,7 +21,7 @@ class SubmissionTransformer
         return new SubmissionDTO(
             platform: 'codeforces',
             platformSubmissionId: (string) ($submission->id ?? ''),
-            problemPlatformId: $contestId . $index,
+            problemPlatformId: $contestId.$index,
             authorHandle: $handle,
             verdict: SubmissionVerdict::fromCodeforces($submission->verdict),
             language: $submission->programmingLanguage ?? null,
@@ -38,7 +37,7 @@ class SubmissionTransformer
     }
 
     /**
-     * @param CodeforcesSubmissionDTO[] $submissions
+     * @param  CodeforcesSubmissionDTO[]  $submissions
      * @return array<int, SubmissionDTO>
      */
     public function fromApiSubmissions(array $submissions): array
@@ -46,5 +45,3 @@ class SubmissionTransformer
         return array_map(fn (CodeforcesSubmissionDTO $submission): SubmissionDTO => $this->fromApiSubmission($submission), $submissions);
     }
 }
-
-

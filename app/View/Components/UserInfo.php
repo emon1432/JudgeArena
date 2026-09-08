@@ -9,6 +9,7 @@ use Illuminate\View\Component;
 class UserInfo extends Component
 {
     public $user;
+
     public $initials;
 
     public function __construct($user)
@@ -20,7 +21,7 @@ class UserInfo extends Component
             }
         }
         if (empty($this->initials)) {
-            $this->initials = strtoupper(substr($user->name, 0, 1) . substr($user->name, strpos($user->name, ' ') + 1, 1));
+            $this->initials = strtoupper(substr($user->name, 0, 1).substr($user->name, strpos($user->name, ' ') + 1, 1));
         }
     }
 

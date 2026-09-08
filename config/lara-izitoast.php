@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: marvincollins
@@ -19,6 +20,6 @@ return [
     'closeOnClick' => true,
     'timeout' => 5000,
     'drag' => true,
-    'position' => "bottomRight", //bottomRight, bottomLeft, topRight, topLeft, topCenter, bottomCenter or center.
+    'position' => 'bottomRight', // bottomRight, bottomLeft, topRight, topLeft, topCenter, bottomCenter or center.
     'progressBar' => true,
 ];

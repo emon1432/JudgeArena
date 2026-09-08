@@ -28,7 +28,7 @@ class SubmissionTransformerTest extends TestCase
             'points' => 500.0,
         ]);
 
-        $transformer = new SubmissionTransformer();
+        $transformer = new SubmissionTransformer;
         $core = $transformer->fromApiSubmission($dto);
 
         $this->assertSame('codeforces', $core->platform);
@@ -41,4 +41,3 @@ class SubmissionTransformerTest extends TestCase
         $this->assertSame(1048576, $core->memoryConsumedBytes);
     }
 }
-

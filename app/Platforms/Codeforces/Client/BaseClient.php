@@ -13,14 +13,21 @@ use RuntimeException;
 class BaseClient
 {
     private readonly string $apiBaseUrl;
+
     private readonly string $webBaseUrl;
+
     private readonly string $apiKey;
+
     private readonly string $apiSecret;
 
     protected const HTTP_TIMEOUT_SECONDS = 25;
+
     protected const HTTP_RETRY_ATTEMPTS = 3;
+
     protected const HTTP_RETRY_SLEEP_MS = 300;
+
     protected const USER_INFO_BATCH_CHAR_LIMIT = 2000;
+
     protected const API_RATE_LIMIT_SECONDS = 2;
 
     public function __construct()
@@ -31,7 +38,7 @@ class BaseClient
         $this->apiSecret = (string) config('platforms.codeforces.credentials.api_secret', '');
     }
 
-    //used
+    // used
     protected function http(): PendingRequest
     {
         return Http::acceptJson()
@@ -47,10 +54,10 @@ class BaseClient
             );
     }
 
-    //used
+    // used
     protected function respectRateLimit(string $method, array $query): void
     {
-        $cacheKey = 'codeforces:last_request_at:' . $method . ':' . md5(json_encode($query));
+        $cacheKey = 'codeforces:last_request_at:'.$method.':'.md5(json_encode($query));
         $lastRequestAt = (int) (cache()->get($cacheKey) ?? 0);
         $elapsed = time() - $lastRequestAt;
 
@@ -61,7 +68,7 @@ class BaseClient
         cache()->put($cacheKey, time(), self::API_RATE_LIMIT_SECONDS + 1);
     }
 
-    //used
+    // used
     protected function sanitizeQuery(array $query): array
     {
         $sanitized = [];
@@ -77,7 +84,7 @@ class BaseClient
         return $sanitized;
     }
 
-    //used
+    // used
     protected function decodeApiResponse(Response $response, string $method, array $query): array
     {
         if (! $response->ok()) {
@@ -125,7 +132,7 @@ class BaseClient
         return is_array($result) ? $result : [];
     }
 
-    //used
+    // used
     protected function signedQuery(string $method, array $query): array
     {
         $apiKey = $this->apiKey();
@@ -143,31 +150,31 @@ class BaseClient
 
         $paramString = http_build_query($sorted, '', '&', PHP_QUERY_RFC3986);
         $prefix = bin2hex(random_bytes(3));
-        $signature = hash('sha512', $prefix . '/' . $method . '?' . $paramString . '#' . $secret);
-        $query['apiSig'] = $prefix . $signature;
+        $signature = hash('sha512', $prefix.'/'.$method.'?'.$paramString.'#'.$secret);
+        $query['apiSig'] = $prefix.$signature;
 
         return $query;
     }
 
-    //used
+    // used
     protected function apiKey(): string
     {
         return $this->apiKey;
     }
 
-    //used
+    // used
     protected function apiSecret(): string
     {
         return $this->apiSecret;
     }
 
-    //used
+    // used
     protected function hasApiCredentials(): bool
     {
         return $this->apiKey() !== '' && $this->apiSecret() !== '';
     }
 
-    //used
+    // used
     protected function requiresSignedRequest(array $options): bool
     {
         return array_key_exists('apiKey', $options)
@@ -175,7 +182,7 @@ class BaseClient
             || $this->hasApiCredentials();
     }
 
-    //used
+    // used
     public function requiresSignedRequestPublic(array $options): bool
     {
         return $this->requiresSignedRequest($options);
@@ -191,7 +198,7 @@ class BaseClient
         return (int) self::USER_INFO_BATCH_CHAR_LIMIT;
     }
 
-    //used
+    // used
     public function requestApi(string $method, array $query = [], bool $signed = false): array
     {
         $finalQuery = $this->sanitizeQuery($query);
@@ -202,7 +209,7 @@ class BaseClient
 
         $this->respectRateLimit($method, $finalQuery);
 
-        $url = rtrim($this->apiBaseUrl, '/') . '/' . ltrim($method, '/');
+        $url = rtrim($this->apiBaseUrl, '/').'/'.ltrim($method, '/');
 
         $response = $this->http()
             ->get($url, $finalQuery);

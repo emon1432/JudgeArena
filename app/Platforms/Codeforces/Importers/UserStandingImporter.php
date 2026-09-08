@@ -42,7 +42,7 @@ class UserStandingImporter implements UserStandingImporterContract
     public function import(?string $handle = null): ImportResult
     {
         $platformSlug = 'codeforces';
-        $result = new ImportResult();
+        $result = new ImportResult;
 
         $platform = $this->contestPlatform();
 
@@ -51,8 +51,9 @@ class UserStandingImporter implements UserStandingImporterContract
                 'category' => 'import',
                 'platform' => $platformSlug,
                 'source' => self::class,
-                'message' => 'Platform "' . $platformSlug . '" not found in database',
+                'message' => 'Platform "'.$platformSlug.'" not found in database',
             ]);
+
             return $result;
         }
 
@@ -74,6 +75,7 @@ class UserStandingImporter implements UserStandingImporterContract
 
             if ($normalizedHandle === '') {
                 $result->incrementSkipped();
+
                 continue;
             }
 
@@ -86,6 +88,7 @@ class UserStandingImporter implements UserStandingImporterContract
             // If handle is not explicitly specified and profile user standings were already synced, skip!
             if ($handle === null && $isSynced) {
                 $result->incrementSkipped();
+
                 continue;
             }
 
@@ -102,6 +105,7 @@ class UserStandingImporter implements UserStandingImporterContract
 
             if ($syncState === null) {
                 $result->incrementSkipped();
+
                 continue;
             }
 
@@ -121,8 +125,8 @@ class UserStandingImporter implements UserStandingImporterContract
                     ->pluck('contest_id')
                     ->toArray();
 
-                // Limitation: Discovering participated contests via rating changes and submissions 
-                // is a practical strategy but not necessarily complete. E.g. unrated contests 
+                // Limitation: Discovering participated contests via rating changes and submissions
+                // is a practical strategy but not necessarily complete. E.g. unrated contests
                 // where the user made no submissions won't be found.
                 $allParticipatedContestIds = array_unique(array_merge($ratingContestIds, $submissionContestIds));
 
@@ -132,6 +136,7 @@ class UserStandingImporter implements UserStandingImporterContract
                         'handle' => $normalizedHandle,
                         'status' => 'no_contests_found',
                     ]);
+
                     continue;
                 }
 
@@ -150,6 +155,7 @@ class UserStandingImporter implements UserStandingImporterContract
                         'handle' => $normalizedHandle,
                         'status' => 'all_standings_exist',
                     ]);
+
                     continue;
                 }
 
@@ -322,6 +328,7 @@ class UserStandingImporter implements UserStandingImporterContract
 
             if ($problem === null) {
                 $result->incrementMetadata('task_results_skipped');
+
                 continue;
             }
 
@@ -441,7 +448,7 @@ class UserStandingImporter implements UserStandingImporterContract
 
         if ($teamId !== null && $teamId !== '') {
             return [
-                'key' => 'team:' . trim((string) $teamId),
+                'key' => 'team:'.trim((string) $teamId),
                 'type' => $participantType ?? 'TEAM',
                 'name' => $teamName !== '' ? $teamName : $this->teamNameFromHandles($handles),
                 'handle' => null,
@@ -450,7 +457,7 @@ class UserStandingImporter implements UserStandingImporterContract
 
         if ($teamName !== '') {
             return [
-                'key' => 'team:' . $this->slugKey($teamName),
+                'key' => 'team:'.$this->slugKey($teamName),
                 'type' => $participantType ?? 'TEAM',
                 'name' => $teamName,
                 'handle' => null,
@@ -461,7 +468,7 @@ class UserStandingImporter implements UserStandingImporterContract
             sort($handles);
 
             return [
-                'key' => 'team:' . $this->slugKey(implode(':', $handles)),
+                'key' => 'team:'.$this->slugKey(implode(':', $handles)),
                 'type' => $participantType ?? 'TEAM',
                 'name' => $this->teamNameFromHandles($handles),
                 'handle' => null,
@@ -472,7 +479,7 @@ class UserStandingImporter implements UserStandingImporterContract
         $hashSource = $encodedRaw !== false && $encodedRaw !== '' ? $encodedRaw : (string) $participant->rank;
 
         return [
-            'key' => 'participant:' . sha1($hashSource),
+            'key' => 'participant:'.sha1($hashSource),
             'type' => $participantType,
             'name' => null,
             'handle' => null,

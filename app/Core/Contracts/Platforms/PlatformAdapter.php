@@ -19,7 +19,7 @@ use App\Core\DTOs\UserDTO;
 
 interface PlatformAdapter
 {
-    //===============================Getters==================================
+    // ===============================Getters==================================
 
     /**
      * @return ContestDTO[]
@@ -27,13 +27,11 @@ interface PlatformAdapter
     public function getContests(): array;
 
     /**
-     * @param string $contestId
      * @return ProblemDTO[]
      */
     public function getContestProblems(string $contestId): array;
 
     /**
-     * @param string $handle
      * @return RatingChangeDTO[]
      */
     public function getUserRatingHistory(string $handle): array;
@@ -46,7 +44,6 @@ interface PlatformAdapter
      *     count?:int,
      *     stopSubmissionId?:string
      * } $params
-     *
      * @return array{
      *     submissions: SubmissionDTO[],
      *     reached_stop: bool
@@ -54,24 +51,20 @@ interface PlatformAdapter
      */
     public function getUserSubmissions(array $params): array;
 
-    /**
-     * @param string $id
-     * @return ContestStandingsDTO
-     */
     public function getUserStandings(string $id): ContestStandingsDTO;
 
-    /**
-     * @param string $username
-     * @return UserDTO
-     */
     public function getUser(string $username): UserDTO;
 
-
-    //==============================Importers==================================
+    // ==============================Importers==================================
     public function contestImporter(): ContestImporter;
+
     public function problemImporter(): ProblemImporter;
+
     public function userRatingHistoryImporter(): UserRatingHistoryImporter;
+
     public function userSubmissionImporter(): UserSubmissionImporter;
+
     public function userStandingImporter(): UserStandingImporter;
+
     public function userImporter(): UserImporter;
 }

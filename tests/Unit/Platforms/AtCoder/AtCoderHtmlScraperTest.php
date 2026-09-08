@@ -76,7 +76,7 @@ HTML;
 </html>
 HTML;
 
-        $scraper = new AtCoderHtmlScraper();
+        $scraper = new AtCoderHtmlScraper;
         $parsed = $scraper->parseUserProfileHtml($algoHtml, $heuristicHtml, 'tourist');
 
         // Profile identity fields
@@ -117,10 +117,9 @@ HTML;
     public function test_scraper_falls_back_to_default_avatar_when_no_avatar_is_found(): void
     {
         $htmlWithoutAvatar = '<html><body><div class="col-md-3"><a class="username">novice</a></div></body></html>';
-        $scraper = new AtCoderHtmlScraper();
+        $scraper = new AtCoderHtmlScraper;
         $parsed = $scraper->parseUserProfileHtml($htmlWithoutAvatar, null, 'novice');
 
         $this->assertSame('https://img.atcoder.jp/assets/icon/avatar.png', $parsed['avatarUrl']);
     }
 }
-

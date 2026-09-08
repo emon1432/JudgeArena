@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Feature\Admin;
 
 use App\Models\Contest;
-use App\Models\Platform;
 use App\Models\Problem;
 use Tests\TestCase;
 
@@ -89,4 +88,3 @@ class ProblemDatatableTest extends TestCase
         $this->assertSame(1, $json['recordsFiltered']);
     }
 }
-

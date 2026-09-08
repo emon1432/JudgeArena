@@ -17,7 +17,6 @@ use App\Services\ApplicationLogger;
 use App\Services\PlatformSyncStateService;
 use Throwable;
 
-
 class UserRatingHistoryImporter implements UserRatingHistoryImporterContract
 {
     public function __construct(
@@ -31,7 +30,7 @@ class UserRatingHistoryImporter implements UserRatingHistoryImporterContract
 
     public function import(?string $handle = null): ImportResult
     {
-        $result = new ImportResult();
+        $result = new ImportResult;
 
         $platform = $this->platformModel->newQuery()
             ->where('slug', 'codeforces')
@@ -71,7 +70,7 @@ class UserRatingHistoryImporter implements UserRatingHistoryImporterContract
             ->where('platform_id', $platform->id)
             ->whereNotNull('platform_contest_id')
             ->get()
-            ->keyBy(fn(Contest $c): string => (string) $c->platform_contest_id);
+            ->keyBy(fn (Contest $c): string => (string) $c->platform_contest_id);
 
         $platformProfilesByHandle = $this->platformProfilesByHandle((int) $platform->id);
 
@@ -80,6 +79,7 @@ class UserRatingHistoryImporter implements UserRatingHistoryImporterContract
 
             if ($normalizedHandle === '') {
                 $result->incrementSkipped();
+
                 continue;
             }
 
@@ -92,6 +92,7 @@ class UserRatingHistoryImporter implements UserRatingHistoryImporterContract
             // If handle is not explicitly specified and profile rating history was already synced, skip!
             if ($handle === null && $isSynced) {
                 $result->incrementSkipped();
+
                 continue;
             }
 
@@ -108,6 +109,7 @@ class UserRatingHistoryImporter implements UserRatingHistoryImporterContract
 
             if ($syncState === null) {
                 $result->incrementSkipped();
+
                 continue;
             }
 
@@ -141,6 +143,7 @@ class UserRatingHistoryImporter implements UserRatingHistoryImporterContract
                             'platform_contest_id' => $contestPlatformId,
                             'handle' => $ratingChangeHandle,
                         ]);
+
                         continue;
                     }
 
@@ -245,4 +248,3 @@ class UserRatingHistoryImporter implements UserRatingHistoryImporterContract
         return $indexedProfiles;
     }
 }
-

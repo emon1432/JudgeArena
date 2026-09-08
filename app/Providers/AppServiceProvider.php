@@ -3,9 +3,9 @@
 namespace App\Providers;
 
 use App\Core\Platforms\PlatformRegistry;
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -29,8 +29,8 @@ class AppServiceProvider extends ServiceProvider
                 'app.url' => $systemSettings['app_url'] ?? config('app.url'),
                 'app.locale' => session('locale', $systemSettings['app_locale'] ?? config('app.locale')),
                 'app.timezone' => $systemSettings['app_timezone'] ?? config('app.timezone'),
-                'app.date_format' => $systemSettings['date_format'] ??  config('app.date_format'),
-                'app.time_format' => $systemSettings['time_format'] ??  config('app.time_format'),
+                'app.date_format' => $systemSettings['date_format'] ?? config('app.date_format'),
+                'app.time_format' => $systemSettings['time_format'] ?? config('app.time_format'),
             ]);
         }
     }

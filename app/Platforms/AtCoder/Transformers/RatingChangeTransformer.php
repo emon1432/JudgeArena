@@ -10,13 +10,13 @@ use App\Platforms\AtCoder\DTOs\AtCoderRatingChangeDTO;
 final class RatingChangeTransformer
 {
     /**
-     * @param AtCoderRatingChangeDTO[] $ratingChanges
+     * @param  AtCoderRatingChangeDTO[]  $ratingChanges
      * @return RatingChangeDTO[]
      */
     public static function fromApiRatingChanges(array $ratingChanges, ?string $platformContestId = null, ?string $handle = null): array
     {
         return array_map(
-            fn(AtCoderRatingChangeDTO $ratingChange): RatingChangeDTO => self::toCore($ratingChange, $platformContestId, $handle),
+            fn (AtCoderRatingChangeDTO $ratingChange): RatingChangeDTO => self::toCore($ratingChange, $platformContestId, $handle),
             $ratingChanges
         );
     }

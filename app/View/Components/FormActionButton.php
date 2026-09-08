@@ -9,7 +9,9 @@ use Illuminate\View\Component;
 class FormActionButton extends Component
 {
     public string $resource;
+
     public string $action;
+
     public string $type;
 
     public function __construct($resource, $action, $type)

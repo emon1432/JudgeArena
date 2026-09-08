@@ -10,19 +10,24 @@ use Illuminate\View\Component;
 class ContestInfo extends Component
 {
     public string $name;
+
     public ?string $code;
+
     public bool $isRated;
+
     public array $tags;
+
     public ?string $url;
 
     public function __construct(?Contest $contest = null)
     {
-        if (!$contest) {
+        if (! $contest) {
             $this->name = '-';
             $this->code = null;
             $this->url = null;
             $this->isRated = false;
             $this->tags = [];
+
             return;
         }
 

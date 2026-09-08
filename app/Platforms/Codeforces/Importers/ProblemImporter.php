@@ -13,6 +13,7 @@ use App\Models\Problem;
 use App\Platforms\Codeforces\CodeforcesAdapter;
 use App\Services\ApplicationLogger;
 use App\Services\PlatformSyncStateService;
+use Illuminate\Support\Str;
 use Throwable;
 
 class ProblemImporter implements ProblemImporterContract
@@ -27,7 +28,7 @@ class ProblemImporter implements ProblemImporterContract
 
     public function import(): ImportResult
     {
-        $result = new ImportResult();
+        $result = new ImportResult;
 
         $platform = $this->platformModel->newQuery()
             ->where('slug', 'codeforces')
@@ -72,6 +73,7 @@ class ProblemImporter implements ProblemImporterContract
                 // Skip only if contest is FINISHED and its problems are already marked Synced
                 if (strtoupper((string) $contest->phase) === 'FINISHED' && $isSynced) {
                     $result->incrementSkipped();
+
                     continue;
                 }
 
@@ -88,6 +90,7 @@ class ProblemImporter implements ProblemImporterContract
 
                 if ($syncState === null) {
                     $result->incrementSkipped();
+
                     continue;
                 }
 
@@ -116,7 +119,7 @@ class ProblemImporter implements ProblemImporterContract
                             ],
                             [
                                 'contest_id' => $contest->id,
-                                'slug' => \Illuminate\Support\Str::slug(($problemDto->title ?? 'problem') . '-' . ($problemDto->platformProblemId ?? '')),
+                                'slug' => Str::slug(($problemDto->title ?? 'problem').'-'.($problemDto->platformProblemId ?? '')),
                                 'name' => $problemDto->title ?? '',
                                 'code' => $problemDto->code ?? null,
                                 'points' => $problemDto->points ?? null,
@@ -139,6 +142,7 @@ class ProblemImporter implements ProblemImporterContract
 
                         if ($problem->wasRecentlyCreated) {
                             $result->incrementCreated();
+
                             continue;
                         }
 
@@ -189,4 +193,3 @@ class ProblemImporter implements ProblemImporterContract
         return $result;
     }
 }
-

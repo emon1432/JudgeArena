@@ -14,4 +14,3 @@ readonly class CodeforcesProblemResultDTO
         public ?int $bestSubmissionTimeSeconds,
     ) {}
 }
-

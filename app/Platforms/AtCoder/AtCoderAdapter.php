@@ -25,9 +25,9 @@ use App\Platforms\AtCoder\Services\Users;
 use App\Platforms\AtCoder\Transformers\ContestTransformer;
 use App\Platforms\AtCoder\Transformers\ProblemTransformer;
 use App\Platforms\AtCoder\Transformers\StandingsTransformer;
-
 use App\Platforms\AtCoder\Transformers\SubmissionTransformer;
 use App\Platforms\AtCoder\Transformers\UserTransformer;
+use App\Services\StandingsCacheService;
 
 class AtCoderAdapter implements PlatformAdapter
 {
@@ -40,12 +40,12 @@ class AtCoderAdapter implements PlatformAdapter
         private readonly UserTransformer $userTransformer,
         private readonly SubmissionTransformer $submissionTransformer,
         private readonly StandingsTransformer $standingsTransformer,
-        private readonly \App\Services\StandingsCacheService $standingsCacheService,
+        private readonly StandingsCacheService $standingsCacheService,
     ) {}
 
-    //================================Used==================================
+    // ================================Used==================================
 
-    //================================Getters==================================
+    // ================================Getters==================================
     public function getContests(): array
     {
         return $this->contestTransformer->fromApiContests(
@@ -73,7 +73,6 @@ class AtCoderAdapter implements PlatformAdapter
      *     count?:int,
      *     stopSubmissionId?:string
      * } $params
-     *
      * @return array{
      *     submissions: SubmissionDTO[],
      *     reached_stop: bool
@@ -116,7 +115,7 @@ class AtCoderAdapter implements PlatformAdapter
         return $this->userTransformer->fromApiUser($this->users->info($username));
     }
 
-    //===============================Importers==================================
+    // ===============================Importers==================================
     public function contestImporter(): ContestImporterContract
     {
         return app(ContestImporter::class);
@@ -141,7 +140,6 @@ class AtCoderAdapter implements PlatformAdapter
     {
         return app(UserStandingImporter::class);
     }
-
 
     public function userImporter(): UserImporterContract
     {

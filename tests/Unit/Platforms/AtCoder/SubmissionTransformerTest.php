@@ -26,7 +26,7 @@ class SubmissionTransformerTest extends TestCase
             'score' => 100.0,
         ]);
 
-        $transformer = new SubmissionTransformer();
+        $transformer = new SubmissionTransformer;
         $core = $transformer->fromApiSubmission($dto);
 
         $this->assertSame('atcoder', $core->platform);

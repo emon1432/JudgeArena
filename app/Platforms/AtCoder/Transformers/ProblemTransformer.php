@@ -12,6 +12,7 @@ use App\Platforms\AtCoder\Services\AtCoderTitleTranslatorService;
 class ProblemTransformer
 {
     private readonly AtCoderCategoryTagService $categoryTagService;
+
     private readonly AtCoderTitleTranslatorService $translator;
 
     public function __construct(
@@ -53,7 +54,7 @@ class ProblemTransformer
 
     public function fromApiProblems(array $problems): array
     {
-        return array_map(fn(AtCoderProblemDTO $problem): ProblemDTO => $this->fromApiProblem($problem), $problems);
+        return array_map(fn (AtCoderProblemDTO $problem): ProblemDTO => $this->fromApiProblem($problem), $problems);
     }
 
     private function parseTimeLimit(string $timeLimit): ?int

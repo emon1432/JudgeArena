@@ -5,7 +5,7 @@ namespace App\Core\DTOs;
 readonly class ParticipantDTO
 {
     /**
-     * @param ProblemResultDTO[] $problemResults
+     * @param  ProblemResultDTO[]  $problemResults
      */
     public function __construct(
         public int $rank,

@@ -10,7 +10,6 @@ use App\Platforms\AtCoder\DTOs\AtCoderSubmissionDTO;
 
 class SubmissionTransformer
 {
-    /** @return SubmissionDTO */
     public function fromApiSubmission(AtCoderSubmissionDTO $submission): SubmissionDTO
     {
         $problemId = (string) ($submission->problem?->id ?? $submission->raw['taskId'] ?? '');
@@ -37,7 +36,7 @@ class SubmissionTransformer
     }
 
     /**
-     * @param AtCoderSubmissionDTO[] $submissions
+     * @param  AtCoderSubmissionDTO[]  $submissions
      * @return array<int, SubmissionDTO>
      */
     public function fromApiSubmissions(array $submissions): array
@@ -45,4 +44,3 @@ class SubmissionTransformer
         return array_map(fn (AtCoderSubmissionDTO $submission): SubmissionDTO => $this->fromApiSubmission($submission), $submissions);
     }
 }
-

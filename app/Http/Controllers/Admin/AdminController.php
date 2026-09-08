@@ -18,6 +18,7 @@ class AdminController extends Controller
         if ($request->ajax()) {
             return response()->json($this->data($request));
         }
+
         return view('admin.pages.admins.index');
     }
 
@@ -49,7 +50,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => 500,
-                'message' => __('Whoops! Something went wrong. Please try again later. Error: ') . $e->getMessage(),
+                'message' => __('Whoops! Something went wrong. Please try again later. Error: ').$e->getMessage(),
                 'redirect' => null,
             ], 500);
         }
@@ -88,7 +89,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => 500,
-                'message' => __('Whoops! Something went wrong. Please try again later. Error: ') . $e->getMessage(),
+                'message' => __('Whoops! Something went wrong. Please try again later. Error: ').$e->getMessage(),
                 'redirect' => null,
             ], 500);
         }
@@ -114,7 +115,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => 500,
-                'message' => __('Whoops! Something went wrong. Please try again later. Error: ') . $e->getMessage(),
+                'message' => __('Whoops! Something went wrong. Please try again later. Error: ').$e->getMessage(),
                 'redirect' => null,
             ], 500);
         }

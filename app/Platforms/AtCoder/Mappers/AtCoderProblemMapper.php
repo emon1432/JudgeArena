@@ -48,7 +48,7 @@ final class AtCoderProblemMapper
             position: $problem['position'] ?? ($problem['problem_index'] ?? null),
             points: $points,
             rating: $rating,
-            timeLimit: isset($problem['timeLimit']) ? (string) $problem['timeLimit'] : (isset($problem['time_limit']) ? (string) $problem['time_limit'] : (isset($problem['execution_time']) ? $problem['execution_time'] . ' ms' : null)),
+            timeLimit: isset($problem['timeLimit']) ? (string) $problem['timeLimit'] : (isset($problem['time_limit']) ? (string) $problem['time_limit'] : (isset($problem['execution_time']) ? $problem['execution_time'].' ms' : null)),
             memoryLimit: isset($problem['memoryLimit']) ? (string) $problem['memoryLimit'] : (isset($problem['memory_limit']) ? (string) $problem['memory_limit'] : '1024 MB'),
             solverCount: $solverCount,
             url: $url,
@@ -59,6 +59,6 @@ final class AtCoderProblemMapper
     /** @return array<int, AtCoderProblemDTO> */
     public static function fromNormalizedList(array $problems): array
     {
-        return array_map(fn(array $problem): AtCoderProblemDTO => self::fromNormalized($problem), $problems);
+        return array_map(fn (array $problem): AtCoderProblemDTO => self::fromNormalized($problem), $problems);
     }
 }

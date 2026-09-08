@@ -147,11 +147,11 @@ class ApplicationLogger
         $frame = $trace[3] ?? $trace[2] ?? $trace[1] ?? [];
 
         if (isset($frame['class'], $frame['function'])) {
-            return $frame['class'] . '::' . $frame['function'];
+            return $frame['class'].'::'.$frame['function'];
         }
 
         if (isset($frame['file'], $frame['line'])) {
-            return basename($frame['file']) . ':' . $frame['line'];
+            return basename($frame['file']).':'.$frame['line'];
         }
 
         return 'unknown';

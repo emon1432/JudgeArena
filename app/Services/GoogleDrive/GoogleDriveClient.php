@@ -13,14 +13,21 @@ use Throwable;
 class GoogleDriveClient
 {
     private const TOKEN_URL = 'https://oauth2.googleapis.com/token';
+
     private const API_BASE_URL = 'https://www.googleapis.com/drive/v3';
+
     private const UPLOAD_BASE_URL = 'https://www.googleapis.com/upload/drive/v3';
+
     private const TOKEN_CACHE_KEY = 'google_drive:access_token';
+
     private const HTTP_TIMEOUT_SECONDS = 30;
 
     private readonly string $clientId;
+
     private readonly string $clientSecret;
+
     private readonly string $refreshToken;
+
     private readonly string $folderId;
 
     public function __construct(?array $config = null)
@@ -97,7 +104,7 @@ class GoogleDriveClient
         }
 
         $parent = $parentFolderId ?? $this->folderId;
-        $cacheKey = 'gdrive:subfolder:' . md5($parent . ':' . $folderName);
+        $cacheKey = 'gdrive:subfolder:'.md5($parent.':'.$folderName);
 
         $cachedId = Cache::get($cacheKey);
         if (is_string($cachedId) && $cachedId !== '') {
@@ -107,10 +114,10 @@ class GoogleDriveClient
         try {
             $query = "name = '{$folderName}' and mimeType = 'application/vnd.google-apps.folder' and trashed = false";
             if ($parent !== '') {
-                $query = "'{$parent}' in parents and " . $query;
+                $query = "'{$parent}' in parents and ".$query;
             }
 
-            $response = $this->http($token)->get(self::API_BASE_URL . '/files', [
+            $response = $this->http($token)->get(self::API_BASE_URL.'/files', [
                 'q' => $query,
                 'fields' => 'files(id, name)',
                 'pageSize' => 1,
@@ -138,7 +145,7 @@ class GoogleDriveClient
                 $metadata['parents'] = [$parent];
             }
 
-            $createResponse = $this->http($token)->asJson()->post(self::API_BASE_URL . '/files?supportsAllDrives=true', $metadata);
+            $createResponse = $this->http($token)->asJson()->post(self::API_BASE_URL.'/files?supportsAllDrives=true', $metadata);
 
             if ($createResponse->successful()) {
                 $newFolderId = (string) ($createResponse->json('id') ?? '');
@@ -168,7 +175,7 @@ class GoogleDriveClient
     }
 
     /**
-     * @param array<int, string> $segments
+     * @param  array<int, string>  $segments
      */
     public function ensurePath(array $segments, ?string $rootFolderId = null): ?string
     {
@@ -190,7 +197,7 @@ class GoogleDriveClient
     }
 
     /**
-     * @param array<int, string>|string|null $subfolder
+     * @param  array<int, string>|string|null  $subfolder
      */
     public function resolveTargetFolder(array|string|null $subfolder): ?string
     {
@@ -223,10 +230,10 @@ class GoogleDriveClient
         try {
             $query = "name = '{$filename}' and trashed = false";
             if ($targetFolderId !== '') {
-                $query = "'{$targetFolderId}' in parents and " . $query;
+                $query = "'{$targetFolderId}' in parents and ".$query;
             }
 
-            $response = $this->http($token)->get(self::API_BASE_URL . '/files', [
+            $response = $this->http($token)->get(self::API_BASE_URL.'/files', [
                 'q' => $query,
                 'fields' => 'files(id, name, size)',
                 'pageSize' => 1,
@@ -265,7 +272,7 @@ class GoogleDriveClient
         }
 
         try {
-            $response = $this->http($token)->get(self::API_BASE_URL . "/files/{$fileId}", [
+            $response = $this->http($token)->get(self::API_BASE_URL."/files/{$fileId}", [
                 'alt' => 'media',
                 'supportsAllDrives' => 'true',
             ]);
@@ -311,7 +318,7 @@ class GoogleDriveClient
                 $response = $this->http($token)
                     ->withHeaders(['Content-Type' => $mimeType])
                     ->withBody($content, $mimeType)
-                    ->patch(self::UPLOAD_BASE_URL . "/files/{$existingFileId}?uploadType=media&supportsAllDrives=true");
+                    ->patch(self::UPLOAD_BASE_URL."/files/{$existingFileId}?uploadType=media&supportsAllDrives=true");
 
                 return $response->successful();
             }
@@ -327,7 +334,7 @@ class GoogleDriveClient
 
             $metaResponse = $this->http($token)
                 ->asJson()
-                ->post(self::API_BASE_URL . '/files?supportsAllDrives=true', $metadata);
+                ->post(self::API_BASE_URL.'/files?supportsAllDrives=true', $metadata);
 
             if (! $metaResponse->successful()) {
                 app(ApplicationLogger::class)->warning('Google Drive file creation failed', [
@@ -349,7 +356,7 @@ class GoogleDriveClient
             $uploadResponse = $this->http($token)
                 ->withHeaders(['Content-Type' => $mimeType])
                 ->withBody($content, $mimeType)
-                ->patch(self::UPLOAD_BASE_URL . "/files/{$newFileId}?uploadType=media&supportsAllDrives=true");
+                ->patch(self::UPLOAD_BASE_URL."/files/{$newFileId}?uploadType=media&supportsAllDrives=true");
 
             return $uploadResponse->successful();
         } catch (Throwable $e) {
@@ -376,7 +383,7 @@ class GoogleDriveClient
         }
 
         try {
-            $response = $this->http($token)->delete(self::API_BASE_URL . "/files/{$fileId}?supportsAllDrives=true");
+            $response = $this->http($token)->delete(self::API_BASE_URL."/files/{$fileId}?supportsAllDrives=true");
 
             return $response->successful();
         } catch (Throwable $e) {

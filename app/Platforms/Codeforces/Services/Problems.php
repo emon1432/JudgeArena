@@ -17,7 +17,7 @@ class Problems
         private readonly BaseClient $client,
     ) {}
 
-    //used
+    // used
     public function list(?array $tags = null): array
     {
         $query = [];
@@ -30,7 +30,7 @@ class Problems
         $normalizedProblems = ResponseNormalizer::problems(Arr::get($result, 'problems', []));
         $normalizedStatistics = ResponseNormalizer::problemStatisticsList(Arr::get($result, 'problemStatistics', []));
 
-        //merge problems and statistics by contestId and index, add new key 'solvedCount' to problem
+        // merge problems and statistics by contestId and index, add new key 'solvedCount' to problem
         $problemsWithStatistics = collect($normalizedProblems)->map(function (array $problem) use ($normalizedStatistics) {
             $contestId = Arr::get($problem, 'contestId');
             $index = Arr::get($problem, 'index');
@@ -68,20 +68,20 @@ class Problems
 
     public function buildProblemId(int $contestId, string $index): string
     {
-        return $contestId . strtoupper(trim($index));
+        return $contestId.strtoupper(trim($index));
     }
 
     public function problemUrl(int $contestId, string $index): string
     {
         $section = $contestId > 90000 ? 'gymProblem' : 'problem';
 
-        return $this->client->webBaseUrl() . '/problemset/' . $section . '/' . $contestId . '/' . strtoupper(trim($index));
+        return $this->client->webBaseUrl().'/problemset/'.$section.'/'.$contestId.'/'.strtoupper(trim($index));
     }
 
     public function acceptedProblemIds(array $submissions): array
     {
         return collect($submissions)
-            ->filter(fn(CodeforcesSubmissionDTO $submission): bool => $submission->verdict === 'OK')
+            ->filter(fn (CodeforcesSubmissionDTO $submission): bool => $submission->verdict === 'OK')
             ->map(function (CodeforcesSubmissionDTO $submission): ?string {
                 $problem = $submission->problem;
 
@@ -97,4 +97,3 @@ class Problems
             ->all();
     }
 }
-

@@ -5,8 +5,8 @@ namespace App\Platforms\AtCoder\DTOs;
 readonly class AtCoderRanklistRowDTO
 {
     /**
-     * @param AtCoderProblemResultDTO[] $problemResults
-     * @param array<string, mixed> $raw
+     * @param  AtCoderProblemResultDTO[]  $problemResults
+     * @param  array<string, mixed>  $raw
      */
     public function __construct(
         public ?AtCoderPartyDTO $party,
@@ -20,4 +20,3 @@ readonly class AtCoderRanklistRowDTO
         public array $raw,
     ) {}
 }
-

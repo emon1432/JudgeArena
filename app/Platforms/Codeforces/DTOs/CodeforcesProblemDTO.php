@@ -7,8 +7,8 @@ namespace App\Platforms\Codeforces\DTOs;
 readonly class CodeforcesProblemDTO
 {
     /**
-     * @param array<int, string> $tags
-     * @param array<string, mixed> $raw
+     * @param  array<int, string>  $tags
+     * @param  array<string, mixed>  $raw
      */
     public function __construct(
         public ?string $contestId,
@@ -22,4 +22,3 @@ readonly class CodeforcesProblemDTO
         public ?int $solvedCount = null,
     ) {}
 }
-

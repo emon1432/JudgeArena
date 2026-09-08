@@ -28,7 +28,7 @@ class ProblemImporter implements ProblemImporterContract
 
     public function import(): ImportResult
     {
-        $result = new ImportResult();
+        $result = new ImportResult;
 
         $platform = $this->platformModel->newQuery()
             ->where('slug', 'atcoder')
@@ -73,6 +73,7 @@ class ProblemImporter implements ProblemImporterContract
                 // Skip only if contest is FINISHED and its problems are already marked Synced
                 if (strtoupper((string) $contest->phase) === 'FINISHED' && $isSynced) {
                     $result->incrementSkipped();
+
                     continue;
                 }
 
@@ -89,6 +90,7 @@ class ProblemImporter implements ProblemImporterContract
 
                 if ($syncState === null) {
                     $result->incrementSkipped();
+
                     continue;
                 }
 
@@ -106,9 +108,9 @@ class ProblemImporter implements ProblemImporterContract
                         $code = (string) ($problemDto->code ?? '');
                         $title = (string) ($problemDto->title ?? '');
 
-                        $slug = Str::slug($contestPlatformId . '-' . strtolower($code) . '-' . $title);
+                        $slug = Str::slug($contestPlatformId.'-'.strtolower($code).'-'.$title);
                         if ($slug === '' || $slug === '-') {
-                            $slug = Str::slug($problemPlatformId . '-' . $title);
+                            $slug = Str::slug($problemPlatformId.'-'.$title);
                         }
 
                         $problem = $this->problemModel->newQuery()->updateOrCreate(
@@ -141,6 +143,7 @@ class ProblemImporter implements ProblemImporterContract
 
                         if ($problem->wasRecentlyCreated) {
                             $result->incrementCreated();
+
                             continue;
                         }
 

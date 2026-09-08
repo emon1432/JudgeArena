@@ -2,13 +2,12 @@
 
 namespace App\Platforms\AtCoder\Services;
 
-use App\Models\Contest;
 use App\Platforms\AtCoder\Client\BaseClient;
+use App\Platforms\AtCoder\DTOs\AtCoderSubmissionDTO;
 use App\Platforms\AtCoder\DTOs\AtCoderUserDTO;
 use App\Platforms\AtCoder\Mappers\AtCoderRatingChangeMapper;
 use App\Platforms\AtCoder\Mappers\AtCoderSubmissionMapper;
 use App\Platforms\AtCoder\Mappers\AtCoderUserMapper;
-use App\Platforms\AtCoder\Services\AtCoderHtmlScraper;
 use App\Platforms\AtCoder\Support\ResponseNormalizer;
 use App\Platforms\AtCoder\Transformers\RatingChangeTransformer;
 use App\Services\ApplicationLogger;
@@ -21,7 +20,7 @@ class Users
         private readonly AtCoderHtmlScraper $scraper,
     ) {}
 
-    //used
+    // used
     public function info(string $handle): AtCoderUserDTO
     {
         $htmlPayload = $this->scraper->getUserProfile($handle);
@@ -38,7 +37,7 @@ class Users
         }
 
         $merged = array_merge($htmlPayload, [
-            'username' => !empty($htmlPayload['username']) ? $htmlPayload['username'] : ($kenkooooPayload['user_id'] ?? $handle),
+            'username' => ! empty($htmlPayload['username']) ? $htmlPayload['username'] : ($kenkooooPayload['user_id'] ?? $handle),
             'accepted_count' => $kenkooooPayload['accepted_count'] ?? null,
             'accepted_count_rank' => $kenkooooPayload['accepted_count_rank'] ?? null,
             'rated_point_sum' => $kenkooooPayload['rated_point_sum'] ?? null,
@@ -62,7 +61,7 @@ class Users
      *     fromSecond?: int
      * } $params
      * @return array{
-     *     submissions: \App\Platforms\AtCoder\DTOs\AtCoderSubmissionDTO[],
+     *     submissions: AtCoderSubmissionDTO[],
      *     reached_stop: bool
      * }
      */
@@ -86,14 +85,14 @@ class Users
         ];
     }
 
-    //used
+    // used
     public function ratingHistory(string $handle): array
     {
         $types = ['algo', 'heuristic'];
         $rawEntries = [];
 
         foreach ($types as $type) {
-            $entries = $this->client->requestWebJson('/users/' . $handle . '/history/json?contestType=' . $type);
+            $entries = $this->client->requestWebJson('/users/'.$handle.'/history/json?contestType='.$type);
             if (is_array($entries)) {
                 foreach ($entries as $entry) {
                     if (is_array($entry)) {

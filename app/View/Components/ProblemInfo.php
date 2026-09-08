@@ -10,9 +10,13 @@ use Illuminate\View\Component;
 class ProblemInfo extends Component
 {
     public string $name;
+
     public ?string $code;
+
     public bool $isPremium;
+
     public array $tags;
+
     public ?string $url;
 
     public function __construct(Problem $problem)

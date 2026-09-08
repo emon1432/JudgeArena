@@ -11,7 +11,6 @@ use App\View\Components\Actions;
 use App\View\Components\PlatformInfo;
 use App\View\Components\StatusBadge;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class PlatformController extends Controller
 {
@@ -20,6 +19,7 @@ class PlatformController extends Controller
         if ($request->ajax()) {
             return response()->json($this->data($request));
         }
+
         return view('admin.pages.platforms.index');
     }
 
@@ -42,13 +42,14 @@ class PlatformController extends Controller
                 }
                 $credentials[$key] = $credentialValues[$i] ?? null;
             }
-            if (!empty($credentials)) {
+            if (! empty($credentials)) {
                 $data['credentials'] = $credentials;
             }
 
             $data['icon'] = $request->file('icon') ? imageUploadManager($request->file('icon'), $request->name, 'platforms') : null;
 
             Platform::create($data);
+
             return response()->json([
                 'status' => 200,
                 'message' => __('Platform created successfully'),
@@ -64,7 +65,7 @@ class PlatformController extends Controller
 
             return response()->json([
                 'status' => 500,
-                'message' => __('Whoops! Something went wrong. Please try again later. Error: ') . $e->getMessage(),
+                'message' => __('Whoops! Something went wrong. Please try again later. Error: ').$e->getMessage(),
                 'redirect' => null,
             ], 500);
         }
@@ -73,6 +74,7 @@ class PlatformController extends Controller
     public function show(string $id)
     {
         $platform = Platform::findOrFail($id);
+
         return view('admin.pages.platforms.show', compact('platform'));
     }
 
@@ -116,7 +118,7 @@ class PlatformController extends Controller
 
             return response()->json([
                 'status' => 500,
-                'message' => __('Whoops! Something went wrong. Please try again later. Error: ') . $e->getMessage(),
+                'message' => __('Whoops! Something went wrong. Please try again later. Error: ').$e->getMessage(),
                 'redirect' => null,
             ], 500);
         }
@@ -143,7 +145,7 @@ class PlatformController extends Controller
 
             return response()->json([
                 'status' => 500,
-                'message' => __('Whoops! Something went wrong. Please try again later. Error: ') . $e->getMessage(),
+                'message' => __('Whoops! Something went wrong. Please try again later. Error: ').$e->getMessage(),
                 'redirect' => null,
             ], 500);
         }
@@ -180,7 +182,7 @@ class PlatformController extends Controller
                 ]))->render()->render();
 
                 $platform->info = (new PlatformInfo($platform))->render()->render();
-                $platform->base_url = '<a href="' . e($platform->base_url) . '" target="_blank">' . e($platform->base_url) . '</a>';
+                $platform->base_url = '<a href="'.e($platform->base_url).'" target="_blank">'.e($platform->base_url).'</a>';
                 $platform->total_contests = $platform->contests()->count();
                 $platform->total_problems = $platform->problems()->count();
                 $platform->total_users = $platform->platformProfiles()->count();

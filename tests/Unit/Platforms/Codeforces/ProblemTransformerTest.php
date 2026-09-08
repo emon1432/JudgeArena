@@ -23,7 +23,7 @@ class ProblemTransformerTest extends TestCase
             'solvedCount' => 1500,
         ]);
 
-        $transformer = new ProblemTransformer();
+        $transformer = new ProblemTransformer;
         $dto = $transformer->fromApiProblem($cfProblem);
 
         $this->assertSame('codeforces', $dto->platform);
@@ -38,4 +38,3 @@ class ProblemTransformerTest extends TestCase
         $this->assertSame('https://codeforces.com/contest/1000/problem/A', $dto->url);
     }
 }
-

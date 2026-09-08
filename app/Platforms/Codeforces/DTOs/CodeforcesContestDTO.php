@@ -7,7 +7,7 @@ namespace App\Platforms\Codeforces\DTOs;
 readonly class CodeforcesContestDTO
 {
     /**
-     * @param array<string, mixed> $raw
+     * @param  array<string, mixed>  $raw
      */
     public function __construct(
         public ?string $id,
@@ -29,7 +29,5 @@ readonly class CodeforcesContestDTO
         public ?string $city,
         public ?string $season,
         public array $raw,
-    ) {
-    }
+    ) {}
 }
-

@@ -7,8 +7,8 @@ namespace App\Platforms\Codeforces\DTOs;
 readonly class CodeforcesRanklistRowDTO
 {
     /**
-     * @param CodeforcesProblemResultDTO[] $problemResults
-     * @param array<string, mixed> $raw
+     * @param  CodeforcesProblemResultDTO[]  $problemResults
+     * @param  array<string, mixed>  $raw
      */
     public function __construct(
         public ?CodeforcesPartyDTO $party,
@@ -22,4 +22,3 @@ readonly class CodeforcesRanklistRowDTO
         public array $raw,
     ) {}
 }
-

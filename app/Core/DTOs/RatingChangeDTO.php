@@ -16,6 +16,5 @@ readonly class RatingChangeDTO
         public ?int $performance = null,
         public array $metadata = [],
         public array $raw = [],
-    ) {
-    }
+    ) {}
 }

@@ -12,4 +12,3 @@ readonly class AtCoderProblemResultDTO
         public ?int $bestSubmissionTimeSeconds,
     ) {}
 }
-

@@ -85,4 +85,3 @@ class ImportUserStandingsTest extends TestCase
         $this->assertSame(100.0, (float) $standing->points);
     }
 }
-

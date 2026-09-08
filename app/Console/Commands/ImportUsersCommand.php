@@ -40,8 +40,8 @@ class ImportUsersCommand extends Command
                 'source' => self::class,
             ]);
 
-            $this->error('Unsupported platform: ' . $platformSlug);
-            $this->line('Supported platforms: ' . implode(', ', $this->platformRegistry->supportedPlatforms()));
+            $this->error('Unsupported platform: '.$platformSlug);
+            $this->line('Supported platforms: '.implode(', ', $this->platformRegistry->supportedPlatforms()));
 
             return self::FAILURE;
         }
@@ -51,11 +51,11 @@ class ImportUsersCommand extends Command
                 ->userImporter()
                 ->import($handle);
 
-            $this->line('Platform: ' . $platformSlug);
-            $this->line('Checked: ' . $result->checked);
-            $this->line('Updated: ' . $result->updated);
-            $this->line('Failed: ' . $result->failed);
-            $this->line('Skipped: ' . $result->skipped);
+            $this->line('Platform: '.$platformSlug);
+            $this->line('Checked: '.$result->checked);
+            $this->line('Updated: '.$result->updated);
+            $this->line('Failed: '.$result->failed);
+            $this->line('Skipped: '.$result->skipped);
             $this->info('User import completed successfully.');
 
             $this->logger->info('User import completed', [

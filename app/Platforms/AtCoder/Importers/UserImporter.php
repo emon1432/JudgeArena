@@ -12,10 +12,8 @@ use App\Services\ApplicationLogger;
 use App\Services\PlatformSyncStateService;
 use Throwable;
 
-
 class UserImporter implements UserImporterContract
 {
-
     public function __construct(
         private readonly Platform $platformModel,
         private readonly PlatformProfile $platformProfileModel,
@@ -25,7 +23,7 @@ class UserImporter implements UserImporterContract
 
     public function import(?string $handle = null): ImportResult
     {
-        $result = new ImportResult();
+        $result = new ImportResult;
 
         $platform = $this->platformModel->newQuery()
             ->where('slug', 'atcoder')

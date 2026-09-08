@@ -10,13 +10,13 @@ use App\Platforms\Codeforces\DTOs\CodeforcesRatingChangeDTO;
 final class RatingChangeTransformer
 {
     /**
-     * @param CodeforcesRatingChangeDTO[] $ratingChanges
+     * @param  CodeforcesRatingChangeDTO[]  $ratingChanges
      * @return RatingChangeDTO[]
      */
     public static function fromApiRatingChanges(array $ratingChanges, ?string $platformContestId = null, ?string $handle = null): array
     {
         return array_map(
-            fn(CodeforcesRatingChangeDTO $ratingChange): RatingChangeDTO => self::toCore($ratingChange, $platformContestId, $handle),
+            fn (CodeforcesRatingChangeDTO $ratingChange): RatingChangeDTO => self::toCore($ratingChange, $platformContestId, $handle),
             $ratingChanges
         );
     }

@@ -15,7 +15,9 @@ class Problems
      * In-memory cache of indexed datasets during command execution
      */
     private ?array $contestProblemGroupMap = null;
+
     private ?array $mergedProblemsMap = null;
+
     private ?array $problemModelsMap = null;
 
     public function __construct(
@@ -141,10 +143,10 @@ class Problems
                 'position' => $position,
                 'score' => $score,
                 'rating' => $difficulty,
-                'time_limit' => $execTimeMs !== null ? $execTimeMs . ' ms' : null,
+                'time_limit' => $execTimeMs !== null ? $execTimeMs.' ms' : null,
                 'memory_limit' => '1024 MB',
                 'solver_count' => $solverCount,
-                'url' => 'https://atcoder.jp/contests/' . $contestId . '/tasks/' . $problemId,
+                'url' => 'https://atcoder.jp/contests/'.$contestId.'/tasks/'.$problemId,
             ];
         }
 

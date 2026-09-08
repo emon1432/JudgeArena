@@ -64,4 +64,3 @@ class ImportProblemsTest extends TestCase
         $this->assertSame(800, $problem->rating);
     }
 }
-

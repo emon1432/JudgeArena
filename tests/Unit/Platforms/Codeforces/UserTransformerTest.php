@@ -30,7 +30,7 @@ class UserTransformerTest extends TestCase
             'titlePhoto' => 'https://userpic.codeforces.org/title.jpg',
         ]);
 
-        $transformer = new UserTransformer();
+        $transformer = new UserTransformer;
         $core = $transformer->fromApiUser($dto);
 
         $this->assertSame('codeforces', $core->platform);
@@ -41,4 +41,3 @@ class UserTransformerTest extends TestCase
         $this->assertSame(3800, $core->rating);
     }
 }
-

@@ -65,4 +65,3 @@ class ImportUserSubmissionsTest extends TestCase
         $this->assertSame(15, $submission->time_consumed_ms);
     }
 }
-

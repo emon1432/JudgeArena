@@ -27,7 +27,7 @@ class Submission extends Model
         'last_synced_at',
         'metadata',
         'raw',
-        'status'
+        'status',
     ];
 
     protected $casts = [
@@ -42,7 +42,6 @@ class Submission extends Model
         'raw' => 'array',
         'status' => 'string',
     ];
-
 
     public function platform(): BelongsTo
     {

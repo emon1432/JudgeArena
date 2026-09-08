@@ -34,4 +34,3 @@ final class CodeforcesSubmissionMapper
         return array_map(fn (array $submission): CodeforcesSubmissionDTO => self::fromNormalized($submission), $submissions);
     }
 }
-

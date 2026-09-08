@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Admin;
 
-use App\Models\Platform;
+use App\Enums\PlatformSyncJobEntity;
 use App\Models\PlatformSyncJob;
 use Tests\TestCase;
 
@@ -38,7 +38,7 @@ class PlatformSyncJobTest extends TestCase
 
         PlatformSyncJob::query()->create([
             'platform_id' => $platform->id,
-            'entity' => \App\Enums\PlatformSyncJobEntity::Contest,
+            'entity' => PlatformSyncJobEntity::Contest,
             'interval_minutes' => 60,
             'enabled' => true,
         ]);
@@ -67,7 +67,7 @@ class PlatformSyncJobTest extends TestCase
 
         $job = PlatformSyncJob::query()->create([
             'platform_id' => $platform->id,
-            'entity' => \App\Enums\PlatformSyncJobEntity::Contest,
+            'entity' => PlatformSyncJobEntity::Contest,
             'interval_minutes' => 60,
             'enabled' => true,
         ]);
@@ -90,4 +90,3 @@ class PlatformSyncJobTest extends TestCase
         $this->assertTrue($job->fresh()->enabled);
     }
 }
-

@@ -2,23 +2,24 @@
 
 function imageUploadManager($image, $slug, $path)
 {
-    $path = 'uploads/' . $path . '/';
-    $image_name = $path . $slug . time() . uniqid() . '.' . $image->getClientOriginalExtension();
+    $path = 'uploads/'.$path.'/';
+    $image_name = $path.$slug.time().uniqid().'.'.$image->getClientOriginalExtension();
     $path = public_path($path);
-    if (!file_exists($path)) {
+    if (! file_exists($path)) {
         mkdir($path, 0777, true);
     }
 
     $image->move($path, $image_name);
+
     return $image_name;
 }
 
 function imageUpdateManager($image, $slug, $path, $old_image)
 {
-    $path = 'uploads/' . $path . '/';
-    $image_name = $path . $slug . time() . uniqid() . '.' . $image->getClientOriginalExtension();
+    $path = 'uploads/'.$path.'/';
+    $image_name = $path.$slug.time().uniqid().'.'.$image->getClientOriginalExtension();
     $path = public_path($path);
-    if (!file_exists($path)) {
+    if (! file_exists($path)) {
         mkdir($path, 0777, true);
     }
 

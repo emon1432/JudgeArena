@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Currency;
 use App\Models\Setting;
 use App\Services\ApplicationLogger;
 use Illuminate\Http\Request;
@@ -13,6 +12,7 @@ class SettingController extends Controller
     public function index()
     {
         $settings = Setting::get();
+
         return view('admin.pages.settings.index', compact('settings'));
     }
 
@@ -68,7 +68,7 @@ class SettingController extends Controller
 
             return response()->json([
                 'status' => 500,
-                'message' => __('Whoops! Something went wrong. Please try again later. Error: ') . $e->getMessage(),
+                'message' => __('Whoops! Something went wrong. Please try again later. Error: ').$e->getMessage(),
                 'redirect' => null,
             ], 500);
         }

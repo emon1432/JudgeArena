@@ -21,7 +21,7 @@ final class CodeforcesContestMapper
             startTimeSeconds: isset($contest['startTimeSeconds']) ? (int) $contest['startTimeSeconds'] : null,
             relativeTimeSeconds: isset($contest['relativeTimeSeconds']) ? (int) $contest['relativeTimeSeconds'] : null,
             preparedBy: $contest['preparedBy'] ?? null,
-            url: isset($contest['id']) ? config('platforms.codeforces.base_url') . (($contest['phase'] ?? '') === 'BEFORE' ? 'contestRegistration/' : 'contest/') . $contest['id'] : null,
+            url: isset($contest['id']) ? config('platforms.codeforces.base_url').(($contest['phase'] ?? '') === 'BEFORE' ? 'contestRegistration/' : 'contest/').$contest['id'] : null,
             description: $contest['description'] ?? null,
             difficulty: isset($contest['difficulty']) ? (string) $contest['difficulty'] : null,
             kind: $contest['kind'] ?? null,
@@ -36,7 +36,6 @@ final class CodeforcesContestMapper
     /** @return array<int, CodeforcesContestDTO> */
     public static function fromNormalizedList(array $contests): array
     {
-        return array_map(fn(array $contest): CodeforcesContestDTO => self::fromNormalized($contest), $contests);
+        return array_map(fn (array $contest): CodeforcesContestDTO => self::fromNormalized($contest), $contests);
     }
 }
-

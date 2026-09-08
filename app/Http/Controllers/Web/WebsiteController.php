@@ -212,7 +212,7 @@ class WebsiteController extends Controller
         if ($tagsParam !== '') {
             $tags = array_map('trim', explode(',', $tagsParam));
             foreach ($tags as $tag) {
-                if (!empty($tag)) {
+                if (! empty($tag)) {
                     $query->whereJsonContains('tags', $tag);
                 }
             }

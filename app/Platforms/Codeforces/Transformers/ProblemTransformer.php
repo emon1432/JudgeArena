@@ -28,7 +28,7 @@ class ProblemTransformer
 
     public function fromApiProblems(array $problems): array
     {
-        return array_map(fn(CodeforcesProblemDTO $problem): ProblemDTO => $this->fromApiProblem($problem), $problems);
+        return array_map(fn (CodeforcesProblemDTO $problem): ProblemDTO => $this->fromApiProblem($problem), $problems);
     }
 
     private function buildProblemId(CodeforcesProblemDTO $problem): string
@@ -36,7 +36,7 @@ class ProblemTransformer
         $contestId = (string) ($problem->contestId ?? '0');
         $index = strtoupper(trim((string) ($problem->index ?? '')));
 
-        return $contestId . $index;
+        return $contestId.$index;
     }
 
     private function buildProblemUrl(CodeforcesProblemDTO $problem): ?string
@@ -48,4 +48,3 @@ class ProblemTransformer
         return null;
     }
 }
-

@@ -23,7 +23,5 @@ readonly class SubmissionDTO
         public ?float $points = null,
         public ?string $testset = null,
         public ?int $memoryConsumedBytes = null,
-    ) {
-    }
+    ) {}
 }
-

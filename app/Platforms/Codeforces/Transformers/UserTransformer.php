@@ -9,7 +9,6 @@ use App\Platforms\Codeforces\DTOs\CodeforcesUserDTO;
 
 class UserTransformer
 {
-    /** @return UserDTO */
     public function fromApiUser(CodeforcesUserDTO $user): UserDTO
     {
         return new UserDTO(
@@ -23,4 +22,3 @@ class UserTransformer
         );
     }
 }
-

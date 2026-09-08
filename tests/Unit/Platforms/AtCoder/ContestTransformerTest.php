@@ -20,7 +20,7 @@ class ContestTransformerTest extends TestCase
             'rate_change' => ' ~ 1999',
         ]);
 
-        $transformer = new ContestTransformer();
+        $transformer = new ContestTransformer;
         $dto = $transformer->fromApiContest($atcoderContest);
 
         $this->assertSame('atcoder', $dto->platform);

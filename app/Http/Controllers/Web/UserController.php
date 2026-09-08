@@ -38,12 +38,12 @@ class UserController extends Controller
                     $counts->put($profile->platform->name, $solved);
                 }
             }
+
             return $counts;
         });
 
-
         $verdictCounts = cache()->remember("user_{$user->id}_verdict_counts", 3600, function () use ($user) {
-            return \App\Models\Submission::whereIn('platform_profile_id', $user->platformProfiles->pluck('id'))
+            return Submission::whereIn('platform_profile_id', $user->platformProfiles->pluck('id'))
                 ->selectRaw('verdict, count(*) as count')
                 ->groupBy('verdict')
                 ->pluck('count', 'verdict');
@@ -53,25 +53,25 @@ class UserController extends Controller
         $totalSubmissions = $verdictCounts->sum();
         $acceptanceRate = $totalSubmissions > 0 ? round(($totalSolved / $totalSubmissions) * 100, 1) : 0;
         $topPlatform = $platformCounts->sortDesc()->keys()->first() ?? 'N/A';
-        
+
         $totalContests = 0; // MVP Mock
-        
+
         $totalAttempted = cache()->remember("user_{$user->id}_total_attempted", 3600, function () use ($user) {
-            return \App\Models\Submission::whereIn('platform_profile_id', $user->platformProfiles->pluck('id'))
+            return Submission::whereIn('platform_profile_id', $user->platformProfiles->pluck('id'))
                 ->whereNotNull('problem_id')
                 ->distinct('problem_id')
                 ->count('problem_id');
         });
 
         $totalLanguages = cache()->remember("user_{$user->id}_total_languages", 3600, function () use ($user) {
-            return \App\Models\Submission::whereIn('platform_profile_id', $user->platformProfiles->pluck('id'))
+            return Submission::whereIn('platform_profile_id', $user->platformProfiles->pluck('id'))
                 ->whereNotNull('language')
                 ->distinct('language')
                 ->count('language');
         });
 
         $activeDays = cache()->remember("user_{$user->id}_active_days", 3600, function () use ($user) {
-            return \App\Models\Submission::whereIn('platform_profile_id', $user->platformProfiles->pluck('id'))
+            return Submission::whereIn('platform_profile_id', $user->platformProfiles->pluck('id'))
                 ->selectRaw('DATE(submitted_at) as date')
                 ->distinct()
                 ->get()
@@ -79,11 +79,11 @@ class UserController extends Controller
         });
 
         $activeStreak = 42;
-        $bestRank = $user->global_rank ? '#' . $user->global_rank : '#3';
+        $bestRank = $user->global_rank ? '#'.$user->global_rank : '#3';
         $connectedPlatforms = $user->platformProfiles->count();
 
         return view('web.pages.user.show', compact(
-            'user', 'totalSolved', 'heatmapData', 'platformCounts', 'verdictCounts', 
+            'user', 'totalSolved', 'heatmapData', 'platformCounts', 'verdictCounts',
             'totalSubmissions', 'acceptanceRate', 'topPlatform', 'totalContests',
             'totalAttempted', 'totalLanguages', 'activeDays', 'activeStreak',
             'bestRank', 'connectedPlatforms'

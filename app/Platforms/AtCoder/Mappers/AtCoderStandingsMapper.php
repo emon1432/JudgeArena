@@ -33,7 +33,7 @@ final class AtCoderStandingsMapper
     }
 
     /**
-     * @param array<int, array<string, mixed>> $problems
+     * @param  array<int, array<string, mixed>>  $problems
      */
     private static function toRanklistRowDto(array $row, array $problems): AtCoderRanklistRowDTO
     {
@@ -109,4 +109,3 @@ final class AtCoderStandingsMapper
         return (int) floor($value);
     }
 }
-

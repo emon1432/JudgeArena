@@ -16,7 +16,7 @@ class SyncSchedulerService
             ->orderBy('id')
             ->get()
             ->filter(
-                fn(PlatformSyncJob $job) => $job->isDue()
+                fn (PlatformSyncJob $job) => $job->isDue()
             )
             ->values();
     }
