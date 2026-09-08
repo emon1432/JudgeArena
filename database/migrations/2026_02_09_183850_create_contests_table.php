@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('type', 50)->nullable();
             $table->string('phase', 50)->nullable();
             $table->boolean('is_rated')->default(false);
-            $table->unsignedInteger('duration_seconds')->nullable();
+            $table->unsignedBigInteger('duration_seconds')->nullable();
             $table->dateTime('start_time')->nullable();
             $table->dateTime('end_time')->nullable();
             $table->string('url', 500)->nullable();

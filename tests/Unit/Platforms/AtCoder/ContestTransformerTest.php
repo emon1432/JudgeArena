@@ -33,4 +33,27 @@ class ContestTransformerTest extends TestCase
         $this->assertNotNull($dto->endedAt);
         $this->assertTrue($dto->raw['is_rated']);
     }
+
+    public function test_from_api_contest_handles_permanent_and_tutorial_contests(): void
+    {
+        $atcoderContest = AtCoderContestMapper::fromNormalized([
+            'id' => 'abs',
+            'start_epoch_second' => 0,
+            'duration_second' => 3153600000,
+            'title' => 'AtCoder Beginners Selection',
+            'rate_change' => '-',
+        ]);
+
+        $transformer = new ContestTransformer;
+        $dto = $transformer->fromApiContest($atcoderContest);
+
+        $this->assertSame('atcoder', $dto->platform);
+        $this->assertSame('abs', $dto->platformContestId);
+        $this->assertSame('AtCoder Beginners Selection', $dto->title);
+        $this->assertNull($dto->durationSeconds);
+        $this->assertNull($dto->startedAt);
+        $this->assertNull($dto->endedAt);
+        $this->assertSame('CODING', $dto->phase);
+        $this->assertFalse($dto->raw['is_rated']);
+    }
 }

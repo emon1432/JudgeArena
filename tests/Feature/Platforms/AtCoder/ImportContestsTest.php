@@ -24,13 +24,20 @@ class ImportContestsTest extends TestCase
                     'title' => 'AtCoder Beginner Contest 300',
                     'rate_change' => ' ~ 1999',
                 ],
+                [
+                    'id' => 'abs',
+                    'start_epoch_second' => 0,
+                    'duration_second' => 3153600000,
+                    'title' => 'AtCoder Beginners Selection',
+                    'rate_change' => '-',
+                ],
             ], 200),
         ]);
 
         $importer = app(ContestImporter::class);
         $result = $importer->import();
 
-        $this->assertGreaterThanOrEqual(1, $result->checked);
+        $this->assertGreaterThanOrEqual(2, $result->checked);
 
         $contest = Contest::query()
             ->where('platform_id', $platform->id)
@@ -41,5 +48,17 @@ class ImportContestsTest extends TestCase
         $this->assertSame('AtCoder Beginner Contest 300', $contest->name);
         $this->assertSame('FINISHED', $contest->phase);
         $this->assertSame(6000, $contest->duration_seconds);
+
+        $absContest = Contest::query()
+            ->where('platform_id', $platform->id)
+            ->where('platform_contest_id', 'abs')
+            ->first();
+
+        $this->assertNotNull($absContest);
+        $this->assertSame('AtCoder Beginners Selection', $absContest->name);
+        $this->assertSame('CODING', $absContest->phase);
+        $this->assertNull($absContest->duration_seconds);
+        $this->assertNull($absContest->start_time);
+        $this->assertNull($absContest->end_time);
     }
 }

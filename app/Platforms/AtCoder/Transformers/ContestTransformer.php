@@ -22,21 +22,31 @@ class ContestTransformer
 
     public function fromApiContest(AtCoderContestDTO $contest): ContestDTO
     {
-        $startedAt = $contest->startEpochSecond !== null && $contest->startEpochSecond > 0
-            ? (new DateTimeImmutable)->setTimestamp($contest->startEpochSecond)
-            : $this->parseStartTime($contest->date);
+        $isPermanent = ($contest->durationSecond !== null && $contest->durationSecond >= 3153600000)
+            || strcasecmp((string) $contest->duration, 'Permanent') === 0
+            || ($contest->startEpochSecond === 0 && ($contest->durationSecond === null || $contest->durationSecond >= 100000000));
 
-        $durationSeconds = $contest->durationSecond !== null && $contest->durationSecond > 0
-            ? $contest->durationSecond
-            : $this->parseDurationSeconds($contest->duration);
+        if ($isPermanent) {
+            $startedAt = null;
+            $durationSeconds = null;
+            $endedAt = null;
+        } else {
+            $startedAt = $contest->startEpochSecond !== null && $contest->startEpochSecond > 0
+                ? (new DateTimeImmutable)->setTimestamp($contest->startEpochSecond)
+                : $this->parseStartTime($contest->date);
 
-        $endedAt = ($startedAt !== null && $durationSeconds !== null)
-            ? $startedAt->add(new \DateInterval('PT'.$durationSeconds.'S'))
-            : null;
+            $durationSeconds = $contest->durationSecond !== null && $contest->durationSecond > 0
+                ? $contest->durationSecond
+                : $this->parseDurationSeconds($contest->duration);
+
+            $endedAt = ($startedAt !== null && $durationSeconds !== null)
+                ? $startedAt->add(new \DateInterval('PT'.$durationSeconds.'S'))
+                : null;
+        }
 
         $platformContestId = (string) ($contest->id ?? '');
         $type = $this->determineType($platformContestId, $contest->type, (string) ($contest->title ?? ''));
-        $phase = $this->determinePhase($startedAt, $endedAt, $type);
+        $phase = $isPermanent ? 'CODING' : $this->determinePhase($startedAt, $endedAt, $type);
 
         $rawTitle = (string) ($contest->title ?? '');
         $title = $this->translator->formatContestTitle($platformContestId, $rawTitle);
@@ -181,7 +191,7 @@ class ContestTransformer
         }
 
         if (strcasecmp($duration, 'Permanent') === 0) {
-            return 3153600000; // 100 years in seconds
+            return null;
         }
 
         if (preg_match('/^(\d+):(\d+)$/', $duration, $matches)) {
