@@ -214,6 +214,17 @@ class PlatformSyncStateService
             && $this->isStaleSync($state, $referenceTime);
     }
 
+    public function resetAllSyncingStates(): int
+    {
+        return PlatformSyncState::query()
+            ->where('sync_status', PlatformSyncStatus::Syncing->value)
+            ->update([
+                'sync_status' => PlatformSyncStatus::Pending->value,
+                'last_attempted_at' => null,
+                'last_error' => null,
+            ]);
+    }
+
     private function stateKey(
         Platform $platform,
         PlatformSyncEntityType|string $entityType,
@@ -241,7 +252,7 @@ class PlatformSyncStateService
     private function staleSyncCutoff(?Carbon $referenceTime = null): Carbon
     {
         $referenceTime ??= now();
-        $timeoutMinutes = (int) config('app.platform_sync.stale_sync_timeout_minutes', 120);
+        $timeoutMinutes = (int) config('app.platform_sync.stale_sync_timeout_minutes', 15);
 
         return $referenceTime->copy()->subMinutes($timeoutMinutes);
     }

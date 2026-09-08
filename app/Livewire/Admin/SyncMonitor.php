@@ -83,8 +83,8 @@ class SyncMonitor extends Component
             return;
         }
 
-        if ($syncState->sync_status !== PlatformSyncStatus::Failed) {
-            $this->feedbackMessage = __('Only failed sync states can be reset for retry.');
+        if (! in_array($syncState->sync_status, [PlatformSyncStatus::Failed, PlatformSyncStatus::Syncing], true)) {
+            $this->feedbackMessage = __('Only failed or stuck syncing states can be reset for retry.');
             $this->feedbackType = 'warning';
 
             return;
@@ -107,6 +107,26 @@ class SyncMonitor extends Component
 
         $this->feedbackMessage = __('Sync state #:id has been reset for retry.', ['id' => $syncState->id]);
         $this->feedbackType = 'success';
+    }
+
+    public function resetStuckSyncs(): void
+    {
+        $count = app(PlatformSyncStateService::class)->resetAllSyncingStates();
+
+        app(ApplicationLogger::class)->info('Admin reset all stuck syncing states via Livewire', [
+            'category' => 'admin',
+            'source' => self::class,
+            'reset_count' => $count,
+            'user_id' => auth()->id(),
+        ]);
+
+        if ($count > 0) {
+            $this->feedbackMessage = __(':count stuck syncing state(s) have been reset to Pending.', ['count' => $count]);
+            $this->feedbackType = 'success';
+        } else {
+            $this->feedbackMessage = __('No syncing states were found to reset.');
+            $this->feedbackType = 'info';
+        }
     }
 
     public function render(): View

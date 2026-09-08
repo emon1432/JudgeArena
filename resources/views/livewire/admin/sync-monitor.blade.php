@@ -43,6 +43,18 @@
                 </span>
             @endif
 
+            @if(($summary['syncing'] ?? 0) > 0)
+                <button type="button" 
+                        wire:click="resetStuckSyncs" 
+                        wire:loading.attr="disabled"
+                        wire:confirm="{{ __('Are you sure you want to reset all stuck syncing states back to Pending?') }}"
+                        class="btn btn-sm btn-outline-warning"
+                        title="{{ __('Reset all stuck syncing states back to Pending') }}">
+                    <i class="icon-base ti tabler-rotate-clockwise me-1"></i>
+                    {{ __('Reset Stuck (:count)', ['count' => $summary['syncing']]) }}
+                </button>
+            @endif
+
             <button type="button" 
                     wire:click="toggleAutoRefresh" 
                     class="btn btn-sm {{ $autoRefresh ? 'btn-outline-primary' : 'btn-primary' }}"
