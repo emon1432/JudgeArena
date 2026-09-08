@@ -83,4 +83,74 @@ class StandingsCacheServiceTest extends TestCase
         $this->assertTrue($service->delete('codeforces', '1000'));
         $this->assertFalse($service->has('codeforces', '1000'));
     }
+
+    public function test_raw_payload_caching_and_dynamic_transformation(): void
+    {
+        Storage::fake('local');
+        Config::set('standings.disk', 'local');
+        Config::set('standings.cache_enabled', true);
+
+        $this->createPlatform('codeforces', 'Codeforces');
+
+        $googleClient = Mockery::mock(GoogleDriveClient::class);
+        $registry = $this->app->make(PlatformRegistry::class);
+        $service = new StandingsCacheService($googleClient, $registry);
+
+        $rawCodeforcesPayload = [
+            'status' => 'OK',
+            'result' => [
+                'contest' => [
+                    'id' => 1000,
+                    'name' => 'Codeforces Round 1000',
+                    'type' => 'CF',
+                    'phase' => 'FINISHED',
+                    'durationSeconds' => 7200,
+                    'startTimeSeconds' => 1672531200,
+                ],
+                'problems' => [
+                    [
+                        'contestId' => 1000,
+                        'index' => 'A',
+                        'name' => 'Problem A',
+                        'type' => 'PROGRAMMING',
+                        'rating' => 800,
+                    ],
+                ],
+                'rows' => [
+                    [
+                        'party' => [
+                            'contestId' => 1000,
+                            'members' => [['handle' => 'tourist']],
+                            'participantType' => 'CONTESTANT',
+                        ],
+                        'rank' => 1,
+                        'points' => 500.0,
+                        'penalty' => 15,
+                        'problemResults' => [
+                            [
+                                'points' => 500.0,
+                                'penalty' => 15,
+                                'rejectedAttemptCount' => 0,
+                                'type' => 'FINAL',
+                                'bestSubmissionTimeSeconds' => 900,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $this->assertTrue($service->put('codeforces', '1000', $rawCodeforcesPayload));
+        $this->assertTrue($service->has('codeforces', '1000'));
+
+        $cached = $service->get('codeforces', '1000');
+        $this->assertNotNull($cached);
+        $this->assertSame('codeforces', $cached->contest->platform);
+        $this->assertSame('1000', $cached->contest->platformContestId);
+        $this->assertSame('Codeforces Round 1000', $cached->contest->title);
+        $this->assertCount(1, $cached->problems);
+        $this->assertCount(1, $cached->rows);
+        $this->assertSame(1, $cached->rows[0]->rank);
+        $this->assertSame('tourist', $cached->rows[0]->members[0]['handle']);
+    }
 }

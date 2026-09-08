@@ -85,3 +85,12 @@
 
 - **Rule**: When production deployment credentials (such as cPanel FTP secrets) are pending or not yet configured, decouple the deployment job using `if: false` in `.github/workflows/cpanel.yml` instead of commenting out or deleting the pipeline.
 - **Benefit**: The test and quality assurance job (`test`) runs normally, maintaining full CI verification, while the `deploy` job cleanly reports as skipped, resulting in a 100% green workflow badge.
+
+---
+
+## 9. Standings Remote Cache Payload Optimization (Raw-Only Storage)
+
+- **Issue**: Previously, `StandingsCacheService::serialize()` stored both the normalized DTO schema (`contest`, `problems`, `rows`) AND the full raw API response (`raw`) in the same JSON file. This caused unnecessary data duplication and inflated compressed file sizes.
+- **Rule**: Remote standings cache files (`.json.gz`) MUST store ONLY the platform's raw API/crawler response payload (`$standings->raw`).
+- **Dynamic Transformation**: When reading from cache via `StandingsCacheService::get()`, the raw JSON payload is dynamically mapped and transformed into `ContestStandingsDTO` using the platform's native mappers and transformers (`CodeforcesStandingsMapper`, `AtCoderStandingsMapper`) with zero data duplication.
+
