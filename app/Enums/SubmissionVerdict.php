@@ -60,6 +60,7 @@ enum SubmissionVerdict: string
             self::CHALLENGED => 'badge-purple text-purple bg-purple-subtle border-purple-subtle',
             self::PARTIAL => 'badge-primary text-primary bg-primary-subtle border-primary-subtle',
             self::SKIPPED, self::OTHER => 'badge-secondary text-secondary bg-secondary-subtle border-secondary-subtle',
+            self::SKIPPED, self::REJECTED, self::OTHER => 'badge-secondary text-secondary bg-secondary-subtle border-secondary-subtle',
             self::PENDING => 'badge-info text-info bg-info-subtle border-info-subtle',
         };
     }

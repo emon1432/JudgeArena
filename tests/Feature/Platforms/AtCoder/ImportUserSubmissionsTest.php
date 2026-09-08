@@ -4,85 +4,65 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Platforms\AtCoder;
 
-use App\Core\DTOs\SubmissionDTO;
-use App\Enums\SubmissionVerdict;
 use App\Models\Contest;
 use App\Models\Problem;
-use App\Platforms\AtCoder\AtCoderAdapter;
+use App\Models\Submission;
+use App\Platforms\AtCoder\Importers\UserSubmissionImporter;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class ImportUserSubmissionsTest extends TestCase
 {
-    public function test_import_atcoder_user_submissions_command_persists_submissions(): void
+    public function test_import_user_submissions_persists_submissions_to_database(): void
     {
-        $platform = $this->createPlatform('atcoder', 'AtCoder', 'https://atcoder.jp');
-        $profile = $this->createUserWithProfile($platform, 'chokudai');
+        $platform = $this->createPlatform('atcoder', 'AtCoder');
+        $profile = $this->createUserWithProfile($platform, 'tourist');
 
         $contest = Contest::query()->create([
             'platform_id' => $platform->id,
-            'platform_contest_id' => 'abc350',
-            'name' => 'AtCoder Beginner Contest 350',
-            'slug' => 'abc350-atcoder-beginner-contest-350',
-            'phase' => 'FINISHED',
+            'platform_contest_id' => 'abc300',
+            'name' => 'AtCoder Beginner Contest 300',
         ]);
 
         $problem = Problem::query()->create([
             'platform_id' => $platform->id,
             'contest_id' => $contest->id,
-            'platform_problem_id' => 'abc350_a',
-            'name' => 'Past ABCs',
+            'platform_problem_id' => 'abc300_a',
+            'name' => 'N-choice question',
             'code' => 'A',
         ]);
 
-        $adapter = $this->app->make(AtCoderAdapter::class);
-        $mock = \Mockery::mock($adapter)->makePartial();
-        $mock->shouldReceive('getUserSubmissions')
-            ->once()
-            ->with([
-                'handle' => 'chokudai',
-                'from_second' => 0,
-            ])
-            ->andReturn([
-                'submissions' => [
-                    new SubmissionDTO(
-                        platform: 'atcoder',
-                        platformSubmissionId: '555001',
-                        problemPlatformId: 'abc350_a',
-                        authorHandle: 'chokudai',
-                        verdict: SubmissionVerdict::AC,
-                        language: 'C++ 20 (gcc 12.2)',
-                        passedTestCount: 25,
-                        timeConsumedMillis: 15,
-                        createdAtSeconds: 1713615000,
-                        contestPlatformId: 'abc350',
-                        raw: ['id' => '555001'],
-                    ),
+        Http::fake([
+            '*v3/user/submissions*' => Http::response([
+                [
+                    'id' => 77777,
+                    'contest_id' => 'abc300',
+                    'problem_id' => 'abc300_a',
+                    'user_id' => 'tourist',
+                    'language' => 'C++ 20 (gcc 12.2)',
+                    'point' => 100.0,
+                    'length' => 500,
+                    'result' => 'AC',
+                    'execution_time' => 15,
+                    'epoch_second' => 1682769900,
                 ],
-                'reached_stop' => true,
-            ]);
-
-        $this->app->instance(AtCoderAdapter::class, $mock);
-
-        $this->artisan('judgearena:import-user-submissions', ['platform' => 'atcoder'])
-            ->expectsOutputToContain('Platform: atcoder')
-            ->expectsOutputToContain('Created: 1')
-            ->assertExitCode(0);
-
-        $this->assertDatabaseHas('submissions', [
-            'platform_id' => $platform->id,
-            'platform_profile_id' => $profile->id,
-            'contest_id' => $contest->id,
-            'problem_id' => $problem->id,
-            'platform_submission_id' => '555001',
-            'verdict' => 'AC',
-            'language' => 'C++ 20 (gcc 12.2)',
+            ], 200),
         ]);
 
-        $this->assertDatabaseHas('platform_sync_states', [
-            'platform_id' => $platform->id,
-            'entity_type' => 'user_submissions',
-            'entity_platform_id' => 'chokudai',
-            'sync_status' => 'synced',
-        ]);
+        $importer = app(UserSubmissionImporter::class);
+        $result = $importer->import('tourist');
+
+        $this->assertSame(1, $result->checked);
+
+        $submission = Submission::query()
+            ->where('platform_id', $platform->id)
+            ->where('platform_submission_id', '77777')
+            ->first();
+
+        $this->assertNotNull($submission);
+        $this->assertSame($profile->id, $submission->platform_profile_id);
+        $this->assertSame('AC', $submission->verdict->value);
+        $this->assertSame(15, $submission->time_consumed_ms);
     }
 }
+

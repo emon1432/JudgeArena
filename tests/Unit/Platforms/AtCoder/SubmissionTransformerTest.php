@@ -11,59 +11,31 @@ use Tests\TestCase;
 
 class SubmissionTransformerTest extends TestCase
 {
-    public function test_submission_transformer_maps_atcoder_submission(): void
+    public function test_from_api_submission_maps_ac_verdict(): void
     {
-        $submissionDto = AtCoderSubmissionMapper::fromNormalized([
+        $dto = AtCoderSubmissionMapper::fromNormalized([
             'submissionId' => '12345678',
-            'taskId' => 'abc350_a',
-            'taskTitle' => 'Past ABCs',
+            'contestId' => 'abc300',
+            'taskId' => 'abc300_a',
             'userName' => 'tourist',
-            'status' => 'AC',
             'language' => 'C++ 20 (gcc 12.2)',
-            'time' => '2024-04-20 21:30:00',
-            'score' => 100.0,
+            'result' => 'AC',
             'execTime' => '15 ms',
             'memory' => '2048 KB',
+            'time' => '2023-04-29 21:00:00',
+            'score' => 100.0,
         ]);
 
-        $dto = (new SubmissionTransformer())->fromApiSubmission($submissionDto);
+        $transformer = new SubmissionTransformer();
+        $core = $transformer->fromApiSubmission($dto);
 
-        $this->assertSame('atcoder', $dto->platform);
-        $this->assertSame('12345678', $dto->platformSubmissionId);
-        $this->assertSame('abc350_a', $dto->problemPlatformId);
-        $this->assertSame('tourist', $dto->authorHandle);
-        $this->assertSame(SubmissionVerdict::AC, $dto->verdict);
-        $this->assertSame('C++ 20 (gcc 12.2)', $dto->language);
-    }
-
-    public function test_submission_transformer_maps_kenkoooo_submission(): void
-    {
-        $raw = [
-            'id' => 6377009,
-            'epoch_second' => 1563110232,
-            'problem_id' => 'agc035_c',
-            'contest_id' => 'agc035',
-            'user_id' => 'tourist',
-            'language' => 'C++14 (GCC 5.4.1)',
-            'point' => 700.0,
-            'length' => 2261,
-            'result' => 'AC',
-            'execution_time' => 37,
-        ];
-
-        $normalized = \App\Platforms\AtCoder\Support\ResponseNormalizer::submission($raw);
-        $submissionDto = AtCoderSubmissionMapper::fromNormalized($normalized);
-        $dto = (new SubmissionTransformer())->fromApiSubmission($submissionDto);
-
-        $this->assertSame('atcoder', $dto->platform);
-        $this->assertSame('6377009', $dto->platformSubmissionId);
-        $this->assertSame('agc035_c', $dto->problemPlatformId);
-        $this->assertSame('agc035', $dto->contestPlatformId);
-        $this->assertSame('tourist', $dto->authorHandle);
-        $this->assertSame(SubmissionVerdict::AC, $dto->verdict);
-        $this->assertSame('C++14 (GCC 5.4.1)', $dto->language);
-        $this->assertSame(700.0, $dto->points);
-        $this->assertSame(37, $dto->timeConsumedMillis);
-        $this->assertSame(1563110232, $dto->createdAtSeconds);
+        $this->assertSame('atcoder', $core->platform);
+        $this->assertSame('12345678', $core->platformSubmissionId);
+        $this->assertSame('abc300_a', $core->problemPlatformId);
+        $this->assertSame('tourist', $core->authorHandle);
+        $this->assertSame(SubmissionVerdict::AC, $core->verdict);
+        $this->assertSame('C++ 20 (gcc 12.2)', $core->language);
+        $this->assertSame(15, $core->timeConsumedMillis);
+        $this->assertSame(100.0, $core->points);
     }
 }

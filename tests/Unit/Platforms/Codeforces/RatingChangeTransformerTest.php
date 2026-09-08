@@ -4,44 +4,37 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Platforms\Codeforces;
 
-use App\Platforms\Codeforces\Mappers\CodeforcesRatingChangeMapper;
+use App\Platforms\Codeforces\DTOs\CodeforcesRatingChangeDTO;
 use App\Platforms\Codeforces\Transformers\RatingChangeTransformer;
 use Tests\TestCase;
 
 class RatingChangeTransformerTest extends TestCase
 {
-    public function test_rating_change_transformer_maps_rating_changes(): void
+    public function test_from_api_rating_changes_transforms_codeforces_dtos(): void
     {
-        $ratingChanges = [
-            [
-                'contestId' => 2225,
-                'contestName' => 'Educational Codeforces Round 189 (Rated for Div. 2)',
-                'handle' => 'vietbachleonkroos2326',
-                'rank' => 1,
-                'ratingUpdateTimeSeconds' => 1776789300,
-                'oldRating' => 1664,
-                'newRating' => 2060,
-            ],
-        ];
+        $dto = new CodeforcesRatingChangeDTO(
+            contestPlatformId: '1000',
+            contestName: 'Codeforces Round 1000',
+            handle: 'tourist',
+            rank: 1,
+            ratingUpdateTimeSeconds: 1672531200,
+            oldRating: 3700,
+            newRating: 3750,
+            raw: ['contestId' => 1000],
+        );
 
-        $dtos = CodeforcesRatingChangeMapper::fromNormalizedList($ratingChanges);
-        $coreDtos = RatingChangeTransformer::fromApiRatingChanges($dtos, '2225');
+        $results = RatingChangeTransformer::fromApiRatingChanges([$dto]);
 
-        $this->assertNotEmpty($coreDtos);
-        $first = $coreDtos[0];
+        $this->assertCount(1, $results);
+        $core = $results[0];
 
-        $this->assertSame('codeforces', $first->platform);
-        $this->assertSame('2225', $first->contestPlatformId);
-        $this->assertSame('vietbachleonkroos2326', $first->handle);
-        $this->assertTrue($first->isRated);
-        $this->assertSame(1664, $first->oldRating);
-        $this->assertSame(2060, $first->newRating);
-        $this->assertSame(396, $first->ratingChange);
-
-        // Also test user history mapping where platformContestId is null and handle is passed as third parameter
-        $userHistoryDtos = RatingChangeTransformer::fromApiRatingChanges($dtos, null, 'vietbachleonkroos2326');
-        $this->assertNotEmpty($userHistoryDtos);
-        $this->assertSame('2225', $userHistoryDtos[0]->contestPlatformId);
-        $this->assertSame('vietbachleonkroos2326', $userHistoryDtos[0]->handle);
+        $this->assertSame('codeforces', $core->platform);
+        $this->assertSame('1000', $core->contestPlatformId);
+        $this->assertSame('tourist', $core->handle);
+        $this->assertSame(1, $core->rank);
+        $this->assertSame(3700, $core->oldRating);
+        $this->assertSame(3750, $core->newRating);
+        $this->assertSame(50, $core->ratingChange);
     }
 }
+

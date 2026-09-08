@@ -4,42 +4,38 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Platforms\Codeforces;
 
-use App\Platforms\Codeforces\DTOs\CodeforcesProblemDTO;
+use App\Platforms\Codeforces\Mappers\CodeforcesProblemMapper;
 use App\Platforms\Codeforces\Transformers\ProblemTransformer;
 use Tests\TestCase;
 
 class ProblemTransformerTest extends TestCase
 {
-    public function test_problem_transformer_maps_problem_payload(): void
+    public function test_from_api_problem_transforms_codeforces_problem(): void
     {
-        $problemData = [
-            'contestId' => 2225,
+        $cfProblem = CodeforcesProblemMapper::fromNormalized([
+            'contestId' => 1000,
             'index' => 'A',
-            'name' => 'A Number Between Two Others',
+            'name' => 'Codehorses T-shirts',
             'type' => 'PROGRAMMING',
             'points' => 500,
-            'rating' => 800,
-            'tags' => ['greedy', 'math'],
-        ];
+            'rating' => 1400,
+            'tags' => ['greedy', 'strings'],
+            'solvedCount' => 1500,
+        ]);
 
-        $problemDto = new CodeforcesProblemDTO(
-            contestId: (string) $problemData['contestId'],
-            index: $problemData['index'],
-            name: $problemData['name'],
-            type: $problemData['type'],
-            points: $problemData['points'],
-            rating: $problemData['rating'],
-            tags: $problemData['tags'],
-            raw: $problemData,
-        );
-
-        $dto = (new ProblemTransformer())->fromApiProblem($problemDto);
+        $transformer = new ProblemTransformer();
+        $dto = $transformer->fromApiProblem($cfProblem);
 
         $this->assertSame('codeforces', $dto->platform);
-        $this->assertSame('2225A', $dto->platformProblemId);
-        $this->assertSame('A Number Between Two Others', $dto->title);
-        $this->assertSame('2225', $dto->contestPlatformId);
-        $this->assertSame(['greedy', 'math'], $dto->tags);
-        $this->assertSame($problemData, $problemDto->raw);
+        $this->assertSame('1000A', $dto->platformProblemId);
+        $this->assertSame('Codehorses T-shirts', $dto->title);
+        $this->assertSame('1000', $dto->contestPlatformId);
+        $this->assertSame('A', $dto->code);
+        $this->assertSame(500.0, (float) $dto->points);
+        $this->assertSame(1400, $dto->rating);
+        $this->assertSame(1500, $dto->solvedCount);
+        $this->assertSame(['greedy', 'strings'], $dto->tags);
+        $this->assertSame('https://codeforces.com/contest/1000/problem/A', $dto->url);
     }
 }
+

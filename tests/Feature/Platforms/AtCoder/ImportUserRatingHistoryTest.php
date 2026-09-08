@@ -4,65 +4,56 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Platforms\AtCoder;
 
-use App\Core\DTOs\RatingChangeDTO;
 use App\Models\Contest;
-use App\Platforms\AtCoder\AtCoderAdapter;
+use App\Models\ContestRatingChange;
+use App\Platforms\AtCoder\Importers\UserRatingHistoryImporter;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class ImportUserRatingHistoryTest extends TestCase
 {
-    public function test_import_atcoder_user_rating_history_command_saves_rating_changes(): void
+    public function test_import_user_rating_history_persists_changes_to_database(): void
     {
-        $platform = $this->createPlatform('atcoder', 'AtCoder', 'https://atcoder.jp');
-        $profile = $this->createUserWithProfile($platform, 'chokudai');
+        $platform = $this->createPlatform('atcoder', 'AtCoder');
+        $profile = $this->createUserWithProfile($platform, 'tourist');
 
         $contest = Contest::query()->create([
             'platform_id' => $platform->id,
-            'platform_contest_id' => 'abc350',
-            'name' => 'AtCoder Beginner Contest 350',
-            'slug' => 'abc350-atcoder-beginner-contest-350',
-            'phase' => 'FINISHED',
+            'platform_contest_id' => 'abc300',
+            'name' => 'AtCoder Beginner Contest 300',
         ]);
 
-        $adapter = $this->app->make(AtCoderAdapter::class);
-        $mock = \Mockery::mock($adapter)->makePartial();
-        $mock->shouldReceive('getUserRatingHistory')
-            ->once()
-            ->with('chokudai')
-            ->andReturn([
-                new RatingChangeDTO(
-                    platform: 'atcoder',
-                    contestPlatformId: 'abc350',
-                    handle: 'chokudai',
-                    rank: 1,
-                    oldRating: 2950,
-                    newRating: 3000,
-                    raw: ['contestId' => 'abc350'],
-                ),
-            ]);
-
-        $this->app->instance(AtCoderAdapter::class, $mock);
-
-        $this->artisan('judgearena:import-user-rating-history', ['platform' => 'atcoder'])
-            ->expectsOutputToContain('Platform: atcoder')
-            ->expectsOutputToContain('Created: 1')
-            ->assertExitCode(0);
-
-        $this->assertDatabaseHas('contest_rating_changes', [
-            'platform_id' => $platform->id,
-            'platform_profile_id' => $profile->id,
-            'contest_id' => $contest->id,
-            'handle' => 'chokudai',
-            'rank' => 1,
-            'old_rating' => 2950,
-            'new_rating' => 3000,
+        Http::fake([
+            '*history/json*contestType=algo*' => Http::response([
+                [
+                    'IsRated' => true,
+                    'Place' => 1,
+                    'OldRating' => 4000,
+                    'NewRating' => 4050,
+                    'Performance' => 4200,
+                    'InnerPerformance' => 4200,
+                    'ContestScreenName' => 'abc300.contest.atcoder.jp',
+                    'EndTime' => '2023-04-29T22:40:00+09:00',
+                    'ContestName' => 'AtCoder Beginner Contest 300',
+                ],
+            ], 200),
+            '*history/json*contestType=heuristic*' => Http::response([], 200),
         ]);
 
-        $this->assertDatabaseHas('platform_sync_states', [
-            'platform_id' => $platform->id,
-            'entity_type' => 'user_rating_history',
-            'entity_platform_id' => 'chokudai',
-            'sync_status' => 'synced',
-        ]);
+        $importer = app(UserRatingHistoryImporter::class);
+        $result = $importer->import('tourist');
+
+        $this->assertSame(1, $result->checked);
+
+        $change = ContestRatingChange::query()
+            ->where('contest_id', $contest->id)
+            ->where('platform_profile_id', $profile->id)
+            ->first();
+
+        $this->assertNotNull($change);
+        $this->assertSame(1, $change->rank);
+        $this->assertSame(4000, $change->old_rating);
+        $this->assertSame(4050, $change->new_rating);
     }
 }
+

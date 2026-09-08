@@ -11,12 +11,16 @@
 | **[PROJECT.md](./memory/PROJECT.md)** | Core domain definition, ubiquitous language, models map, scope boundaries, and non-goals. |
 | **[ARCHITECTURE.md](./memory/ARCHITECTURE.md)** | 5-layer system design, data flow, adapter lifecycle, DTO lifecycle, and dependency rules. |
 | **[SYSTEM_AXIOMS.md](./memory/SYSTEM_AXIOMS.md)** | Permanent architectural invariants, system axioms, and strategic technical decisions. |
+| **[LESSONS_LEARNED.md](./memory/LESSONS_LEARNED.md)** | Operational incidents, debugging history, architectural anti-patterns, and past fixes. |
 | **[BACKEND_LARAVEL.md](./rules/BACKEND_LARAVEL.md)** | Strict coding standards for Laravel, DTOs, Services, and Queues. |
 | **[DATABASE_SECURITY.md](./rules/DATABASE_SECURITY.md)** | Database bulk operations, indexes, and scraper security rules. |
 | **[FRONTEND_DESIGN.md](./rules/FRONTEND_DESIGN.md)** | Strict frontend architecture, UI consistency, and infinite scrolling rules. |
+| **[TESTING_STANDARDS.md](./rules/TESTING_STANDARDS.md)** | Strict self-contained testing standards, isolation, Http::fake, and zero docs/* dependencies. |
 | **[PLATFORM_INTEGRATION.md](./workflows/PLATFORM_INTEGRATION.md)** | Step-by-step procedures for new platform integrations and scrapers. |
 | **[MAINTENANCE_REFACTOR.md](./workflows/MAINTENANCE_REFACTOR.md)** | Step-by-step procedures for bug fixes, new features, and core refactoring. |
+| **[BACKGROUND_SYNC_SYSTEM.md](./workflows/BACKGROUND_SYNC_SYSTEM.md)** | Full orchestration lifecycle for background sync commands and queue jobs. |
 | **[PRE_COMMIT_REVIEW.md](./checklists/PRE_COMMIT_REVIEW.md)** | Pre-commit self-review checklists for Architecture, Adapters, Security, and Performance. |
+| **[CI_READINESS.md](./checklists/CI_READINESS.md)** | Pre-push and CI verification checklist for 100% green builds. |
 
 ---
 

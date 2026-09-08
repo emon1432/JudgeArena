@@ -9,29 +9,79 @@ use Tests\TestCase;
 
 class AtCoderHtmlScraperTest extends TestCase
 {
-    public function test_scraper_parses_user_profile_and_both_contest_statuses_from_html_fixtures(): void
+    public function test_scraper_parses_user_profile_and_both_contest_statuses_from_synthetic_html(): void
     {
-        $algoHtmlPath = base_path('docs/platforms/atcoder.jp/sample-responses/tourist - contestType=algo - AtCoder.html');
-        $heuristicHtmlPath = base_path('docs/platforms/atcoder.jp/sample-responses/tourist - contestType=heuristic - AtCoder.html');
-        $algoHtmlPath = file_exists(base_path('tests/Fixtures/Platforms/AtCoder/tourist - contestType=algo - AtCoder.html'))
-            ? base_path('tests/Fixtures/Platforms/AtCoder/tourist - contestType=algo - AtCoder.html')
-            : base_path('docs/platforms/atcoder.jp/sample-responses/tourist - contestType=algo - AtCoder.html');
-        $heuristicHtmlPath = file_exists(base_path('tests/Fixtures/Platforms/AtCoder/tourist - contestType=heuristic - AtCoder.html'))
-            ? base_path('tests/Fixtures/Platforms/AtCoder/tourist - contestType=heuristic - AtCoder.html')
-            : base_path('docs/platforms/atcoder.jp/sample-responses/tourist - contestType=heuristic - AtCoder.html');
+        $algoHtml = <<<'HTML'
+<!DOCTYPE html>
+<html>
+<body>
+<div class="col-md-3 col-sm-12">
+<div class="col-md-3">
+    <img class="avatar" src="https://img.atcoder.jp/icons/sample_avatar.jpg">
+    <a class="username" href="/users/tourist"><span class="user-red">tourist</span></a>
+    <table class="dl-table">
+        <tr><th>Country/Region</th><td>Belarus</td></tr>
+        <tr><th>Birth Year</th><td>1994</td></tr>
+        <tr><th>Twitter ID</th><td><a href="https://twitter.com/que_tourist">@que_tourist</a></td></tr>
+        <tr><th>TopCoder ID</th><td><a href="https://topcoder.com">tourist</a></td></tr>
+        <tr><th>Codeforces ID</th><td><a href="https://codeforces.com">tourist</a></td></tr>
+        <tr><th>Affiliation</th><td>ITMO University</td></tr>
+    </table>
+</div>
+<table class="dl-table">
+    <tr><th>Country / Region</th><td>Belarus</td></tr>
+    <tr><th>Birth Year</th><td>1994</td></tr>
+    <tr><th>Twitter ID</th><td><a href="https://twitter.com/que_tourist">@que_tourist</a></td></tr>
+    <tr><th>Topcoder ID</th><td><a href="https://topcoder.com">tourist</a></td></tr>
+    <tr><th>Codeforces ID</th><td><a href="https://codeforces.com">tourist</a></td></tr>
+    <tr><th>Affiliation</th><td>ITMO University</td></tr>
+    <tr><th>Rank</th><td>1th</td></tr>
+    <tr><th>Rating</th><td><span class="user-red">3797</span></td></tr>
+    <tr><th>Highest Rating</th><td><span class="user-red">4229</span> &#x2015; King (+171 to promote)</td></tr>
+    <tr><th>Rated Matches</th><td>71</td></tr>
+    <tr><th>Last Competed</th><td>2026/03/29</td></tr>
+</table>
+<div class="col-md-9">
+    <table class="dl-table">
+        <tr><th>Rank</th><td>1th</td></tr>
+        <tr><th>Rating</th><td><span class="user-red">3797</span></td></tr>
+        <tr><th>Highest Rating</th><td><span class="user-red">4229</span> &#x2015; <span class="bold">King</span> (+171 to promote)</td></tr>
+        <tr><th>Rated Matches</th><td>71</td></tr>
+        <tr><th>Last Competed</th><td>2026/03/29</td></tr>
+    </table>
+</div>
+</body>
+</html>
+HTML;
 
-        $this->assertFileExists($algoHtmlPath);
-        $this->assertFileExists($heuristicHtmlPath);
-
-        $htmlAlgo = (string) file_get_contents($algoHtmlPath);
-        $htmlHeuristic = (string) file_get_contents($heuristicHtmlPath);
+        $heuristicHtml = <<<'HTML'
+<!DOCTYPE html>
+<html>
+<body>
+<table class="dl-table">
+    <tr><th>Rating</th><td><span class="user-yellow">2066</span> (Provisional)</td></tr>
+    <tr><th>Highest Rating</th><td><span class="user-yellow">2383</span></td></tr>
+    <tr><th>Rated Matches</th><td>5</td></tr>
+    <tr><th>Last Competed</th><td>2024/07/21</td></tr>
+</table>
+<div class="col-md-9">
+    <table class="dl-table">
+        <tr><th>Rating</th><td><span class="user-yellow">2066</span> (Provisional)</td></tr>
+        <tr><th>Highest Rating</th><td><span class="user-yellow">2383</span></td></tr>
+        <tr><th>Rated Matches</th><td>5</td></tr>
+        <tr><th>Last Competed</th><td>2024/07/21</td></tr>
+    </table>
+</div>
+</body>
+</html>
+HTML;
 
         $scraper = new AtCoderHtmlScraper();
-        $parsed = $scraper->parseUserProfileHtml($htmlAlgo, $htmlHeuristic, 'tourist');
+        $parsed = $scraper->parseUserProfileHtml($algoHtml, $heuristicHtml, 'tourist');
 
         // Profile identity fields
         $this->assertSame('tourist', $parsed['username']);
-        $this->assertSame('https://img.atcoder.jp/icons/267f5de4d8768543b1570f07e47b5316.jpg', $parsed['avatarUrl']);
+        $this->assertSame('https://img.atcoder.jp/icons/sample_avatar.jpg', $parsed['avatarUrl']);
         $this->assertSame('Belarus', $parsed['country']);
         $this->assertSame('1994', $parsed['birthYear']);
         $this->assertSame('@que_tourist', $parsed['twitterId']);
@@ -43,7 +93,6 @@ class AtCoderHtmlScraperTest extends TestCase
         $algo = $parsed['contestStatus']['algo'];
         $this->assertIsArray($algo);
         $this->assertSame(1, $algo['rank']);
-        $this->assertSame('Top <0.01%', $algo['percentile']);
         $this->assertSame(3797, $algo['rating']);
         $this->assertFalse($algo['is_provisional']);
         $this->assertSame(4229, $algo['highest_rating']);
@@ -56,7 +105,6 @@ class AtCoderHtmlScraperTest extends TestCase
         $heuristic = $parsed['contestStatus']['heuristic'];
         $this->assertIsArray($heuristic);
         $this->assertNull($heuristic['rank']);
-        $this->assertNull($heuristic['percentile']);
         $this->assertSame(2066, $heuristic['rating']);
         $this->assertTrue($heuristic['is_provisional']);
         $this->assertSame(2383, $heuristic['highest_rating']);

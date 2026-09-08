@@ -43,5 +43,17 @@ abstract class TestCase extends BaseTestCase
             'status' => 'Active',
         ]);
     }
+
+    protected function createAdminUser(): User
+    {
+        return User::query()->create([
+            'name' => 'Admin Test',
+            'username' => 'adm_' . Str::random(6),
+            'email' => 'admin_' . Str::random(6) . '@example.com',
+            'password' => bcrypt('password'),
+            'role' => 'admin',
+            'email_verified_at' => now(),
+        ]);
+    }
 }
 

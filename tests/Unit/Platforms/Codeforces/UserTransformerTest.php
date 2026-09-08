@@ -10,31 +10,35 @@ use Tests\TestCase;
 
 class UserTransformerTest extends TestCase
 {
-    public function test_user_transformer_maps_profile_payload(): void
+    public function test_from_api_user_transforms_codeforces_user(): void
     {
-        $profile = [
+        $dto = CodeforcesUserMapper::fromNormalized([
             'handle' => 'tourist',
             'firstName' => 'Gennady',
             'lastName' => 'Korotkevich',
             'country' => 'Belarus',
             'city' => 'Gomel',
             'organization' => 'ITMO University',
-            'contribution' => 175,
+            'contribution' => 150,
             'rank' => 'legendary grandmaster',
-            'rating' => 3428,
-            'maxRank' => 'tourist',
-            'maxRating' => 4009,
-        ];
+            'rating' => 3800,
+            'maxRank' => 'legendary grandmaster',
+            'maxRating' => 4000,
+            'lastOnlineTimeSeconds' => 1672531200,
+            'registrationTimeSeconds' => 1262304000,
+            'avatar' => 'https://userpic.codeforces.org/avatar.jpg',
+            'titlePhoto' => 'https://userpic.codeforces.org/title.jpg',
+        ]);
 
-        $userDto = CodeforcesUserMapper::fromNormalized($profile);
-        $dto = (new UserTransformer())->fromApiUser($userDto);
+        $transformer = new UserTransformer();
+        $core = $transformer->fromApiUser($dto);
 
-        $this->assertSame('codeforces', $dto->platform);
-        $this->assertSame('tourist', $dto->platformHandle);
-        $this->assertSame('Gennady', $dto->firstName);
-        $this->assertSame('Korotkevich', $dto->lastName);
-        $this->assertSame(3428, $dto->rating);
-        $this->assertSame('Belarus', $dto->country);
-        $this->assertSame($profile, $userDto->raw);
+        $this->assertSame('codeforces', $core->platform);
+        $this->assertSame('tourist', $core->platformHandle);
+        $this->assertSame('Gennady', $core->firstName);
+        $this->assertSame('Korotkevich', $core->lastName);
+        $this->assertSame('Belarus', $core->country);
+        $this->assertSame(3800, $core->rating);
     }
 }
+

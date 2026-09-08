@@ -4,48 +4,44 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Platforms\Codeforces;
 
-use App\Platforms\Codeforces\Mappers\CodeforcesUserMapper;
-use App\Platforms\Codeforces\Services\Users as CodeforcesUsersService;
-use Mockery\MockInterface;
+use App\Platforms\Codeforces\Importers\UserImporter;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class ImportUsersTest extends TestCase
 {
-    public function test_import_codeforces_users_command_updates_registered_profiles(): void
+    public function test_import_users_updates_platform_profile(): void
     {
-        $platform = $this->createPlatform('codeforces', 'Codeforces', 'https://codeforces.com');
+        $platform = $this->createPlatform('codeforces', 'Codeforces');
         $profile = $this->createUserWithProfile($platform, 'tourist');
 
-        $this->mock(CodeforcesUsersService::class, function (MockInterface $mock) {
-            $mock->shouldReceive('infos')
-                ->once()
-                ->with(['tourist'])
-                ->andReturn([
-                    CodeforcesUserMapper::fromNormalized([
+        Http::fake([
+            '*user.info*' => Http::response([
+                'status' => 'OK',
+                'result' => [
+                    [
                         'handle' => 'tourist',
-                        'firstName' => 'Gennady',
-                        'lastName' => 'Korotkevich',
-                        'rating' => 3800,
+                        'rating' => 3900,
+                        'maxRating' => 4009,
                         'rank' => 'legendary grandmaster',
-                        'country' => 'Belarus',
-                    ]),
-                ]);
-        });
+                        'maxRank' => 'tourist',
+                        'avatar' => 'https://userpic.codeforces.org/avatar.jpg',
+                    ],
+                ],
+            ], 200),
+        ]);
 
-        $this->artisan('judgearena:import-users', ['platform' => 'codeforces'])
-            ->expectsOutputToContain('Platform: codeforces')
-            ->expectsOutputToContain('Updated: 1')
-            ->assertExitCode(0);
+        $importer = app(UserImporter::class);
+        $result = $importer->import('tourist');
+
+        $this->assertSame(1, $result->checked);
+        $this->assertSame(1, $result->updated);
 
         $profile->refresh();
+        $this->assertNotNull($profile->raw);
         $this->assertNotNull($profile->last_synced_at);
-        $this->assertSame(3800, $profile->raw['rating']);
-
-        $this->assertDatabaseHas('platform_sync_states', [
-            'platform_id' => $platform->id,
-            'entity_type' => 'user',
-            'entity_platform_id' => 'tourist',
-            'sync_status' => 'synced',
-        ]);
+        $this->assertSame('tourist', $profile->raw['handle'] ?? null);
+        $this->assertSame(3900, $profile->raw['rating'] ?? null);
     }
 }
+

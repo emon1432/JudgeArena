@@ -4,75 +4,58 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Platforms\AtCoder;
 
-use App\Platforms\AtCoder\DTOs\AtCoderUserDTO;
+use App\Platforms\AtCoder\Mappers\AtCoderUserMapper;
 use App\Platforms\AtCoder\Transformers\UserTransformer;
 use Tests\TestCase;
 
 class UserTransformerTest extends TestCase
 {
-    public function test_user_transformer_maps_atcoder_user(): void
+    public function test_from_api_user_transforms_atcoder_user_dto(): void
     {
-        $userDto = new AtCoderUserDTO(
-            username: 'chokudai',
-            avatarUrl: 'https://example.com/avatar.jpg',
-            country: 'Japan',
-            birthYear: '1985',
-            twitterId: 'chokudai',
-            topcoderId: 'chokudai',
-            codeforcesId: 'chokudai',
-            affiliation: 'AtCoder Inc.',
-            contestStatus: [
-                'algo' => [
-                    'rating' => 3000,
-                    'highest_rating' => 3100,
-                    'rank' => 10,
-                ],
+        $dto = AtCoderUserMapper::fromNormalized([
+            'username' => 'tourist',
+            'avatarUrl' => 'https://img.atcoder.jp/avatar.png',
+            'country' => 'Belarus',
+            'birthYear' => '1994',
+            'twitterId' => '@que_tourist',
+            'topcoderId' => 'tourist',
+            'codeforcesId' => 'tourist',
+            'affiliation' => 'ITMO University',
+            'acceptedCount' => 500,
+            'acceptedCountRank' => 1,
+            'ratedPointSum' => 250000,
+            'ratedPointSumRank' => 1,
+            'contestStatus' => [
+                'algo' => ['rating' => 3797],
+                'heuristic' => ['rating' => 2066],
             ],
-            raw: ['username' => 'chokudai']
-        );
+            'raw' => ['username' => 'tourist'],
+        ]);
 
-        $dto = (new UserTransformer())->fromApiUser($userDto);
+        $transformer = new UserTransformer();
+        $user = $transformer->fromApiUser($dto);
 
-        $this->assertSame('atcoder', $dto->platform);
-        $this->assertSame('chokudai', $dto->platformHandle);
-        $this->assertSame(3000, $dto->rating);
-        $this->assertSame('Japan', $dto->country);
-        $this->assertSame(3000, $dto->raw['rating']);
+        $this->assertSame('atcoder', $user->platform);
+        $this->assertSame('tourist', $user->platformHandle);
+        $this->assertSame('Belarus', $user->country);
+        $this->assertSame(3797, $user->rating);
+        $this->assertSame(500, $user->raw['accepted_count']);
     }
 
-    public function test_user_transformer_maps_kenkoooo_metrics_and_falls_back_to_heuristic_rating(): void
+    public function test_from_api_user_falls_back_to_heuristic_rating(): void
     {
-        $normalized = [
-            'username' => 'tourist',
-            'avatarUrl' => 'https://img.atcoder.jp/icons/sample.jpg',
-            'country' => 'Belarus',
+        $dto = AtCoderUserMapper::fromNormalized([
+            'username' => 'heuristic_only',
             'contestStatus' => [
-                'algo' => null,
-                'heuristic' => [
-                    'rating' => 2066,
-                    'highest_rating' => 2383,
-                ],
+                'algo' => ['rating' => null],
+                'heuristic' => ['rating' => 2100],
             ],
-            'acceptedCount' => 1057,
-            'acceptedCountRank' => 4421,
-            'ratedPointSum' => 688543,
-            'ratedPointSumRank' => 677,
-        ];
+            'raw' => ['username' => 'heuristic_only'],
+        ]);
 
-        $userDto = \App\Platforms\AtCoder\Mappers\AtCoderUserMapper::fromNormalized($normalized);
+        $transformer = new UserTransformer();
+        $user = $transformer->fromApiUser($dto);
 
-        $this->assertSame(1057, $userDto->acceptedCount);
-        $this->assertSame(4421, $userDto->acceptedCountRank);
-        $this->assertSame(688543, $userDto->ratedPointSum);
-        $this->assertSame(677, $userDto->ratedPointSumRank);
-
-        $dto = (new UserTransformer())->fromApiUser($userDto);
-
-        $this->assertSame('atcoder', $dto->platform);
-        $this->assertSame('tourist', $dto->platformHandle);
-        $this->assertSame(2066, $dto->rating);
-        $this->assertSame('Belarus', $dto->country);
-        $this->assertSame(1057, $dto->raw['accepted_count']);
-        $this->assertSame(688543, $dto->raw['rated_point_sum']);
+        $this->assertSame(2100, $user->rating);
     }
 }

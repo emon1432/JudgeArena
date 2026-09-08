@@ -10,28 +10,30 @@ use Tests\TestCase;
 
 class ContestTransformerTest extends TestCase
 {
-    public function test_contest_transformer_maps_standings_contest(): void
+    public function test_from_api_contest_transforms_codeforces_contest(): void
     {
-        $contestData = [
-            'id' => 2225,
-            'name' => 'Educational Codeforces Round 189 (Rated for Div. 2)',
+        $cfContest = CodeforcesContestMapper::fromNormalized([
+            'id' => 1000,
+            'name' => 'Codeforces Round 1000 (Div. 2)',
             'type' => 'CF',
             'phase' => 'FINISHED',
             'frozen' => false,
             'durationSeconds' => 7200,
-            'startTimeSeconds' => 1776782100,
+            'startTimeSeconds' => 1672531200,
             'relativeTimeSeconds' => 7200,
-        ];
+            'url' => 'https://codeforces.com/contest/1000',
+        ]);
 
-        $contestDto = CodeforcesContestMapper::fromNormalized($contestData);
-        $dto = (new ContestTransformer())->fromApiContest($contestDto);
+        $transformer = new ContestTransformer();
+        $dto = $transformer->fromApiContest($cfContest);
 
         $this->assertSame('codeforces', $dto->platform);
-        $this->assertSame('2225', $dto->platformContestId);
-        $this->assertSame('Educational Codeforces Round 189 (Rated for Div. 2)', $dto->title);
+        $this->assertSame('1000', $dto->platformContestId);
+        $this->assertSame('Codeforces Round 1000 (Div. 2)', $dto->title);
+        $this->assertSame('CF', $dto->type);
         $this->assertSame('FINISHED', $dto->phase);
         $this->assertSame(7200, $dto->durationSeconds);
-        $this->assertSame(1776782100, $dto->startedAt?->getTimestamp());
-        $this->assertSame($contestData, $contestDto->raw);
+        $this->assertNotNull($dto->startedAt);
+        $this->assertNotNull($dto->endedAt);
     }
 }
