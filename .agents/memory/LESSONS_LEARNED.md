@@ -82,15 +82,6 @@
 ---
 
 ## 8. CI/CD Deployment Job Decoupling
-## 8. CI/CD Deployment Job Decoupling & Workflow Architecture
 
 - **Rule**: When production deployment credentials (such as cPanel FTP secrets) are pending or not yet configured, decouple the deployment job using `if: false` in `.github/workflows/cpanel.yml` instead of commenting out or deleting the pipeline.
 - **Benefit**: The test and quality assurance job (`test`) runs normally, maintaining full CI verification, while the `deploy` job cleanly reports as skipped, resulting in a 100% green workflow badge.
-- **Rule**: Never combine CI tests and deployment into a single monolithic workflow file. Keep workflows decoupled into dedicated single-responsibility files under `.github/workflows/`:
-  - `ci.yml`: Runs automated tests (MySQL 8.0, PHP 8.4, Node 22, `php artisan test --compact`) on PRs and pushes.
-  - `code-quality.yml`: Runs code style linting (`vendor/bin/pint --test`).
-  - `deploy-cpanel.yml`: Handles production deployment via FTP to cPanel.
-- **Pending Credentials Handling**: When production deployment credentials (such as cPanel FTP secrets) are pending or not yet configured, pause the deployment workflow using `if: false` in `.github/workflows/deploy-cpanel.yml` and provide `workflow_dispatch` for manual runs.
-- **Benefit**: The CI testing workflow (`ci.yml`) runs independently, maintaining full CI verification and green status on pull requests and pushes, while deployment never fails pipelines due to unconfigured secrets.
-
-

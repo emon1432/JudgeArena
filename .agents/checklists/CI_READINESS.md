@@ -30,15 +30,9 @@
   - New or modified Blade components adhere to reference layouts (`platforms/index.blade.php`).
   - No broken action buttons or styling discrepancies.
 
-- [ ] **7. Knowledge Base Synchronization (Rule 9)**:
-- [ ] **7. Code Style Compliance**:
-  - Run: `vendor/bin/pint --test`
-  - Code must pass Laravel Pint formatting rules before pushing to avoid CI `code-quality.yml` failures.
+- [ ] **7. CI/CD Deployment Guard**:
+  - In `.github/workflows/cpanel.yml`, `deploy` job is guarded with `if: false` until production secrets are ready.
 
-- [ ] **8. Decoupled GitHub Workflows**:
-  - CI test workflow (`.github/workflows/ci.yml`) runs independently of production deployment.
-  - Deployment workflow (`.github/workflows/deploy-cpanel.yml`) is guarded with `if: false` until production secrets are ready.
-
-- [ ] **9. Knowledge Base Synchronization (Rule 9)**:
+- [ ] **8. Knowledge Base Synchronization (Rule 9)**:
   - Any new architectural patterns, table columns, or cache changes have been synced with `.agents/*/*.md`.
 
