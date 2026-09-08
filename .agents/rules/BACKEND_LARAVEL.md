@@ -22,6 +22,10 @@
 - **Instruction**: Do NOT create test files for standard web routes, views, or simple controllers. Automated Pest PHP test files MUST ONLY be created when developing or updating a NEW Platform Integration (`app/Platforms/<PlatformName>/`).
 - **Why**: Keeps test execution focused on high-risk platform response parsers, DTO transformations, and scrapers, preventing unnecessary test maintenance bloat for basic web views.
 
+### Rule 1.5: Test Fixtures Location (Never Depend on `/docs`)
+- **Instruction**: Automated tests requiring mock payloads, sample HTML, or API responses MUST locate their fixtures in `tests/Fixtures/Platforms/<PlatformName>/` (tracked by Git). Tests MUST NEVER reference `base_path('docs/...')`.
+- **Why**: The `/docs` folder is excluded in `.gitignore` and is absent on CI environments (e.g. GitHub Actions runners), causing instant test failures in continuous integration.
+
 ---
 
 ## 2. Data Transfer Object (DTO) Rules

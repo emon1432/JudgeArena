@@ -84,13 +84,26 @@ class ServerSideDatatable
         $recordsTotal = self::countDistinctByKey($totalQuery, $qualifiedKey);
         $recordsFiltered = self::countDistinctByKey($filteredQuery, $qualifiedKey);
 
+        $selectColumns = ["{$qualifiedKey} as datatable_row_id"];
+        $orderEntries = $filteredQuery->getQuery()->orders ?? [];
+        foreach ($orderEntries as $order) {
+            if (isset($order['column']) && is_string($order['column'])) {
+                $col = $order['column'];
+                if ($col !== $qualifiedKey && $col !== $keyName && !in_array($col, $selectColumns, true)) {
+                    $selectColumns[] = $col;
+                }
+            }
+        }
+
         $rowIds = (clone $filteredQuery)
-            ->selectRaw("{$qualifiedKey} as datatable_row_id")
+            ->select($selectColumns)
             ->distinct()
             ->skip($start)
             ->take($length)
             ->pluck('datatable_row_id')
             ->all();
+
+        $rowIds = array_values(array_unique($rowIds));
 
         if (empty($rowIds)) {
             return [
@@ -133,7 +146,7 @@ class ServerSideDatatable
     {
         $subQuery = (clone $query)
             ->reorder()
-            ->selectRaw("{$qualifiedKey} as datatable_row_id")
+            ->select(["{$qualifiedKey} as datatable_row_id"])
             ->distinct();
 
         return (int) DB::query()->fromSub($subQuery, 'datatable_source')->count();

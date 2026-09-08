@@ -57,6 +57,19 @@ class ImportUsersTest extends TestCase
         $algoHtml = (string) file_get_contents(base_path('docs/platforms/atcoder.jp/sample-responses/tourist - contestType=algo - AtCoder.html'));
         $heuristicHtml = (string) file_get_contents(base_path('docs/platforms/atcoder.jp/sample-responses/tourist - contestType=heuristic - AtCoder.html'));
         $kenkooooJson = (array) json_decode((string) file_get_contents(base_path('docs/platforms/atcoder.jp/sample-responses/user_info.json')), true);
+        $algoHtmlPath = file_exists(base_path('tests/Fixtures/Platforms/AtCoder/tourist - contestType=algo - AtCoder.html'))
+            ? base_path('tests/Fixtures/Platforms/AtCoder/tourist - contestType=algo - AtCoder.html')
+            : base_path('docs/platforms/atcoder.jp/sample-responses/tourist - contestType=algo - AtCoder.html');
+        $heuristicHtmlPath = file_exists(base_path('tests/Fixtures/Platforms/AtCoder/tourist - contestType=heuristic - AtCoder.html'))
+            ? base_path('tests/Fixtures/Platforms/AtCoder/tourist - contestType=heuristic - AtCoder.html')
+            : base_path('docs/platforms/atcoder.jp/sample-responses/tourist - contestType=heuristic - AtCoder.html');
+        $userInfoPath = file_exists(base_path('tests/Fixtures/Platforms/AtCoder/user_info.json'))
+            ? base_path('tests/Fixtures/Platforms/AtCoder/user_info.json')
+            : base_path('docs/platforms/atcoder.jp/sample-responses/user_info.json');
+
+        $algoHtml = (string) file_get_contents($algoHtmlPath);
+        $heuristicHtml = (string) file_get_contents($heuristicHtmlPath);
+        $kenkooooJson = (array) json_decode((string) file_get_contents($userInfoPath), true);
 
         \Illuminate\Support\Facades\Http::fake([
             'https://atcoder.jp/users/tourist?contestType=algo' => \Illuminate\Support\Facades\Http::response($algoHtml, 200),

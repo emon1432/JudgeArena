@@ -66,7 +66,7 @@ class ProblemController extends Controller
                 'searchable' => [
                     'problems.name',
                     'problems.code',
-                    'problems.difficulty',
+                    'problems.platform_problem_id',
                     'problems.rating',
                     'platforms.name',
                     'contests.name',

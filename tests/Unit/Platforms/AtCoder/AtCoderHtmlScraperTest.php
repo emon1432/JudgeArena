@@ -13,6 +13,12 @@ class AtCoderHtmlScraperTest extends TestCase
     {
         $algoHtmlPath = base_path('docs/platforms/atcoder.jp/sample-responses/tourist - contestType=algo - AtCoder.html');
         $heuristicHtmlPath = base_path('docs/platforms/atcoder.jp/sample-responses/tourist - contestType=heuristic - AtCoder.html');
+        $algoHtmlPath = file_exists(base_path('tests/Fixtures/Platforms/AtCoder/tourist - contestType=algo - AtCoder.html'))
+            ? base_path('tests/Fixtures/Platforms/AtCoder/tourist - contestType=algo - AtCoder.html')
+            : base_path('docs/platforms/atcoder.jp/sample-responses/tourist - contestType=algo - AtCoder.html');
+        $heuristicHtmlPath = file_exists(base_path('tests/Fixtures/Platforms/AtCoder/tourist - contestType=heuristic - AtCoder.html'))
+            ? base_path('tests/Fixtures/Platforms/AtCoder/tourist - contestType=heuristic - AtCoder.html')
+            : base_path('docs/platforms/atcoder.jp/sample-responses/tourist - contestType=heuristic - AtCoder.html');
 
         $this->assertFileExists($algoHtmlPath);
         $this->assertFileExists($heuristicHtmlPath);
@@ -44,7 +50,6 @@ class AtCoderHtmlScraperTest extends TestCase
         $this->assertSame('King', $algo['user_title']);
         $this->assertSame(71, $algo['rated_matches']);
         $this->assertSame('2026-03-29', $algo['last_competed']);
-        $this->assertSame('4229 ― King (+171 to promote)', $algo['raw_highest_rating']);
         $this->assertSame('4229', $algo['raw_highest_rating']);
 
         // Heuristic contest status

@@ -25,6 +25,10 @@
 - **Instruction**: Submissions and Rating Changes MUST be persisted in their respective single, unified tables (`submissions`, `contest_rating_changes`). Do NOT create separate tables for "Global" versus "User" records.
 - **Why**: Centralizes data aggregation, prevents desync between global leaderboards and user profiles, and simplifies queries.
 
+### Rule 1.5: MySQL 8.0 `DISTINCT` with `ORDER BY` Compliance
+- **Instruction**: When applying `DISTINCT` on queries that include `ORDER BY` clauses (such as in `ServerSideDatatable` or custom paginators), all `ORDER BY` columns MUST be included in the `SELECT` list.
+- **Why**: MySQL 5.7+ and 8.0 in strict mode (`ONLY_FULL_GROUP_BY`) throw `SQLSTATE[HY000]: General error: 3065 Expression #1 of ORDER BY clause is not in SELECT list, references column ... which is not in SELECT list; this is incompatible with DISTINCT`.
+
 ---
 
 ## 2. Security & Credential Safeguards
