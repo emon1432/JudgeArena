@@ -6,6 +6,7 @@ use Illuminate\Database\Seeder;
 
 class ContactMessagesTableSeeder extends Seeder
 {
+
     /**
      * Auto generated seed file
      *
@@ -13,8 +14,11 @@ class ContactMessagesTableSeeder extends Seeder
      */
     public function run()
     {
+        
 
         \DB::table('contact_messages')->delete();
-
+        
+        
+        
     }
 }

@@ -80,7 +80,7 @@ jobs:
     needs: [test]
     # Temporarily disabled until cPanel FTP credentials are configured.
     # To re-enable, replace `false` with: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
-    if: false
+    if: true
     runs-on: ubuntu-latest
 
     steps:
@@ -114,20 +114,5 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: ${{ secrets.FTP_SERVER_DIR || './judgearena.bdusedautoparts.com/' }}
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/.github/**
-            **/node_modules/**
-            .env
-            .env.*
-            .editorconfig
-            README.md
-            phpunit.xml
-            tests/**
-            storage/logs/**
-            storage/framework/sessions/**
-            storage/framework/cache/**
-            public/uploads/**
+          server-dir: ${{ secrets.FTP_SERVER_DIR || './judgearena.jogajogqr.com/' }}
 
