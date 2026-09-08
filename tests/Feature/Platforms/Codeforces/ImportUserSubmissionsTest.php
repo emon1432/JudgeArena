@@ -79,4 +79,3 @@ class ImportUserSubmissionsTest extends TestCase
         $this->assertSame('AC', $submission->verdict->value);
     }
 }
-

@@ -7,8 +7,8 @@ namespace App\Platforms\Codeforces\Services;
 use App\Platforms\Codeforces\Client\BaseClient;
 use App\Platforms\Codeforces\DTOs\CodeforcesUserDTO;
 use App\Platforms\Codeforces\Mappers\CodeforcesRatingChangeMapper;
-use App\Platforms\Codeforces\Mappers\CodeforcesUserMapper;
 use App\Platforms\Codeforces\Mappers\CodeforcesSubmissionMapper;
+use App\Platforms\Codeforces\Mappers\CodeforcesUserMapper;
 use App\Platforms\Codeforces\Support\ResponseNormalizer;
 use App\Platforms\Codeforces\Transformers\RatingChangeTransformer;
 use App\Services\ApplicationLogger;
@@ -21,7 +21,7 @@ class Users
         private readonly BaseClient $client,
     ) {}
 
-    //used
+    // used
     public function info(string $handle, bool $checkHistoricHandles = true): CodeforcesUserDTO
     {
         $result = $this->client->requestApi('user.info', [
@@ -32,7 +32,7 @@ class Users
         return CodeforcesUserMapper::fromNormalized(Arr::first(ResponseNormalizer::users($result), null, []));
     }
 
-    //used
+    // used
     public function ratingHistory(string $handle): array
     {
         return RatingChangeTransformer::fromApiRatingChanges(
@@ -149,7 +149,7 @@ class Users
 
     public function profileUrl(string $handle): string
     {
-        return $this->client->webBaseUrl() . '/profile/' . urlencode($handle);
+        return $this->client->webBaseUrl().'/profile/'.urlencode($handle);
     }
 
     public function normalize(array $user): array
@@ -174,7 +174,7 @@ class Users
                 continue;
             }
 
-            $addition = $handle . ';';
+            $addition = $handle.';';
             $length = strlen($addition);
 
             if ($currentChunk !== [] && ($currentLength + $length) > $this->client->userInfoBatchCharLimit()) {
@@ -194,4 +194,3 @@ class Users
         return $chunks;
     }
 }
-

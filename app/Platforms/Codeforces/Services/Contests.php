@@ -19,7 +19,7 @@ class Contests
         private readonly BaseClient $client,
     ) {}
 
-    //used
+    // used
     public function list(bool $gym = false, ?string $groupCode = null): array
     {
         $query = [
@@ -35,7 +35,7 @@ class Contests
         );
     }
 
-    //used
+    // used
     public function standings(int $contestId, array $options = []): CodeforcesStandingsDTO
     {
         $isGymContest = $contestId > 90000;
@@ -54,7 +54,7 @@ class Contests
         return CodeforcesStandingsMapper::fromApiResponse(ResponseNormalizer::standings($this->client->requestApi('contest.standings', $query, $isSigned)));
     }
 
-    //used
+    // used
     public function status(int $contestId, array $options = []): array
     {
         $query = array_merge([
@@ -66,7 +66,7 @@ class Contests
         );
     }
 
-    //used
+    // used
     public function ratingChanges(string $contestId): array
     {
         $normalized = ResponseNormalizer::ratingChanges($this->client->requestApi('contest.ratingChanges', [
@@ -86,4 +86,3 @@ class Contests
         ]));
     }
 }
-

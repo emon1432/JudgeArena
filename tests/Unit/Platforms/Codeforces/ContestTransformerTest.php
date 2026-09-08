@@ -24,7 +24,7 @@ class ContestTransformerTest extends TestCase
             'url' => 'https://codeforces.com/contest/1000',
         ]);
 
-        $transformer = new ContestTransformer();
+        $transformer = new ContestTransformer;
         $dto = $transformer->fromApiContest($cfContest);
 
         $this->assertSame('codeforces', $dto->platform);

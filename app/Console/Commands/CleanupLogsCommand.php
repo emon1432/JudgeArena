@@ -13,6 +13,7 @@ class CleanupLogsCommand extends Command
     ) {
         parent::__construct();
     }
+
     protected $signature = 'judgearena:cleanup-logs {--retention-days=} {--critical-retention-days=}';
 
     protected $description = 'Remove old application logs according to configured retention policies.';
@@ -51,7 +52,7 @@ class CleanupLogsCommand extends Command
             'critical_retention_days' => $criticalRetentionDays,
         ]);
 
-        $this->info('Deleted ' . $deletedNormalLogs . ' normal logs and ' . $deletedCriticalLogs . ' critical logs.');
+        $this->info('Deleted '.$deletedNormalLogs.' normal logs and '.$deletedCriticalLogs.' critical logs.');
 
         return self::SUCCESS;
     }

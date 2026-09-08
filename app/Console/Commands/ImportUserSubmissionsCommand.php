@@ -45,8 +45,8 @@ class ImportUserSubmissionsCommand extends Command
                 'source' => self::class,
             ]);
 
-            $this->error('Unsupported platform: ' . $platformSlug);
-            $this->line('Supported platforms: ' . implode(', ', $this->platformRegistry->supportedPlatforms()));
+            $this->error('Unsupported platform: '.$platformSlug);
+            $this->line('Supported platforms: '.implode(', ', $this->platformRegistry->supportedPlatforms()));
 
             return self::FAILURE;
         }
@@ -56,14 +56,14 @@ class ImportUserSubmissionsCommand extends Command
                 ->userSubmissionImporter()
                 ->import($handle, $full);
 
-            $this->line('Platform: ' . $platformSlug);
-            $this->line('Checked: ' . ($result->checked ?? 0));
-            $this->line('Fetched: ' . ($result->fetched ?? 0));
-            $this->line('Created: ' . ($result->created ?? 0));
-            $this->line('Updated: ' . ($result->updated ?? 0));
-            $this->line('Skipped: ' . ($result->skipped ?? 0));
-            $this->line('Failed: ' . ($result->failed ?? 0));
-            $this->line('Synced: ' . $result->synced());
+            $this->line('Platform: '.$platformSlug);
+            $this->line('Checked: '.($result->checked ?? 0));
+            $this->line('Fetched: '.($result->fetched ?? 0));
+            $this->line('Created: '.($result->created ?? 0));
+            $this->line('Updated: '.($result->updated ?? 0));
+            $this->line('Skipped: '.($result->skipped ?? 0));
+            $this->line('Failed: '.($result->failed ?? 0));
+            $this->line('Synced: '.$result->synced());
             $this->info('User submissions import completed successfully.');
 
             $this->logger->info('User submissions import completed', [

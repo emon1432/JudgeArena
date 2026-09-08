@@ -38,10 +38,10 @@ class ImportContestsCommand extends Command
                 ]
             );
 
-            $this->error('Unsupported platform: ' . $platformSlug);
+            $this->error('Unsupported platform: '.$platformSlug);
 
             $this->line(
-                'Supported platforms: ' .
+                'Supported platforms: '.
                     implode(', ', $this->platformRegistry->supportedPlatforms())
             );
 
@@ -56,21 +56,21 @@ class ImportContestsCommand extends Command
                 'source' => self::class,
             ]
         );
-        $this->info('Starting contest import for platform: ' . $platformSlug);
+        $this->info('Starting contest import for platform: '.$platformSlug);
 
         try {
             $result = $adapter
                 ->contestImporter()
                 ->import();
 
-            $this->line('Platform: ' . $platformSlug);
-            $this->line('Checked: ' . $result->checked);
-            $this->line('Fetched: ' . $result->fetched);
-            $this->line('Created: ' . $result->created);
-            $this->line('Updated: ' . $result->updated);
-            $this->line('Skipped: ' . $result->skipped);
-            $this->line('Failed: ' . $result->failed);
-            $this->line('Synced: ' . $result->synced());
+            $this->line('Platform: '.$platformSlug);
+            $this->line('Checked: '.$result->checked);
+            $this->line('Fetched: '.$result->fetched);
+            $this->line('Created: '.$result->created);
+            $this->line('Updated: '.$result->updated);
+            $this->line('Skipped: '.$result->skipped);
+            $this->line('Failed: '.$result->failed);
+            $this->line('Synced: '.$result->synced());
 
             $this->info('Contest import completed successfully.');
 

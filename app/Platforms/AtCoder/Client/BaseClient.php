@@ -13,12 +13,17 @@ use RuntimeException;
 class BaseClient
 {
     private readonly string $webBaseUrl;
+
     private readonly string $resourcesUrl;
+
     private readonly string $apiUrl;
 
     protected const HTTP_TIMEOUT_SECONDS = 30;
+
     protected const HTTP_RETRY_ATTEMPTS = 3;
+
     protected const HTTP_RETRY_SLEEP_MS = 300;
+
     protected const API_RATE_LIMIT_SECONDS = 1;
 
     public function __construct()
@@ -42,7 +47,7 @@ class BaseClient
         if ($sessionCookie !== null && trim((string) $sessionCookie) !== '') {
             $cookieStr = trim((string) $sessionCookie);
             if (! str_contains($cookieStr, '=')) {
-                $cookieStr = 'REVEL_SESSION=' . $cookieStr;
+                $cookieStr = 'REVEL_SESSION='.$cookieStr;
             }
             $headers['Cookie'] = $cookieStr;
         }
@@ -60,7 +65,7 @@ class BaseClient
 
     protected function respectRateLimit(string $endpoint): void
     {
-        $cacheKey = 'atcoder:last_request_at:' . md5($endpoint);
+        $cacheKey = 'atcoder:last_request_at:'.md5($endpoint);
         $lastRequestAt = (int) (cache()->get($cacheKey) ?? 0);
         $elapsed = time() - $lastRequestAt;
 
@@ -78,7 +83,7 @@ class BaseClient
      */
     public function requestResource(string $resource): array
     {
-        $url = $this->resourcesUrl . '/' . ltrim($resource, '/');
+        $url = $this->resourcesUrl.'/'.ltrim($resource, '/');
 
         return $this->fetchJson($url, $resource);
     }
@@ -86,13 +91,13 @@ class BaseClient
     /**
      * Request AtCoder internal web JSON endpoints (e.g. /contests/{id}/standings/json, /users/{handle}/history/json)
      *
-     * @param array<string, mixed> $query
+     * @param  array<string, mixed>  $query
      * @return array<mixed>
      */
     public function requestWebJson(string $path, array $query = []): array
     {
         $this->respectRateLimit($path);
-        $url = $this->webBaseUrl . '/' . ltrim($path, '/');
+        $url = $this->webBaseUrl.'/'.ltrim($path, '/');
 
         return $this->fetchJson($url, $path, $query);
     }
@@ -100,19 +105,19 @@ class BaseClient
     /**
      * Request Kenkoooo API endpoints (e.g. /v3/user/submissions, /v3/user_info)
      *
-     * @param array<string, mixed> $query
+     * @param  array<string, mixed>  $query
      * @return array<mixed>
      */
     public function requestApi(string $path, array $query = []): array
     {
         $this->respectRateLimit($path);
-        $url = $this->apiUrl . '/' . ltrim($path, '/');
+        $url = $this->apiUrl.'/'.ltrim($path, '/');
 
         return $this->fetchJson($url, $path, $query);
     }
 
     /**
-     * @param array<string, mixed> $query
+     * @param  array<string, mixed>  $query
      * @return array<mixed>
      */
     private function fetchJson(string $url, string $identifier, array $query = []): array
@@ -139,7 +144,7 @@ class BaseClient
     }
 
     /**
-     * @param array<string, string> $query
+     * @param  array<string, string>  $query
      * @return array<mixed>
      */
     protected function decodeApiResponse(Response $response, string $method, array $query): array

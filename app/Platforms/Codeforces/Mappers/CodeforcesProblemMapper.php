@@ -33,4 +33,3 @@ final class CodeforcesProblemMapper
         return array_map(fn (array $problem): CodeforcesProblemDTO => self::fromNormalized($problem), $problems);
     }
 }
-

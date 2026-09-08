@@ -8,6 +8,7 @@ use App\Core\DTOs\ContestDTO;
 use App\Platforms\AtCoder\DTOs\AtCoderContestDTO;
 use App\Platforms\AtCoder\Services\AtCoderTitleTranslatorService;
 use DateTimeImmutable;
+use Illuminate\Support\Str;
 
 class ContestTransformer
 {
@@ -19,13 +20,10 @@ class ContestTransformer
         $this->translator = $translator ?? app(AtCoderTitleTranslatorService::class);
     }
 
-    /**
-     * @return ContestDTO
-     */
     public function fromApiContest(AtCoderContestDTO $contest): ContestDTO
     {
         $startedAt = $contest->startEpochSecond !== null && $contest->startEpochSecond > 0
-            ? (new DateTimeImmutable())->setTimestamp($contest->startEpochSecond)
+            ? (new DateTimeImmutable)->setTimestamp($contest->startEpochSecond)
             : $this->parseStartTime($contest->date);
 
         $durationSeconds = $contest->durationSecond !== null && $contest->durationSecond > 0
@@ -33,7 +31,7 @@ class ContestTransformer
             : $this->parseDurationSeconds($contest->duration);
 
         $endedAt = ($startedAt !== null && $durationSeconds !== null)
-            ? $startedAt->add(new \DateInterval('PT' . $durationSeconds . 'S'))
+            ? $startedAt->add(new \DateInterval('PT'.$durationSeconds.'S'))
             : null;
 
         $platformContestId = (string) ($contest->id ?? '');
@@ -42,7 +40,7 @@ class ContestTransformer
 
         $rawTitle = (string) ($contest->title ?? '');
         $title = $this->translator->formatContestTitle($platformContestId, $rawTitle);
-        $slug = \Illuminate\Support\Str::slug($platformContestId . '-' . $title);
+        $slug = Str::slug($platformContestId.'-'.$title);
 
         $rateChangeSpec = $this->parseRateChange($contest->rateChange);
 
@@ -69,7 +67,7 @@ class ContestTransformer
     /** @return array<int, ContestDTO> */
     public function fromApiContests(array $contests): array
     {
-        return array_map(fn(AtCoderContestDTO $contest): ContestDTO => $this->fromApiContest($contest), $contests);
+        return array_map(fn (AtCoderContestDTO $contest): ContestDTO => $this->fromApiContest($contest), $contests);
     }
 
     private function determineType(string $id, ?string $explicitType, string $title): string
@@ -142,7 +140,7 @@ class ContestTransformer
             return 'CODING';
         }
 
-        $now = new DateTimeImmutable();
+        $now = new DateTimeImmutable;
 
         if ($startedAt !== null && $now < $startedAt) {
             return 'BEFORE';
@@ -168,7 +166,7 @@ class ContestTransformer
 
         $timestamp = strtotime($date);
 
-        return $timestamp === false ? null : (new DateTimeImmutable())->setTimestamp($timestamp);
+        return $timestamp === false ? null : (new DateTimeImmutable)->setTimestamp($timestamp);
     }
 
     private function parseDurationSeconds(?string $duration): ?int

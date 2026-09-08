@@ -19,11 +19,12 @@ use App\Services\PlatformSyncStateService;
 use Carbon\Carbon;
 use Throwable;
 
-
 class UserSubmissionImporter implements UserSubmissionImporterContract
 {
     private array $contestMap = [];
+
     private array $problemMap = [];
+
     private const PAGE_SIZE = 100;
 
     public function __construct(
@@ -38,7 +39,7 @@ class UserSubmissionImporter implements UserSubmissionImporterContract
 
     public function import(?string $handle = null, bool $full = false): ImportResult
     {
-        $result = new ImportResult();
+        $result = new ImportResult;
 
         $platform = $this->platformModel
             ->newQuery()
@@ -97,6 +98,7 @@ class UserSubmissionImporter implements UserSubmissionImporterContract
 
             if ($normalizedHandle === '') {
                 $result->incrementSkipped();
+
                 continue;
             }
 
@@ -109,6 +111,7 @@ class UserSubmissionImporter implements UserSubmissionImporterContract
             // If handle is not explicitly specified and profile user submissions were already synced, skip!
             if ($handle === null && $isSynced) {
                 $result->incrementSkipped();
+
                 continue;
             }
 
@@ -125,6 +128,7 @@ class UserSubmissionImporter implements UserSubmissionImporterContract
 
             if ($syncState === null) {
                 $result->incrementSkipped();
+
                 continue;
             }
 
@@ -154,7 +158,6 @@ class UserSubmissionImporter implements UserSubmissionImporterContract
                     if ($submissions === []) {
                         break;
                     }
-
 
                     $result->incrementFetched(count($submissions));
 
@@ -323,4 +326,3 @@ class UserSubmissionImporter implements UserSubmissionImporterContract
             );
     }
 }
-

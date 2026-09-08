@@ -11,6 +11,7 @@ use App\Services\ApplicationLogger;
 use App\Services\PlatformSyncStateService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -32,8 +33,11 @@ class SyncMonitor extends Component
     public string $status = '';
 
     public bool $autoRefresh = true;
+
     public int $refreshInterval = 3;
+
     public ?string $feedbackMessage = null;
+
     public ?string $feedbackType = null;
 
     public function updatedPlatform(): void
@@ -75,12 +79,14 @@ class SyncMonitor extends Component
         if (! $syncState) {
             $this->feedbackMessage = __('Sync state not found.');
             $this->feedbackType = 'danger';
+
             return;
         }
 
         if ($syncState->sync_status !== PlatformSyncStatus::Failed) {
             $this->feedbackMessage = __('Only failed sync states can be reset for retry.');
             $this->feedbackType = 'warning';
+
             return;
         }
 
@@ -132,7 +138,7 @@ class SyncMonitor extends Component
     }
 
     /**
-     * @param array<string, string> $filters
+     * @param  array<string, string>  $filters
      * @return array<string, int>
      */
     private function summary(array $filters): array
@@ -154,7 +160,7 @@ class SyncMonitor extends Component
     }
 
     /**
-     * @param array<string, string> $filters
+     * @param  array<string, string>  $filters
      */
     private function platformBreakdown(array $filters)
     {
@@ -219,7 +225,7 @@ class SyncMonitor extends Component
     }
 
     /**
-     * @param array<string, string> $filters
+     * @param  array<string, string>  $filters
      */
     private function recentFailures(array $filters)
     {
@@ -232,7 +238,7 @@ class SyncMonitor extends Component
     }
 
     /**
-     * @param array<string, string> $filters
+     * @param  array<string, string>  $filters
      */
     private function recentActivity(array $filters)
     {
@@ -243,7 +249,7 @@ class SyncMonitor extends Component
     }
 
     /**
-     * @return array{platforms: \Illuminate\Support\Collection, entityTypes: \Illuminate\Support\Collection, statuses: array<int, string>}
+     * @return array{platforms: Collection, entityTypes: Collection, statuses: array<int, string>}
      */
     private function filterOptions(): array
     {
@@ -259,12 +265,12 @@ class SyncMonitor extends Component
                 ->distinct()
                 ->orderBy('entity_type')
                 ->pluck('entity_type'),
-            'statuses' => array_map(fn(PlatformSyncStatus $status): string => $status->value, PlatformSyncStatus::cases()),
+            'statuses' => array_map(fn (PlatformSyncStatus $status): string => $status->value, PlatformSyncStatus::cases()),
         ];
     }
 
     /**
-     * @param array<string, string> $filters
+     * @param  array<string, string>  $filters
      */
     private function filteredQuery(array $filters): Builder
     {

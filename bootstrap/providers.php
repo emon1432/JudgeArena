@@ -1,9 +1,15 @@
 <?php
 
+use App\Providers\AppServiceProvider;
+use App\Providers\FortifyServiceProvider;
+use App\Providers\JetstreamServiceProvider;
+use App\Providers\MailConfigServiceProvider;
+use LaraIzitoast\LaraIzitoastServiceProvider;
+
 return [
-    App\Providers\AppServiceProvider::class,
-    App\Providers\FortifyServiceProvider::class,
-    App\Providers\JetstreamServiceProvider::class,
-    App\Providers\MailConfigServiceProvider::class,
-    LaraIzitoast\LaraIzitoastServiceProvider::class,
+    AppServiceProvider::class,
+    FortifyServiceProvider::class,
+    JetstreamServiceProvider::class,
+    MailConfigServiceProvider::class,
+    LaraIzitoastServiceProvider::class,
 ];

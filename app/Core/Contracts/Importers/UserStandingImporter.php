@@ -10,9 +10,6 @@ interface UserStandingImporter
 {
     /**
      * Import user standings for the specified handle or all active profiles.
-     *
-     * @param string|null $handle
-     * @return ImportResult
      */
     public function import(?string $handle = null): ImportResult;
 }

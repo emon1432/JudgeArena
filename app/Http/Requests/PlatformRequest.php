@@ -15,7 +15,7 @@ class PlatformRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'slug' => slugify($this->name)
+            'slug' => slugify($this->name),
         ]);
     }
 
@@ -32,10 +32,10 @@ class PlatformRequest extends FormRequest
             'status' => ['required', 'in:Active,Inactive,Maintenance,Coming Soon'],
             'icon' => ['nullable', 'image', 'max:2048'],
             'description' => ['nullable', 'string'],
-            'credential_keys' => ['nullable', 'array',],
-            'credential_keys.*' => ['nullable', 'string', 'max:255', 'distinct',],
-            'credential_values' => ['nullable', 'array',],
-            'credential_values.*' => ['nullable', 'string',],
+            'credential_keys' => ['nullable', 'array'],
+            'credential_keys.*' => ['nullable', 'string', 'max:255', 'distinct'],
+            'credential_values' => ['nullable', 'array'],
+            'credential_values.*' => ['nullable', 'string'],
         ];
     }
 

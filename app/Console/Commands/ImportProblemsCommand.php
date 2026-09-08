@@ -38,10 +38,10 @@ class ImportProblemsCommand extends Command
                 ]
             );
 
-            $this->error('Unsupported platform: ' . $platformSlug);
+            $this->error('Unsupported platform: '.$platformSlug);
 
             $this->line(
-                'Supported platforms: ' .
+                'Supported platforms: '.
                     implode(', ', $this->platformRegistry->supportedPlatforms())
             );
 
@@ -56,21 +56,21 @@ class ImportProblemsCommand extends Command
                 'source' => self::class,
             ]
         );
-        $this->info('Starting problem import for platform: ' . $platformSlug);
+        $this->info('Starting problem import for platform: '.$platformSlug);
 
         try {
             $result = $adapter
                 ->problemImporter()
                 ->import();
 
-            $this->line('Platform: ' . $platformSlug);
-            $this->line('Checked: ' . ($result->checked ?? 0));
-            $this->line('Fetched: ' . ($result->fetched ?? 0));
-            $this->line('Created: ' . ($result->created ?? 0));
-            $this->line('Updated: ' . ($result->updated ?? 0));
-            $this->line('Skipped: ' . ($result->skipped ?? 0));
-            $this->line('Failed: ' . ($result->failed ?? 0));
-            $this->line('Synced: ' . $result->synced());
+            $this->line('Platform: '.$platformSlug);
+            $this->line('Checked: '.($result->checked ?? 0));
+            $this->line('Fetched: '.($result->fetched ?? 0));
+            $this->line('Created: '.($result->created ?? 0));
+            $this->line('Updated: '.($result->updated ?? 0));
+            $this->line('Skipped: '.($result->skipped ?? 0));
+            $this->line('Failed: '.($result->failed ?? 0));
+            $this->line('Synced: '.$result->synced());
 
             $this->info('Problem import completed successfully.');
 

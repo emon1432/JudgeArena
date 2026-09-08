@@ -29,9 +29,9 @@ abstract class TestCase extends BaseTestCase
     protected function createUserWithProfile(Platform $platform, string $handle): PlatformProfile
     {
         $user = User::query()->create([
-            'name' => 'User ' . $handle,
-            'username' => strtolower(Str::slug($handle . '-' . Str::random(5))),
-            'email' => strtolower($handle) . '-' . Str::random(5) . '@example.com',
+            'name' => 'User '.$handle,
+            'username' => strtolower(Str::slug($handle.'-'.Str::random(5))),
+            'email' => strtolower($handle).'-'.Str::random(5).'@example.com',
             'password' => bcrypt('password'),
             'role' => 'user',
         ]);
@@ -48,12 +48,11 @@ abstract class TestCase extends BaseTestCase
     {
         return User::query()->create([
             'name' => 'Admin Test',
-            'username' => 'adm_' . Str::random(6),
-            'email' => 'admin_' . Str::random(6) . '@example.com',
+            'username' => 'adm_'.Str::random(6),
+            'email' => 'admin_'.Str::random(6).'@example.com',
             'password' => bcrypt('password'),
             'role' => 'admin',
             'email_verified_at' => now(),
         ]);
     }
 }
-

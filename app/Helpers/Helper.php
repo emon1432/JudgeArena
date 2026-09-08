@@ -1,9 +1,10 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
-if (!function_exists('slugify')) {
+if (! function_exists('slugify')) {
     function slugify(string $text): string
     {
         $text = preg_replace('~[^\pL\d]+~u', '-', $text);
@@ -18,11 +19,12 @@ if (!function_exists('slugify')) {
         if (empty($text)) {
             return 'n-a';
         }
+
         return $text;
     }
 }
 
-if (!function_exists('settings')) {
+if (! function_exists('settings')) {
     function settings(string $key, $field = null, $default = null)
     {
         $setting = Cache::remember("settings.{$key}", 60, function () use ($key) {
@@ -39,33 +41,34 @@ if (!function_exists('settings')) {
     }
 }
 
-if (!function_exists('format_date')) {
+if (! function_exists('format_date')) {
     function format_date($date)
     {
-        return \Carbon\Carbon::parse($date)->format(config('app.date_format'));
+        return Carbon::parse($date)->format(config('app.date_format'));
     }
 }
 
-if (!function_exists('format_time')) {
+if (! function_exists('format_time')) {
     function format_time($time)
     {
-        return \Carbon\Carbon::parse($time)->format(config('app.time_format'));
+        return Carbon::parse($time)->format(config('app.time_format'));
     }
 }
 
-if (!function_exists('format_date_time')) {
+if (! function_exists('format_date_time')) {
     function format_date_time($dateTime)
     {
-        return \Carbon\Carbon::parse($dateTime)->format(config('app.date_format') . ', ' . config('app.time_format'));
+        return Carbon::parse($dateTime)->format(config('app.date_format').', '.config('app.time_format'));
     }
 }
 
-if (!function_exists('format_number')) {
+if (! function_exists('format_number')) {
     function format_number($number)
     {
         $decimalSeparator = settings('system_settings', 'decimal_separator', '.');
         $thousandSeparator = settings('system_settings', 'thousand_separator', '.');
         $decimalPrecision = settings('system_settings', 'decimal_precision', 2);
+
         return number_format($number, $decimalPrecision, $decimalSeparator, $thousandSeparator);
     }
 }

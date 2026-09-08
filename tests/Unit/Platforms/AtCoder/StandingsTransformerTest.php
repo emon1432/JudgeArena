@@ -48,7 +48,7 @@ class StandingsTransformerTest extends TestCase
             ],
         ]);
 
-        $transformer = new StandingsTransformer();
+        $transformer = new StandingsTransformer;
         $result = $transformer->fromApiStandings($dto);
 
         $this->assertSame('atcoder', $result->contest->platform);

@@ -9,6 +9,7 @@ use Illuminate\View\Component;
 class Tags extends Component
 {
     public array $tags;
+
     public array $colors = ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'dark'];
 
     public function __construct(string $tags)

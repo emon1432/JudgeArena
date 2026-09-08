@@ -27,6 +27,7 @@ use App\Platforms\Codeforces\Transformers\ProblemTransformer;
 use App\Platforms\Codeforces\Transformers\StandingsTransformer;
 use App\Platforms\Codeforces\Transformers\SubmissionTransformer;
 use App\Platforms\Codeforces\Transformers\UserTransformer;
+use App\Services\StandingsCacheService;
 
 class CodeforcesAdapter implements PlatformAdapter
 {
@@ -39,13 +40,12 @@ class CodeforcesAdapter implements PlatformAdapter
         private readonly UserTransformer $userTransformer,
         private readonly SubmissionTransformer $submissionTransformer,
         private readonly StandingsTransformer $standingsTransformer,
-        private readonly \App\Services\StandingsCacheService $standingsCacheService,
-    ) {
-    }
+        private readonly StandingsCacheService $standingsCacheService,
+    ) {}
 
-    //==================================Used==================================
+    // ==================================Used==================================
 
-    //===============================Getters==================================
+    // ===============================Getters==================================
     public function getContests(): array
     {
         return $this->contestTransformer->fromApiContests(
@@ -71,7 +71,6 @@ class CodeforcesAdapter implements PlatformAdapter
      *     count?:int,
      *     stopSubmissionId?:string
      * } $params
-     *
      * @return array{
      *     submissions: SubmissionDTO[],
      *     reached_stop: bool
@@ -90,7 +89,6 @@ class CodeforcesAdapter implements PlatformAdapter
             'reached_stop' => count($submissions) < $count,
         ];
     }
-
 
     public function getUserStandings(string $id): ContestStandingsDTO
     {
@@ -117,7 +115,7 @@ class CodeforcesAdapter implements PlatformAdapter
         return $this->userTransformer->fromApiUser($this->users->info($username));
     }
 
-    //===============================Importers==================================
+    // ===============================Importers==================================
     public function contestImporter(): ContestImporterContract
     {
         return app(ContestImporter::class);
@@ -148,4 +146,3 @@ class CodeforcesAdapter implements PlatformAdapter
         return app(UserImporter::class);
     }
 }
-

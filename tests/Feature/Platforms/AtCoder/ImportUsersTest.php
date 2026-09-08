@@ -62,4 +62,3 @@ class ImportUsersTest extends TestCase
         $this->assertSame('tourist', $profile->raw['username'] ?? null);
     }
 }
-

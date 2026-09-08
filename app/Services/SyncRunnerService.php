@@ -52,6 +52,7 @@ class SyncRunnerService
         PlatformSyncJob $job
     ): ImportResult {
         $method = $job->entity->importerMethod();
+
         return $adapter->{$method}()->import();
     }
 

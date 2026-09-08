@@ -32,7 +32,7 @@ class UserTransformerTest extends TestCase
             'raw' => ['username' => 'tourist'],
         ]);
 
-        $transformer = new UserTransformer();
+        $transformer = new UserTransformer;
         $user = $transformer->fromApiUser($dto);
 
         $this->assertSame('atcoder', $user->platform);
@@ -53,7 +53,7 @@ class UserTransformerTest extends TestCase
             'raw' => ['username' => 'heuristic_only'],
         ]);
 
-        $transformer = new UserTransformer();
+        $transformer = new UserTransformer;
         $user = $transformer->fromApiUser($dto);
 
         $this->assertSame(2100, $user->rating);

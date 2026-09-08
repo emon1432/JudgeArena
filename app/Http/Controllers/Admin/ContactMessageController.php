@@ -48,8 +48,8 @@ class ContactMessageController extends Controller
                 ],
             ],
             function (ContactMessage $contactMessage) {
-                $contactMessage->name = '<strong>' . e($contactMessage->name) . '</strong>';
-                $contactMessage->email = '<a href="mailto:' . e($contactMessage->email) . '">' . e($contactMessage->email) . '</a>';
+                $contactMessage->name = '<strong>'.e($contactMessage->name).'</strong>';
+                $contactMessage->email = '<a href="mailto:'.e($contactMessage->email).'">'.e($contactMessage->email).'</a>';
                 $contactMessage->subject = e($contactMessage->subject);
                 $contactMessage->status = $this->statusBadge($contactMessage->status);
                 $contactMessage->received_at = $contactMessage->created_at?->format('d M, Y h:i A');
@@ -79,6 +79,6 @@ class ContactMessageController extends Controller
             default => 'secondary',
         };
 
-        return '<span class="badge bg-label-' . $color . '">' . e(ucfirst($status)) . '</span>';
+        return '<span class="badge bg-label-'.$color.'">'.e(ucfirst($status)).'</span>';
     }
 }

@@ -44,4 +44,3 @@ class ImportUsersTest extends TestCase
         $this->assertSame(3900, $profile->raw['rating'] ?? null);
     }
 }
-

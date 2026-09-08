@@ -9,8 +9,11 @@ use Illuminate\View\Component;
 class Actions extends Component
 {
     public $actions;
+
     public $model;
+
     public $route;
+
     public function __construct($actions)
     {
         $this->actions = $actions;

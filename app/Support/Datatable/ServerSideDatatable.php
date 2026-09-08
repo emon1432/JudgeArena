@@ -12,9 +12,7 @@ class ServerSideDatatable
     /**
      * Build a DataTables server-side response from an Eloquent query.
      *
-     * @param  Builder  $baseQuery
      * @param  array<string, mixed>  $options
-     * @param  Closure  $transform
      * @return array<string, mixed>
      */
     public static function make(Request $request, Builder $baseQuery, array $options, Closure $transform): array
@@ -45,7 +43,7 @@ class ServerSideDatatable
 
             if ($searchCallback instanceof Closure) {
                 $searchCallback($filteredQuery, $searchValue);
-            } elseif (!empty($searchableColumns)) {
+            } elseif (! empty($searchableColumns)) {
                 $filteredQuery->where(function (Builder $query) use ($searchableColumns, $searchValue) {
                     foreach ($searchableColumns as $column) {
                         $query->orWhere($column, 'like', "%{$searchValue}%");
@@ -89,7 +87,7 @@ class ServerSideDatatable
         foreach ($orderEntries as $order) {
             if (isset($order['column']) && is_string($order['column'])) {
                 $col = $order['column'];
-                if ($col !== $qualifiedKey && $col !== $keyName && !in_array($col, $selectColumns, true)) {
+                if ($col !== $qualifiedKey && $col !== $keyName && ! in_array($col, $selectColumns, true)) {
                     $selectColumns[] = $col;
                 }
             }
@@ -124,7 +122,7 @@ class ServerSideDatatable
             ->map(function ($rowId) use ($rowCollection, $transform) {
                 $row = $rowCollection->get($rowId);
 
-                if (!$row) {
+                if (! $row) {
                     return null;
                 }
 

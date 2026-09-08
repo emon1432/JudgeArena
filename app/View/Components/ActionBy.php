@@ -9,6 +9,7 @@ use Illuminate\View\Component;
 class ActionBy extends Component
 {
     public $user;
+
     public function __construct($actionBy)
     {
         $this->user = $actionBy;

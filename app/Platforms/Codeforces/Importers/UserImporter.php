@@ -25,7 +25,7 @@ class UserImporter implements UserImporterContract
 
     public function import(?string $handle = null): ImportResult
     {
-        $result = new ImportResult();
+        $result = new ImportResult;
 
         $platform = $this->platformModel->newQuery()
             ->where('slug', 'codeforces')
@@ -62,6 +62,7 @@ class UserImporter implements UserImporterContract
 
             if ($normalizedHandle === '') {
                 $result->incrementSkipped();
+
                 continue;
             }
 
@@ -74,6 +75,7 @@ class UserImporter implements UserImporterContract
 
             if ($handle === null && $isSynced) {
                 $result->incrementSkipped();
+
                 continue;
             }
 
@@ -90,6 +92,7 @@ class UserImporter implements UserImporterContract
 
             if ($syncState === null) {
                 $result->incrementSkipped();
+
                 continue;
             }
 
@@ -100,7 +103,7 @@ class UserImporter implements UserImporterContract
         $chunks = array_chunk($profilesToSync, 50);
 
         foreach ($chunks as $chunk) {
-            $handles = array_map(fn($p) => $p->handle, $chunk);
+            $handles = array_map(fn ($p) => $p->handle, $chunk);
 
             try {
                 // Try fetching all handles in a single batch API call
@@ -134,8 +137,9 @@ class UserImporter implements UserImporterContract
             $normalizedHandle = mb_strtolower(trim((string) $profile->handle));
             $syncState = $syncStates[$normalizedHandle];
 
-            if (!isset($fetchedUsersByHandle[$normalizedHandle])) {
-                $this->failProfileSync($profile, $syncState, new \RuntimeException("User not found in API response"), $result);
+            if (! isset($fetchedUsersByHandle[$normalizedHandle])) {
+                $this->failProfileSync($profile, $syncState, new \RuntimeException('User not found in API response'), $result);
+
                 continue;
             }
 
@@ -200,4 +204,3 @@ class UserImporter implements UserImporterContract
         ], $e);
     }
 }
-

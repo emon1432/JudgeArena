@@ -358,7 +358,7 @@ class AtCoderTitleTranslatorService
 
         if (preg_match('/[\x{4E00}-\x{9FBF}\x{3040}-\x{309F}\x{30A0}-\x{30FF}]/u', $translated)) {
             try {
-                $url = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=ja&tl=en&dt=t&q=' . urlencode($translated);
+                $url = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=ja&tl=en&dt=t&q='.urlencode($translated);
                 $response = Http::timeout(5)
                     ->withHeaders([
                         'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
@@ -397,16 +397,16 @@ class AtCoderTitleTranslatorService
         $lowerId = strtolower($contestId);
 
         if (preg_match('/^abc(\d+)/', $lowerId, $m)) {
-            return 'AtCoder Beginner Contest ' . (int) $m[1];
+            return 'AtCoder Beginner Contest '.(int) $m[1];
         }
         if (preg_match('/^arc(\d+)/', $lowerId, $m)) {
-            return 'AtCoder Regular Contest ' . (int) $m[1];
+            return 'AtCoder Regular Contest '.(int) $m[1];
         }
         if (preg_match('/^agc(\d+)/', $lowerId, $m)) {
-            return 'AtCoder Grand Contest ' . (int) $m[1];
+            return 'AtCoder Grand Contest '.(int) $m[1];
         }
         if (preg_match('/^ahc(\d+)/', $lowerId, $m)) {
-            return 'AtCoder Heuristic Contest ' . (int) $m[1];
+            return 'AtCoder Heuristic Contest '.(int) $m[1];
         }
 
         return $this->translate($rawTitle);

@@ -49,4 +49,3 @@ class ImportContestsTest extends TestCase
         $this->assertSame(7200, $contest->duration_seconds);
     }
 }
-

@@ -23,7 +23,7 @@ class ProblemTransformerTest extends TestCase
             'memoryLimit' => '1024 MB',
         ]);
 
-        $transformer = new ProblemTransformer();
+        $transformer = new ProblemTransformer;
         $dto = $transformer->fromApiProblem($atcoderProblem);
 
         $this->assertSame('atcoder', $dto->platform);

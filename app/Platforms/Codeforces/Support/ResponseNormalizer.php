@@ -356,4 +356,3 @@ final class ResponseNormalizer
         return array_map([self::class, 'hack'], $hacks);
     }
 }
-

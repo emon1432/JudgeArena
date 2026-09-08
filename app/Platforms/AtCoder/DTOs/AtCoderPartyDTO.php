@@ -5,8 +5,8 @@ namespace App\Platforms\AtCoder\DTOs;
 readonly class AtCoderPartyDTO
 {
     /**
-     * @param array<int, array{handle: ?string, name: ?string}> $members
-     * @param array<string, mixed> $raw
+     * @param  array<int, array{handle: ?string, name: ?string}>  $members
+     * @param  array<string, mixed>  $raw
      */
     public function __construct(
         public ?string $contestId,
@@ -20,4 +20,3 @@ readonly class AtCoderPartyDTO
         public array $raw,
     ) {}
 }
-

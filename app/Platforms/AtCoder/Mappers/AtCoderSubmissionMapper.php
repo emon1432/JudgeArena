@@ -162,4 +162,3 @@ final class AtCoderSubmissionMapper
         return (int) round($value);
     }
 }
-

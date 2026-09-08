@@ -34,4 +34,3 @@ return [
     */
     'compression_level' => (int) env('STANDINGS_COMPRESSION_LEVEL', 9),
 ];
-

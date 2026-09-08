@@ -84,4 +84,3 @@ class StandingsCacheServiceTest extends TestCase
         $this->assertFalse($service->has('codeforces', '1000'));
     }
 }
-

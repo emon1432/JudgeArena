@@ -9,9 +9,13 @@ use Illuminate\View\Component;
 class PlatformInfo extends Component
 {
     public $name;
+
     public $slug;
+
     public $shortName;
+
     public $icon;
+
     public $initials;
 
     public function __construct($platform)

@@ -6,7 +6,6 @@ use Illuminate\Database\Seeder;
 
 class CountriesTableSeeder extends Seeder
 {
-
     /**
      * Auto generated seed file
      *
@@ -14,2263 +13,2011 @@ class CountriesTableSeeder extends Seeder
      */
     public function run()
     {
-        
 
         \DB::table('countries')->delete();
-        
-        \DB::table('countries')->insert(array (
-            0 => 
-            array (
+
+        \DB::table('countries')->insert([
+            0 => [
                 'id' => 1,
                 'name' => 'Afghanistan',
                 'code' => 'AF',
                 'flag' => '🇦🇫',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            1 => 
-            array (
+            ],
+            1 => [
                 'id' => 2,
                 'name' => 'Aland Islands',
                 'code' => 'AX',
                 'flag' => '🇦🇽',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            2 => 
-            array (
+            ],
+            2 => [
                 'id' => 3,
                 'name' => 'Albania',
                 'code' => 'AL',
                 'flag' => '🇦🇱',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            3 => 
-            array (
+            ],
+            3 => [
                 'id' => 4,
                 'name' => 'Algeria',
                 'code' => 'DZ',
                 'flag' => '🇩🇿',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            4 => 
-            array (
+            ],
+            4 => [
                 'id' => 5,
                 'name' => 'American Samoa',
                 'code' => 'AS',
                 'flag' => '🇦🇸',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            5 => 
-            array (
+            ],
+            5 => [
                 'id' => 6,
                 'name' => 'Andorra',
                 'code' => 'AD',
                 'flag' => '🇦🇩',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            6 => 
-            array (
+            ],
+            6 => [
                 'id' => 7,
                 'name' => 'Angola',
                 'code' => 'AO',
                 'flag' => '🇦🇴',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            7 => 
-            array (
+            ],
+            7 => [
                 'id' => 8,
                 'name' => 'Anguilla',
                 'code' => 'AI',
                 'flag' => '🇦🇮',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            8 => 
-            array (
+            ],
+            8 => [
                 'id' => 9,
                 'name' => 'Antarctica',
                 'code' => 'AQ',
                 'flag' => '🇦🇶',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            9 => 
-            array (
+            ],
+            9 => [
                 'id' => 10,
                 'name' => 'Antigua and Barbuda',
                 'code' => 'AG',
                 'flag' => '🇦🇬',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            10 => 
-            array (
+            ],
+            10 => [
                 'id' => 11,
                 'name' => 'Argentina',
                 'code' => 'AR',
                 'flag' => '🇦🇷',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            11 => 
-            array (
+            ],
+            11 => [
                 'id' => 12,
                 'name' => 'Armenia',
                 'code' => 'AM',
                 'flag' => '🇦🇲',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            12 => 
-            array (
+            ],
+            12 => [
                 'id' => 13,
                 'name' => 'Aruba',
                 'code' => 'AW',
                 'flag' => '🇦🇼',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            13 => 
-            array (
+            ],
+            13 => [
                 'id' => 14,
                 'name' => 'Australia',
                 'code' => 'AU',
                 'flag' => '🇦🇺',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            14 => 
-            array (
+            ],
+            14 => [
                 'id' => 15,
                 'name' => 'Austria',
                 'code' => 'AT',
                 'flag' => '🇦🇹',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            15 => 
-            array (
+            ],
+            15 => [
                 'id' => 16,
                 'name' => 'Azerbaijan',
                 'code' => 'AZ',
                 'flag' => '🇦🇿',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            16 => 
-            array (
+            ],
+            16 => [
                 'id' => 17,
                 'name' => 'The Bahamas',
                 'code' => 'BS',
                 'flag' => '🇧🇸',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            17 => 
-            array (
+            ],
+            17 => [
                 'id' => 18,
                 'name' => 'Bahrain',
                 'code' => 'BH',
                 'flag' => '🇧🇭',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            18 => 
-            array (
+            ],
+            18 => [
                 'id' => 19,
                 'name' => 'Bangladesh',
                 'code' => 'BD',
                 'flag' => '🇧🇩',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            19 => 
-            array (
+            ],
+            19 => [
                 'id' => 20,
                 'name' => 'Barbados',
                 'code' => 'BB',
                 'flag' => '🇧🇧',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            20 => 
-            array (
+            ],
+            20 => [
                 'id' => 21,
                 'name' => 'Belarus',
                 'code' => 'BY',
                 'flag' => '🇧🇾',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            21 => 
-            array (
+            ],
+            21 => [
                 'id' => 22,
                 'name' => 'Belgium',
                 'code' => 'BE',
                 'flag' => '🇧🇪',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            22 => 
-            array (
+            ],
+            22 => [
                 'id' => 23,
                 'name' => 'Belize',
                 'code' => 'BZ',
                 'flag' => '🇧🇿',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            23 => 
-            array (
+            ],
+            23 => [
                 'id' => 24,
                 'name' => 'Benin',
                 'code' => 'BJ',
                 'flag' => '🇧🇯',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            24 => 
-            array (
+            ],
+            24 => [
                 'id' => 25,
                 'name' => 'Bermuda',
                 'code' => 'BM',
                 'flag' => '🇧🇲',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            25 => 
-            array (
+            ],
+            25 => [
                 'id' => 26,
                 'name' => 'Bhutan',
                 'code' => 'BT',
                 'flag' => '🇧🇹',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            26 => 
-            array (
+            ],
+            26 => [
                 'id' => 27,
                 'name' => 'Bolivia',
                 'code' => 'BO',
                 'flag' => '🇧🇴',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            27 => 
-            array (
+            ],
+            27 => [
                 'id' => 28,
                 'name' => 'Bosnia and Herzegovina',
                 'code' => 'BA',
                 'flag' => '🇧🇦',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            28 => 
-            array (
+            ],
+            28 => [
                 'id' => 29,
                 'name' => 'Botswana',
                 'code' => 'BW',
                 'flag' => '🇧🇼',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            29 => 
-            array (
+            ],
+            29 => [
                 'id' => 30,
                 'name' => 'Bouvet Island',
                 'code' => 'BV',
                 'flag' => '🇧🇻',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            30 => 
-            array (
+            ],
+            30 => [
                 'id' => 31,
                 'name' => 'Brazil',
                 'code' => 'BR',
                 'flag' => '🇧🇷',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            31 => 
-            array (
+            ],
+            31 => [
                 'id' => 32,
                 'name' => 'British Indian Ocean Territory',
                 'code' => 'IO',
                 'flag' => '🇮🇴',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            32 => 
-            array (
+            ],
+            32 => [
                 'id' => 33,
                 'name' => 'Brunei',
                 'code' => 'BN',
                 'flag' => '🇧🇳',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            33 => 
-            array (
+            ],
+            33 => [
                 'id' => 34,
                 'name' => 'Bulgaria',
                 'code' => 'BG',
                 'flag' => '🇧🇬',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            34 => 
-            array (
+            ],
+            34 => [
                 'id' => 35,
                 'name' => 'Burkina Faso',
                 'code' => 'BF',
                 'flag' => '🇧🇫',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            35 => 
-            array (
+            ],
+            35 => [
                 'id' => 36,
                 'name' => 'Burundi',
                 'code' => 'BI',
                 'flag' => '🇧🇮',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            36 => 
-            array (
+            ],
+            36 => [
                 'id' => 37,
                 'name' => 'Cambodia',
                 'code' => 'KH',
                 'flag' => '🇰🇭',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            37 => 
-            array (
+            ],
+            37 => [
                 'id' => 38,
                 'name' => 'Cameroon',
                 'code' => 'CM',
                 'flag' => '🇨🇲',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            38 => 
-            array (
+            ],
+            38 => [
                 'id' => 39,
                 'name' => 'Canada',
                 'code' => 'CA',
                 'flag' => '🇨🇦',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            39 => 
-            array (
+            ],
+            39 => [
                 'id' => 40,
                 'name' => 'Cape Verde',
                 'code' => 'CV',
                 'flag' => '🇨🇻',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            40 => 
-            array (
+            ],
+            40 => [
                 'id' => 41,
                 'name' => 'Cayman Islands',
                 'code' => 'KY',
                 'flag' => '🇰🇾',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            41 => 
-            array (
+            ],
+            41 => [
                 'id' => 42,
                 'name' => 'Central African Republic',
                 'code' => 'CF',
                 'flag' => '🇨🇫',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            42 => 
-            array (
+            ],
+            42 => [
                 'id' => 43,
                 'name' => 'Chad',
                 'code' => 'TD',
                 'flag' => '🇹🇩',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            43 => 
-            array (
+            ],
+            43 => [
                 'id' => 44,
                 'name' => 'Chile',
                 'code' => 'CL',
                 'flag' => '🇨🇱',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            44 => 
-            array (
+            ],
+            44 => [
                 'id' => 45,
                 'name' => 'China',
                 'code' => 'CN',
                 'flag' => '🇨🇳',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            45 => 
-            array (
+            ],
+            45 => [
                 'id' => 46,
                 'name' => 'Christmas Island',
                 'code' => 'CX',
                 'flag' => '🇨🇽',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            46 => 
-            array (
+            ],
+            46 => [
                 'id' => 47,
-            'name' => 'Cocos (Keeling) Islands',
+                'name' => 'Cocos (Keeling) Islands',
                 'code' => 'CC',
                 'flag' => '🇨🇨',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            47 => 
-            array (
+            ],
+            47 => [
                 'id' => 48,
                 'name' => 'Colombia',
                 'code' => 'CO',
                 'flag' => '🇨🇴',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            48 => 
-            array (
+            ],
+            48 => [
                 'id' => 49,
                 'name' => 'Comoros',
                 'code' => 'KM',
                 'flag' => '🇰🇲',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            49 => 
-            array (
+            ],
+            49 => [
                 'id' => 50,
                 'name' => 'Congo',
                 'code' => 'CG',
                 'flag' => '🇨🇬',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            50 => 
-            array (
+            ],
+            50 => [
                 'id' => 51,
                 'name' => 'Democratic Republic of the Congo',
                 'code' => 'CD',
                 'flag' => '🇨🇩',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            51 => 
-            array (
+            ],
+            51 => [
                 'id' => 52,
                 'name' => 'Cook Islands',
                 'code' => 'CK',
                 'flag' => '🇨🇰',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            52 => 
-            array (
+            ],
+            52 => [
                 'id' => 53,
                 'name' => 'Costa Rica',
                 'code' => 'CR',
                 'flag' => '🇨🇷',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            53 => 
-            array (
+            ],
+            53 => [
                 'id' => 54,
                 'name' => 'Ivory Coast',
                 'code' => 'CI',
                 'flag' => '🇨🇮',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            54 => 
-            array (
+            ],
+            54 => [
                 'id' => 55,
                 'name' => 'Croatia',
                 'code' => 'HR',
                 'flag' => '🇭🇷',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            55 => 
-            array (
+            ],
+            55 => [
                 'id' => 56,
                 'name' => 'Cuba',
                 'code' => 'CU',
                 'flag' => '🇨🇺',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            56 => 
-            array (
+            ],
+            56 => [
                 'id' => 57,
                 'name' => 'Cyprus',
                 'code' => 'CY',
                 'flag' => '🇨🇾',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            57 => 
-            array (
+            ],
+            57 => [
                 'id' => 58,
                 'name' => 'Czech Republic',
                 'code' => 'CZ',
                 'flag' => '🇨🇿',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            58 => 
-            array (
+            ],
+            58 => [
                 'id' => 59,
                 'name' => 'Denmark',
                 'code' => 'DK',
                 'flag' => '🇩🇰',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            59 => 
-            array (
+            ],
+            59 => [
                 'id' => 60,
                 'name' => 'Djibouti',
                 'code' => 'DJ',
                 'flag' => '🇩🇯',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            60 => 
-            array (
+            ],
+            60 => [
                 'id' => 61,
                 'name' => 'Dominica',
                 'code' => 'DM',
                 'flag' => '🇩🇲',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            61 => 
-            array (
+            ],
+            61 => [
                 'id' => 62,
                 'name' => 'Dominican Republic',
                 'code' => 'DO',
                 'flag' => '🇩🇴',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            62 => 
-            array (
+            ],
+            62 => [
                 'id' => 63,
                 'name' => 'Timor-Leste',
                 'code' => 'TL',
                 'flag' => '🇹🇱',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            63 => 
-            array (
+            ],
+            63 => [
                 'id' => 64,
                 'name' => 'Ecuador',
                 'code' => 'EC',
                 'flag' => '🇪🇨',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            64 => 
-            array (
+            ],
+            64 => [
                 'id' => 65,
                 'name' => 'Egypt',
                 'code' => 'EG',
                 'flag' => '🇪🇬',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            65 => 
-            array (
+            ],
+            65 => [
                 'id' => 66,
                 'name' => 'El Salvador',
                 'code' => 'SV',
                 'flag' => '🇸🇻',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            66 => 
-            array (
+            ],
+            66 => [
                 'id' => 67,
                 'name' => 'Equatorial Guinea',
                 'code' => 'GQ',
                 'flag' => '🇬🇶',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            67 => 
-            array (
+            ],
+            67 => [
                 'id' => 68,
                 'name' => 'Eritrea',
                 'code' => 'ER',
                 'flag' => '🇪🇷',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            68 => 
-            array (
+            ],
+            68 => [
                 'id' => 69,
                 'name' => 'Estonia',
                 'code' => 'EE',
                 'flag' => '🇪🇪',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            69 => 
-            array (
+            ],
+            69 => [
                 'id' => 70,
                 'name' => 'Ethiopia',
                 'code' => 'ET',
                 'flag' => '🇪🇹',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            70 => 
-            array (
+            ],
+            70 => [
                 'id' => 71,
                 'name' => 'Falkland Islands',
                 'code' => 'FK',
                 'flag' => '🇫🇰',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            71 => 
-            array (
+            ],
+            71 => [
                 'id' => 72,
                 'name' => 'Faroe Islands',
                 'code' => 'FO',
                 'flag' => '🇫🇴',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            72 => 
-            array (
+            ],
+            72 => [
                 'id' => 73,
                 'name' => 'Fiji Islands',
                 'code' => 'FJ',
                 'flag' => '🇫🇯',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            73 => 
-            array (
+            ],
+            73 => [
                 'id' => 74,
                 'name' => 'Finland',
                 'code' => 'FI',
                 'flag' => '🇫🇮',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            74 => 
-            array (
+            ],
+            74 => [
                 'id' => 75,
                 'name' => 'France',
                 'code' => 'FR',
                 'flag' => '🇫🇷',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            75 => 
-            array (
+            ],
+            75 => [
                 'id' => 76,
                 'name' => 'French Guiana',
                 'code' => 'GF',
                 'flag' => '🇬🇫',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            76 => 
-            array (
+            ],
+            76 => [
                 'id' => 77,
                 'name' => 'French Polynesia',
                 'code' => 'PF',
                 'flag' => '🇵🇫',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            77 => 
-            array (
+            ],
+            77 => [
                 'id' => 78,
                 'name' => 'French Southern Territories',
                 'code' => 'TF',
                 'flag' => '🇹🇫',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            78 => 
-            array (
+            ],
+            78 => [
                 'id' => 79,
                 'name' => 'Gabon',
                 'code' => 'GA',
                 'flag' => '🇬🇦',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            79 => 
-            array (
+            ],
+            79 => [
                 'id' => 80,
                 'name' => 'The Gambia',
                 'code' => 'GM',
                 'flag' => '🇬🇲',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            80 => 
-            array (
+            ],
+            80 => [
                 'id' => 81,
                 'name' => 'Georgia',
                 'code' => 'GE',
                 'flag' => '🇬🇪',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            81 => 
-            array (
+            ],
+            81 => [
                 'id' => 82,
                 'name' => 'Germany',
                 'code' => 'DE',
                 'flag' => '🇩🇪',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            82 => 
-            array (
+            ],
+            82 => [
                 'id' => 83,
                 'name' => 'Ghana',
                 'code' => 'GH',
                 'flag' => '🇬🇭',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            83 => 
-            array (
+            ],
+            83 => [
                 'id' => 84,
                 'name' => 'Gibraltar',
                 'code' => 'GI',
                 'flag' => '🇬🇮',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            84 => 
-            array (
+            ],
+            84 => [
                 'id' => 85,
                 'name' => 'Greece',
                 'code' => 'GR',
                 'flag' => '🇬🇷',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            85 => 
-            array (
+            ],
+            85 => [
                 'id' => 86,
                 'name' => 'Greenland',
                 'code' => 'GL',
                 'flag' => '🇬🇱',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            86 => 
-            array (
+            ],
+            86 => [
                 'id' => 87,
                 'name' => 'Grenada',
                 'code' => 'GD',
                 'flag' => '🇬🇩',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            87 => 
-            array (
+            ],
+            87 => [
                 'id' => 88,
                 'name' => 'Guadeloupe',
                 'code' => 'GP',
                 'flag' => '🇬🇵',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            88 => 
-            array (
+            ],
+            88 => [
                 'id' => 89,
                 'name' => 'Guam',
                 'code' => 'GU',
                 'flag' => '🇬🇺',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            89 => 
-            array (
+            ],
+            89 => [
                 'id' => 90,
                 'name' => 'Guatemala',
                 'code' => 'GT',
                 'flag' => '🇬🇹',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            90 => 
-            array (
+            ],
+            90 => [
                 'id' => 91,
                 'name' => 'Guernsey',
                 'code' => 'GG',
                 'flag' => '🇬🇬',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            91 => 
-            array (
+            ],
+            91 => [
                 'id' => 92,
                 'name' => 'Guinea',
                 'code' => 'GN',
                 'flag' => '🇬🇳',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            92 => 
-            array (
+            ],
+            92 => [
                 'id' => 93,
                 'name' => 'Guinea-Bissau',
                 'code' => 'GW',
                 'flag' => '🇬🇼',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            93 => 
-            array (
+            ],
+            93 => [
                 'id' => 94,
                 'name' => 'Guyana',
                 'code' => 'GY',
                 'flag' => '🇬🇾',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            94 => 
-            array (
+            ],
+            94 => [
                 'id' => 95,
                 'name' => 'Haiti',
                 'code' => 'HT',
                 'flag' => '🇭🇹',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            95 => 
-            array (
+            ],
+            95 => [
                 'id' => 96,
                 'name' => 'Heard Island and McDonald Islands',
                 'code' => 'HM',
                 'flag' => '🇭🇲',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            96 => 
-            array (
+            ],
+            96 => [
                 'id' => 97,
                 'name' => 'Honduras',
                 'code' => 'HN',
                 'flag' => '🇭🇳',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            97 => 
-            array (
+            ],
+            97 => [
                 'id' => 98,
                 'name' => 'Hong Kong S.A.R.',
                 'code' => 'HK',
                 'flag' => '🇭🇰',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            98 => 
-            array (
+            ],
+            98 => [
                 'id' => 99,
                 'name' => 'Hungary',
                 'code' => 'HU',
                 'flag' => '🇭🇺',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            99 => 
-            array (
+            ],
+            99 => [
                 'id' => 100,
                 'name' => 'Iceland',
                 'code' => 'IS',
                 'flag' => '🇮🇸',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            100 => 
-            array (
+            ],
+            100 => [
                 'id' => 101,
                 'name' => 'India',
                 'code' => 'IN',
                 'flag' => '🇮🇳',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            101 => 
-            array (
+            ],
+            101 => [
                 'id' => 102,
                 'name' => 'Indonesia',
                 'code' => 'ID',
                 'flag' => '🇮🇩',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            102 => 
-            array (
+            ],
+            102 => [
                 'id' => 103,
                 'name' => 'Iran',
                 'code' => 'IR',
                 'flag' => '🇮🇷',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            103 => 
-            array (
+            ],
+            103 => [
                 'id' => 104,
                 'name' => 'Iraq',
                 'code' => 'IQ',
                 'flag' => '🇮🇶',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            104 => 
-            array (
+            ],
+            104 => [
                 'id' => 105,
                 'name' => 'Ireland',
                 'code' => 'IE',
                 'flag' => '🇮🇪',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            105 => 
-            array (
+            ],
+            105 => [
                 'id' => 106,
                 'name' => 'Israel',
                 'code' => 'IL',
                 'flag' => '🇮🇱',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            106 => 
-            array (
+            ],
+            106 => [
                 'id' => 107,
                 'name' => 'Italy',
                 'code' => 'IT',
                 'flag' => '🇮🇹',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            107 => 
-            array (
+            ],
+            107 => [
                 'id' => 108,
                 'name' => 'Jamaica',
                 'code' => 'JM',
                 'flag' => '🇯🇲',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            108 => 
-            array (
+            ],
+            108 => [
                 'id' => 109,
                 'name' => 'Japan',
                 'code' => 'JP',
                 'flag' => '🇯🇵',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            109 => 
-            array (
+            ],
+            109 => [
                 'id' => 110,
                 'name' => 'Jersey',
                 'code' => 'JE',
                 'flag' => '🇯🇪',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            110 => 
-            array (
+            ],
+            110 => [
                 'id' => 111,
                 'name' => 'Jordan',
                 'code' => 'JO',
                 'flag' => '🇯🇴',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            111 => 
-            array (
+            ],
+            111 => [
                 'id' => 112,
                 'name' => 'Kazakhstan',
                 'code' => 'KZ',
                 'flag' => '🇰🇿',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            112 => 
-            array (
+            ],
+            112 => [
                 'id' => 113,
                 'name' => 'Kenya',
                 'code' => 'KE',
                 'flag' => '🇰🇪',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            113 => 
-            array (
+            ],
+            113 => [
                 'id' => 114,
                 'name' => 'Kiribati',
                 'code' => 'KI',
                 'flag' => '🇰🇮',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            114 => 
-            array (
+            ],
+            114 => [
                 'id' => 115,
                 'name' => 'North Korea',
                 'code' => 'KP',
                 'flag' => '🇰🇵',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            115 => 
-            array (
+            ],
+            115 => [
                 'id' => 116,
                 'name' => 'South Korea',
                 'code' => 'KR',
                 'flag' => '🇰🇷',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            116 => 
-            array (
+            ],
+            116 => [
                 'id' => 117,
                 'name' => 'Kuwait',
                 'code' => 'KW',
                 'flag' => '🇰🇼',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            117 => 
-            array (
+            ],
+            117 => [
                 'id' => 118,
                 'name' => 'Kyrgyzstan',
                 'code' => 'KG',
                 'flag' => '🇰🇬',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            118 => 
-            array (
+            ],
+            118 => [
                 'id' => 119,
                 'name' => 'Laos',
                 'code' => 'LA',
                 'flag' => '🇱🇦',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            119 => 
-            array (
+            ],
+            119 => [
                 'id' => 120,
                 'name' => 'Latvia',
                 'code' => 'LV',
                 'flag' => '🇱🇻',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            120 => 
-            array (
+            ],
+            120 => [
                 'id' => 121,
                 'name' => 'Lebanon',
                 'code' => 'LB',
                 'flag' => '🇱🇧',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            121 => 
-            array (
+            ],
+            121 => [
                 'id' => 122,
                 'name' => 'Lesotho',
                 'code' => 'LS',
                 'flag' => '🇱🇸',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            122 => 
-            array (
+            ],
+            122 => [
                 'id' => 123,
                 'name' => 'Liberia',
                 'code' => 'LR',
                 'flag' => '🇱🇷',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            123 => 
-            array (
+            ],
+            123 => [
                 'id' => 124,
                 'name' => 'Libya',
                 'code' => 'LY',
                 'flag' => '🇱🇾',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            124 => 
-            array (
+            ],
+            124 => [
                 'id' => 125,
                 'name' => 'Liechtenstein',
                 'code' => 'LI',
                 'flag' => '🇱🇮',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            125 => 
-            array (
+            ],
+            125 => [
                 'id' => 126,
                 'name' => 'Lithuania',
                 'code' => 'LT',
                 'flag' => '🇱🇹',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            126 => 
-            array (
+            ],
+            126 => [
                 'id' => 127,
                 'name' => 'Luxembourg',
                 'code' => 'LU',
                 'flag' => '🇱🇺',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            127 => 
-            array (
+            ],
+            127 => [
                 'id' => 128,
                 'name' => 'Macau S.A.R.',
                 'code' => 'MO',
                 'flag' => '🇲🇴',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            128 => 
-            array (
+            ],
+            128 => [
                 'id' => 129,
                 'name' => 'North Macedonia',
                 'code' => 'MK',
                 'flag' => '🇲🇰',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            129 => 
-            array (
+            ],
+            129 => [
                 'id' => 130,
                 'name' => 'Madagascar',
                 'code' => 'MG',
                 'flag' => '🇲🇬',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            130 => 
-            array (
+            ],
+            130 => [
                 'id' => 131,
                 'name' => 'Malawi',
                 'code' => 'MW',
                 'flag' => '🇲🇼',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            131 => 
-            array (
+            ],
+            131 => [
                 'id' => 132,
                 'name' => 'Malaysia',
                 'code' => 'MY',
                 'flag' => '🇲🇾',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            132 => 
-            array (
+            ],
+            132 => [
                 'id' => 133,
                 'name' => 'Maldives',
                 'code' => 'MV',
                 'flag' => '🇲🇻',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            133 => 
-            array (
+            ],
+            133 => [
                 'id' => 134,
                 'name' => 'Mali',
                 'code' => 'ML',
                 'flag' => '🇲🇱',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            134 => 
-            array (
+            ],
+            134 => [
                 'id' => 135,
                 'name' => 'Malta',
                 'code' => 'MT',
                 'flag' => '🇲🇹',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            135 => 
-            array (
+            ],
+            135 => [
                 'id' => 136,
-            'name' => 'Man (Isle of)',
+                'name' => 'Man (Isle of)',
                 'code' => 'IM',
                 'flag' => '🇮🇲',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            136 => 
-            array (
+            ],
+            136 => [
                 'id' => 137,
                 'name' => 'Marshall Islands',
                 'code' => 'MH',
                 'flag' => '🇲🇭',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            137 => 
-            array (
+            ],
+            137 => [
                 'id' => 138,
                 'name' => 'Martinique',
                 'code' => 'MQ',
                 'flag' => '🇲🇶',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            138 => 
-            array (
+            ],
+            138 => [
                 'id' => 139,
                 'name' => 'Mauritania',
                 'code' => 'MR',
                 'flag' => '🇲🇷',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            139 => 
-            array (
+            ],
+            139 => [
                 'id' => 140,
                 'name' => 'Mauritius',
                 'code' => 'MU',
                 'flag' => '🇲🇺',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            140 => 
-            array (
+            ],
+            140 => [
                 'id' => 141,
                 'name' => 'Mayotte',
                 'code' => 'YT',
                 'flag' => '🇾🇹',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            141 => 
-            array (
+            ],
+            141 => [
                 'id' => 142,
                 'name' => 'Mexico',
                 'code' => 'MX',
                 'flag' => '🇲🇽',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            142 => 
-            array (
+            ],
+            142 => [
                 'id' => 143,
                 'name' => 'Micronesia',
                 'code' => 'FM',
                 'flag' => '🇫🇲',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            143 => 
-            array (
+            ],
+            143 => [
                 'id' => 144,
                 'name' => 'Moldova',
                 'code' => 'MD',
                 'flag' => '🇲🇩',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            144 => 
-            array (
+            ],
+            144 => [
                 'id' => 145,
                 'name' => 'Monaco',
                 'code' => 'MC',
                 'flag' => '🇲🇨',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            145 => 
-            array (
+            ],
+            145 => [
                 'id' => 146,
                 'name' => 'Mongolia',
                 'code' => 'MN',
                 'flag' => '🇲🇳',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            146 => 
-            array (
+            ],
+            146 => [
                 'id' => 147,
                 'name' => 'Montenegro',
                 'code' => 'ME',
                 'flag' => '🇲🇪',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            147 => 
-            array (
+            ],
+            147 => [
                 'id' => 148,
                 'name' => 'Montserrat',
                 'code' => 'MS',
                 'flag' => '🇲🇸',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            148 => 
-            array (
+            ],
+            148 => [
                 'id' => 149,
                 'name' => 'Morocco',
                 'code' => 'MA',
                 'flag' => '🇲🇦',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            149 => 
-            array (
+            ],
+            149 => [
                 'id' => 150,
                 'name' => 'Mozambique',
                 'code' => 'MZ',
                 'flag' => '🇲🇿',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            150 => 
-            array (
+            ],
+            150 => [
                 'id' => 151,
                 'name' => 'Myanmar',
                 'code' => 'MM',
                 'flag' => '🇲🇲',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            151 => 
-            array (
+            ],
+            151 => [
                 'id' => 152,
                 'name' => 'Namibia',
                 'code' => 'NA',
                 'flag' => '🇳🇦',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            152 => 
-            array (
+            ],
+            152 => [
                 'id' => 153,
                 'name' => 'Nauru',
                 'code' => 'NR',
                 'flag' => '🇳🇷',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            153 => 
-            array (
+            ],
+            153 => [
                 'id' => 154,
                 'name' => 'Nepal',
                 'code' => 'NP',
                 'flag' => '🇳🇵',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            154 => 
-            array (
+            ],
+            154 => [
                 'id' => 155,
                 'name' => 'Bonaire, Sint Eustatius and Saba',
                 'code' => 'BQ',
                 'flag' => '🇧🇶',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            155 => 
-            array (
+            ],
+            155 => [
                 'id' => 156,
                 'name' => 'Netherlands',
                 'code' => 'NL',
                 'flag' => '🇳🇱',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            156 => 
-            array (
+            ],
+            156 => [
                 'id' => 157,
                 'name' => 'New Caledonia',
                 'code' => 'NC',
                 'flag' => '🇳🇨',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            157 => 
-            array (
+            ],
+            157 => [
                 'id' => 158,
                 'name' => 'New Zealand',
                 'code' => 'NZ',
                 'flag' => '🇳🇿',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            158 => 
-            array (
+            ],
+            158 => [
                 'id' => 159,
                 'name' => 'Nicaragua',
                 'code' => 'NI',
                 'flag' => '🇳🇮',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            159 => 
-            array (
+            ],
+            159 => [
                 'id' => 160,
                 'name' => 'Niger',
                 'code' => 'NE',
                 'flag' => '🇳🇪',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            160 => 
-            array (
+            ],
+            160 => [
                 'id' => 161,
                 'name' => 'Nigeria',
                 'code' => 'NG',
                 'flag' => '🇳🇬',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            161 => 
-            array (
+            ],
+            161 => [
                 'id' => 162,
                 'name' => 'Niue',
                 'code' => 'NU',
                 'flag' => '🇳🇺',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            162 => 
-            array (
+            ],
+            162 => [
                 'id' => 163,
                 'name' => 'Norfolk Island',
                 'code' => 'NF',
                 'flag' => '🇳🇫',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            163 => 
-            array (
+            ],
+            163 => [
                 'id' => 164,
                 'name' => 'Northern Mariana Islands',
                 'code' => 'MP',
                 'flag' => '🇲🇵',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            164 => 
-            array (
+            ],
+            164 => [
                 'id' => 165,
                 'name' => 'Norway',
                 'code' => 'NO',
                 'flag' => '🇳🇴',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            165 => 
-            array (
+            ],
+            165 => [
                 'id' => 166,
                 'name' => 'Oman',
                 'code' => 'OM',
                 'flag' => '🇴🇲',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            166 => 
-            array (
+            ],
+            166 => [
                 'id' => 167,
                 'name' => 'Pakistan',
                 'code' => 'PK',
                 'flag' => '🇵🇰',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            167 => 
-            array (
+            ],
+            167 => [
                 'id' => 168,
                 'name' => 'Palau',
                 'code' => 'PW',
                 'flag' => '🇵🇼',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            168 => 
-            array (
+            ],
+            168 => [
                 'id' => 169,
                 'name' => 'Palestinian Territory Occupied',
                 'code' => 'PS',
                 'flag' => '🇵🇸',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            169 => 
-            array (
+            ],
+            169 => [
                 'id' => 170,
                 'name' => 'Panama',
                 'code' => 'PA',
                 'flag' => '🇵🇦',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            170 => 
-            array (
+            ],
+            170 => [
                 'id' => 171,
                 'name' => 'Papua New Guinea',
                 'code' => 'PG',
                 'flag' => '🇵🇬',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            171 => 
-            array (
+            ],
+            171 => [
                 'id' => 172,
                 'name' => 'Paraguay',
                 'code' => 'PY',
                 'flag' => '🇵🇾',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            172 => 
-            array (
+            ],
+            172 => [
                 'id' => 173,
                 'name' => 'Peru',
                 'code' => 'PE',
                 'flag' => '🇵🇪',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            173 => 
-            array (
+            ],
+            173 => [
                 'id' => 174,
                 'name' => 'Philippines',
                 'code' => 'PH',
                 'flag' => '🇵🇭',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            174 => 
-            array (
+            ],
+            174 => [
                 'id' => 175,
                 'name' => 'Pitcairn Island',
                 'code' => 'PN',
                 'flag' => '🇵🇳',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            175 => 
-            array (
+            ],
+            175 => [
                 'id' => 176,
                 'name' => 'Poland',
                 'code' => 'PL',
                 'flag' => '🇵🇱',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            176 => 
-            array (
+            ],
+            176 => [
                 'id' => 177,
                 'name' => 'Portugal',
                 'code' => 'PT',
                 'flag' => '🇵🇹',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            177 => 
-            array (
+            ],
+            177 => [
                 'id' => 178,
                 'name' => 'Puerto Rico',
                 'code' => 'PR',
                 'flag' => '🇵🇷',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            178 => 
-            array (
+            ],
+            178 => [
                 'id' => 179,
                 'name' => 'Qatar',
                 'code' => 'QA',
                 'flag' => '🇶🇦',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            179 => 
-            array (
+            ],
+            179 => [
                 'id' => 180,
                 'name' => 'Reunion',
                 'code' => 'RE',
                 'flag' => '🇷🇪',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            180 => 
-            array (
+            ],
+            180 => [
                 'id' => 181,
                 'name' => 'Romania',
                 'code' => 'RO',
                 'flag' => '🇷🇴',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            181 => 
-            array (
+            ],
+            181 => [
                 'id' => 182,
                 'name' => 'Russia',
                 'code' => 'RU',
                 'flag' => '🇷🇺',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            182 => 
-            array (
+            ],
+            182 => [
                 'id' => 183,
                 'name' => 'Rwanda',
                 'code' => 'RW',
                 'flag' => '🇷🇼',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            183 => 
-            array (
+            ],
+            183 => [
                 'id' => 184,
                 'name' => 'Saint Helena',
                 'code' => 'SH',
                 'flag' => '🇸🇭',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            184 => 
-            array (
+            ],
+            184 => [
                 'id' => 185,
                 'name' => 'Saint Kitts and Nevis',
                 'code' => 'KN',
                 'flag' => '🇰🇳',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            185 => 
-            array (
+            ],
+            185 => [
                 'id' => 186,
                 'name' => 'Saint Lucia',
                 'code' => 'LC',
                 'flag' => '🇱🇨',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            186 => 
-            array (
+            ],
+            186 => [
                 'id' => 187,
                 'name' => 'Saint Pierre and Miquelon',
                 'code' => 'PM',
                 'flag' => '🇵🇲',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            187 => 
-            array (
+            ],
+            187 => [
                 'id' => 188,
                 'name' => 'Saint Vincent and the Grenadines',
                 'code' => 'VC',
                 'flag' => '🇻🇨',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            188 => 
-            array (
+            ],
+            188 => [
                 'id' => 189,
                 'name' => 'Saint-Barthelemy',
                 'code' => 'BL',
                 'flag' => '🇧🇱',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            189 => 
-            array (
+            ],
+            189 => [
                 'id' => 190,
-            'name' => 'Saint-Martin (French part)',
+                'name' => 'Saint-Martin (French part)',
                 'code' => 'MF',
                 'flag' => '🇲🇫',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            190 => 
-            array (
+            ],
+            190 => [
                 'id' => 191,
                 'name' => 'Samoa',
                 'code' => 'WS',
                 'flag' => '🇼🇸',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            191 => 
-            array (
+            ],
+            191 => [
                 'id' => 192,
                 'name' => 'San Marino',
                 'code' => 'SM',
                 'flag' => '🇸🇲',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            192 => 
-            array (
+            ],
+            192 => [
                 'id' => 193,
                 'name' => 'Sao Tome and Principe',
                 'code' => 'ST',
                 'flag' => '🇸🇹',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            193 => 
-            array (
+            ],
+            193 => [
                 'id' => 194,
                 'name' => 'Saudi Arabia',
                 'code' => 'SA',
                 'flag' => '🇸🇦',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            194 => 
-            array (
+            ],
+            194 => [
                 'id' => 195,
                 'name' => 'Senegal',
                 'code' => 'SN',
                 'flag' => '🇸🇳',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            195 => 
-            array (
+            ],
+            195 => [
                 'id' => 196,
                 'name' => 'Serbia',
                 'code' => 'RS',
                 'flag' => '🇷🇸',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            196 => 
-            array (
+            ],
+            196 => [
                 'id' => 197,
                 'name' => 'Seychelles',
                 'code' => 'SC',
                 'flag' => '🇸🇨',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            197 => 
-            array (
+            ],
+            197 => [
                 'id' => 198,
                 'name' => 'Sierra Leone',
                 'code' => 'SL',
                 'flag' => '🇸🇱',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            198 => 
-            array (
+            ],
+            198 => [
                 'id' => 199,
                 'name' => 'Singapore',
                 'code' => 'SG',
                 'flag' => '🇸🇬',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            199 => 
-            array (
+            ],
+            199 => [
                 'id' => 200,
                 'name' => 'Slovakia',
                 'code' => 'SK',
                 'flag' => '🇸🇰',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            200 => 
-            array (
+            ],
+            200 => [
                 'id' => 201,
                 'name' => 'Slovenia',
                 'code' => 'SI',
                 'flag' => '🇸🇮',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            201 => 
-            array (
+            ],
+            201 => [
                 'id' => 202,
                 'name' => 'Solomon Islands',
                 'code' => 'SB',
                 'flag' => '🇸🇧',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            202 => 
-            array (
+            ],
+            202 => [
                 'id' => 203,
                 'name' => 'Somalia',
                 'code' => 'SO',
                 'flag' => '🇸🇴',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            203 => 
-            array (
+            ],
+            203 => [
                 'id' => 204,
                 'name' => 'South Africa',
                 'code' => 'ZA',
                 'flag' => '🇿🇦',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            204 => 
-            array (
+            ],
+            204 => [
                 'id' => 205,
                 'name' => 'South Georgia',
                 'code' => 'GS',
                 'flag' => '🇬🇸',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            205 => 
-            array (
+            ],
+            205 => [
                 'id' => 206,
                 'name' => 'South Sudan',
                 'code' => 'SS',
                 'flag' => '🇸🇸',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            206 => 
-            array (
+            ],
+            206 => [
                 'id' => 207,
                 'name' => 'Spain',
                 'code' => 'ES',
                 'flag' => '🇪🇸',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            207 => 
-            array (
+            ],
+            207 => [
                 'id' => 208,
                 'name' => 'Sri Lanka',
                 'code' => 'LK',
                 'flag' => '🇱🇰',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            208 => 
-            array (
+            ],
+            208 => [
                 'id' => 209,
                 'name' => 'Sudan',
                 'code' => 'SD',
                 'flag' => '🇸🇩',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            209 => 
-            array (
+            ],
+            209 => [
                 'id' => 210,
                 'name' => 'Suriname',
                 'code' => 'SR',
                 'flag' => '🇸🇷',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            210 => 
-            array (
+            ],
+            210 => [
                 'id' => 211,
                 'name' => 'Svalbard and Jan Mayen Islands',
                 'code' => 'SJ',
                 'flag' => '🇸🇯',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            211 => 
-            array (
+            ],
+            211 => [
                 'id' => 212,
                 'name' => 'Eswatini',
                 'code' => 'SZ',
                 'flag' => '🇸🇿',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            212 => 
-            array (
+            ],
+            212 => [
                 'id' => 213,
                 'name' => 'Sweden',
                 'code' => 'SE',
                 'flag' => '🇸🇪',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            213 => 
-            array (
+            ],
+            213 => [
                 'id' => 214,
                 'name' => 'Switzerland',
                 'code' => 'CH',
                 'flag' => '🇨🇭',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            214 => 
-            array (
+            ],
+            214 => [
                 'id' => 215,
                 'name' => 'Syria',
                 'code' => 'SY',
                 'flag' => '🇸🇾',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            215 => 
-            array (
+            ],
+            215 => [
                 'id' => 216,
                 'name' => 'Taiwan',
                 'code' => 'TW',
                 'flag' => '🇹🇼',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            216 => 
-            array (
+            ],
+            216 => [
                 'id' => 217,
                 'name' => 'Tajikistan',
                 'code' => 'TJ',
                 'flag' => '🇹🇯',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            217 => 
-            array (
+            ],
+            217 => [
                 'id' => 218,
                 'name' => 'Tanzania',
                 'code' => 'TZ',
                 'flag' => '🇹🇿',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            218 => 
-            array (
+            ],
+            218 => [
                 'id' => 219,
                 'name' => 'Thailand',
                 'code' => 'TH',
                 'flag' => '🇹🇭',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            219 => 
-            array (
+            ],
+            219 => [
                 'id' => 220,
                 'name' => 'Togo',
                 'code' => 'TG',
                 'flag' => '🇹🇬',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            220 => 
-            array (
+            ],
+            220 => [
                 'id' => 221,
                 'name' => 'Tokelau',
                 'code' => 'TK',
                 'flag' => '🇹🇰',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            221 => 
-            array (
+            ],
+            221 => [
                 'id' => 222,
                 'name' => 'Tonga',
                 'code' => 'TO',
                 'flag' => '🇹🇴',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            222 => 
-            array (
+            ],
+            222 => [
                 'id' => 223,
                 'name' => 'Trinidad and Tobago',
                 'code' => 'TT',
                 'flag' => '🇹🇹',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            223 => 
-            array (
+            ],
+            223 => [
                 'id' => 224,
                 'name' => 'Tunisia',
                 'code' => 'TN',
                 'flag' => '🇹🇳',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            224 => 
-            array (
+            ],
+            224 => [
                 'id' => 225,
                 'name' => 'Turkey',
                 'code' => 'TR',
                 'flag' => '🇹🇷',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            225 => 
-            array (
+            ],
+            225 => [
                 'id' => 226,
                 'name' => 'Turkmenistan',
                 'code' => 'TM',
                 'flag' => '🇹🇲',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            226 => 
-            array (
+            ],
+            226 => [
                 'id' => 227,
                 'name' => 'Turks and Caicos Islands',
                 'code' => 'TC',
                 'flag' => '🇹🇨',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            227 => 
-            array (
+            ],
+            227 => [
                 'id' => 228,
                 'name' => 'Tuvalu',
                 'code' => 'TV',
                 'flag' => '🇹🇻',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            228 => 
-            array (
+            ],
+            228 => [
                 'id' => 229,
                 'name' => 'Uganda',
                 'code' => 'UG',
                 'flag' => '🇺🇬',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            229 => 
-            array (
+            ],
+            229 => [
                 'id' => 230,
                 'name' => 'Ukraine',
                 'code' => 'UA',
                 'flag' => '🇺🇦',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            230 => 
-            array (
+            ],
+            230 => [
                 'id' => 231,
                 'name' => 'United Arab Emirates',
                 'code' => 'AE',
                 'flag' => '🇦🇪',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            231 => 
-            array (
+            ],
+            231 => [
                 'id' => 232,
                 'name' => 'United Kingdom',
                 'code' => 'GB',
                 'flag' => '🇬🇧',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            232 => 
-            array (
+            ],
+            232 => [
                 'id' => 233,
                 'name' => 'United States',
                 'code' => 'US',
                 'flag' => '🇺🇸',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            233 => 
-            array (
+            ],
+            233 => [
                 'id' => 234,
                 'name' => 'United States Minor Outlying Islands',
                 'code' => 'UM',
                 'flag' => '🇺🇲',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            234 => 
-            array (
+            ],
+            234 => [
                 'id' => 235,
                 'name' => 'Uruguay',
                 'code' => 'UY',
                 'flag' => '🇺🇾',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            235 => 
-            array (
+            ],
+            235 => [
                 'id' => 236,
                 'name' => 'Uzbekistan',
                 'code' => 'UZ',
                 'flag' => '🇺🇿',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            236 => 
-            array (
+            ],
+            236 => [
                 'id' => 237,
                 'name' => 'Vanuatu',
                 'code' => 'VU',
                 'flag' => '🇻🇺',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            237 => 
-            array (
+            ],
+            237 => [
                 'id' => 238,
-            'name' => 'Vatican City State (Holy See)',
+                'name' => 'Vatican City State (Holy See)',
                 'code' => 'VA',
                 'flag' => '🇻🇦',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            238 => 
-            array (
+            ],
+            238 => [
                 'id' => 239,
                 'name' => 'Venezuela',
                 'code' => 'VE',
                 'flag' => '🇻🇪',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            239 => 
-            array (
+            ],
+            239 => [
                 'id' => 240,
                 'name' => 'Vietnam',
                 'code' => 'VN',
                 'flag' => '🇻🇳',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            240 => 
-            array (
+            ],
+            240 => [
                 'id' => 241,
-            'name' => 'Virgin Islands (British)',
+                'name' => 'Virgin Islands (British)',
                 'code' => 'VG',
                 'flag' => '🇻🇬',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            241 => 
-            array (
+            ],
+            241 => [
                 'id' => 242,
-            'name' => 'Virgin Islands (US)',
+                'name' => 'Virgin Islands (US)',
                 'code' => 'VI',
                 'flag' => '🇻🇮',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            242 => 
-            array (
+            ],
+            242 => [
                 'id' => 243,
                 'name' => 'Wallis and Futuna Islands',
                 'code' => 'WF',
                 'flag' => '🇼🇫',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            243 => 
-            array (
+            ],
+            243 => [
                 'id' => 244,
                 'name' => 'Western Sahara',
                 'code' => 'EH',
                 'flag' => '🇪🇭',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            244 => 
-            array (
+            ],
+            244 => [
                 'id' => 245,
                 'name' => 'Yemen',
                 'code' => 'YE',
                 'flag' => '🇾🇪',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            245 => 
-            array (
+            ],
+            245 => [
                 'id' => 246,
                 'name' => 'Zambia',
                 'code' => 'ZM',
                 'flag' => '🇿🇲',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            246 => 
-            array (
+            ],
+            246 => [
                 'id' => 247,
                 'name' => 'Zimbabwe',
                 'code' => 'ZW',
                 'flag' => '🇿🇼',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            247 => 
-            array (
+            ],
+            247 => [
                 'id' => 248,
                 'name' => 'Kosovo',
                 'code' => 'XK',
                 'flag' => '🇽🇰',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            248 => 
-            array (
+            ],
+            248 => [
                 'id' => 249,
                 'name' => 'Curaçao',
                 'code' => 'CW',
                 'flag' => '🇨🇼',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-            249 => 
-            array (
+            ],
+            249 => [
                 'id' => 250,
-            'name' => 'Sint Maarten (Dutch part)',
+                'name' => 'Sint Maarten (Dutch part)',
                 'code' => 'SX',
                 'flag' => '🇸🇽',
                 'created_at' => '2026-02-03 21:13:57',
                 'updated_at' => '2026-02-03 21:13:57',
-            ),
-        ));
-        
-        
+            ],
+        ]);
+
     }
 }

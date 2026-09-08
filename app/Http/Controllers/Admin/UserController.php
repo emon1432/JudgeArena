@@ -16,6 +16,7 @@ class UserController extends Controller
         if ($request->ajax()) {
             return response()->json($this->data($request));
         }
+
         return view('admin.pages.users.index');
     }
 

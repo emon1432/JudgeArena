@@ -61,7 +61,7 @@ final class ResponseNormalizer
             'fullTitle' => $problem['fullTitle'] ?? $problem['full_title'] ?? null,
             'score' => $problem['score'] ?? $problem['point'] ?? $problem['points'] ?? null,
             'rating' => $problem['rating'] ?? $problem['difficulty'] ?? null,
-            'timeLimit' => $problem['timeLimit'] ?? $problem['time_limit'] ?? (isset($problem['execution_time']) ? $problem['execution_time'] . ' ms' : null),
+            'timeLimit' => $problem['timeLimit'] ?? $problem['time_limit'] ?? (isset($problem['execution_time']) ? $problem['execution_time'].' ms' : null),
             'memoryLimit' => $problem['memoryLimit'] ?? $problem['memory_limit'] ?? null,
             'solverCount' => $problem['solverCount'] ?? $problem['solver_count'] ?? null,
             'url' => $problem['url'] ?? null,

@@ -56,4 +56,3 @@ class ImportUserRatingHistoryTest extends TestCase
         $this->assertSame(3820, $change->new_rating);
     }
 }
-

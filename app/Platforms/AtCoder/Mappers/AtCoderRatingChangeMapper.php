@@ -7,7 +7,7 @@ use App\Platforms\AtCoder\DTOs\AtCoderRatingChangeDTO;
 final class AtCoderRatingChangeMapper
 {
     /**
-     * @param array<int, array<string, mixed>> $normalizedList
+     * @param  array<int, array<string, mixed>>  $normalizedList
      * @return AtCoderRatingChangeDTO[]
      */
     public static function fromNormalizedList(array $normalizedList): array
@@ -16,7 +16,7 @@ final class AtCoderRatingChangeMapper
     }
 
     /**
-     * @param array<string, mixed> $normalized
+     * @param  array<string, mixed>  $normalized
      */
     public static function fromNormalized(array $normalized): AtCoderRatingChangeDTO
     {

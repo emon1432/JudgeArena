@@ -5,7 +5,7 @@ namespace App\Platforms\AtCoder\DTOs;
 readonly class AtCoderSubmissionDTO
 {
     /**
-     * @param array<string, mixed> $raw
+     * @param  array<string, mixed>  $raw
      */
     public function __construct(
         public ?string $id,
@@ -24,4 +24,3 @@ readonly class AtCoderSubmissionDTO
         public array $raw,
     ) {}
 }
-

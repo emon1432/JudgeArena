@@ -12,14 +12,12 @@ use App\Platforms\AtCoder\DTOs\AtCoderStandingsDTO;
 class StandingsTransformer
 {
     public function __construct(
-        protected ContestTransformer $contestTransformer = new ContestTransformer(),
-        protected ProblemTransformer $problemTransformer = new ProblemTransformer(),
+        protected ContestTransformer $contestTransformer = new ContestTransformer,
+        protected ProblemTransformer $problemTransformer = new ProblemTransformer,
     ) {}
 
     /**
      * Transform AtCoder standings payload into normalized DTOs
-     *
-     * @return ContestStandingsDTO
      */
     public function fromApiStandings(AtCoderStandingsDTO $standings): ContestStandingsDTO
     {
@@ -55,4 +53,3 @@ class StandingsTransformer
         );
     }
 }
-

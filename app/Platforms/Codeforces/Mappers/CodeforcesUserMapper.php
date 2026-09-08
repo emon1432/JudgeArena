@@ -37,7 +37,6 @@ final class CodeforcesUserMapper
     /** @return array<int, CodeforcesUserDTO> */
     public static function fromNormalizedList(array $users): array
     {
-        return array_map(fn(array $user): CodeforcesUserDTO => self::fromNormalized($user), $users);
+        return array_map(fn (array $user): CodeforcesUserDTO => self::fromNormalized($user), $users);
     }
 }
-

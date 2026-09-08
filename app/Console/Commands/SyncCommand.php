@@ -7,11 +7,11 @@ use App\Services\ApplicationLogger;
 use App\Services\SyncRunnerService;
 use App\Services\SyncSchedulerService;
 use Illuminate\Console\Command;
-use Throwable;
 
 class SyncCommand extends Command
 {
     protected $signature = 'judgearena:sync';
+
     protected $description = 'Run all due platform synchronization jobs.';
 
     public function __construct(

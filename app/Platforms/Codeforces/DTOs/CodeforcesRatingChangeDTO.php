@@ -18,4 +18,3 @@ readonly class CodeforcesRatingChangeDTO
         public array $raw = [],
     ) {}
 }
-

@@ -23,7 +23,7 @@ class ContactMessageMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'New Contact Message: ' . $this->contactMessage->subject,
+            subject: 'New Contact Message: '.$this->contactMessage->subject,
         );
     }
 

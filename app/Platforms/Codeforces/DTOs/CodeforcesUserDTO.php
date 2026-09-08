@@ -7,7 +7,7 @@ namespace App\Platforms\Codeforces\DTOs;
 readonly class CodeforcesUserDTO
 {
     /**
-     * @param array<string, mixed> $raw
+     * @param  array<string, mixed>  $raw
      */
     public function __construct(
         public ?string $handle,
@@ -32,4 +32,3 @@ readonly class CodeforcesUserDTO
         public array $raw,
     ) {}
 }
-

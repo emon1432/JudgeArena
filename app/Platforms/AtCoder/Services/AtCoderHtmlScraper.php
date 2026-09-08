@@ -8,12 +8,13 @@ use DOMElement;
 use DOMXPath;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
-use RuntimeException;
 
 class AtCoderHtmlScraper
 {
     private const MIN_DELAY_MS = 1200;
+
     private const MAX_DELAY_MS = 2500;
+
     private static int $lastRequestTime = 0;
 
     private function baseUrl(): string
@@ -21,12 +22,11 @@ class AtCoderHtmlScraper
         return rtrim((string) config('platforms.atcoder.base_url', 'https://atcoder.jp'), '/');
     }
 
-
-    //used
+    // used
     public function getUserProfile(string $username): array
     {
-        $htmlAlgo = $this->fetchPage($this->baseUrl() . '/users/' . $username . '?contestType=algo');
-        $htmlHeuristic = $this->fetchPage($this->baseUrl() . '/users/' . $username . '?contestType=heuristic');
+        $htmlAlgo = $this->fetchPage($this->baseUrl().'/users/'.$username.'?contestType=algo');
+        $htmlHeuristic = $this->fetchPage($this->baseUrl().'/users/'.$username.'?contestType=heuristic');
 
         return $this->parseUserProfileHtml($htmlAlgo, $htmlHeuristic, $username);
     }
@@ -61,7 +61,7 @@ class AtCoderHtmlScraper
             ?? $xpath->query("//img[contains(@class, 'avatar')]")->item(0);
         if ($avatarNode instanceof DOMElement) {
             $src = $avatarNode->getAttribute('src');
-            $result['avatarUrl'] = str_starts_with($src, '//') ? 'https:' . $src : $src;
+            $result['avatarUrl'] = str_starts_with($src, '//') ? 'https:'.$src : $src;
         }
 
         if (empty($result['avatarUrl'])) {
@@ -86,7 +86,7 @@ class AtCoderHtmlScraper
         foreach ($leftRows as $row) {
             $th = $xpath->query('.//th', $row)->item(0);
             $td = $xpath->query('.//td', $row)->item(0);
-            if (!$th || !$td) {
+            if (! $th || ! $td) {
                 continue;
             }
 
@@ -139,7 +139,7 @@ class AtCoderHtmlScraper
         foreach ($rows as $row) {
             $th = $xpath->query('.//th', $row)->item(0);
             $td = $xpath->query('.//td', $row)->item(0);
-            if (!$th || !$td) {
+            if (! $th || ! $td) {
                 continue;
             }
 
@@ -148,7 +148,7 @@ class AtCoderHtmlScraper
 
             if (str_contains($label, 'Rank')) {
                 $rawRank = $val;
-            } elseif (str_contains($label, 'Rating') && !str_contains($label, 'Highest')) {
+            } elseif (str_contains($label, 'Rating') && ! str_contains($label, 'Highest')) {
                 $rawRating = $val;
             } elseif (str_contains($label, 'Highest Rating')) {
                 $rawHighest = $val;
@@ -222,7 +222,7 @@ class AtCoderHtmlScraper
                 Cache::forget('atcoder_auto_session_cookie');
             }
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 app(ApplicationLogger::class)->warning('AtCoder HTTP request failed', [
                     'category' => 'scraper',
                     'platform' => 'atcoder',
@@ -247,7 +247,6 @@ class AtCoderHtmlScraper
             return '';
         }
     }
-
 
     private function httpRequest()
     {
@@ -291,8 +290,8 @@ class AtCoderHtmlScraper
 
         if ($envCookie !== null && trim((string) $envCookie) !== '') {
             $cookieStr = trim((string) $envCookie);
-            if (!str_contains($cookieStr, '=')) {
-                $cookieStr = 'REVEL_SESSION=' . $cookieStr;
+            if (! str_contains($cookieStr, '=')) {
+                $cookieStr = 'REVEL_SESSION='.$cookieStr;
             }
 
             return $cookieStr;
