@@ -10,6 +10,10 @@ use App\Core\DTOs\ParticipantDTO;
 use App\Core\DTOs\ProblemDTO;
 use App\Core\DTOs\ProblemResultDTO;
 use App\Core\Platforms\PlatformRegistry;
+use App\Platforms\AtCoder\Mappers\AtCoderStandingsMapper;
+use App\Platforms\AtCoder\Transformers\StandingsTransformer as AtCoderStandingsTransformer;
+use App\Platforms\Codeforces\Mappers\CodeforcesStandingsMapper;
+use App\Platforms\Codeforces\Transformers\StandingsTransformer as CodeforcesStandingsTransformer;
 use App\Services\GoogleDrive\GoogleDriveClient;
 use DateTimeImmutable;
 use Illuminate\Support\Facades\Storage;
@@ -116,6 +120,13 @@ class StandingsCacheService
                 return null;
             }
 
+            // 1. Transform from raw API payload if present
+            $transformed = $this->transformRaw($platform, $payload);
+            if ($transformed instanceof ContestStandingsDTO) {
+                return $transformed;
+            }
+
+            // 2. Fallback for normalized DTO payloads (backward compatibility)
             return $this->deserialize($payload);
         } catch (Throwable $e) {
             app(ApplicationLogger::class)->warning('StandingsCacheService get failed', [
@@ -130,15 +141,18 @@ class StandingsCacheService
         }
     }
 
-    public function put(string $platform, string $contestId, ContestStandingsDTO $standings): bool
+    public function put(string $platform, string $contestId, ContestStandingsDTO|array $standings): bool
     {
         if (! $this->isEnabled()) {
             return false;
         }
 
         try {
-            $serialized = $this->serialize($standings);
-            $json = json_encode($serialized, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            // Method 1: Store ONLY the raw payload to eliminate data duplication and minimize cache file size
+            $raw = $standings instanceof ContestStandingsDTO ? $standings->raw : $standings;
+            $payload = ! empty($raw) ? $raw : ($standings instanceof ContestStandingsDTO ? $this->serialize($standings) : $standings);
+
+            $json = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
             if ($json === false) {
                 return false;
@@ -218,6 +232,38 @@ class StandingsCacheService
         return "{$contestId}.json.gz";
     }
 
+    /**
+     * Dynamically transform raw platform API response into normalized ContestStandingsDTO.
+     */
+    public function transformRaw(string $platform, array $raw): ?ContestStandingsDTO
+    {
+        $normalized = strtolower(trim($platform));
+
+        try {
+            if ($normalized === 'codeforces') {
+                $data = isset($raw['result']) && is_array($raw['result']) ? $raw['result'] : $raw;
+                if (isset($data['contest']) && is_array($data['contest']) && ! isset($data['contest']['platformContestId'])) {
+                    $dto = CodeforcesStandingsMapper::fromApiResponse($data);
+
+                    return app(CodeforcesStandingsTransformer::class)->fromApiStandings($dto);
+                }
+            }
+
+            if ($normalized === 'atcoder') {
+                $hasAtCoderKeys = isset($raw['TaskResults']) || isset($raw['taskResults']) || isset($raw['Contest']) || (isset($raw['contest']) && is_array($raw['contest']) && ! isset($raw['contest']['platformContestId']));
+                if ($hasAtCoderKeys) {
+                    $dto = AtCoderStandingsMapper::fromApiResponse($raw);
+
+                    return app(AtCoderStandingsTransformer::class)->fromApiStandings($dto);
+                }
+            }
+        } catch (Throwable) {
+            // Fall through to legacy deserialization if raw transformation fails
+        }
+
+        return null;
+    }
+
     public function serialize(ContestStandingsDTO $standings): array
     {
         return [
@@ -273,9 +319,13 @@ class StandingsCacheService
         ];
     }
 
-    public function deserialize(array $data): ContestStandingsDTO
+    public function deserialize(array $data): ?ContestStandingsDTO
     {
         $contestData = (array) ($data['contest'] ?? []);
+        if (empty($contestData) || ! isset($contestData['platformContestId'])) {
+            return null;
+        }
+
         $startedAtStr = (string) ($contestData['startedAt'] ?? '');
         $endedAtStr = (string) ($contestData['endedAt'] ?? '');
 
