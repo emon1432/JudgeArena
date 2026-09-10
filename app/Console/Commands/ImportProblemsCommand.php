@@ -11,7 +11,7 @@ use Throwable;
 
 class ImportProblemsCommand extends Command
 {
-    protected $signature = 'judgearena:import-problems {platform}';
+    protected $signature = 'judgearena:import-problems {platform} {--contest= : Specific contest platform ID to import} {--limit= : Number of contests to process in this batch} {--all : Process all contests sequentially}';
 
     protected $description = 'Import problems from a supported platform.';
 
@@ -24,7 +24,14 @@ class ImportProblemsCommand extends Command
 
     public function handle(): int
     {
+        @ini_set('max_execution_time', '0');
+        @set_time_limit(0);
+        @ini_set('memory_limit', '512M');
+
         $platformSlug = strtolower(trim((string) $this->argument('platform')));
+        $contestPlatformId = $this->option('contest') ? (string) $this->option('contest') : null;
+        $limit = $this->option('limit') !== null ? (int) $this->option('limit') : null;
+        $processAll = (bool) $this->option('all');
 
         $adapter = $this->platformRegistry->resolve($platformSlug);
 
@@ -54,14 +61,60 @@ class ImportProblemsCommand extends Command
                 'category' => 'import',
                 'platform' => $platformSlug,
                 'source' => self::class,
+                'contest_platform_id' => $contestPlatformId,
+                'limit' => $limit,
+                'all' => $processAll,
             ]
         );
         $this->info('Starting problem import for platform: '.$platformSlug);
 
         try {
+            if ($processAll) {
+                $totalCreated = 0;
+                $totalUpdated = 0;
+                $totalSkipped = 0;
+                $totalFailed = 0;
+                $totalChecked = 0;
+
+                $this->info("Processing all remaining contests in batches for {$platformSlug}...");
+                do {
+                    $result = $adapter->problemImporter()->import(limit: $limit ?? 20);
+                    $totalChecked += $result->checked;
+                    $totalCreated += $result->created;
+                    $totalUpdated += $result->updated;
+                    $totalSkipped += $result->skipped;
+                    $totalFailed += $result->failed;
+
+                    $this->line(sprintf(
+                        'Batch: Checked: %d | Created: %d | Updated: %d | Skipped: %d | Failed: %d',
+                        $result->checked,
+                        $result->created,
+                        $result->updated,
+                        $result->skipped,
+                        $result->failed
+                    ));
+                } while ($result->checked > 0);
+
+                $this->table(
+                    ['Metric', 'Value'],
+                    [
+                        ['Platform', $platformSlug],
+                        ['Total Checked', $totalChecked],
+                        ['Total Created', $totalCreated],
+                        ['Total Updated', $totalUpdated],
+                        ['Total Skipped', $totalSkipped],
+                        ['Total Failed', $totalFailed],
+                    ]
+                );
+
+                $this->info('All problem imports completed successfully.');
+
+                return self::SUCCESS;
+            }
+
             $result = $adapter
                 ->problemImporter()
-                ->import();
+                ->import($contestPlatformId, $limit);
 
             $this->line('Platform: '.$platformSlug);
             $this->line('Checked: '.($result->checked ?? 0));

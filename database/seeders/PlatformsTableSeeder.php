@@ -21,7 +21,7 @@ class PlatformsTableSeeder extends Seeder
         \DB::table('platforms')->insert(array (
             0 => 
             array (
-                'id' => 1,
+                'id' => '1',
                 'name' => 'Codeforces',
                 'slug' => 'codeforces',
                 'short_name' => 'CF',
@@ -36,7 +36,7 @@ class PlatformsTableSeeder extends Seeder
             ),
             1 => 
             array (
-                'id' => 2,
+                'id' => '2',
                 'name' => 'AtCoder',
                 'slug' => 'atcoder',
                 'short_name' => 'AC',

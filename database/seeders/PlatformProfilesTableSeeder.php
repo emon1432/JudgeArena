@@ -21,9 +21,9 @@ class PlatformProfilesTableSeeder extends Seeder
         \DB::table('platform_profiles')->insert(array (
             0 => 
             array (
-                'id' => 1,
-                'user_id' => 2,
-                'platform_id' => 2,
+                'id' => '1',
+                'user_id' => '2',
+                'platform_id' => '2',
                 'handle' => 'tourist',
                 'raw' => NULL,
                 'metadata' => NULL,
@@ -34,9 +34,9 @@ class PlatformProfilesTableSeeder extends Seeder
             ),
             1 => 
             array (
-                'id' => 2,
-                'user_id' => 2,
-                'platform_id' => 1,
+                'id' => '2',
+                'user_id' => '2',
+                'platform_id' => '1',
                 'handle' => 'tourist',
                 'raw' => NULL,
                 'metadata' => NULL,
@@ -47,9 +47,9 @@ class PlatformProfilesTableSeeder extends Seeder
             ),
             2 => 
             array (
-                'id' => 3,
-                'user_id' => 3,
-                'platform_id' => 2,
+                'id' => '3',
+                'user_id' => '3',
+                'platform_id' => '2',
                 'handle' => 'e_mon',
                 'raw' => NULL,
                 'metadata' => NULL,
@@ -60,9 +60,9 @@ class PlatformProfilesTableSeeder extends Seeder
             ),
             3 => 
             array (
-                'id' => 4,
-                'user_id' => 3,
-                'platform_id' => 1,
+                'id' => '4',
+                'user_id' => '3',
+                'platform_id' => '1',
                 'handle' => 'emon_mon',
                 'raw' => NULL,
                 'metadata' => NULL,

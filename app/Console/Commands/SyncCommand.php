@@ -24,6 +24,10 @@ class SyncCommand extends Command
 
     public function handle(): int
     {
+        @ini_set('max_execution_time', '0');
+        @set_time_limit(0);
+        @ini_set('memory_limit', '512M');
+
         $this->logger->info('Platform synchronization command started', [
             'category' => 'sync',
             'source' => self::class,

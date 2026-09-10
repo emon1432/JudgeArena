@@ -94,3 +94,17 @@
 - **Rule**: Remote standings cache files (`.json.gz`) MUST store ONLY the platform's raw API/crawler response payload (`$standings->raw`).
 - **Dynamic Transformation**: When reading from cache via `StandingsCacheService::get()`, the raw JSON payload is dynamically mapped and transformed into `ContestStandingsDTO` using the platform's native mappers and transformers (`CodeforcesStandingsMapper`, `AtCoderStandingsMapper`) with zero data duplication.
 
+---
+
+## 10. Codeforces Standings-Based Problem Ingestion & cPanel Timeout Prevention
+
+- **Domain Requirement**: Problems MUST be imported via `contest.standings` rather than `problemset.problems` because over 100 contest problems are absent from Codeforces' global problemset.
+- **Root Cause of Stuck Loop**:
+  - Processing 2,146 contests sequentially with a 2-second rate limit requires ~70 minutes. Running all contests in a single synchronous PHP execution causes cPanel/shared hosting to terminate the process (`SIGKILL`) after 30–60 seconds, leaving in-flight records stranded in `syncing` state.
+  - Finished unrated/gym contests (e.g. 1595, 1596) returning HTTP 400 Bad Request caused repeated failures at the start of every run.
+- **Architectural Solution**:
+  1. **Incremental Un-Synced Batching**: `ProblemImporter` queries only un-synced contests (`whereNotIn('platform_contest_id', $syncedIds)`) in safe batches (default 20 contests), completing in ~35–40 seconds per run.
+  2. **Finished Unrated Contest 400 Handling**: When a `FINISHED` contest returns HTTP 400 ("Contest not found"), it is marked `Synced` with a descriptive metadata note, preventing it from stalling subsequent runs.
+  3. **Phase-Aware Retry Guarantee**: Contests in `BEFORE` or `CODING` phases are NEVER marked `Synced` on error/empty response, ensuring they automatically refresh when the contest completes.
+
+

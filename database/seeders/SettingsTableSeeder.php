@@ -21,7 +21,7 @@ class SettingsTableSeeder extends Seeder
         \DB::table('settings')->insert(array (
             0 => 
             array (
-                'id' => 1,
+                'id' => '1',
                 'icon' => 'briefcase',
                 'key' => 'business_settings',
                 'value' => '{"company_name":"JudgeArena","email":"info@judgearena.com","phone":"01638849305","address":"Dhaka, Bangladesh"}',
@@ -30,7 +30,7 @@ class SettingsTableSeeder extends Seeder
             ),
             1 => 
             array (
-                'id' => 2,
+                'id' => '2',
                 'icon' => 'settings',
                 'key' => 'system_settings',
                 'value' => '{"app_name":"JudgeArena","app_url":"http:127.0.0.1:8000","app_locale":"en","app_timezone":"Asia\\/Dhaka","date_format":"d-m-Y","time_format":"h:i A","decimal_separator":".","thousand_separator":",","decimal_precision":"2","footer_text":"\\u00a9 2026 JudgeArena. All rights reserved.","copyright":"Copyright \\u00a9 2026 JudgeArena"}',
@@ -39,7 +39,7 @@ class SettingsTableSeeder extends Seeder
             ),
             2 => 
             array (
-                'id' => 3,
+                'id' => '3',
                 'icon' => 'mail',
                 'key' => 'mail_settings',
                 'value' => '{"mail_driver":"smtp","mail_host":"sandbox.smtp.mailtrap.io","mail_port":"2525","mail_username":"fa39ddca0a2a4f","mail_password":"89a49d9d605777","mail_encryption":"tls","mail_from_address":"info@judgearena.com","mail_from_name":"JudgeArena"}',

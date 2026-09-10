@@ -21,7 +21,7 @@ class UsersTableSeeder extends Seeder
         \DB::table('users')->insert(array (
             0 => 
             array (
-                'id' => 1,
+                'id' => '1',
                 'name' => 'Emon Admin',
                 'username' => 'emonadmin',
                 'role' => 'admin',
@@ -51,7 +51,7 @@ class UsersTableSeeder extends Seeder
             ),
             1 => 
             array (
-                'id' => 2,
+                'id' => '2',
                 'name' => 'Top Users',
                 'username' => 'topusers',
                 'role' => 'user',
@@ -59,8 +59,8 @@ class UsersTableSeeder extends Seeder
                 'phone' => '01700000000',
                 'date_of_birth' => '1998-03-14',
                 'gender' => 'Male',
-                'country_id' => 19,
-                'institute_id' => 10200,
+                'country_id' => '19',
+                'institute_id' => '10200',
                 'fav_quote' => 'Assalamu Alaikum',
                 'website' => 'emonideas.com',
                 'facebook' => 'emon143298',
@@ -81,7 +81,7 @@ class UsersTableSeeder extends Seeder
             ),
             2 => 
             array (
-                'id' => 3,
+                'id' => '3',
                 'name' => 'Khairul Islam Emon',
                 'username' => 'e_mon',
                 'role' => 'user',
@@ -89,8 +89,8 @@ class UsersTableSeeder extends Seeder
                 'phone' => '01638849305',
                 'date_of_birth' => '1998-03-14',
                 'gender' => 'Male',
-                'country_id' => 19,
-                'institute_id' => 10200,
+                'country_id' => '19',
+                'institute_id' => '10200',
                 'fav_quote' => 'Assalamu Alaikum',
                 'website' => 'emonideas.com',
                 'facebook' => 'emon143298',

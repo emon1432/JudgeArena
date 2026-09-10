@@ -24,6 +24,10 @@ class ImportContestsCommand extends Command
 
     public function handle(): int
     {
+        @ini_set('max_execution_time', '0');
+        @set_time_limit(0);
+        @ini_set('memory_limit', '512M');
+
         $platformSlug = strtolower(trim((string) $this->argument('platform')));
 
         $adapter = $this->platformRegistry->resolve($platformSlug);
