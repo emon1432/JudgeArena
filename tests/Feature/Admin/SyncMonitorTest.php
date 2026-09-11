@@ -77,4 +77,3 @@ class SyncMonitorTest extends TestCase
         $this->assertSame(PlatformSyncStatus::Pending, $state->fresh()->sync_status);
     }
 }
-

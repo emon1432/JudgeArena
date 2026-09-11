@@ -153,4 +153,59 @@ class StandingsCacheServiceTest extends TestCase
         $this->assertSame(1, $cached->rows[0]->rank);
         $this->assertSame('tourist', $cached->rows[0]->members[0]['handle']);
     }
+
+    public function test_atcoder_raw_payload_caching_and_dynamic_transformation(): void
+    {
+        Storage::fake('local');
+        Config::set('standings.disk', 'local');
+        Config::set('standings.cache_enabled', true);
+
+        $this->createPlatform('atcoder', 'AtCoder');
+
+        $googleClient = Mockery::mock(GoogleDriveClient::class);
+        $registry = $this->app->make(PlatformRegistry::class);
+        $service = new StandingsCacheService($googleClient, $registry);
+
+        $rawAtCoderPayload = [
+            'Fixed' => true,
+            'AdditionalColumns' => null,
+            'TaskInfo' => [
+                [
+                    'TaskScreenName' => 'abc300_a',
+                    'TaskName' => 'A. N-choice question',
+                ],
+            ],
+            'StandingsData' => [
+                [
+                    'Rank' => 1,
+                    'UserScreenName' => 'tourist',
+                    'UserName' => 'Gennady Korotkevich',
+                    'TotalResult' => [
+                        'Score' => 100,
+                        'Elapsed' => 60000000000,
+                    ],
+                    'TaskResults' => [
+                        'abc300_a' => [
+                            'Score' => 100,
+                            'Elapsed' => 60000000000,
+                            'Count' => 1,
+                            'Status' => 1,
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $this->assertTrue($service->put('atcoder', 'abc300', $rawAtCoderPayload));
+        $this->assertTrue($service->has('atcoder', 'abc300'));
+
+        $cached = $service->get('atcoder', 'abc300');
+        $this->assertNotNull($cached);
+        $this->assertSame('atcoder', $cached->contest->platform);
+        $this->assertSame('abc300', $cached->contest->platformContestId);
+        $this->assertCount(1, $cached->problems);
+        $this->assertCount(1, $cached->rows);
+        $this->assertSame(1, $cached->rows[0]->rank);
+        $this->assertSame('tourist', $cached->rows[0]->members[0]['handle']);
+    }
 }

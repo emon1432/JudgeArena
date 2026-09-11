@@ -11,5 +11,5 @@ interface UserStandingImporter
     /**
      * Import user standings for the specified handle or all active profiles.
      */
-    public function import(?string $handle = null): ImportResult;
+    public function import(?string $handle = null, ?callable $onProgress = null): ImportResult;
 }

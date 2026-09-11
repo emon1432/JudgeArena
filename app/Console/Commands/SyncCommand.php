@@ -33,6 +33,12 @@ class SyncCommand extends Command
             'source' => self::class,
         ]);
 
+        $this->info('┌─────────────────────────────────────────────────────────────┐');
+        $this->info('│  JudgeArena » Master Platform Synchronizer                  │');
+        $this->info('│  Mode:     Scheduled Due Jobs Sync                          │');
+        $this->info('└─────────────────────────────────────────────────────────────┘');
+        $this->newLine();
+
         $jobs = $this->scheduler->getDueJobs();
 
         if ($jobs->isEmpty()) {
@@ -46,17 +52,17 @@ class SyncCommand extends Command
             return self::SUCCESS;
         }
 
-        $this->info(sprintf(
-            'Found %d synchronization job(s).',
-            $jobs->count()
-        ));
+        $this->info(sprintf('Found %d due synchronization job(s). Starting execution...', $jobs->count()));
+        $this->newLine();
 
+        $startTime = microtime(true);
         $progressBar = $this->output->createProgressBar($jobs->count());
-        $progressBar->setFormat(
-            ' %current%/%max% [%bar%] %percent:3s%% %message%'
-        );
+        $progressBar->setFormat(' %current%/%max% [%bar%] %percent:3s%%  ⏱ %elapsed:6s%  | %message%');
+        $progressBar->setBarCharacter('<fg=green>━</>');
+        $progressBar->setEmptyBarCharacter('<fg=gray>━</>');
+        $progressBar->setProgressCharacter('<fg=green>❯</>');
 
-        $progressBar->setMessage('Preparing...');
+        $progressBar->setMessage('Preparing jobs...');
         $progressBar->start();
 
         $success = 0;
@@ -65,7 +71,7 @@ class SyncCommand extends Command
 
         foreach ($jobs as $job) {
             $progressBar->setMessage(sprintf(
-                '%s - %s',
+                'Syncing %s » %s',
                 ucfirst($job->platform->slug),
                 $job->entity->value,
             ));
@@ -82,16 +88,19 @@ class SyncCommand extends Command
         }
 
         $progressBar->finish();
-
         $this->newLine(2);
+
+        $duration = round(microtime(true) - $startTime, 2);
 
         $this->table(
             ['Metric', 'Value'],
             [
-                ['Due Jobs', $jobs->count()],
-                ['Successful', $success],
-                ['Failed', $failed],
-                ['Skipped', $skipped],
+                ['Total Due Jobs', number_format($jobs->count())],
+                ['Successful', '<fg=green>'.number_format($success).'</>'],
+                ['Skipped', '<fg=yellow>'.number_format($skipped).'</>'],
+                ['Failed', ($failed > 0 ? '<fg=red>' : '<fg=green>').number_format($failed).'</>'],
+                ['Status', $failed === 0 ? '<fg=green;options=bold>COMPLETED</>' : '<fg=yellow;options=bold>COMPLETED WITH ERRORS</>'],
+                ['Elapsed Time', sprintf('%.2f seconds', $duration)],
             ]
         );
 

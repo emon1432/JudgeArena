@@ -37,7 +37,7 @@ class UserSubmissionImporter implements UserSubmissionImporterContract
         private readonly PlatformSyncStateService $platformSyncStateService,
     ) {}
 
-    public function import(?string $handle = null, bool $full = false): ImportResult
+    public function import(?string $handle = null, bool $full = false, ?callable $onProgress = null): ImportResult
     {
         $result = new ImportResult;
 
@@ -73,7 +73,12 @@ class UserSubmissionImporter implements UserSubmissionImporterContract
         }
 
         $profiles = $query->get();
-        $result->incrementChecked($profiles->count());
+        $totalProfiles = $profiles->count();
+        $result->incrementChecked($totalProfiles);
+
+        if ($onProgress !== null) {
+            $onProgress($totalProfiles, 0, 'Starting AtCoder submissions sync...');
+        }
 
         $this->contestMap = $this->contestModel
             ->newQuery()
@@ -89,10 +94,14 @@ class UserSubmissionImporter implements UserSubmissionImporterContract
             ->keyBy(fn (Problem $p): string => (string) $p->platform_problem_id)
             ->all();
 
-        foreach ($profiles as $profile) {
+        foreach ($profiles as $index => $profile) {
             $normalizedHandle = mb_strtolower(
                 trim((string) $profile->handle)
             );
+
+            if ($onProgress !== null) {
+                $onProgress($totalProfiles, $index + 1, "Submissions: {$profile->handle}");
+            }
 
             if ($normalizedHandle === '') {
                 $result->incrementSkipped();

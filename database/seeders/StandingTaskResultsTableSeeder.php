@@ -6,7 +6,6 @@ use Illuminate\Database\Seeder;
 
 class StandingTaskResultsTableSeeder extends Seeder
 {
-
     /**
      * Auto generated seed file
      *
@@ -14,11 +13,8 @@ class StandingTaskResultsTableSeeder extends Seeder
      */
     public function run()
     {
-        
 
         \DB::table('standing_task_results')->delete();
-        
-        
-        
+
     }
 }

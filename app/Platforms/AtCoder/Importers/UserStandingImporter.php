@@ -22,6 +22,7 @@ use App\Models\Submission;
 use App\Platforms\AtCoder\AtCoderAdapter;
 use App\Services\ApplicationLogger;
 use App\Services\PlatformSyncStateService;
+use Illuminate\Support\Str;
 use Throwable;
 
 class UserStandingImporter implements UserStandingImporterContract
@@ -41,7 +42,7 @@ class UserStandingImporter implements UserStandingImporterContract
         private readonly PlatformSyncStateService $platformSyncStateService,
     ) {}
 
-    public function import(?string $handle = null): ImportResult
+    public function import(?string $handle = null, ?callable $onProgress = null): ImportResult
     {
         $result = new ImportResult;
         $platformSlug = 'atcoder';
@@ -70,7 +71,12 @@ class UserStandingImporter implements UserStandingImporterContract
         }
 
         $profiles = $query->get();
-        $result->incrementChecked($profiles->count());
+        $totalProfiles = $profiles->count();
+        $result->incrementChecked($totalProfiles);
+
+        if ($onProgress !== null) {
+            $onProgress($totalProfiles, 0, 'Starting AtCoder standings sync...');
+        }
 
         $platformProfilesByHandle = $this->platformProfilesByHandle((int) $platform->id);
 
@@ -80,8 +86,12 @@ class UserStandingImporter implements UserStandingImporterContract
             ->keyBy('id')
             ->all();
 
-        foreach ($profiles as $profile) {
+        foreach ($profiles as $index => $profile) {
             $normalizedHandle = mb_strtolower(trim((string) $profile->handle));
+
+            if ($onProgress !== null) {
+                $onProgress($totalProfiles, $index + 1, "Standings: {$profile->handle}");
+            }
 
             if ($normalizedHandle === '') {
                 $result->incrementSkipped();
@@ -196,17 +206,7 @@ class UserStandingImporter implements UserStandingImporterContract
 
                         $standingsFetched++;
 
-                        $contestProblems = $this->problemModel->newQuery()
-                            ->where('contest_id', $contest->id)
-                            ->get();
-
-                        $problemMap = [];
-                        foreach ($contestProblems as $p) {
-                            $probPlatformId = (string) $p->platform_problem_id;
-                            $problemMap[$probPlatformId] = $p;
-                            $problemMap[strtolower($probPlatformId)] = $p;
-                            $problemMap[str_replace('_', '-', $probPlatformId)] = $p;
-                        }
+                        $problemMap = $this->ensureContestProblems($contest, $standingsDto);
 
                         foreach ($standingsDto->rows as $row) {
                             if (! ($row instanceof ParticipantDTO)) {
@@ -383,5 +383,98 @@ class UserStandingImporter implements UserStandingImporterContract
         }
 
         return $indexedProfiles;
+    }
+
+    private function ensureContestProblems(Contest $contest, ContestStandingsDTO $standingsDto): array
+    {
+        $contestProblems = $this->problemModel->newQuery()
+            ->where('contest_id', $contest->id)
+            ->get();
+
+        $existing = [];
+        foreach ($contestProblems as $p) {
+            $existing[(string) $p->platform_problem_id] = $p;
+        }
+
+        $contestPlatformId = (string) ($contest->platform_contest_id ?? '');
+
+        foreach ($standingsDto->problems as $problemDto) {
+            $problemPlatformId = (string) ($problemDto->platformProblemId ?? '');
+            if ($problemPlatformId === '') {
+                continue;
+            }
+
+            if (! isset($existing[$problemPlatformId])) {
+                $code = (string) ($problemDto->code ?? '');
+                $title = (string) ($problemDto->title ?? '');
+
+                $slug = Str::slug($contestPlatformId.'-'.strtolower($code).'-'.$title);
+                if ($slug === '' || $slug === '-') {
+                    $slug = Str::slug($problemPlatformId.'-'.$title);
+                }
+
+                $problem = $this->problemModel->newQuery()->updateOrCreate(
+                    [
+                        'platform_id' => $contest->platform_id,
+                        'platform_problem_id' => $problemPlatformId,
+                    ],
+                    [
+                        'contest_id' => $contest->id,
+                        'slug' => $slug,
+                        'name' => $title !== '' ? $title : $problemPlatformId,
+                        'code' => $code !== '' ? $code : null,
+                        'points' => $problemDto->points ?? null,
+                        'rating' => $problemDto->rating ?? null,
+                        'time_limit_ms' => $problemDto->timeLimit ?? null,
+                        'memory_limit_mb' => $problemDto->memoryLimit ?? null,
+                        'solved_count' => $problemDto->solvedCount ?? 0,
+                        'tags' => $problemDto->tags ?? [],
+                        'url' => $problemDto->url ?? null,
+                        'last_synced_at' => now(),
+                        'metadata' => [
+                            'source' => 'standings-jit-sync',
+                            'platform' => 'atcoder',
+                            'contest_platform_id' => $contestPlatformId,
+                        ],
+                        'raw' => $problemDto->raw ?? [],
+                        'status' => 'Active',
+                    ]
+                );
+
+                // Self-healing backlink: link any submissions with null problem_id
+                $this->submissionModel->newQuery()
+                    ->where('platform_id', $contest->platform_id)
+                    ->whereNull('problem_id')
+                    ->where(function ($q) use ($contest) {
+                        $q->where('contest_id', $contest->id)
+                            ->orWhere('metadata->contest_platform_id', $contest->platform_contest_id);
+                    })
+                    ->where(function ($q) use ($problemPlatformId, $code) {
+                        $q->where('metadata->problem_platform_id', $problemPlatformId)
+                            ->orWhere('metadata->problem_platform_id', strtolower($problemPlatformId))
+                            ->orWhere('metadata->problem_platform_id', str_replace('-', '_', $problemPlatformId))
+                            ->orWhere('metadata->problem_platform_id', str_replace('_', '-', $problemPlatformId));
+                        if ($code !== '') {
+                            $q->orWhere('metadata->problem_platform_id', $code);
+                        }
+                    })
+                    ->update([
+                        'contest_id' => $contest->id,
+                        'problem_id' => $problem->id,
+                    ]);
+
+                $existing[$problemPlatformId] = $problem;
+            }
+        }
+
+        $problemMap = [];
+        foreach ($existing as $probPlatformId => $p) {
+            $problemMap[$probPlatformId] = $p;
+            $problemMap[strtolower($probPlatformId)] = $p;
+            $problemMap[str_replace('_', '-', $probPlatformId)] = $p;
+            $problemMap[str_replace('-', '_', $probPlatformId)] = $p;
+        }
+
+        return $problemMap;
     }
 }

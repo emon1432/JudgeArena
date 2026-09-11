@@ -6,7 +6,6 @@ use Illuminate\Database\Seeder;
 
 class PlatformsTableSeeder extends Seeder
 {
-
     /**
      * Auto generated seed file
      *
@@ -14,14 +13,12 @@ class PlatformsTableSeeder extends Seeder
      */
     public function run()
     {
-        
 
         \DB::table('platforms')->delete();
-        
-        \DB::table('platforms')->insert(array (
-            0 => 
-            array (
-                'id' => '1',
+
+        \DB::table('platforms')->insert([
+            0 => [
+                'id' => 1,
                 'name' => 'Codeforces',
                 'slug' => 'codeforces',
                 'short_name' => 'CF',
@@ -33,10 +30,9 @@ class PlatformsTableSeeder extends Seeder
                 'status' => 'Active',
                 'created_at' => '2026-05-27 09:43:28',
                 'updated_at' => '2026-05-30 12:06:00',
-            ),
-            1 => 
-            array (
-                'id' => '2',
+            ],
+            1 => [
+                'id' => 2,
                 'name' => 'AtCoder',
                 'slug' => 'atcoder',
                 'short_name' => 'AC',
@@ -48,9 +44,8 @@ class PlatformsTableSeeder extends Seeder
                 'status' => 'Active',
                 'created_at' => '2026-05-27 09:48:26',
                 'updated_at' => '2026-05-30 12:05:25',
-            ),
-        ));
-        
-        
+            ],
+        ]);
+
     }
 }

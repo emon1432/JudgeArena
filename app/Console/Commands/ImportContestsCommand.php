@@ -60,21 +60,60 @@ class ImportContestsCommand extends Command
                 'source' => self::class,
             ]
         );
-        $this->info('Starting contest import for platform: '.$platformSlug);
+
+        $this->info('┌─────────────────────────────────────────────────────────────┐');
+        $this->info('│  JudgeArena » Contest Importer                              │');
+        $this->info('│  Platform: '.str_pad(ucfirst($platformSlug), 49).'│');
+        $this->info('└─────────────────────────────────────────────────────────────┘');
+        $this->newLine();
+
+        $startTime = microtime(true);
+        $progressBar = null;
 
         try {
             $result = $adapter
                 ->contestImporter()
-                ->import();
+                ->import(
+                    onProgress: function (int $total, int $current, string $message) use (&$progressBar) {
+                        if ($total <= 0) {
+                            return;
+                        }
+                        if ($progressBar === null) {
+                            $progressBar = $this->output->createProgressBar($total);
+                            $progressBar->setFormat(' %current%/%max% [%bar%] %percent:3s%%  ⏱ %elapsed:6s%  | %message%');
+                            $progressBar->setBarCharacter('<fg=green>━</>');
+                            $progressBar->setEmptyBarCharacter('<fg=gray>━</>');
+                            $progressBar->setProgressCharacter('<fg=green>❯</>');
+                            $progressBar->setMessage($message);
+                            $progressBar->start();
+                        } else {
+                            $progressBar->setMessage($message);
+                            $progressBar->setProgress($current);
+                        }
+                    }
+                );
 
-            $this->line('Platform: '.$platformSlug);
-            $this->line('Checked: '.$result->checked);
-            $this->line('Fetched: '.$result->fetched);
-            $this->line('Created: '.$result->created);
-            $this->line('Updated: '.$result->updated);
-            $this->line('Skipped: '.$result->skipped);
-            $this->line('Failed: '.$result->failed);
-            $this->line('Synced: '.$result->synced());
+            if ($progressBar !== null) {
+                $progressBar->finish();
+                $this->newLine(2);
+            }
+
+            $duration = round(microtime(true) - $startTime, 2);
+
+            $this->table(
+                ['Metric', 'Value'],
+                [
+                    ['Platform', ucfirst($platformSlug)],
+                    ['Total Checked', number_format($result->checked)],
+                    ['Total Fetched', number_format($result->fetched)],
+                    ['Created', '<fg=green>'.number_format($result->created).'</>'],
+                    ['Updated', '<fg=blue>'.number_format($result->updated).'</>'],
+                    ['Skipped', '<fg=yellow>'.number_format($result->skipped).'</>'],
+                    ['Failed', ($result->failed > 0 ? '<fg=red>' : '<fg=green>').number_format($result->failed).'</>'],
+                    ['Status', $result->failed === 0 ? '<fg=green;options=bold>COMPLETED</>' : '<fg=yellow;options=bold>COMPLETED WITH ERRORS</>'],
+                    ['Elapsed Time', sprintf('%.2f seconds', $duration)],
+                ]
+            );
 
             $this->info('Contest import completed successfully.');
 

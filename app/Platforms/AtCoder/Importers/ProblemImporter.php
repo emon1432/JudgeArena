@@ -7,9 +7,11 @@ namespace App\Platforms\AtCoder\Importers;
 use App\Core\Contracts\Importers\ProblemImporter as ProblemImporterContract;
 use App\Core\Results\ImportResult;
 use App\Enums\PlatformSyncEntityType;
+use App\Enums\PlatformSyncStatus;
 use App\Models\Contest;
 use App\Models\Platform;
 use App\Models\Problem;
+use App\Models\Submission;
 use App\Platforms\AtCoder\AtCoderAdapter;
 use App\Services\ApplicationLogger;
 use App\Services\PlatformSyncStateService;
@@ -24,9 +26,10 @@ class ProblemImporter implements ProblemImporterContract
         private readonly Platform $platformModel,
         private readonly AtCoderAdapter $adapter,
         private readonly PlatformSyncStateService $platformSyncStateService,
+        private readonly Submission $submissionModel,
     ) {}
 
-    public function import(): ImportResult
+    public function import(?int $limit = null, ?callable $onProgress = null): ImportResult
     {
         $result = new ImportResult;
 
@@ -48,21 +51,56 @@ class ProblemImporter implements ProblemImporterContract
             return $result;
         }
 
-        $contests = $this->contestModel->newQuery()
+        $query = $this->contestModel->newQuery()
             ->where('platform_id', $platform->id)
             ->whereNotNull('platform_contest_id')
+            ->where(function ($q) {
+                $q->whereNull('phase')
+                    ->orWhere('phase', '!=', 'BEFORE');
+            })
+            ->where(function ($q) use ($platform) {
+                $q->where('phase', 'CODING')
+                    ->orWhere(function ($subQ) use ($platform) {
+                        $subQ->whereNotIn('platform_contest_id', function ($sub) use ($platform) {
+                            $sub->select('entity_platform_id')
+                                ->from('platform_sync_states')
+                                ->where('platform_id', $platform->id)
+                                ->where('entity_type', PlatformSyncEntityType::ContestProblems->value)
+                                ->where('sync_status', PlatformSyncStatus::Synced->value);
+                        });
+                    });
+            })
             ->with('platform')
-            ->get();
+            ->orderBy('id', 'asc');
 
-        $result->incrementChecked($contests->count());
+        $effectiveLimit = $limit === -1 ? null : ($limit ?? 30);
+        if ($effectiveLimit !== null && $effectiveLimit > 0) {
+            $query->limit($effectiveLimit);
+        }
+
+        $contests = $query->get();
+        $totalContests = $contests->count();
+        $result->incrementChecked($totalContests);
+
+        if ($onProgress !== null) {
+            $onProgress($totalContests, 0, 'Starting AtCoder problems sync...');
+        }
 
         $contestsByPlatform = $contests->groupBy(function (Contest $contest): string {
             return (string) ($contest->platform?->slug ?? '');
         });
 
+        $processedCount = 0;
+
         foreach ($contestsByPlatform as $platformSlugKey => $platformContests) {
             foreach ($platformContests as $contest) {
+                $processedCount++;
                 $contestPlatformId = (string) ($contest->platform_contest_id ?? '');
+                $contestTitle = (string) ($contest->name ?? "Contest #{$contestPlatformId}");
+
+                if ($onProgress !== null) {
+                    $onProgress($totalContests, $processedCount, Str::limit($contestTitle, 45));
+                }
 
                 $isSynced = $this->platformSyncStateService->isSynced(
                     $contest->platform,
@@ -95,10 +133,32 @@ class ProblemImporter implements ProblemImporterContract
                 }
 
                 try {
+                    // Proactively fetch & cache complete standings to Google Drive via StandingsCacheService
+                    try {
+                        $this->adapter->getUserStandings($contestPlatformId);
+                    } catch (Throwable $e) {
+                        app(ApplicationLogger::class)->warning('AtCoder standings caching skipped during problem import', [
+                            'category' => 'import',
+                            'platform' => 'atcoder',
+                            'contest_platform_id' => $contestPlatformId,
+                            'error' => $e->getMessage(),
+                        ]);
+                    }
+
                     $problems = $this->adapter->getContestProblems($contestPlatformId);
 
                     if (! is_array($problems)) {
                         $problems = [];
+                    }
+
+                    // Fallback to cached standings problems if Kenkoooo returns empty
+                    if (empty($problems)) {
+                        try {
+                            $standingsDto = $this->adapter->getUserStandings($contestPlatformId);
+                            $problems = $standingsDto->problems ?? [];
+                        } catch (Throwable) {
+                            $problems = [];
+                        }
                     }
 
                     $result->incrementFetched(count($problems));
@@ -140,6 +200,28 @@ class ProblemImporter implements ProblemImporterContract
                                 'status' => 'Active',
                             ]
                         );
+
+                        // Self-healing backlink: link any orphaned submissions with null problem_id
+                        $this->submissionModel->newQuery()
+                            ->where('platform_id', $contest->platform_id)
+                            ->whereNull('problem_id')
+                            ->where(function ($q) use ($contest) {
+                                $q->where('contest_id', $contest->id)
+                                    ->orWhere('metadata->contest_platform_id', $contest->platform_contest_id);
+                            })
+                            ->where(function ($q) use ($problemPlatformId, $code) {
+                                $q->where('metadata->problem_platform_id', $problemPlatformId)
+                                    ->orWhere('metadata->problem_platform_id', strtolower($problemPlatformId))
+                                    ->orWhere('metadata->problem_platform_id', str_replace('-', '_', $problemPlatformId))
+                                    ->orWhere('metadata->problem_platform_id', str_replace('_', '-', $problemPlatformId));
+                                if ($code !== '') {
+                                    $q->orWhere('metadata->problem_platform_id', $code);
+                                }
+                            })
+                            ->update([
+                                'contest_id' => $contest->id,
+                                'problem_id' => $problem->id,
+                            ]);
 
                         if ($problem->wasRecentlyCreated) {
                             $result->incrementCreated();

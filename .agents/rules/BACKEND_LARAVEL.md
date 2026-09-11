@@ -85,3 +85,12 @@
 ### Rule 4.5: Standings Single-Run Policy (No Arbitrary 50-Chunking)
 - **Instruction**: Contest standings synchronization importers (`UserStandingImporter`) MUST process all un-synced contests for the user in a single, uninterrupted run. Arbitrary chunk limits (such as `MAX_CONTESTS_PER_RUN = 50`) and artificial `partial_sync` status transitions are strictly prohibited.
 - **Why**: Because contest standings payloads are cached remotely in Google Drive with Gzip compression, subsequent sync runs or multi-user syncs take milliseconds and do not incur external rate-limit penalties. Artificially throttling to 50 contests creates state-machine fragmentation, partial sync loops, and poor UX.
+
+### Rule 4.6: Importer Progress Reporting & Standardized CLI Output
+- **Instruction**: All platform importer contracts and implementations MUST support an optional progress reporting callback: `?callable $onProgress = null` (e.g., `import(?callable $onProgress = null): ImportResult`). When `$onProgress` is provided, importers report live item processing status via `if ($onProgress !== null) { $onProgress($total, $current, $message); }`. All Artisan import and sync commands MUST implement the standardized JudgeArena UI banner, customized green progress bar (`━`, `❯`, elapsed timer `⏱ %elapsed:6s%`), and detailed summary table.
+- **Why**: Provides transparent, real-time observability to administrators running manual or scheduled synchronizations via CLI, while maintaining 100% backward compatibility with automated background queue workers and test runners.
+
+### Rule 4.7: State-Driven Problem Import Batching & Proactive Standings Caching
+- **Instruction**: Problem importers (`ProblemImporter`) across all platforms (Codeforces, AtCoder) MUST support state-driven batching via `import(?int $limit = null, ?callable $onProgress = null): ImportResult` and query only un-synced contests (where `PlatformSyncEntityType::ContestProblems` is not `Synced` or `phase != 'FINISHED'`). Furthermore, during problem import for a contest, the importer MUST proactively invoke `getUserStandings($contestPlatformId)` to compress and cache the full contest standings in Google Drive via `StandingsCacheService`.
+- **Why**: Eliminates monster 45-minute monolithic script execution, protects against rate-limits, and pre-populates Google Drive with full standings so that future user profile standings syncs can be fulfilled instantly without making external API calls.
+

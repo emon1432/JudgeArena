@@ -23,7 +23,7 @@ class UserImporter implements UserImporterContract
         private readonly PlatformSyncStateService $platformSyncStateService,
     ) {}
 
-    public function import(?string $handle = null): ImportResult
+    public function import(?string $handle = null, ?callable $onProgress = null): ImportResult
     {
         $result = new ImportResult;
 
@@ -52,16 +52,24 @@ class UserImporter implements UserImporterContract
         }
 
         $profiles = $query->get();
-        $result->incrementChecked($profiles->count());
+        $totalProfiles = $profiles->count();
+        $result->incrementChecked($totalProfiles);
+
+        if ($onProgress !== null) {
+            $onProgress($totalProfiles, 0, 'Starting Codeforces users sync...');
+        }
 
         $profilesToSync = [];
         $syncStates = [];
 
-        foreach ($profiles as $profile) {
+        foreach ($profiles as $index => $profile) {
             $normalizedHandle = mb_strtolower(trim((string) $profile->handle));
 
             if ($normalizedHandle === '') {
                 $result->incrementSkipped();
+                if ($onProgress !== null) {
+                    $onProgress($totalProfiles, $index + 1, 'Skipping empty handle');
+                }
 
                 continue;
             }
@@ -75,6 +83,9 @@ class UserImporter implements UserImporterContract
 
             if ($handle === null && $isSynced) {
                 $result->incrementSkipped();
+                if ($onProgress !== null) {
+                    $onProgress($totalProfiles, $index + 1, "Already synced: {$profile->handle}");
+                }
 
                 continue;
             }
@@ -92,6 +103,9 @@ class UserImporter implements UserImporterContract
 
             if ($syncState === null) {
                 $result->incrementSkipped();
+                if ($onProgress !== null) {
+                    $onProgress($totalProfiles, $index + 1, "Skipped (in sync): {$profile->handle}");
+                }
 
                 continue;
             }
@@ -101,9 +115,11 @@ class UserImporter implements UserImporterContract
         }
 
         $chunks = array_chunk($profilesToSync, 50);
+        $processedCount = $totalProfiles - count($profilesToSync);
 
         foreach ($chunks as $chunk) {
             $handles = array_map(fn ($p) => $p->handle, $chunk);
+            $chunkHandlesLabel = implode(', ', array_slice($handles, 0, 3));
 
             try {
                 // Try fetching all handles in a single batch API call
@@ -112,6 +128,11 @@ class UserImporter implements UserImporterContract
             } catch (Throwable $e) {
                 // If the batch fails (e.g. one user not found), fallback to one-by-one fetch
                 $this->processUsersSequentially($chunk, $syncStates, $result);
+            }
+
+            $processedCount += count($chunk);
+            if ($onProgress !== null) {
+                $onProgress($totalProfiles, $processedCount, "Synced: {$chunkHandlesLabel}...");
             }
         }
 

@@ -21,7 +21,7 @@ class UserImporter implements UserImporterContract
         private readonly PlatformSyncStateService $platformSyncStateService,
     ) {}
 
-    public function import(?string $handle = null): ImportResult
+    public function import(?string $handle = null, ?callable $onProgress = null): ImportResult
     {
         $result = new ImportResult;
 
@@ -56,14 +56,21 @@ class UserImporter implements UserImporterContract
         }
 
         $profiles = $query->get();
+        $totalProfiles = $profiles->count();
+        $result->incrementChecked($totalProfiles);
 
-        $result->incrementChecked($profiles->count());
+        if ($onProgress !== null) {
+            $onProgress($totalProfiles, 0, 'Starting AtCoder users sync...');
+        }
 
-        foreach ($profiles as $profile) {
-
+        foreach ($profiles as $index => $profile) {
             $normalizedHandle = mb_strtolower(
                 trim((string) $profile->handle)
             );
+
+            if ($onProgress !== null) {
+                $onProgress($totalProfiles, $index + 1, "Profile: {$profile->handle}");
+            }
 
             if ($normalizedHandle === '') {
                 $result->incrementSkipped();

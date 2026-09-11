@@ -11,6 +11,7 @@ use App\Core\DTOs\ProblemDTO;
 use App\Core\DTOs\ProblemResultDTO;
 use App\Core\Platforms\PlatformRegistry;
 use App\Platforms\AtCoder\Mappers\AtCoderStandingsMapper;
+use App\Platforms\AtCoder\Support\ResponseNormalizer as AtCoderResponseNormalizer;
 use App\Platforms\AtCoder\Transformers\StandingsTransformer as AtCoderStandingsTransformer;
 use App\Platforms\Codeforces\Mappers\CodeforcesStandingsMapper;
 use App\Platforms\Codeforces\Transformers\StandingsTransformer as CodeforcesStandingsTransformer;
@@ -121,7 +122,7 @@ class StandingsCacheService
             }
 
             // 1. Transform from raw API payload if present
-            $transformed = $this->transformRaw($platform, $payload);
+            $transformed = $this->transformRaw($platform, $payload, $contestId);
             if ($transformed instanceof ContestStandingsDTO) {
                 return $transformed;
             }
@@ -235,7 +236,7 @@ class StandingsCacheService
     /**
      * Dynamically transform raw platform API response into normalized ContestStandingsDTO.
      */
-    public function transformRaw(string $platform, array $raw): ?ContestStandingsDTO
+    public function transformRaw(string $platform, array $raw, ?string $contestId = null): ?ContestStandingsDTO
     {
         $normalized = strtolower(trim($platform));
 
@@ -250,9 +251,13 @@ class StandingsCacheService
             }
 
             if ($normalized === 'atcoder') {
-                $hasAtCoderKeys = isset($raw['TaskResults']) || isset($raw['taskResults']) || isset($raw['Contest']) || (isset($raw['contest']) && is_array($raw['contest']) && ! isset($raw['contest']['platformContestId']));
+                $hasAtCoderKeys = isset($raw['TaskInfo']) || isset($raw['taskInfo']) || isset($raw['StandingsData']) || isset($raw['standingsData']) || isset($raw['TaskResults']) || isset($raw['taskResults']) || isset($raw['Contest']) || (isset($raw['contest']) && is_array($raw['contest']) && ! isset($raw['contest']['platformContestId']));
                 if ($hasAtCoderKeys) {
-                    $dto = AtCoderStandingsMapper::fromApiResponse($raw);
+                    $normalizedPayload = isset($raw['contest']) && is_array($raw['contest'])
+                        ? $raw
+                        : AtCoderResponseNormalizer::standings($raw, null, $contestId);
+
+                    $dto = AtCoderStandingsMapper::fromApiResponse($normalizedPayload);
 
                     return app(AtCoderStandingsTransformer::class)->fromApiStandings($dto);
                 }

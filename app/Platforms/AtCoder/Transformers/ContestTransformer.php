@@ -147,7 +147,7 @@ class ContestTransformer
         }
 
         if ($startedAt === null && $endedAt === null) {
-            return 'CODING';
+            return null;
         }
 
         $now = new DateTimeImmutable;

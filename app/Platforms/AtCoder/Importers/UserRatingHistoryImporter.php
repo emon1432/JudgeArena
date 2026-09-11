@@ -26,7 +26,7 @@ class UserRatingHistoryImporter implements UserRatingHistoryImporterContract
         private readonly PlatformSyncStateService $platformSyncStateService,
     ) {}
 
-    public function import(?string $handle = null): ImportResult
+    public function import(?string $handle = null, ?callable $onProgress = null): ImportResult
     {
         $result = new ImportResult;
 
@@ -61,7 +61,12 @@ class UserRatingHistoryImporter implements UserRatingHistoryImporterContract
         }
 
         $profiles = $query->get();
-        $result->incrementChecked($profiles->count());
+        $totalProfiles = $profiles->count();
+        $result->incrementChecked($totalProfiles);
+
+        if ($onProgress !== null) {
+            $onProgress($totalProfiles, 0, 'Starting AtCoder rating history sync...');
+        }
 
         // Pre-index all contests by platform_contest_id to eliminate N+1 SQL queries
         $contestsByPlatformId = $this->contestModel->newQuery()
@@ -72,10 +77,14 @@ class UserRatingHistoryImporter implements UserRatingHistoryImporterContract
 
         $platformProfilesByHandle = $this->platformProfilesByHandle((int) $platform->id);
 
-        foreach ($profiles as $profile) {
+        foreach ($profiles as $index => $profile) {
             $normalizedHandle = mb_strtolower(
                 trim((string) $profile->handle)
             );
+
+            if ($onProgress !== null) {
+                $onProgress($totalProfiles, $index + 1, "Rating history: {$profile->handle}");
+            }
 
             if ($normalizedHandle === '') {
                 $result->incrementSkipped();

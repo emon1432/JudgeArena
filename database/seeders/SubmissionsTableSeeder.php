@@ -6,7 +6,6 @@ use Illuminate\Database\Seeder;
 
 class SubmissionsTableSeeder extends Seeder
 {
-
     /**
      * Auto generated seed file
      *
@@ -14,11 +13,8 @@ class SubmissionsTableSeeder extends Seeder
      */
     public function run()
     {
-        
 
         \DB::table('submissions')->delete();
-        
-        
-        
+
     }
 }

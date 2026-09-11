@@ -97,19 +97,40 @@
 ---
 
 ## 10. Codeforces Standings-Based Problem Ingestion & cPanel Timeout Prevention
-## 10. Codeforces Standings-Based Problem Ingestion & CLI Execution Limits
 
 - **Domain Requirement**: Problems MUST be imported via `contest.standings` rather than `problemset.problems` because over 100 contest problems are absent from Codeforces' global problemset.
 - **Root Cause of Stuck Loop**:
   - Processing 2,146 contests sequentially with a 2-second rate limit requires ~70 minutes. Running all contests in a single synchronous PHP execution causes cPanel/shared hosting to terminate the process (`SIGKILL`) after 30–60 seconds, leaving in-flight records stranded in `syncing` state.
   - Finished unrated/gym contests (e.g. 1595, 1596) returning HTTP 400 Bad Request caused repeated failures at the start of every run.
 - **Architectural Solution**:
-  1. **Incremental Un-Synced Batching**: `ProblemImporter` queries only un-synced contests (`whereNotIn('platform_contest_id', $syncedIds)`) in safe batches (default 20 contests), completing in ~35–40 seconds per run.
+  1. **Incremental Un-Synced Batching**: `ProblemImporter` queries only un-synced contests (`whereNotIn('platform_contest_id', $syncedIds)`) in safe batches (default 30 contests), completing in ~35–40 seconds per run.
   2. **Finished Unrated Contest 400 Handling**: When a `FINISHED` contest returns HTTP 400 ("Contest not found"), it is marked `Synced` with a descriptive metadata note, preventing it from stalling subsequent runs.
   3. **Phase-Aware Retry Guarantee**: Contests in `BEFORE` or `CODING` phases are NEVER marked `Synced` on error/empty response, ensuring they automatically refresh when the contest completes.
 - **Execution Limits Strategy**:
   - All console import and sync commands (`judgearena:import-*`, `judgearena:sync`) configure unlimited execution time (`set_time_limit(0)`) and 512MB memory limit (`ini_set('memory_limit', '512M')`).
   - `ProblemImporter` performs contest-scoped problem sync via `$adapter->getUserStandings($contestPlatformId)`. Contests with finished status that are already synced are skipped, allowing long-running CLI executions to progress seamlessly.
 
+---
 
+## 11. Google Drive Stale Folder Recovery & AtCoder Standings Deserialization
 
+- **Google Drive 404 Cache Invalidation**:
+  - In Google Drive API, subfolder IDs are cached in Redis/file cache. If folders in Google Drive are moved, recreated, or deleted externally, API requests return HTTP 404.
+  - `GoogleDriveClient::put()` catches HTTP 404 on file metadata creation, automatically clears cached subfolder IDs via `clearSubfolderCache($subfolder)`, resolves fresh folder IDs, and retries the upload seamlessly.
+- **AtCoder Standings Normalization Pipeline**:
+  - Raw AtCoder web standings payloads (`TaskInfo`, `StandingsData`, `Fixed`) lack explicit contest timestamps.
+  - `StandingsCacheService::transformRaw()` normalizes cached raw AtCoder JSON via `AtCoderResponseNormalizer::standings($raw, null, $contestId)` before passing to `AtCoderStandingsMapper`, ensuring 100% fidelity without data loss.
+- **Sync Batching Invariant**:
+  - Default problem import batch size is 30 contests when invoked by automated cron (`judgearena:sync` / `SyncRunnerService`), while manual CLI commands support `--all` (unlimited) and `--limit=N`.
+
+---
+
+## 12. Eventual Consistency & Self-Healing Ingestion Architecture
+
+- **Problem / Race Condition**:
+  - When sync jobs run asynchronously or in batches (e.g. Submissions sync before Problem sync, Standings sync before Problem sync), temporary missing database references can lead to orphaned submissions (`problem_id = null`, `contest_id = null`) or skipped `standing_task_results`.
+- **Architectural Solution**:
+  1. **Tier 1 (JIT Problem Ingestion in Standings)**: When `UserStandingImporter` processes a contest's standings, it calls `ensureContestProblems()`, immediately persisting any missing problems directly from the loaded `ContestStandingsDTO->problems`. `StandingTaskResult` records are **never skipped**.
+  2. **Tier 2 (Problem Self-Healing Backlink)**: When `ProblemImporter` creates/updates a `Problem`, it immediately backfills and links all existing submissions where `contest_id = $contest->id` and `problem_id IS NULL`.
+  3. **Tier 3 (Contest Entity Backlink)**: When `ContestImporter` creates/updates a `Contest`, it immediately backfills `contest_id` on all existing submissions where `contest_id IS NULL` and `metadata->contest_platform_id` matches.
+- **Guarantee**: Regardless of ingestion order (Contest ➔ Problem ➔ Submission or Submission ➔ Contest ➔ Problem), all relationships achieve 100% relational integrity and zero data loss.

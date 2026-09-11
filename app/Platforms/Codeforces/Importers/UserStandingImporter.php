@@ -21,6 +21,7 @@ use App\Models\Submission;
 use App\Platforms\Codeforces\CodeforcesAdapter;
 use App\Services\ApplicationLogger;
 use App\Services\PlatformSyncStateService;
+use Illuminate\Support\Str;
 use RuntimeException;
 use Throwable;
 
@@ -39,7 +40,7 @@ class UserStandingImporter implements UserStandingImporterContract
         private readonly CodeforcesAdapter $adapter,
     ) {}
 
-    public function import(?string $handle = null): ImportResult
+    public function import(?string $handle = null, ?callable $onProgress = null): ImportResult
     {
         $platformSlug = 'codeforces';
         $result = new ImportResult;
@@ -66,12 +67,21 @@ class UserStandingImporter implements UserStandingImporterContract
         }
 
         $profiles = $query->get();
-        $result->incrementChecked($profiles->count());
+        $totalProfiles = $profiles->count();
+        $result->incrementChecked($totalProfiles);
+
+        if ($onProgress !== null) {
+            $onProgress($totalProfiles, 0, 'Starting Codeforces standings sync...');
+        }
 
         $platformProfilesByHandle = $this->platformProfilesByHandle((int) $platform->id);
 
-        foreach ($profiles as $profile) {
+        foreach ($profiles as $index => $profile) {
             $normalizedHandle = mb_strtolower(trim((string) $profile->handle));
+
+            if ($onProgress !== null) {
+                $onProgress($totalProfiles, $index + 1, "Standings: {$profile->handle}");
+            }
 
             if ($normalizedHandle === '') {
                 $result->incrementSkipped();
@@ -220,7 +230,7 @@ class UserStandingImporter implements UserStandingImporterContract
             }
 
             $result->incrementFetched(count($standings->rows));
-            $contestProblemsByPlatformProblemId = $this->contestProblemsByPlatformProblemId((int) $contest->id);
+            $contestProblemsByPlatformProblemId = $this->ensureContestProblems($contest, $standings);
 
             foreach ($standings->rows as $participant) {
                 if (! $participant instanceof ParticipantDTO) {
@@ -402,6 +412,71 @@ class UserStandingImporter implements UserStandingImporterContract
         }
 
         return $indexedProblems;
+    }
+
+    private function ensureContestProblems(Contest $contest, ContestStandingsDTO $standings): array
+    {
+        $existing = $this->contestProblemsByPlatformProblemId((int) $contest->id);
+
+        foreach ($standings->problems as $problemDto) {
+            $problemPlatformId = (string) ($problemDto->platformProblemId ?? '');
+            if ($problemPlatformId === '') {
+                continue;
+            }
+
+            if (! isset($existing[$problemPlatformId])) {
+                $problem = $this->problemModel->newQuery()->updateOrCreate(
+                    [
+                        'platform_id' => $contest->platform_id,
+                        'platform_problem_id' => $problemPlatformId,
+                    ],
+                    [
+                        'contest_id' => $contest->id,
+                        'slug' => Str::slug(($problemDto->title ?? 'problem').'-'.$problemPlatformId),
+                        'name' => $problemDto->title ?? '',
+                        'code' => $problemDto->code ?? null,
+                        'points' => $problemDto->points ?? null,
+                        'rating' => $problemDto->rating ?? null,
+                        'time_limit_ms' => $problemDto->timeLimit ?? null,
+                        'memory_limit_mb' => $problemDto->memoryLimit ?? null,
+                        'solved_count' => $problemDto->solvedCount ?? 0,
+                        'tags' => $problemDto->tags ?? [],
+                        'url' => $problemDto->url ?? null,
+                        'last_synced_at' => now(),
+                        'metadata' => [
+                            'source' => 'standings-jit-sync',
+                            'platform' => 'codeforces',
+                            'contest_platform_id' => $contest->platform_contest_id,
+                        ],
+                        'raw' => $problemDto->raw ?? [],
+                        'status' => 'Active',
+                    ]
+                );
+
+                // Self-healing backlink: link any submissions that had problem_id = null
+                $this->submissionModel->newQuery()
+                    ->where('platform_id', $contest->platform_id)
+                    ->whereNull('problem_id')
+                    ->where(function ($q) use ($contest) {
+                        $q->where('contest_id', $contest->id)
+                            ->orWhere('metadata->contest_platform_id', $contest->platform_contest_id);
+                    })
+                    ->where(function ($q) use ($problemPlatformId, $problemDto) {
+                        $q->where('metadata->problem_platform_id', $problemPlatformId);
+                        if (! empty($problemDto->code)) {
+                            $q->orWhere('metadata->problem_platform_id', $problemDto->code);
+                        }
+                    })
+                    ->update([
+                        'contest_id' => $contest->id,
+                        'problem_id' => $problem->id,
+                    ]);
+
+                $existing[$problemPlatformId] = $problem;
+            }
+        }
+
+        return $existing;
     }
 
     private function participantIdentity(ParticipantDTO $participant): array

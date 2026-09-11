@@ -9,6 +9,7 @@ use App\Core\Results\ImportResult;
 use App\Enums\PlatformSyncEntityType;
 use App\Models\Contest;
 use App\Models\Platform;
+use App\Models\Submission;
 use App\Platforms\AtCoder\AtCoderAdapter;
 use App\Services\ApplicationLogger;
 use App\Services\PlatformSyncStateService;
@@ -22,9 +23,10 @@ class ContestImporter implements ContestImporterContract
         private readonly Platform $platformModel,
         private readonly AtCoderAdapter $adapter,
         private readonly PlatformSyncStateService $platformSyncStateService,
+        private readonly Submission $submissionModel,
     ) {}
 
-    public function import(): ImportResult
+    public function import(?callable $onProgress = null): ImportResult
     {
         $result = new ImportResult;
 
@@ -52,11 +54,21 @@ class ContestImporter implements ContestImporterContract
             $contests = [];
         }
 
-        $result->incrementFetched(count($contests));
-        $result->incrementChecked(count($contests));
+        $totalContests = count($contests);
+        $result->incrementFetched($totalContests);
+        $result->incrementChecked($totalContests);
 
-        foreach ($contests as $contestDto) {
+        if ($onProgress !== null) {
+            $onProgress($totalContests, 0, 'Starting AtCoder contests import...');
+        }
+
+        foreach ($contests as $index => $contestDto) {
             $contestPlatformId = (string) ($contestDto->platformContestId ?? '');
+            $contestTitle = (string) ($contestDto->title ?? "Contest #{$contestPlatformId}");
+
+            if ($onProgress !== null) {
+                $onProgress($totalContests, $index + 1, Str::limit($contestTitle, 45));
+            }
 
             $existingContest = $this->contestModel->newQuery()
                 ->where('platform_id', $platform->id)
@@ -130,6 +142,15 @@ class ContestImporter implements ContestImporterContract
                         'raw' => $contestDto->raw,
                     ],
                 );
+
+                // Self-healing backlink: link any submissions with contest_id = null
+                $this->submissionModel->newQuery()
+                    ->where('platform_id', $platform->id)
+                    ->whereNull('contest_id')
+                    ->where('metadata->contest_platform_id', $contestPlatformId)
+                    ->update([
+                        'contest_id' => $contest->id,
+                    ]);
 
                 if ($contestDto->phase === 'FINISHED' || $contestDto->type === 'permanent') {
                     $this->platformSyncStateService->markSynced($syncState, [

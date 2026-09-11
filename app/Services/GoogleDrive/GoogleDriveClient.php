@@ -210,6 +210,27 @@ class GoogleDriveClient
         return $this->ensurePath($segments, $this->folderId);
     }
 
+    public function clearSubfolderCache(array|string $subfolder): void
+    {
+        $segments = is_array($subfolder) ? $subfolder : explode('/', trim($subfolder, '/'));
+        $currentFolderId = $this->folderId;
+
+        foreach ($segments as $segment) {
+            $segment = trim((string) $segment);
+            if ($segment === '') {
+                continue;
+            }
+
+            $cacheKey = 'gdrive:subfolder:'.md5($currentFolderId.':'.$segment);
+            $nextFolderId = Cache::get($cacheKey);
+            Cache::forget($cacheKey);
+
+            if (is_string($nextFolderId) && $nextFolderId !== '') {
+                $currentFolderId = $nextFolderId;
+            }
+        }
+    }
+
     public function exists(string $filename, array|string|null $subfolder = null): bool
     {
         return $this->findFileId($filename, $subfolder) !== null;
@@ -337,6 +358,26 @@ class GoogleDriveClient
                 ->post(self::API_BASE_URL.'/files?supportsAllDrives=true', $metadata);
 
             if (! $metaResponse->successful()) {
+                if ($metaResponse->status() === 404 && $subfolder !== null) {
+                    $this->clearSubfolderCache($subfolder);
+                    $newTargetFolderId = $this->resolveTargetFolder($subfolder);
+                    if ($newTargetFolderId !== null && $newTargetFolderId !== $targetFolderId) {
+                        $metadata['parents'] = $newTargetFolderId !== '' ? [$newTargetFolderId] : [];
+                        $retryMeta = $this->http($token)->asJson()->post(self::API_BASE_URL.'/files?supportsAllDrives=true', $metadata);
+                        if ($retryMeta->successful()) {
+                            $retryFileId = (string) ($retryMeta->json('id') ?? '');
+                            if ($retryFileId !== '') {
+                                $uploadResponse = $this->http($token)
+                                    ->withHeaders(['Content-Type' => $mimeType])
+                                    ->withBody($content, $mimeType)
+                                    ->patch(self::UPLOAD_BASE_URL."/files/{$retryFileId}?uploadType=media&supportsAllDrives=true");
+
+                                return $uploadResponse->successful();
+                            }
+                        }
+                    }
+                }
+
                 app(ApplicationLogger::class)->warning('Google Drive file creation failed', [
                     'category' => 'storage',
                     'filename' => $filename,

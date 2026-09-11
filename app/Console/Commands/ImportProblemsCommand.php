@@ -11,9 +11,9 @@ use Throwable;
 
 class ImportProblemsCommand extends Command
 {
-    protected $signature = 'judgearena:import-problems {platform}';
+    protected $signature = 'judgearena:import-problems {platform} {--limit=30 : Maximum number of un-synced contests to process in this batch} {--all : Process all un-synced contests without limit}';
 
-    protected $description = 'Import problems from a supported platform.';
+    protected $description = 'Import problems from a supported platform in state-driven batches.';
 
     public function __construct(
         private readonly PlatformRegistry $platformRegistry,
@@ -29,6 +29,8 @@ class ImportProblemsCommand extends Command
         @ini_set('memory_limit', '512M');
 
         $platformSlug = strtolower(trim((string) $this->argument('platform')));
+        $all = (bool) $this->option('all');
+        $limit = $all ? -1 : (int) ($this->option('limit') ?: 30);
 
         $adapter = $this->platformRegistry->resolve($platformSlug);
 
@@ -58,23 +60,66 @@ class ImportProblemsCommand extends Command
                 'category' => 'import',
                 'platform' => $platformSlug,
                 'source' => self::class,
+                'limit' => $limit,
+                'all' => $all,
             ]
         );
-        $this->info('Starting problem import for platform: '.$platformSlug);
+
+        $this->info('┌─────────────────────────────────────────────────────────────┐');
+        $this->info('│  JudgeArena » Problem Importer                              │');
+        $this->info('│  Platform: '.str_pad(ucfirst($platformSlug), 49).'│');
+        $this->info('│  Mode:     '.str_pad($all ? 'All Un-synced Contests' : "Batch ({$limit} contests max)", 49).'│');
+        $this->info('└─────────────────────────────────────────────────────────────┘');
+        $this->newLine();
+
+        $startTime = microtime(true);
+        $progressBar = null;
 
         try {
             $result = $adapter
                 ->problemImporter()
-                ->import();
+                ->import(
+                    $limit,
+                    onProgress: function (int $total, int $current, string $message) use (&$progressBar) {
+                        if ($total <= 0) {
+                            return;
+                        }
+                        if ($progressBar === null) {
+                            $progressBar = $this->output->createProgressBar($total);
+                            $progressBar->setFormat(' %current%/%max% [%bar%] %percent:3s%%  ⏱ %elapsed:6s%  | %message%');
+                            $progressBar->setBarCharacter('<fg=green>━</>');
+                            $progressBar->setEmptyBarCharacter('<fg=gray>━</>');
+                            $progressBar->setProgressCharacter('<fg=green>❯</>');
+                            $progressBar->setMessage($message);
+                            $progressBar->start();
+                        } else {
+                            $progressBar->setMessage($message);
+                            $progressBar->setProgress($current);
+                        }
+                    }
+                );
 
-            $this->line('Platform: '.$platformSlug);
-            $this->line('Checked: '.($result->checked ?? 0));
-            $this->line('Fetched: '.($result->fetched ?? 0));
-            $this->line('Created: '.($result->created ?? 0));
-            $this->line('Updated: '.($result->updated ?? 0));
-            $this->line('Skipped: '.($result->skipped ?? 0));
-            $this->line('Failed: '.($result->failed ?? 0));
-            $this->line('Synced: '.$result->synced());
+            if ($progressBar !== null) {
+                $progressBar->finish();
+                $this->newLine(2);
+            }
+
+            $duration = round(microtime(true) - $startTime, 2);
+
+            $this->table(
+                ['Metric', 'Value'],
+                [
+                    ['Platform', ucfirst($platformSlug)],
+                    ['Contests Checked', number_format($result->checked)],
+                    ['Problems Fetched', number_format($result->fetched)],
+                    ['Created', '<fg=green>'.number_format($result->created).'</>'],
+                    ['Updated', '<fg=blue>'.number_format($result->updated).'</>'],
+                    ['Skipped', '<fg=yellow>'.number_format($result->skipped).'</>'],
+                    ['Failed', ($result->failed > 0 ? '<fg=red>' : '<fg=green>').number_format($result->failed).'</>'],
+                    ['Status', $result->failed === 0 ? '<fg=green;options=bold>COMPLETED</>' : '<fg=yellow;options=bold>COMPLETED WITH ERRORS</>'],
+                    ['Elapsed Time', sprintf('%.2f seconds', $duration)],
+                ]
+            );
 
             $this->info('Problem import completed successfully.');
 

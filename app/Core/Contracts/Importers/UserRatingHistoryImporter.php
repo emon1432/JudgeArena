@@ -6,5 +6,5 @@ use App\Core\Results\ImportResult;
 
 interface UserRatingHistoryImporter
 {
-    public function import(?string $handle = null): ImportResult;
+    public function import(?string $handle = null, ?callable $onProgress = null): ImportResult;
 }
