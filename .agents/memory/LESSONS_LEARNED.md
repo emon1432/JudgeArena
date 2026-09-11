@@ -97,6 +97,7 @@
 ---
 
 ## 10. Codeforces Standings-Based Problem Ingestion & cPanel Timeout Prevention
+## 10. Codeforces Standings-Based Problem Ingestion & CLI Execution Limits
 
 - **Domain Requirement**: Problems MUST be imported via `contest.standings` rather than `problemset.problems` because over 100 contest problems are absent from Codeforces' global problemset.
 - **Root Cause of Stuck Loop**:
@@ -106,5 +107,9 @@
   1. **Incremental Un-Synced Batching**: `ProblemImporter` queries only un-synced contests (`whereNotIn('platform_contest_id', $syncedIds)`) in safe batches (default 20 contests), completing in ~35–40 seconds per run.
   2. **Finished Unrated Contest 400 Handling**: When a `FINISHED` contest returns HTTP 400 ("Contest not found"), it is marked `Synced` with a descriptive metadata note, preventing it from stalling subsequent runs.
   3. **Phase-Aware Retry Guarantee**: Contests in `BEFORE` or `CODING` phases are NEVER marked `Synced` on error/empty response, ensuring they automatically refresh when the contest completes.
+- **Execution Limits Strategy**:
+  - All console import and sync commands (`judgearena:import-*`, `judgearena:sync`) configure unlimited execution time (`set_time_limit(0)`) and 512MB memory limit (`ini_set('memory_limit', '512M')`).
+  - `ProblemImporter` performs contest-scoped problem sync via `$adapter->getUserStandings($contestPlatformId)`. Contests with finished status that are already synced are skipped, allowing long-running CLI executions to progress seamlessly.
+
 
 

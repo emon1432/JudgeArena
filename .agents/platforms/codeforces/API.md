@@ -110,12 +110,16 @@ Codeforces verdicts MUST be mapped to `App\Enums\Verdict` as follows:
 
 ### B. Problem Importer (`ProblemImporter.php`)
 - **CLI Command**: `php artisan judgearena:import-problems codeforces {--contest=} {--limit=} {--all}`
+- **CLI Command**: `php artisan judgearena:import-problems codeforces`
 - **Domain Invariant**: All problems MUST be collected via `contest.standings` rather than `problemset.problems` because > 100 contest problems are missing from Codeforces' global problemset.
 - **Incremental Batch Sync Rule**:
   - Automatically queries only un-synced contests (`whereNotIn('platform_contest_id', $syncedIds)`).
   - Processes a safe batch (default 20 contests per run) to prevent cPanel PHP `max_execution_time` timeouts.
   - Finished unrated/gym contests returning 400 Bad Request ("contestId not found") are safely marked `Synced` with metadata note `['has_public_standings' => false]`, preventing infinite retry stalls.
   - Contests in `BEFORE` or `CODING` phase are NEVER permanently marked `Synced` on error or empty response, ensuring they are automatically refreshed upon contest completion.
+- **Strategy**: Contest-Scoped Problem Sync via `$adapter->getUserStandings($contestPlatformId)` with unlimited CLI execution time (`set_time_limit(0)`).
+- **Dual Benefit**: Fetches both contest problem set and updates `$contest->participant_count = count($standings->rows)`.
+- **Incremental Sync Rule**: Skips finished contests whose problems are already marked `Synced`.
 
 ### C. User Importer (`UserImporter.php`)
 - **CLI Command**: `php artisan judgearena:import-user codeforces {handle?}`

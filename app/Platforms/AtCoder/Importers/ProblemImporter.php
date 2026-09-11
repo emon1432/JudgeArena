@@ -26,7 +26,7 @@ class ProblemImporter implements ProblemImporterContract
         private readonly PlatformSyncStateService $platformSyncStateService,
     ) {}
 
-    public function import(?string $contestPlatformId = null, ?int $limit = null): ImportResult
+    public function import(): ImportResult
     {
         $result = new ImportResult;
 
@@ -48,20 +48,11 @@ class ProblemImporter implements ProblemImporterContract
             return $result;
         }
 
-        $query = $this->contestModel->newQuery()
+        $contests = $this->contestModel->newQuery()
             ->where('platform_id', $platform->id)
             ->whereNotNull('platform_contest_id')
-            ->with('platform');
-
-        if ($contestPlatformId !== null && trim($contestPlatformId) !== '') {
-            $query->where('platform_contest_id', trim($contestPlatformId));
-        }
-
-        if ($limit !== null && $limit > 0) {
-            $query->limit($limit);
-        }
-
-        $contests = $query->get();
+            ->with('platform')
+            ->get();
 
         $result->incrementChecked($contests->count());
 

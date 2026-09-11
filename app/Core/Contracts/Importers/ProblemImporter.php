@@ -6,5 +6,5 @@ use App\Core\Results\ImportResult;
 
 interface ProblemImporter
 {
-    public function import(?string $contestPlatformId = null, ?int $limit = null): ImportResult;
+    public function import(): ImportResult;
 }
