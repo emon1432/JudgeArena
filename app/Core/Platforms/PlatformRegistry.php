@@ -30,6 +30,11 @@ class PlatformRegistry
         return app($adapterClass);
     }
 
+    public function get(string $slug): ?PlatformAdapter
+    {
+        return $this->resolve($slug);
+    }
+
     public function supportedPlatforms(): array
     {
         return array_keys(config('platforms', []));

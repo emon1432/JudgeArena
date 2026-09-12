@@ -10,20 +10,22 @@
                 <table class="common-datatable table d-table" data-url="{{ route('admin.all-contests.index') }}"
                     data-columns='[
                 { "data": "name" },
-                { "data": "platformName" },
-                { "data": "phase" },
-                { "data": "startAt" },
-                { "data": "status" },
-                { "data": "actions" }
+                { "data": "platformName", "className": "text-center" },
+                { "data": "phase", "className": "text-center" },
+                { "data": "startAt", "className": "text-center" },
+                { "data": "standingsCache", "orderable": false, "className": "text-center" },
+                { "data": "status", "className": "text-center" },
+                { "data": "actions", "orderable": false, "className": "text-center" }
                 ]'>
                     <thead class="border-top">
                         <tr>
                             <th>{{ __('Name') }}</th>
-                            <th>{{ __('Platform') }}</th>
-                            <th>{{ __('Phase') }}</th>
-                            <th>{{ __('Start At') }}</th>
-                            <th>{{ __('Status') }}</th>
-                            <th>{{ __('Actions') }}</th>
+                            <th class="text-center">{{ __('Platform') }}</th>
+                            <th class="text-center">{{ __('Phase') }}</th>
+                            <th class="text-center">{{ __('Start At') }}</th>
+                            <th class="text-center">{{ __('Standings') }}</th>
+                            <th class="text-center">{{ __('Status') }}</th>
+                            <th class="text-center">{{ __('Actions') }}</th>
                         </tr>
                     </thead>
                 </table>
@@ -31,3 +33,6 @@
         </div>
     </div>
 @endsection
+@push('scripts')
+    @include('admin.pages.contests.scripts')
+@endpush

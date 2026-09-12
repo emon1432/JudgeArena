@@ -134,3 +134,14 @@
   2. **Tier 2 (Problem Self-Healing Backlink)**: When `ProblemImporter` creates/updates a `Problem`, it immediately backfills and links all existing submissions where `contest_id = $contest->id` and `problem_id IS NULL`.
   3. **Tier 3 (Contest Entity Backlink)**: When `ContestImporter` creates/updates a `Contest`, it immediately backfills `contest_id` on all existing submissions where `contest_id IS NULL` and `metadata->contest_platform_id` matches.
 - **Guarantee**: Regardless of ingestion order (Contest ➔ Problem ➔ Submission or Submission ➔ Contest ➔ Problem), all relationships achieve 100% relational integrity and zero data loss.
+
+---
+
+## 13. High-Speed Google Drive Cache-Aside & Admin Panel Standings Management
+
+- **Datatable Latency Challenge**:
+  - In `/admin/all-contests`, rendering 25–100 rows while executing real-time Google Drive API `files->listFiles()` searches for each contest causes severe latency (several seconds per page) and risks hitting Google API rate limits.
+- **Solution**:
+  1. **Google Drive File Cache**: `GoogleDriveClient::findFileId()` caches file search results in Laravel application cache (`gdrive:file:{subfolder}:{filename}`) for 1 hour, with a 5-minute negative cache for absent files. Caches are automatically invalidated upon `put()` and `delete()`.
+  2. **Admin Panel Standings Status**: The admin contest datatable displays a real-time `Uploaded` badge or `Upload` button per row.
+  3. **Single-Click Real-Time AJAX Sync**: Clicking `Upload` fires a POST to `admin.all-contests.sync-standings`, fetches from the platform API via the platform adapter, streams the gzipped payload directly to Google Drive, and updates the datatable dynamically without full page reloads.

@@ -238,6 +238,14 @@ class GoogleDriveClient
 
     public function findFileId(string $filename, array|string|null $subfolder = null): ?string
     {
+        $subfolderKey = is_array($subfolder) ? implode('/', $subfolder) : (string) ($subfolder ?? '');
+        $fileCacheKey = 'gdrive:file:'.md5($subfolderKey.':'.$filename);
+
+        $cachedFileId = Cache::get($fileCacheKey);
+        if ($cachedFileId !== null) {
+            return $cachedFileId !== '' ? (string) $cachedFileId : null;
+        }
+
         $token = $this->getAccessToken();
         if ($token === null) {
             return null;
@@ -265,8 +273,15 @@ class GoogleDriveClient
             if ($response->successful()) {
                 $files = $response->json('files');
                 if (is_array($files) && count($files) > 0) {
-                    return (string) ($files[0]['id'] ?? '');
+                    $fileId = (string) ($files[0]['id'] ?? '');
+                    if ($fileId !== '') {
+                        Cache::put($fileCacheKey, $fileId, 3600);
+
+                        return $fileId;
+                    }
                 }
+
+                Cache::put($fileCacheKey, '', 300);
             }
         } catch (Throwable $e) {
             app(ApplicationLogger::class)->warning('Google Drive search failed', [
@@ -399,7 +414,14 @@ class GoogleDriveClient
                 ->withBody($content, $mimeType)
                 ->patch(self::UPLOAD_BASE_URL."/files/{$newFileId}?uploadType=media&supportsAllDrives=true");
 
-            return $uploadResponse->successful();
+            if ($uploadResponse->successful()) {
+                $subfolderKey = is_array($subfolder) ? implode('/', $subfolder) : (string) ($subfolder ?? '');
+                Cache::put('gdrive:file:'.md5($subfolderKey.':'.$filename), $newFileId, 3600);
+
+                return true;
+            }
+
+            return false;
         } catch (Throwable $e) {
             app(ApplicationLogger::class)->warning('Google Drive upload exception', [
                 'category' => 'storage',
@@ -426,7 +448,14 @@ class GoogleDriveClient
         try {
             $response = $this->http($token)->delete(self::API_BASE_URL."/files/{$fileId}?supportsAllDrives=true");
 
-            return $response->successful();
+            if ($response->successful()) {
+                $subfolderKey = is_array($subfolder) ? implode('/', $subfolder) : (string) ($subfolder ?? '');
+                Cache::forget('gdrive:file:'.md5($subfolderKey.':'.$filename));
+
+                return true;
+            }
+
+            return false;
         } catch (Throwable $e) {
             app(ApplicationLogger::class)->warning('Google Drive delete exception', [
                 'category' => 'storage',

@@ -10,6 +10,7 @@ use App\Core\DTOs\ParticipantDTO;
 use App\Core\DTOs\ProblemDTO;
 use App\Core\DTOs\ProblemResultDTO;
 use App\Models\Contest;
+use App\Models\ContestRatingChange;
 use App\Models\Platform;
 use App\Models\PlatformProfile;
 use App\Models\Problem;
@@ -20,7 +21,6 @@ use App\Models\User;
 use App\Platforms\AtCoder\AtCoderAdapter;
 use App\Platforms\AtCoder\Importers\ContestImporter as AtCoderContestImporter;
 use App\Platforms\AtCoder\Importers\ProblemImporter as AtCoderProblemImporter;
-use App\Platforms\AtCoder\Importers\UserStandingImporter as AtCoderUserStandingImporter;
 use App\Platforms\Codeforces\CodeforcesAdapter;
 use App\Platforms\Codeforces\Importers\ContestImporter as CodeforcesContestImporter;
 use App\Platforms\Codeforces\Importers\ProblemImporter as CodeforcesProblemImporter;
@@ -310,7 +310,7 @@ class EventualConsistencyTest extends TestCase
         $this->app->instance(CodeforcesAdapter::class, $cfAdapter);
 
         // Register rating change so standings importer discovers contest 2000 for tourist
-        \App\Models\ContestRatingChange::create([
+        ContestRatingChange::create([
             'platform_id' => $this->cfPlatform->id,
             'contest_id' => $contest->id,
             'handle' => 'tourist',

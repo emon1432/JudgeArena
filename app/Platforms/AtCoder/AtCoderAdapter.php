@@ -103,7 +103,7 @@ class AtCoderAdapter implements PlatformAdapter
             ->fromApiStandings($this->contests->standings($id));
 
         $phase = strtoupper((string) ($standings->contest->phase ?? ''));
-        if ($phase === 'FINISHED' || $phase === '') {
+        if ($phase !== 'BEFORE') {
             $this->standingsCacheService->put('atcoder', $id, $standings);
         }
 
