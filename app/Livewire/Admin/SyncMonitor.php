@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace App\Livewire\Admin;
 
 use App\Enums\PlatformSyncEntityType;
+use App\Enums\PlatformSyncJobEntity;
 use App\Enums\PlatformSyncStatus;
+use App\Models\PlatformSyncJob;
 use App\Models\PlatformSyncState;
 use App\Services\ApplicationLogger;
 use App\Services\PlatformSyncStateService;
+use Carbon\CarbonInterface;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
@@ -32,6 +35,9 @@ class SyncMonitor extends Component
     #[Url(as: 'status')]
     public string $status = '';
 
+    #[Url(as: 'tab')]
+    public string $activeTab = 'overview';
+
     public bool $autoRefresh = true;
 
     public int $refreshInterval = 3;
@@ -39,6 +45,13 @@ class SyncMonitor extends Component
     public ?string $feedbackMessage = null;
 
     public ?string $feedbackType = null;
+
+    public function switchTab(string $tab): void
+    {
+        if (in_array($tab, ['overview', 'failures', 'activity'], true)) {
+            $this->activeTab = $tab;
+        }
+    }
 
     public function updatedPlatform(): void
     {
@@ -129,6 +142,41 @@ class SyncMonitor extends Component
         }
     }
 
+    public function retryAllFailures(): void
+    {
+        $failedStates = $this->filteredQuery([
+            'platform' => $this->platform,
+            'entity_type' => $this->entity_type,
+            'status' => PlatformSyncStatus::Failed->value,
+        ])->get();
+
+        $count = 0;
+        $syncService = app(PlatformSyncStateService::class);
+
+        foreach ($failedStates as $state) {
+            $syncService->resetForRetry($state, [
+                'retry_reset_by' => auth()->id(),
+                'retry_reset_source' => self::class.'@retryAllFailures',
+            ]);
+            $count++;
+        }
+
+        app(ApplicationLogger::class)->info('Admin reset all failed sync states via Livewire', [
+            'category' => 'admin',
+            'source' => self::class,
+            'reset_count' => $count,
+            'user_id' => auth()->id(),
+        ]);
+
+        if ($count > 0) {
+            $this->feedbackMessage = __(':count failed sync state(s) have been reset to Pending for retry.', ['count' => $count]);
+            $this->feedbackType = 'success';
+        } else {
+            $this->feedbackMessage = __('No failed sync states found to reset.');
+            $this->feedbackType = 'info';
+        }
+    }
+
     public function render(): View
     {
         $filters = [
@@ -144,6 +192,7 @@ class SyncMonitor extends Component
         $filterOptions = $this->filterOptions();
         $entityLabels = $this->entityLabels();
         $isSyncing = ($summary[PlatformSyncStatus::Syncing->value] ?? 0) > 0;
+        $lastRefreshedAt = now()->format('h:i:s A');
 
         return view('livewire.admin.sync-monitor', compact(
             'summary',
@@ -153,13 +202,14 @@ class SyncMonitor extends Component
             'filterOptions',
             'entityLabels',
             'filters',
-            'isSyncing'
+            'isSyncing',
+            'lastRefreshedAt'
         ));
     }
 
     /**
      * @param  array<string, string>  $filters
-     * @return array<string, int>
+     * @return array<string, mixed>
      */
     private function summary(array $filters): array
     {
@@ -170,12 +220,41 @@ class SyncMonitor extends Component
             ->groupBy('sync_status')
             ->pluck('aggregate', 'sync_status');
 
+        $total = (clone $query)->count();
+        $synced = (int) ($statusCounts[PlatformSyncStatus::Synced->value] ?? 0);
+        $pending = (int) ($statusCounts[PlatformSyncStatus::Pending->value] ?? 0);
+        $syncing = (int) ($statusCounts[PlatformSyncStatus::Syncing->value] ?? 0);
+        $failed = (int) ($statusCounts[PlatformSyncStatus::Failed->value] ?? 0);
+
+        $healthScore = $total > 0 ? round(($synced / $total) * 100, 1) : 100.0;
+
+        $healthLabel = match (true) {
+            $healthScore >= 95.0 => 'Optimal',
+            $healthScore >= 80.0 => 'Healthy',
+            $healthScore >= 50.0 => 'Degraded',
+            default => 'Critical',
+        };
+
+        $healthClass = match (true) {
+            $healthScore >= 95.0 => 'success',
+            $healthScore >= 80.0 => 'info',
+            $healthScore >= 50.0 => 'warning',
+            default => 'danger',
+        };
+
         return [
-            'total' => (clone $query)->count(),
-            PlatformSyncStatus::Pending->value => (int) ($statusCounts[PlatformSyncStatus::Pending->value] ?? 0),
-            PlatformSyncStatus::Syncing->value => (int) ($statusCounts[PlatformSyncStatus::Syncing->value] ?? 0),
-            PlatformSyncStatus::Synced->value => (int) ($statusCounts[PlatformSyncStatus::Synced->value] ?? 0),
-            PlatformSyncStatus::Failed->value => (int) ($statusCounts[PlatformSyncStatus::Failed->value] ?? 0),
+            'total' => $total,
+            PlatformSyncStatus::Pending->value => $pending,
+            PlatformSyncStatus::Syncing->value => $syncing,
+            PlatformSyncStatus::Synced->value => $synced,
+            PlatformSyncStatus::Failed->value => $failed,
+            'health_score' => $healthScore,
+            'health_label' => $healthLabel,
+            'health_class' => $healthClass,
+            'synced_pct' => $total > 0 ? round(($synced / $total) * 100, 1) : 0,
+            'pending_pct' => $total > 0 ? round(($pending / $total) * 100, 1) : 0,
+            'syncing_pct' => $total > 0 ? round(($syncing / $total) * 100, 1) : 0,
+            'failed_pct' => $total > 0 ? round(($failed / $total) * 100, 1) : 0,
         ];
     }
 
@@ -184,22 +263,42 @@ class SyncMonitor extends Component
      */
     private function platformBreakdown(array $filters)
     {
+        $syncJobs = PlatformSyncJob::query()
+            ->with('platform')
+            ->get()
+            ->keyBy(function (PlatformSyncJob $job) {
+                return ($job->platform?->slug ?? '').':'.$this->enumValue($job->entity);
+            });
+
         return $this->filteredQuery($filters)
             ->join('platforms', 'platform_sync_states.platform_id', '=', 'platforms.id')
             ->select(
+                'platforms.id as platform_id',
                 'platforms.name as platform_name',
                 'platforms.slug as platform_slug',
+                'platforms.base_url as platform_base_url',
                 'platform_sync_states.entity_type',
                 'platform_sync_states.sync_status',
                 DB::raw('COUNT(*) as aggregate')
             )
-            ->groupBy('platforms.id', 'platforms.name', 'platforms.slug', 'platform_sync_states.entity_type', 'platform_sync_states.sync_status')
+            ->groupBy(
+                'platforms.id',
+                'platforms.name',
+                'platforms.slug',
+                'platforms.base_url',
+                'platform_sync_states.entity_type',
+                'platform_sync_states.sync_status'
+            )
             ->orderBy('platforms.name')
             ->orderBy('platform_sync_states.entity_type')
             ->get()
             ->groupBy('platform_slug')
-            ->map(function ($rows) use ($filters) {
-                $entities = $rows->groupBy('entity_type')->map(function ($entityRows) {
+            ->map(function ($rows, $platformSlug) use ($filters, $syncJobs) {
+                $firstRow = $rows->first();
+
+                $entities = $rows->groupBy(function ($row) {
+                    return $this->enumValue($row->entity_type);
+                })->map(function ($entityRows, $entityType) use ($platformSlug, $syncJobs) {
                     $counts = [
                         'total' => 0,
                         PlatformSyncStatus::Pending->value => 0,
@@ -216,32 +315,121 @@ class SyncMonitor extends Component
                         $counts[$status->value] = $count;
                     }
 
+                    $tot = $counts['total'];
+                    $counts['synced_pct'] = $tot > 0 ? round(($counts[PlatformSyncStatus::Synced->value] / $tot) * 100, 1) : 0;
+                    $counts['syncing_pct'] = $tot > 0 ? round(($counts[PlatformSyncStatus::Syncing->value] / $tot) * 100, 1) : 0;
+                    $counts['pending_pct'] = $tot > 0 ? round(($counts[PlatformSyncStatus::Pending->value] / $tot) * 100, 1) : 0;
+                    $counts['failed_pct'] = $tot > 0 ? round(($counts[PlatformSyncStatus::Failed->value] / $tot) * 100, 1) : 0;
+
+                    $counts['job'] = $this->resolveJobInfo($syncJobs, (string) $platformSlug, (string) $entityType);
+
                     return $counts;
                 });
 
                 $entityTypes = $filters['entity_type'] !== ''
-                    ? [$filters['entity_type']]
+                    ? [$this->enumValue($filters['entity_type'])]
                     : array_unique(array_merge($this->expectedEntityTypes(), $entities->keys()->all()));
 
                 foreach ($entityTypes as $entityType) {
-                    if ($entities->has($entityType)) {
+                    $entityTypeKey = $this->enumValue($entityType);
+                    if ($entities->has($entityTypeKey)) {
                         continue;
                     }
 
-                    $entities[$entityType] = [
+                    $entities[$entityTypeKey] = [
                         'total' => 0,
                         PlatformSyncStatus::Pending->value => 0,
                         PlatformSyncStatus::Syncing->value => 0,
                         PlatformSyncStatus::Synced->value => 0,
                         PlatformSyncStatus::Failed->value => 0,
+                        'synced_pct' => 0,
+                        'syncing_pct' => 0,
+                        'pending_pct' => 0,
+                        'failed_pct' => 0,
+                        'job' => $this->resolveJobInfo($syncJobs, (string) $platformSlug, $entityTypeKey),
                     ];
                 }
 
+                $platformTotal = (int) $entities->sum('total');
+                $platformSynced = (int) $entities->sum(PlatformSyncStatus::Synced->value);
+                $platformFailed = (int) $entities->sum(PlatformSyncStatus::Failed->value);
+                $platformSyncing = (int) $entities->sum(PlatformSyncStatus::Syncing->value);
+                $platformPending = (int) $entities->sum(PlatformSyncStatus::Pending->value);
+                $platformHealth = $platformTotal > 0 ? round(($platformSynced / $platformTotal) * 100, 1) : 100.0;
+
                 return [
-                    'platform_name' => $rows->first()->platform_name,
+                    'platform_name' => $firstRow->platform_name,
+                    'platform_slug' => $firstRow->platform_slug,
+                    'platform_base_url' => $firstRow->platform_base_url,
+                    'total' => $platformTotal,
+                    'synced' => $platformSynced,
+                    'failed' => $platformFailed,
+                    'syncing' => $platformSyncing,
+                    'pending' => $platformPending,
+                    'health_score' => $platformHealth,
                     'entities' => $entities->sortKeys(),
                 ];
             });
+    }
+
+    private function resolveJobInfo(Collection $syncJobs, string $platformSlug, mixed $stateEntityType): ?array
+    {
+        $entityValue = $this->enumValue($stateEntityType);
+        $jobEntity = $this->mapStateEntityToJobEntity($entityValue);
+        $jobKey = $platformSlug.':'.$jobEntity;
+        $job = $syncJobs->get($jobKey);
+
+        if (! $job) {
+            return null;
+        }
+
+        $nextRunAt = $job->nextRunAt();
+        $isDue = $job->isDue();
+
+        return [
+            'id' => $job->id,
+            'enabled' => (bool) $job->enabled,
+            'interval_minutes' => (int) $job->interval_minutes,
+            'is_due' => $isDue,
+            'next_run_at' => $nextRunAt,
+            'next_run_timestamp' => $nextRunAt?->getTimestamp(),
+            'next_run_human' => $job->enabled
+                ? ($isDue ? 'Due now' : $this->formatRemainingTime($nextRunAt))
+                : 'Disabled',
+            'last_success_at' => $job->last_success_at,
+            'last_success_human' => $job->last_success_at ? $job->last_success_at->diffForHumans() : null,
+        ];
+    }
+
+    private function formatRemainingTime(?CarbonInterface $nextRunAt): string
+    {
+        if (! $nextRunAt) {
+            return 'Immediate';
+        }
+
+        $diffSeconds = (int) now()->diffInSeconds($nextRunAt, false);
+
+        if ($diffSeconds <= 0) {
+            return 'Due now';
+        }
+
+        $hours = intdiv($diffSeconds, 3600);
+        $minutes = intdiv($diffSeconds % 3600, 60);
+        $seconds = $diffSeconds % 60;
+
+        if ($hours > 0) {
+            return sprintf('%02dh %02dm %02ds', $hours, $minutes, $seconds);
+        }
+
+        return sprintf('%02dm %02ds', $minutes, $seconds);
+    }
+
+    private function mapStateEntityToJobEntity(string $stateEntityType): string
+    {
+        return match ($stateEntityType) {
+            PlatformSyncEntityType::ContestProblems->value => PlatformSyncJobEntity::Problem->value,
+            default => $stateEntityType,
+        };
     }
 
     /**
