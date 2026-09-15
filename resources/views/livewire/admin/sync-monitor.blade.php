@@ -248,24 +248,48 @@
         </div>
     @endif
 
+    {{-- Google Drive Disconnected Warning Banner --}}
+    @if(isset($driveHealth) && !($driveHealth['connected'] ?? true))
+        <div class="alert alert-danger d-flex align-items-center mb-4 shadow-sm" role="alert">
+            <i class="icon-base ti tabler-cloud-x icon-lg me-3 flex-shrink-0"></i>
+            <div class="d-flex flex-column">
+                <h6 class="alert-heading mb-1 fw-bold">{{ __('Google Drive Storage Disconnected / Token Expired') }}</h6>
+                <span class="small">{{ $driveHealth['message'] }} {{ __('Standings files cannot be uploaded or read from Drive until a valid Refresh Token is configured in .env.') }}</span>
+            </div>
+        </div>
+    @endif
+
     {{-- Hero Health & Metric Cards --}}
     <div class="row g-3 mb-4">
-        {{-- Health Score Card --}}
+        {{-- Google Drive / Storage Status Card --}}
         <div class="col-sm-6 col-lg-4 col-xl-2">
-            <div class="card h-100 shadow-sm border-0">
+            <div class="card h-100 shadow-sm border-0 {{ ($driveHealth['connected'] ?? true) ? '' : 'border-danger border-opacity-50' }}">
                 <div class="card-body p-3 d-flex flex-column justify-content-between">
                     <div class="d-flex align-items-center justify-content-between mb-2">
-                        <span class="text-muted small fw-semibold">{{ __('Health Score') }}</span>
-                        <span class="badge bg-label-{{ $summary['health_class'] }} rounded-pill font-monospace">
-                            {{ $summary['health_label'] }}
+                        <span class="text-muted small fw-semibold">{{ __('Drive Storage') }}</span>
+                        <span class="badge bg-label-{{ $driveHealth['badge_class'] ?? 'success' }} rounded-pill font-monospace">
+                            {{ $driveHealth['status'] ?? 'Active' }}
                         </span>
                     </div>
                     <div>
-                        <div class="fs-2 fw-bold text-{{ $summary['health_class'] }}">
-                            {{ $summary['health_score'] }}<small class="fs-6">%</small>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="avatar avatar-sm flex-shrink-0">
+                                <span class="avatar-initial rounded-2 bg-label-{{ $driveHealth['badge_class'] ?? 'success' }}">
+                                    <i class="icon-base ti {{ ($driveHealth['connected'] ?? true) ? 'tabler-brand-google-drive' : 'tabler-cloud-off' }} icon-xs"></i>
+                                </span>
+                            </div>
+                            <div class="fs-5 fw-bold text-{{ $driveHealth['badge_class'] ?? 'success' }} text-truncate">
+                                {{ $driveHealth['status'] ?? 'Connected' }}
+                            </div>
                         </div>
-                        <div class="progress mt-2" style="height: 6px;">
-                            <div class="progress-bar bg-{{ $summary['health_class'] }}" role="progressbar" style="width: {{ $summary['health_score'] }}%" aria-valuenow="{{ $summary['health_score'] }}" aria-valuemin="0" aria-valuemax="100"></div>
+                        <div class="d-flex align-items-center justify-content-between text-muted small mt-2">
+                            <span class="text-truncate" title="{{ ($driveHealth['driver'] ?? '') === 'google' ? 'Google Drive Cloud' : 'Local Storage' }}">
+                                <i class="icon-base ti tabler-cloud icon-xs me-1"></i>{{ ($driveHealth['driver'] ?? '') === 'google' ? __('Cloud') : __('Local') }}
+                            </span>
+                            <span class="d-flex align-items-center gap-1">
+                                <span class="pulse-indicator pulse-{{ $driveHealth['badge_class'] ?? 'success' }}"></span>
+                                <span class="fw-medium text-capitalize">{{ ($driveHealth['connected'] ?? true) ? __('Live') : __('Offline') }}</span>
+                            </span>
                         </div>
                     </div>
                 </div>

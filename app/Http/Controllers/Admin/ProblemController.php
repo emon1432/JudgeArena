@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Platform;
 use App\Models\Problem;
 use App\Support\Datatable\ServerSideDatatable;
 use App\View\Components\Actions;
@@ -18,7 +19,9 @@ class ProblemController extends Controller
             return response()->json($this->data($request));
         }
 
-        return view('admin.pages.problems.index');
+        $platforms = Platform::query()->orderBy('name')->get();
+
+        return view('admin.pages.problems.index', compact('platforms'));
     }
 
     public function create()
@@ -57,6 +60,32 @@ class ProblemController extends Controller
             ->leftJoin('platforms', 'platforms.id', '=', 'problems.platform_id')
             ->leftJoin('contests', 'contests.id', '=', 'problems.contest_id')
             ->select('problems.*');
+
+        if ($request->filled('platform')) {
+            $platformVal = $request->input('platform');
+            if (is_numeric($platformVal)) {
+                $query->where('problems.platform_id', (int) $platformVal);
+            } else {
+                $query->where('platforms.slug', $platformVal);
+            }
+        }
+
+        if ($request->filled('rating_range')) {
+            $ratingRange = (string) $request->input('rating_range');
+            match ($ratingRange) {
+                'unrated' => $query->whereNull('problems.rating'),
+                '800-1199' => $query->whereBetween('problems.rating', [800, 1199]),
+                '1200-1599' => $query->whereBetween('problems.rating', [1200, 1599]),
+                '1600-1999' => $query->whereBetween('problems.rating', [1600, 1999]),
+                '2000-2399' => $query->whereBetween('problems.rating', [2000, 2399]),
+                '2400+' => $query->where('problems.rating', '>=', 2400),
+                default => null,
+            };
+        }
+
+        if ($request->filled('status')) {
+            $query->where('problems.status', $request->input('status'));
+        }
 
         return ServerSideDatatable::make(
             $request,

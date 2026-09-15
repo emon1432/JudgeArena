@@ -17,6 +17,7 @@ use App\Platforms\Codeforces\Mappers\CodeforcesStandingsMapper;
 use App\Platforms\Codeforces\Transformers\StandingsTransformer as CodeforcesStandingsTransformer;
 use App\Services\GoogleDrive\GoogleDriveClient;
 use DateTimeImmutable;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Throwable;
 
@@ -55,6 +56,101 @@ class StandingsCacheService
         return [$this->platformFolder($platform), 'Standings'];
     }
 
+    /**
+     * @return array<int, string>
+     */
+    public function getUploadedContestIds(?string $platform = null): array
+    {
+        if (! $this->isEnabled()) {
+            return [];
+        }
+
+        $cacheKey = 'standings:uploaded_ids:'.($platform ?? 'all');
+        $cached = Cache::get($cacheKey);
+        if (is_array($cached)) {
+            return $cached;
+        }
+
+        $platforms = $platform !== null && $platform !== ''
+            ? [$platform]
+            : $this->platformRegistry->supportedPlatforms();
+
+        $contestIds = [];
+
+        if ($this->diskName() === 'google') {
+            $this->googleDriveClient->warmupAllFolders();
+
+            $folderMap = [];
+            foreach ($platforms as $plat) {
+                $folderId = $this->googleDriveClient->resolveTargetFolder($this->targetSubfolder($plat));
+                if ($folderId !== null && $folderId !== '') {
+                    $folderMap[$folderId] = $plat;
+                }
+            }
+
+            if (! empty($folderMap)) {
+                $batchResults = $this->googleDriveClient->batchListFiles(array_keys($folderMap));
+                foreach ($batchResults as $folderId => $filenames) {
+                    $plat = $folderMap[$folderId] ?? '';
+                    $platContestIds = [];
+
+                    foreach ($filenames as $filename) {
+                        $id = preg_replace('/\.(json\.gz|json|gz)$/i', '', $filename);
+                        if ($id !== null && $id !== '') {
+                            $contestIds[] = (string) $id;
+                            $platContestIds[] = (string) $id;
+                        }
+                    }
+
+                    if ($plat !== '') {
+                        Cache::put('standings:uploaded_ids:'.$plat, array_values(array_unique($platContestIds)), 3600);
+                    }
+                }
+            }
+        } else {
+            foreach ($platforms as $plat) {
+                try {
+                    $localFiles = Storage::disk($this->diskName())->files("{$this->platformFolder($plat)}/Standings");
+                    $filenames = array_map(fn ($p) => basename($p), $localFiles);
+                    $platContestIds = [];
+
+                    foreach ($filenames as $filename) {
+                        $id = preg_replace('/\.(json\.gz|json|gz)$/i', '', $filename);
+                        if ($id !== null && $id !== '') {
+                            $contestIds[] = (string) $id;
+                            $platContestIds[] = (string) $id;
+                        }
+                    }
+
+                    Cache::put('standings:uploaded_ids:'.$plat, array_values(array_unique($platContestIds)), 3600);
+                } catch (Throwable $e) {
+                    app(ApplicationLogger::class)->warning('StandingsCacheService getUploadedContestIds local failed', [
+                        'category' => 'storage',
+                        'platform' => $plat,
+                        'disk' => $this->diskName(),
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+            }
+        }
+
+        $result = array_values(array_unique($contestIds));
+        Cache::put($cacheKey, $result, 3600);
+        if ($platform === null || $platform === '') {
+            Cache::put('standings:uploaded_ids:all', $result, 3600);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return array{driver: string, configured: bool, connected: bool, status: string, badge_class: string, message: string}
+     */
+    public function getConnectionHealth(): array
+    {
+        return $this->googleDriveClient->checkConnection();
+    }
+
     public function has(string $platform, string $contestId): bool
     {
         if (! $this->isEnabled()) {
@@ -63,6 +159,10 @@ class StandingsCacheService
 
         try {
             if ($this->diskName() === 'google') {
+                if (! $this->googleDriveClient->isConfigured() || $this->googleDriveClient->getAccessToken() === null) {
+                    return false;
+                }
+
                 return $this->googleDriveClient->exists(
                     $this->googleFilename($contestId),
                     $this->targetSubfolder($platform)
@@ -167,18 +267,38 @@ class StandingsCacheService
             }
 
             if ($this->diskName() === 'google') {
-                return $this->googleDriveClient->put(
+                $saved = $this->googleDriveClient->put(
                     $this->googleFilename($contestId),
                     $compressed,
                     'application/gzip',
                     $this->targetSubfolder($platform)
                 );
+            } else {
+                $saved = Storage::disk($this->diskName())->put(
+                    $this->diskPath($platform, $contestId),
+                    $compressed
+                );
             }
 
-            return Storage::disk($this->diskName())->put(
-                $this->diskPath($platform, $contestId),
-                $compressed
-            );
+            if ($saved) {
+                $allCached = Cache::get('standings:uploaded_ids:all');
+                if (is_array($allCached)) {
+                    if (! in_array((string) $contestId, $allCached, true)) {
+                        $allCached[] = (string) $contestId;
+                        Cache::put('standings:uploaded_ids:all', array_values($allCached), 3600);
+                    }
+                }
+
+                $platCached = Cache::get('standings:uploaded_ids:'.$platform);
+                if (is_array($platCached)) {
+                    if (! in_array((string) $contestId, $platCached, true)) {
+                        $platCached[] = (string) $contestId;
+                        Cache::put('standings:uploaded_ids:'.$platform, array_values($platCached), 3600);
+                    }
+                }
+            }
+
+            return $saved;
         } catch (Throwable $e) {
             app(ApplicationLogger::class)->warning('StandingsCacheService put failed', [
                 'category' => 'storage',
@@ -195,6 +315,18 @@ class StandingsCacheService
     public function delete(string $platform, string $contestId): bool
     {
         try {
+            $allCached = Cache::get('standings:uploaded_ids:all');
+            if (is_array($allCached)) {
+                $allCached = array_values(array_filter($allCached, fn ($id) => (string) $id !== (string) $contestId));
+                Cache::put('standings:uploaded_ids:all', $allCached, 3600);
+            }
+
+            $platCached = Cache::get('standings:uploaded_ids:'.$platform);
+            if (is_array($platCached)) {
+                $platCached = array_values(array_filter($platCached, fn ($id) => (string) $id !== (string) $contestId));
+                Cache::put('standings:uploaded_ids:'.$platform, $platCached, 3600);
+            }
+
             if ($this->diskName() === 'google') {
                 return $this->googleDriveClient->delete(
                     $this->googleFilename($contestId),

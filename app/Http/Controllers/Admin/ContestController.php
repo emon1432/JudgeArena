@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Core\Platforms\PlatformRegistry;
 use App\Http\Controllers\Controller;
 use App\Models\Contest;
+use App\Models\Platform;
 use App\Services\StandingsCacheService;
 use App\Support\Datatable\ServerSideDatatable;
 use App\View\Components\Actions;
@@ -27,7 +28,10 @@ class ContestController extends Controller
             return response()->json($this->data($request));
         }
 
-        return view('admin.pages.contests.index');
+        $platforms = Platform::query()->orderBy('name')->get();
+        $phases = Contest::query()->distinct()->whereNotNull('phase')->orderBy('phase')->pluck('phase');
+
+        return view('admin.pages.contests.index', compact('platforms', 'phases'));
     }
 
     public function show(Contest $all_contest)
@@ -86,6 +90,45 @@ class ContestController extends Controller
             ->leftJoin('platforms', 'platforms.id', '=', 'contests.platform_id')
             ->select('contests.*');
 
+        if ($request->filled('platform')) {
+            $platformVal = $request->input('platform');
+            if (is_numeric($platformVal)) {
+                $query->where('contests.platform_id', (int) $platformVal);
+            } else {
+                $query->where('platforms.slug', $platformVal);
+            }
+        }
+
+        if ($request->filled('phase')) {
+            $query->where('contests.phase', $request->input('phase'));
+        }
+
+        if ($request->filled('status')) {
+            $query->where('contests.status', $request->input('status'));
+        }
+
+        $uploadedContestIds = $this->standingsCacheService->getUploadedContestIds();
+        $uploadedLookup = array_flip($uploadedContestIds);
+
+        if ($request->filled('standings_status')) {
+            $standingsStatus = (string) $request->input('standings_status');
+            $filterIds = $uploadedContestIds;
+
+            if ($request->filled('platform') && ! is_numeric($request->input('platform'))) {
+                $filterIds = $this->standingsCacheService->getUploadedContestIds((string) $request->input('platform'));
+            }
+
+            if ($standingsStatus === 'uploaded') {
+                $query->whereIn('contests.platform_contest_id', $filterIds);
+            } elseif ($standingsStatus === 'missing') {
+                $query->whereNotIn('contests.platform_contest_id', $filterIds)
+                    ->where(function ($q) {
+                        $q->whereNull('contests.phase')
+                            ->orWhereRaw('UPPER(contests.phase) != ?', ['BEFORE']);
+                    });
+            }
+        }
+
         return ServerSideDatatable::make(
             $request,
             $query,
@@ -111,7 +154,7 @@ class ContestController extends Controller
                     'dir' => 'desc',
                 ],
             ],
-            function (Contest $contest) {
+            function (Contest $contest) use ($uploadedLookup) {
                 $contest->actions = (new Actions([
                     'model' => $contest,
                     'resource' => 'all-contests',
@@ -133,7 +176,7 @@ class ContestController extends Controller
                 $platformSlug = strtolower($contest->platform?->slug ?? '');
                 $contestId = (string) ($contest->platform_contest_id ?? '');
 
-                if ($platformSlug !== '' && $contestId !== '' && $this->standingsCacheService->has($platformSlug, $contestId)) {
+                if ($platformSlug !== '' && $contestId !== '' && isset($uploadedLookup[$contestId])) {
                     $contest->standingsCache = '<span class="badge bg-label-success"><i class="icon-base ti tabler-check icon-xs me-1"></i> '.__('Uploaded').'</span>';
                 } elseif (strtoupper((string) $contest->phase) === 'BEFORE') {
                     $contest->standingsCache = '<span class="badge bg-label-secondary">'.__('Upcoming').'</span>';

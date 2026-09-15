@@ -20,7 +20,11 @@ class GoogleDriveClient
 
     private const TOKEN_CACHE_KEY = 'google_drive:access_token';
 
-    private const HTTP_TIMEOUT_SECONDS = 30;
+    private const TOKEN_FAILURE_KEY = 'google_drive:token_failure';
+
+    private const HTTP_TIMEOUT_SECONDS = 15;
+
+    private const TOKEN_HTTP_TIMEOUT_SECONDS = 5;
 
     private readonly string $clientId;
 
@@ -56,9 +60,13 @@ class GoogleDriveClient
             return $cachedToken;
         }
 
+        if (Cache::has(self::TOKEN_FAILURE_KEY)) {
+            return null;
+        }
+
         try {
             $response = Http::asForm()
-                ->timeout(self::HTTP_TIMEOUT_SECONDS)
+                ->timeout(self::TOKEN_HTTP_TIMEOUT_SECONDS)
                 ->post(self::TOKEN_URL, [
                     'client_id' => $this->clientId,
                     'client_secret' => $this->clientSecret,
@@ -67,6 +75,8 @@ class GoogleDriveClient
                 ]);
 
             if (! $response->successful()) {
+                Cache::put(self::TOKEN_FAILURE_KEY, true, 120);
+
                 app(ApplicationLogger::class)->warning('Google Drive token refresh failed', [
                     'category' => 'storage',
                     'status' => $response->status(),
@@ -81,12 +91,15 @@ class GoogleDriveClient
             $expiresIn = (int) ($data['expires_in'] ?? 3600);
 
             if ($accessToken !== '') {
+                Cache::forget(self::TOKEN_FAILURE_KEY);
                 $ttl = max(60, $expiresIn - 300);
                 Cache::put(self::TOKEN_CACHE_KEY, $accessToken, $ttl);
 
                 return $accessToken;
             }
         } catch (Throwable $e) {
+            Cache::put(self::TOKEN_FAILURE_KEY, true, 60);
+
             app(ApplicationLogger::class)->warning('Google Drive token request exception', [
                 'category' => 'storage',
                 'error' => $e->getMessage(),
@@ -94,6 +107,60 @@ class GoogleDriveClient
         }
 
         return null;
+    }
+
+    public function warmupAllFolders(?string $rootFolderId = null): array
+    {
+        $token = $this->getAccessToken();
+        if ($token === null) {
+            return [];
+        }
+
+        $root = $rootFolderId ?? $this->folderId;
+        $cacheKey = 'gdrive:all_folders:'.md5((string) $root);
+        $cached = Cache::get($cacheKey);
+        if (is_array($cached)) {
+            return $cached;
+        }
+
+        try {
+            $query = "mimeType = 'application/vnd.google-apps.folder' and trashed = false";
+            $response = $this->http($token)->get(self::API_BASE_URL.'/files', [
+                'q' => $query,
+                'fields' => 'files(id, name, parents)',
+                'pageSize' => 500,
+                'supportsAllDrives' => 'true',
+                'includeItemsFromAllDrives' => 'true',
+            ]);
+
+            if ($response->successful()) {
+                $folders = $response->json('files') ?? [];
+                $map = [];
+                foreach ($folders as $folder) {
+                    $id = (string) ($folder['id'] ?? '');
+                    $name = (string) ($folder['name'] ?? '');
+                    $parents = (array) ($folder['parents'] ?? []);
+                    if ($id !== '' && $name !== '') {
+                        foreach ($parents as $parent) {
+                            $subfolderCacheKey = 'gdrive:subfolder:'.md5($parent.':'.$name);
+                            Cache::put($subfolderCacheKey, $id, 86400);
+                            $map[$parent.':'.$name] = $id;
+                        }
+                    }
+                }
+
+                Cache::put($cacheKey, $map, 86400);
+
+                return $map;
+            }
+        } catch (Throwable $e) {
+            app(ApplicationLogger::class)->warning('Google Drive warmupAllFolders exception', [
+                'category' => 'storage',
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        return [];
     }
 
     public function ensureSubfolder(string $folderName, ?string $parentFolderId = null): ?string
@@ -417,6 +484,16 @@ class GoogleDriveClient
             if ($uploadResponse->successful()) {
                 $subfolderKey = is_array($subfolder) ? implode('/', $subfolder) : (string) ($subfolder ?? '');
                 Cache::put('gdrive:file:'.md5($subfolderKey.':'.$filename), $newFileId, 3600);
+                if ($targetFolderId !== '') {
+                    $listCacheKey = 'gdrive:list_files:'.md5($targetFolderId);
+                    $cachedList = Cache::get($listCacheKey);
+                    if (is_array($cachedList)) {
+                        if (! in_array($filename, $cachedList, true)) {
+                            $cachedList[] = $filename;
+                            Cache::put($listCacheKey, array_values($cachedList), 3600);
+                        }
+                    }
+                }
 
                 return true;
             }
@@ -451,6 +528,15 @@ class GoogleDriveClient
             if ($response->successful()) {
                 $subfolderKey = is_array($subfolder) ? implode('/', $subfolder) : (string) ($subfolder ?? '');
                 Cache::forget('gdrive:file:'.md5($subfolderKey.':'.$filename));
+                $targetFolderId = $this->resolveTargetFolder($subfolder);
+                if ($targetFolderId !== null && $targetFolderId !== '') {
+                    $listCacheKey = 'gdrive:list_files:'.md5($targetFolderId);
+                    $cachedList = Cache::get($listCacheKey);
+                    if (is_array($cachedList)) {
+                        $cachedList = array_values(array_filter($cachedList, fn ($f) => $f !== $filename));
+                        Cache::put($listCacheKey, $cachedList, 3600);
+                    }
+                }
 
                 return true;
             }
@@ -465,6 +551,220 @@ class GoogleDriveClient
 
             return false;
         }
+    }
+
+    /**
+     * @param  array<int, string>  $folderIds
+     * @return array<string, array<int, string>> Map of folderId => filenames
+     */
+    public function batchListFiles(array $folderIds): array
+    {
+        $folderIds = array_values(array_filter(array_unique($folderIds)));
+        if (empty($folderIds)) {
+            return [];
+        }
+
+        $token = $this->getAccessToken();
+        if ($token === null) {
+            return [];
+        }
+
+        $results = [];
+        $uncachedFolderIds = [];
+
+        foreach ($folderIds as $folderId) {
+            $cacheKey = 'gdrive:list_files:'.md5($folderId);
+            $cached = Cache::get($cacheKey);
+            if (is_array($cached)) {
+                $results[$folderId] = $cached;
+            } else {
+                $uncachedFolderIds[] = $folderId;
+                $results[$folderId] = [];
+            }
+        }
+
+        if (empty($uncachedFolderIds)) {
+            return $results;
+        }
+
+        try {
+            $parentClauses = array_map(fn ($id) => "'{$id}' in parents", $uncachedFolderIds);
+            $parentQuery = count($parentClauses) === 1 ? $parentClauses[0] : '('.implode(' or ', $parentClauses).')';
+            $query = "{$parentQuery} and trashed = false and mimeType != 'application/vnd.google-apps.folder'";
+
+            $pageToken = null;
+            do {
+                $params = [
+                    'q' => $query,
+                    'fields' => 'nextPageToken, files(id, name, parents)',
+                    'pageSize' => 1000,
+                    'supportsAllDrives' => 'true',
+                    'includeItemsFromAllDrives' => 'true',
+                ];
+                if ($pageToken !== null && $pageToken !== '') {
+                    $params['pageToken'] = $pageToken;
+                }
+
+                $response = $this->http($token)->get(self::API_BASE_URL.'/files', $params);
+                if (! $response->successful()) {
+                    break;
+                }
+
+                $data = $response->json();
+                $items = $data['files'] ?? [];
+
+                foreach ($items as $item) {
+                    $name = (string) ($item['name'] ?? '');
+                    $parents = (array) ($item['parents'] ?? []);
+                    if ($name === '') {
+                        continue;
+                    }
+
+                    foreach ($parents as $parentId) {
+                        if (isset($results[$parentId])) {
+                            $results[$parentId][] = $name;
+                        }
+                    }
+                }
+
+                $pageToken = $data['nextPageToken'] ?? null;
+            } while ($pageToken !== null && $pageToken !== '');
+
+            foreach ($uncachedFolderIds as $folderId) {
+                $list = array_values(array_unique($results[$folderId] ?? []));
+                $results[$folderId] = $list;
+                Cache::put('gdrive:list_files:'.md5($folderId), $list, 3600);
+            }
+        } catch (Throwable $e) {
+            app(ApplicationLogger::class)->warning('Google Drive batchListFiles exception', [
+                'category' => 'storage',
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        return $results;
+    }
+
+    /**
+     * @param  array<int, string>|string|null  $subfolder
+     * @return array<int, string>
+     */
+    public function listFiles(array|string|null $subfolder = null): array
+    {
+        $token = $this->getAccessToken();
+        if ($token === null) {
+            return [];
+        }
+
+        $targetFolderId = $this->resolveTargetFolder($subfolder);
+        if ($targetFolderId === null || $targetFolderId === '') {
+            return [];
+        }
+
+        $cacheKey = 'gdrive:list_files:'.md5((string) $targetFolderId);
+        $cached = Cache::get($cacheKey);
+        if (is_array($cached)) {
+            return $cached;
+        }
+
+        $files = [];
+        $pageToken = null;
+
+        try {
+            do {
+                $params = [
+                    'q' => "'{$targetFolderId}' in parents and trashed = false and mimeType != 'application/vnd.google-apps.folder'",
+                    'fields' => 'nextPageToken, files(id, name, size)',
+                    'pageSize' => 1000,
+                    'supportsAllDrives' => 'true',
+                    'includeItemsFromAllDrives' => 'true',
+                ];
+                if ($pageToken !== null && $pageToken !== '') {
+                    $params['pageToken'] = $pageToken;
+                }
+
+                $response = $this->http($token)->get(self::API_BASE_URL.'/files', $params);
+                if (! $response->successful()) {
+                    break;
+                }
+
+                $data = $response->json();
+                $items = $data['files'] ?? [];
+                $subfolderKey = is_array($subfolder) ? implode('/', $subfolder) : (string) ($subfolder ?? '');
+
+                foreach ($items as $item) {
+                    if (isset($item['name']) && is_string($item['name'])) {
+                        $files[] = $item['name'];
+                        if (isset($item['id']) && is_string($item['id'])) {
+                            Cache::put('gdrive:file:'.md5($subfolderKey.':'.$item['name']), (string) $item['id'], 3600);
+                        }
+                    }
+                }
+
+                $pageToken = $data['nextPageToken'] ?? null;
+            } while ($pageToken !== null && $pageToken !== '');
+
+            Cache::put($cacheKey, $files, 3600);
+        } catch (Throwable $e) {
+            app(ApplicationLogger::class)->warning('Google Drive listFiles exception', [
+                'category' => 'storage',
+                'subfolder' => is_array($subfolder) ? implode('/', $subfolder) : $subfolder,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        return $files;
+    }
+
+    /**
+     * @return array{driver: string, configured: bool, connected: bool, status: string, badge_class: string, message: string}
+     */
+    public function checkConnection(): array
+    {
+        $disk = (string) config('standings.disk', env('STANDINGS_DISK', 'local'));
+
+        if ($disk === 'local') {
+            return [
+                'driver' => 'local',
+                'configured' => true,
+                'connected' => true,
+                'status' => 'Local Disk',
+                'badge_class' => 'secondary',
+                'message' => 'Standings cache is running on local disk storage.',
+            ];
+        }
+
+        if (! $this->isConfigured()) {
+            return [
+                'driver' => 'google',
+                'configured' => false,
+                'connected' => false,
+                'status' => 'Not Configured',
+                'badge_class' => 'warning',
+                'message' => 'Google Drive credentials are missing in your environment configuration.',
+            ];
+        }
+
+        $token = $this->getAccessToken();
+        if ($token === null) {
+            return [
+                'driver' => 'google',
+                'configured' => true,
+                'connected' => false,
+                'status' => 'Token Expired',
+                'badge_class' => 'danger',
+                'message' => 'Google Drive OAuth token has expired or is invalid. Standings cache uploads are suspended.',
+            ];
+        }
+
+        return [
+            'driver' => 'google',
+            'configured' => true,
+            'connected' => true,
+            'status' => 'Connected',
+            'badge_class' => 'success',
+            'message' => 'Google Drive cloud storage is active and authorized.',
+        ];
     }
 
     private function http(string $token): PendingRequest
