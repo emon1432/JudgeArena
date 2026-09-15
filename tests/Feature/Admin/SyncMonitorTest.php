@@ -163,7 +163,7 @@ class SyncMonitorTest extends TestCase
 
         Livewire::actingAs($admin)
             ->test(SyncMonitor::class)
-            ->assertSee('Health Score')
+            ->assertSee('Drive Storage')
             ->assertSee('Platform Breakdown')
             ->call('switchTab', 'failures')
             ->assertSet('activeTab', 'failures')
@@ -171,5 +171,16 @@ class SyncMonitorTest extends TestCase
             ->call('switchTab', 'activity')
             ->assertSet('activeTab', 'activity')
             ->assertSee('Live Activity Stream');
+    }
+
+    public function test_sync_monitor_displays_drive_storage_status(): void
+    {
+        $admin = $this->createAdminUser();
+
+        Livewire::actingAs($admin)
+            ->test(SyncMonitor::class)
+            ->assertSee('Drive Storage')
+            ->assertSee('Local')
+            ->assertSee('Live');
     }
 }

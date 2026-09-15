@@ -94,7 +94,16 @@
                 ajax: {
                     url: datatableElement.dataset.url,
                     method: "GET",
-                    dataSrc:"data",
+                    dataSrc: "data",
+                    data: function(d) {
+                        $('[data-dt-filter]').each(function() {
+                            const name = $(this).data('dt-filter') || $(this).attr('name');
+                            const val = $(this).val();
+                            if (name && val !== '' && val !== null && val !== undefined) {
+                                d[name] = val;
+                            }
+                        });
+                    },
                 },
                 columns: JSON.parse(datatableElement.dataset.columns),
                 processing: true,
@@ -219,6 +228,26 @@
                     tooltipTriggerList.map(function(tooltipTriggerEl) {
                         return new bootstrap.Tooltip(tooltipTriggerEl);
                     });
+                }
+            });
+
+            // Filter Change Handler
+            $(document).on('change', '[data-dt-filter]', function() {
+                const dt = $('.common-datatable').DataTable();
+                if (dt) {
+                    dt.ajax.reload();
+                }
+            });
+
+            // Filter Reset Handler
+            $(document).on('click', '.dt-filter-reset', function(e) {
+                e.preventDefault();
+                $('[data-dt-filter]').each(function() {
+                    $(this).val('').trigger('change.select2');
+                });
+                const dt = $('.common-datatable').DataTable();
+                if (dt) {
+                    dt.ajax.reload();
                 }
             });
 

@@ -157,4 +157,52 @@ class ContestStandingsCacheTest extends TestCase
 
         $this->assertSame(2, $contest->fresh()->participant_count);
     }
+
+    public function test_admin_can_filter_contests_by_platform_phase_and_standings_status(): void
+    {
+        $admin = $this->createAdminUser();
+        $cf = $this->createPlatform('codeforces', 'Codeforces');
+        $atc = $this->createPlatform('atcoder', 'AtCoder');
+
+        Contest::query()->create([
+            'platform_id' => $cf->id,
+            'platform_contest_id' => '101',
+            'name' => 'CF 101',
+            'phase' => 'FINISHED',
+        ]);
+
+        Contest::query()->create([
+            'platform_id' => $cf->id,
+            'platform_contest_id' => '102',
+            'name' => 'CF 102',
+            'phase' => 'BEFORE',
+        ]);
+
+        Contest::query()->create([
+            'platform_id' => $atc->id,
+            'platform_contest_id' => 'abc100',
+            'name' => 'AtCoder ABC 100',
+            'phase' => 'FINISHED',
+        ]);
+
+        // Filter by platform = Codeforces
+        $response = $this->actingAs($admin)
+            ->withHeaders(['X-Requested-With' => 'XMLHttpRequest'])
+            ->get(route('admin.all-contests.index', [
+                'platform' => (string) $cf->id,
+            ]));
+
+        $response->assertStatus(200);
+        $this->assertSame(2, $response->json('recordsFiltered'));
+
+        // Filter by phase = BEFORE
+        $responsePhase = $this->actingAs($admin)
+            ->withHeaders(['X-Requested-With' => 'XMLHttpRequest'])
+            ->get(route('admin.all-contests.index', [
+                'phase' => 'BEFORE',
+            ]));
+
+        $responsePhase->assertStatus(200);
+        $this->assertSame(1, $responsePhase->json('recordsFiltered'));
+    }
 }

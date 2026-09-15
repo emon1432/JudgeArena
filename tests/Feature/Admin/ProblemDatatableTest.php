@@ -87,4 +87,69 @@ class ProblemDatatableTest extends TestCase
         $json = $response->json();
         $this->assertSame(1, $json['recordsFiltered']);
     }
+
+    public function test_admin_can_filter_problems_by_platform_and_rating_range(): void
+    {
+        $admin = $this->createAdminUser();
+        $cf = $this->createPlatform('codeforces', 'Codeforces');
+        $atc = $this->createPlatform('atcoder', 'AtCoder');
+
+        Problem::query()->create([
+            'platform_id' => $cf->id,
+            'platform_problem_id' => '100A',
+            'name' => 'CF 100 A',
+            'code' => 'A',
+            'rating' => 1000,
+            'status' => 'active',
+        ]);
+
+        Problem::query()->create([
+            'platform_id' => $cf->id,
+            'platform_problem_id' => '100B',
+            'name' => 'CF 100 B',
+            'code' => 'B',
+            'rating' => 1500,
+            'status' => 'active',
+        ]);
+
+        Problem::query()->create([
+            'platform_id' => $atc->id,
+            'platform_problem_id' => 'abc100_a',
+            'name' => 'AtCoder 100 A',
+            'code' => 'A',
+            'rating' => 1000,
+            'status' => 'active',
+        ]);
+
+        // Filter by platform = Codeforces
+        $response = $this->actingAs($admin)
+            ->withHeaders(['X-Requested-With' => 'XMLHttpRequest'])
+            ->get(route('admin.all-problems.index', [
+                'platform' => (string) $cf->id,
+            ]));
+
+        $response->assertStatus(200);
+        $this->assertSame(2, $response->json('recordsFiltered'));
+
+        // Filter by rating_range = 800-1199
+        $responseRating = $this->actingAs($admin)
+            ->withHeaders(['X-Requested-With' => 'XMLHttpRequest'])
+            ->get(route('admin.all-problems.index', [
+                'rating_range' => '800-1199',
+            ]));
+
+        $responseRating->assertStatus(200);
+        $this->assertSame(2, $responseRating->json('recordsFiltered'));
+
+        // Filter by platform = Codeforces AND rating_range = 800-1199
+        $responseBoth = $this->actingAs($admin)
+            ->withHeaders(['X-Requested-With' => 'XMLHttpRequest'])
+            ->get(route('admin.all-problems.index', [
+                'platform' => (string) $cf->id,
+                'rating_range' => '800-1199',
+            ]));
+
+        $responseBoth->assertStatus(200);
+        $this->assertSame(1, $responseBoth->json('recordsFiltered'));
+    }
 }

@@ -35,6 +35,11 @@ class PlatformRegistry
         return $this->resolve($slug);
     }
 
+    public function all(): array
+    {
+        return config('platforms', []);
+    }
+
     public function supportedPlatforms(): array
     {
         return array_keys(config('platforms', []));
