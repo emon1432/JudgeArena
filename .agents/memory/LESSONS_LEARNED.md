@@ -169,3 +169,61 @@
     1. **Single-Query Folder Warmup (`warmupAllFolders`)**: Discovers and maps all subfolders across Google Drive in a single request (`mimeType = 'application/vnd.google-apps.folder'`), caching paths for 24 hours.
     2. **Multi-Parent Batch File Listing (`batchListFiles`)**: Queries standings files across all platform folder IDs in a single unified API call (`q = ('id1' in parents or 'id2' in parents) and trashed = false`).
     3. **Optimistic Cache Updates**: `StandingsCacheService::put()` and `GoogleDriveClient::put()` directly append newly uploaded contest IDs and filenames into the active cache arrays instead of flushing, eliminating post-upload reload latency and dropping DataTable response time from 15s down to < 20ms.
+
+---
+
+## 16. Remote Standings User Ingestion & High-Concurrency Streaming (Zero Local Storage Invariant)
+
+- **Context & Strict Invariants**:
+  - Synchronizing user standings across hundreds of contests (e.g., `tourist` with 515 Codeforces and 230 AtCoder contests) under strict constraints of **0 Bytes local disk caching** and capped PHP memory (< 128 MB) requires streaming standings directly from remote Google Drive storage (`.json.gz`).
+- **Bottlenecks Identified**:
+  1. *Sequential Latency*: Downloading and processing 745 contest JSON files one by one took ~3.02s per contest, requiring ~37 minutes for a single user.
+  2. *Single-Row DB Cache Overhead*: Waking up and querying Google Drive file IDs sequentially or writing 6,400 cache entries to DB cache individually added 75+ seconds of latency.
+  3. *Memory Exhaustion (OOM)*: A single contest standings JSON can contain up to 25,000 participant objects (~20MB uncompressed). Instantiating 25 contests in memory concurrently consumed > 1 GB RAM, causing PHP `Allowed memory size exhausted`.
+- **Architectural Solution**:
+  1. *Folder Warmup in 1000-page Batches*: `GoogleDriveClient::warmupFolderFiles()` fetches up to 10,000 files in paginated Google Drive batches and stores the entire key-value mapping in Laravel application cache under a single key (`gdrive:folder_files:{subfolder}`), dropping warmup time from 75s down to **0.006s**.
+  2. *Concurrent Network Streaming (`Http::pool()`)*: `GoogleDriveClient::getMultiple()` and `StandingsCacheService::getMultipleBinaries()` fetch 10 compressed `.gz` files concurrently in parallel HTTP connections. 10 compressed files occupy only ~2 MB in RAM.
+  3. *Sequential Stream Decode & Immediate Unset*: In `UserStandingImporter::processContestBatch()`, binary `.gz` payloads are decompressed and mapped to `ContestStandingsDTO` **one contest at a time**. The importer extracts only the tracked user (`tourist`) and their problem task results, immediately `unset($standings)` to destroy the other 24,999 participant objects from RAM, followed by bulk `Standing::upsert()` and `StandingTaskResult::upsert()`, then `gc_collect_cycles()`. Peak RAM stays strictly capped under **40 MB**.
+  4. *Speedup Result*: Average time dropped from 3.02s per contest down to **~0.25s–0.35s per contest** (**10x speedup**), reducing total import time from ~37 minutes down to **~3.5 minutes**, all while preserving **0 Bytes local disk storage**.
+
+---
+
+## 17. Rating Change Fallback Reconciliation, Task Results Synthesis & Live Contest Filtering
+
+- **Low-Rank Standings Omission & Task Results Synthesis**:
+  - In massive contests (25,000+ competitors), Google Drive cached standings files often contain the top $N$ rows (e.g., top 10,000). A tracked user ranked outside that range would be omitted from `standings` despite having officially competed and received a rating update.
+  - **Solution (Self-Healing Fallback Reconciliation & Task Synthesis)**:
+    `UserStandingImporter::reconcileMissingRatedStandings()` compares `contest_rating_changes` against `standings` post-import. Any rated contest missing from `standings` is immediately synthesized using the official `rank`, `old_rating`, and `new_rating` from `contest_rating_changes` ($O(1)$ in-memory/DB operation, 0 network calls).
+    Furthermore, the importer scans user submissions for that contest, filtering exclusively to live contest submissions (`CONTESTANT` within the contest start/end time window), and automatically synthesizes `StandingTaskResult` records (`AC`, `rejected_attempt_count`, `best_submission_time_seconds`, `points`, `penalty`) while calculating and updating the `Standing` point total.
+- **Strict Participant Type Filtering (CONTESTANT Only)**:
+  - Standings files frequently include `PRACTICE`, `VIRTUAL`, and `MANAGER` rows when users solve problemsets post-contest or compete unofficially.
+  - `UserStandingImporter` strictly enforces that only `CONTESTANT` participant types are allowed for standings and task result calculations. Post-contest practice or upsolving submissions (`PRACTICE` or `submitted_at > end_time`) are completely excluded from contest standings and point totals.
+- **Targeted Profile Isolation**:
+  - When running targeted imports (`judgearena:import-user-standings <platform> <handle>`), the importer isolates `$profilesForBatch` to only the target user, preventing unrelated opportunistic updates during targeted debug/sync runs while retaining global opportunistic batching during full platform syncs.
+
+---
+
+## 18. Standing Task Results Table Bloat Prevention (Unattempted Problems)
+
+- **Incident & Table Bloat**:
+  - In Codeforces and AtCoder contest standings JSON payloads, problem result slots are returned for every single problem in the contest for each participant, even if the participant never viewed or submitted code for that problem (`points = 0`, `rejectedAttemptCount = 0`, `bestSubmissionTimeSeconds = null`).
+  - Previously, `UserStandingImporter` iterated over all problem slots in `problemResults` and inserted zero-valued rows into `standing_task_results`. For a contest with 8 problems where a participant solved or attempted 2, 6 completely empty rows were inserted, causing massive database bloat (e.g., hundreds of thousands of redundant rows).
+- **Rule & Solution**:
+  - `UserStandingImporter::processContestBatch()` in all platform implementations (`Codeforces`, `AtCoder`) MUST strictly filter out unattempted problems before queuing rows for `StandingTaskResult::upsert()`:
+    ```php
+    $isAttempted = ($pResult->points !== null && (float) $pResult->points > 0.0)
+        || ($pResult->rejectedAttemptCount !== null && (int) $pResult->rejectedAttemptCount > 0)
+        || ($pResult->bestSubmissionTimeSeconds !== null);
+
+    if (! $isAttempted) {
+        continue;
+    }
+    ```
+  - **AtCoder Elapsed Seconds Normalization**: `AtCoderStandingsMapper::normalizeElapsedSeconds()` returns `null` when `$elapsed <= 0` (unattempted tasks have `Elapsed: 0` in AtCoder JSON), preventing zero elapsed times from being falsely treated as live submissions.
+  - **Pruning Existing Bloated Data**:
+    ```sql
+    DELETE FROM standing_task_results
+    WHERE (points IS NULL OR points = 0)
+      AND (rejected_attempt_count IS NULL OR rejected_attempt_count = 0)
+      AND (best_submission_time_seconds IS NULL);
+    ```

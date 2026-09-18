@@ -6,12 +6,19 @@ namespace App\Services\GoogleDrive;
 
 use App\Services\ApplicationLogger;
 use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\Pool;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Throwable;
 
 class GoogleDriveClient
 {
+    /**
+     * In-memory cache of folder files mapping: [subfolderKey => [filename => file_id]]
+     *
+     * @var array<string, array<string, string>>
+     */
+    private static array $folderFilesMemory = [];
     private const TOKEN_URL = 'https://oauth2.googleapis.com/token';
 
     private const API_BASE_URL = 'https://www.googleapis.com/drive/v3';
@@ -303,9 +310,109 @@ class GoogleDriveClient
         return $this->findFileId($filename, $subfolder) !== null;
     }
 
+    /**
+     * Warm up all file IDs inside a target subfolder in 1 paginated API call.
+     *
+     * @return array<string, string> [filename => file_id]
+     */
+    public function warmupFolderFiles(array|string|null $subfolder = null): array
+    {
+        $subfolderKey = is_array($subfolder) ? implode('/', $subfolder) : (string) ($subfolder ?? '');
+        if (isset(self::$folderFilesMemory[$subfolderKey])) {
+            return self::$folderFilesMemory[$subfolderKey];
+        }
+
+        $cacheKey = 'gdrive:folder_files:'.md5($subfolderKey);
+        $cached = Cache::get($cacheKey);
+        if (is_array($cached)) {
+            return self::$folderFilesMemory[$subfolderKey] = $cached;
+        }
+
+        $token = $this->getAccessToken();
+        if ($token === null) {
+            return [];
+        }
+
+        $targetFolderId = $this->resolveTargetFolder($subfolder);
+        if ($targetFolderId === null) {
+            return [];
+        }
+
+        $map = [];
+        $pageToken = null;
+
+        try {
+            do {
+                $query = 'trashed = false';
+                if ($targetFolderId !== '') {
+                    $query = "'{$targetFolderId}' in parents and ".$query;
+                }
+
+                $params = [
+                    'q' => $query,
+                    'fields' => 'nextPageToken, files(id, name)',
+                    'pageSize' => 1000,
+                    'supportsAllDrives' => 'true',
+                    'includeItemsFromAllDrives' => 'true',
+                ];
+                if ($pageToken !== null && $pageToken !== '') {
+                    $params['pageToken'] = $pageToken;
+                }
+
+                $response = $this->http($token)->get(self::API_BASE_URL.'/files', $params);
+                if (! $response->successful()) {
+                    break;
+                }
+
+                $data = $response->json();
+                $files = (array) ($data['files'] ?? []);
+                foreach ($files as $file) {
+                    $name = (string) ($file['name'] ?? '');
+                    $id = (string) ($file['id'] ?? '');
+                    if ($name !== '' && $id !== '') {
+                        $map[$name] = $id;
+                        $fileCacheKey = 'gdrive:file:'.md5($subfolderKey.':'.$name);
+                        Cache::put($fileCacheKey, $id, 86400);
+                    }
+                }
+
+                $pageToken = $data['nextPageToken'] ?? null;
+            } while ($pageToken !== null && $pageToken !== '');
+
+            Cache::put($cacheKey, $map, 86400);
+
+            return self::$folderFilesMemory[$subfolderKey] = $map;
+        } catch (Throwable $e) {
+            app(ApplicationLogger::class)->warning('Google Drive warmupFolderFiles exception', [
+                'category' => 'storage',
+                'subfolder' => $subfolderKey,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        return [];
+    }
+
     public function findFileId(string $filename, array|string|null $subfolder = null): ?string
     {
         $subfolderKey = is_array($subfolder) ? implode('/', $subfolder) : (string) ($subfolder ?? '');
+
+        // 1. In-memory check first (instant 0 ms)
+        if (isset(self::$folderFilesMemory[$subfolderKey][$filename])) {
+            return self::$folderFilesMemory[$subfolderKey][$filename];
+        }
+
+        // 2. Check cached folder map from previous warmup
+        if (! isset(self::$folderFilesMemory[$subfolderKey])) {
+            $cachedFolderMap = Cache::get('gdrive:folder_files:'.$subfolderKey);
+            if (is_array($cachedFolderMap)) {
+                self::$folderFilesMemory[$subfolderKey] = $cachedFolderMap;
+                if (isset($cachedFolderMap[$filename])) {
+                    return $cachedFolderMap[$filename];
+                }
+            }
+        }
+
         $fileCacheKey = 'gdrive:file:'.md5($subfolderKey.':'.$filename);
 
         $cachedFileId = Cache::get($fileCacheKey);
@@ -369,6 +476,11 @@ class GoogleDriveClient
             return null;
         }
 
+        return $this->getById($fileId, $filename, $subfolder);
+    }
+
+    public function getById(string $fileId, ?string $filename = null, array|string|null $subfolder = null): ?string
+    {
         $token = $this->getAccessToken();
         if ($token === null) {
             return null;
@@ -400,6 +512,73 @@ class GoogleDriveClient
         }
 
         return null;
+    }
+
+    /**
+     * Download multiple files concurrently via Http::pool().
+     *
+     * @param  array<string>  $filenames
+     * @return array<string, ?string> [filename => binaryContent]
+     */
+    public function getMultiple(array $filenames, array|string|null $subfolder = null): array
+    {
+        if (empty($filenames)) {
+            return [];
+        }
+
+        $token = $this->getAccessToken();
+        if ($token === null) {
+            return array_fill_keys($filenames, null);
+        }
+
+        $fileIds = [];
+        foreach ($filenames as $filename) {
+            $fileId = $this->findFileId($filename, $subfolder);
+            if ($fileId !== null && $fileId !== '') {
+                $fileIds[$filename] = $fileId;
+            }
+        }
+
+        if (empty($fileIds)) {
+            return array_fill_keys($filenames, null);
+        }
+
+        try {
+            $responses = Http::pool(function (Pool $pool) use ($fileIds, $token) {
+                foreach ($fileIds as $filename => $fileId) {
+                    $pool->as($filename)
+                        ->withToken($token)
+                        ->timeout(self::HTTP_TIMEOUT_SECONDS)
+                        ->get(self::API_BASE_URL."/files/{$fileId}", [
+                            'alt' => 'media',
+                            'supportsAllDrives' => 'true',
+                        ]);
+                }
+            });
+
+            $results = [];
+            foreach ($filenames as $filename) {
+                if (isset($responses[$filename]) && $responses[$filename]->successful()) {
+                    $results[$filename] = $responses[$filename]->body();
+                } else {
+                    $results[$filename] = null;
+                }
+            }
+
+            return $results;
+        } catch (Throwable $e) {
+            app(ApplicationLogger::class)->warning('Google Drive getMultiple pool exception', [
+                'category' => 'storage',
+                'error' => $e->getMessage(),
+            ]);
+
+            $results = [];
+            foreach ($filenames as $filename) {
+                $results[$filename] = $this->get($filename, $subfolder);
+            }
+
+            return $results;
+        }
     }
 
     public function put(string $filename, string $content, string $mimeType = 'application/gzip', array|string|null $subfolder = null): bool
