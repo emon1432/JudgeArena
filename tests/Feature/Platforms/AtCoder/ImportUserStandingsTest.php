@@ -275,4 +275,51 @@ class ImportUserStandingsTest extends TestCase
         $this->assertCount(1, $taskResults);
         $this->assertSame(100.0, (float) $taskResults->first()->points);
     }
+
+    public function test_import_user_standings_ignores_post_contest_practice_submissions_for_discovery(): void
+    {
+        Storage::fake('local');
+
+        $platform = $this->createPlatform('atcoder', 'AtCoder');
+        $profile = $this->createUserWithProfile($platform, 'tourist');
+
+        $contest = Contest::query()->create([
+            'platform_id' => $platform->id,
+            'platform_contest_id' => 'abc303',
+            'name' => 'AtCoder Beginner Contest 303',
+            'phase' => 'FINISHED',
+            'start_time' => Carbon::parse('2026-03-01 12:00:00'),
+            'end_time' => Carbon::parse('2026-03-01 13:40:00'),
+            'duration_seconds' => 6000,
+        ]);
+
+        // Post-contest practice submission submitted 2 days after contest finished
+        Submission::query()->create([
+            'platform_id' => $platform->id,
+            'platform_profile_id' => $profile->id,
+            'contest_id' => $contest->id,
+            'platform_submission_id' => '99999',
+            'author_handle' => 'tourist',
+            'verdict' => SubmissionVerdict::AC,
+            'submitted_at' => Carbon::parse('2026-03-03 15:00:00'),
+        ]);
+
+        Http::fake([
+            '*' => Http::response([], 200),
+        ]);
+
+        $importer = app(UserStandingImporter::class);
+        $result = $importer->import('tourist');
+
+        $this->assertSame(1, $result->checked);
+
+        // No standing record should be created since the user only practiced post-contest
+        $standing = Standing::query()
+            ->where('contest_id', $contest->id)
+            ->where('platform_profile_id', $profile->id)
+            ->first();
+
+        $this->assertNull($standing);
+    }
 }
+
