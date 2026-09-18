@@ -156,10 +156,29 @@ class UserStandingImporter implements UserStandingImporterContract
                     ->toArray();
 
                 $submissionContestIds = $this->submissionModel->newQuery()
-                    ->where('platform_id', $platform->id)
-                    ->where('platform_profile_id', $profile->id)
+                    ->join('contests', 'submissions.contest_id', '=', 'contests.id')
+                    ->where('submissions.platform_id', $platform->id)
+                    ->where('submissions.platform_profile_id', $profile->id)
+                    ->whereNotNull('submissions.contest_id')
+                    ->where(function ($q) {
+                        $q->whereNull('contests.start_time')
+                            ->orWhere(function ($liveQ) {
+                                $liveQ->whereNotNull('submissions.submitted_at')
+                                    ->whereColumn('submissions.submitted_at', '>=', 'contests.start_time')
+                                    ->where(function ($timeQ) {
+                                        $timeQ->where(function ($endQ) {
+                                            $endQ->whereNotNull('contests.end_time')
+                                                ->whereColumn('submissions.submitted_at', '<=', 'contests.end_time');
+                                        })->orWhere(function ($durQ) {
+                                            $durQ->whereNull('contests.end_time')
+                                                ->whereNotNull('contests.duration_seconds')
+                                                ->whereRaw('submissions.submitted_at <= DATE_ADD(contests.start_time, INTERVAL contests.duration_seconds SECOND)');
+                                        });
+                                    });
+                            });
+                    })
                     ->distinct()
-                    ->pluck('contest_id')
+                    ->pluck('submissions.contest_id')
                     ->toArray();
 
                 $contestIds = array_values(array_unique(array_filter(array_merge($ratingContestIds, $submissionContestIds))));
