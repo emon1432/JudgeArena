@@ -78,9 +78,7 @@ jobs:
   deploy:
     name: 🎉 Deploy to cPanel (Live)
     needs: [test]
-    # Temporarily disabled until cPanel FTP credentials are configured.
-    # To re-enable, replace `false` with: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
-    if: true
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
 
     steps:
