@@ -44,3 +44,22 @@ The `PlatformSyncJobsTableSeeder` initializes this system. Currently, it is conf
 - **`rating_change`**: priority 50, interval 60 mins
 - **`user_rating_history`**: priority 40, interval 120 mins
 - **`user_submissions`**: priority 30, interval 30 mins
+- **`user_standings`**: priority 20, interval 60 mins
+
+## High-Speed User Standings Streaming Pipeline
+
+The `UserStandingImporter` (`user_standings` entity) synchronizes contest rankings and problem performance for tracked users:
+
+1. **Discovery**:
+   - Identifies contests the user participated in by intersecting `contest_rating_changes` and `submissions` for the user handle.
+   - Computes missing contests via `array_diff($participatedIds, $existingStandingContestIds)`.
+2. **Warmup & Concurrency**:
+   - Executes `StandingsCacheService::warmupPlatform($platform)` to load all remote Google Drive file IDs into memory in $O(1)$ lookup time.
+   - Partitions contests into batches of 10 (`array_chunk($missingContestIds, 10)`).
+   - Fetches 10 compressed `.json.gz` binaries concurrently via `getMultipleBinaries($platform, $batchIds)` using `Http::pool()`.
+3. **Sequential Stream Decode & Minimal Memory**:
+   - Sequentially decompresses and decodes binaries one at a time via `decodeBinary()`.
+   - Filters only the tracked user row and their problem task results, discarding the remaining thousands of participants immediately (`unset($standings)`).
+   - Executes bulk `Standing::upsert()` and `StandingTaskResult::upsert()`.
+   - Invokes `gc_collect_cycles()` after each batch to guarantee peak memory remains under 40 MB.
+

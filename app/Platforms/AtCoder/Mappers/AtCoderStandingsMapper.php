@@ -99,7 +99,7 @@ final class AtCoderStandingsMapper
 
         $value = (float) $elapsed;
         if ($value <= 0) {
-            return (int) $value;
+            return null;
         }
 
         if ($value > 1000000) {

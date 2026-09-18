@@ -345,6 +345,13 @@ class AtCoderTitleTranslatorService
         '戦' => ' Match ',
     ];
 
+    private static array $memoryCache = [];
+
+    public static function clearMemoryCache(): void
+    {
+        self::$memoryCache = [];
+    }
+
     /**
      * Translate Japanese text/title into English using Dictionary + Google Translate API.
      */
@@ -352,6 +359,10 @@ class AtCoderTitleTranslatorService
     {
         if (trim($text) === '') {
             return $text;
+        }
+
+        if (isset(self::$memoryCache[$text])) {
+            return self::$memoryCache[$text];
         }
 
         $translated = strtr($text, self::DICTIONARY);
@@ -379,7 +390,9 @@ class AtCoderTitleTranslatorService
         $clean = preg_replace('/[\x{4E00}-\x{9FBF}\x{3040}-\x{309F}\x{30A0}-\x{30FF}]/u', '', $translated);
         $clean = trim((string) preg_replace('/\s+/', ' ', $clean));
 
-        return $clean !== '' ? $clean : $text;
+        $result = $clean !== '' ? $clean : $text;
+
+        return self::$memoryCache[$text] = $result;
     }
 
     /**

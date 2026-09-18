@@ -57,6 +57,20 @@ class StandingsCacheService
     }
 
     /**
+     * Pre-warm folder file index into memory for fast batch operations.
+     *
+     * @return array<string, string> filename => fileId
+     */
+    public function warmupPlatform(string $platform): array
+    {
+        if (! $this->isEnabled() || $this->diskName() !== 'google') {
+            return [];
+        }
+
+        return $this->googleDriveClient->warmupFolderFiles($this->targetSubfolder($platform));
+    }
+
+    /**
      * @return array<int, string>
      */
     public function getUploadedContestIds(?string $platform = null): array
@@ -240,6 +254,126 @@ class StandingsCacheService
 
             return null;
         }
+    }
+
+    /**
+     * Fetch multiple compressed standings binaries concurrently.
+     *
+     * @param array<int, string|int> $contestIds
+     * @return array<string, ?string> Map of contestId => binaryContent
+     */
+    public function getMultipleBinaries(string $platform, array $contestIds): array
+    {
+        if (! $this->isEnabled() || empty($contestIds)) {
+            return [];
+        }
+
+        $normalizedIds = array_values(array_unique(array_map('strval', $contestIds)));
+        $filenameMap = [];
+        foreach ($normalizedIds as $id) {
+            $filenameMap[$this->googleFilename($id)] = $id;
+        }
+
+        $binaries = [];
+
+        try {
+            if ($this->diskName() === 'google') {
+                $rawBinaries = $this->googleDriveClient->getMultiple(
+                    array_keys($filenameMap),
+                    $this->targetSubfolder($platform)
+                );
+                foreach ($rawBinaries as $filename => $binary) {
+                    $contestId = $filenameMap[$filename] ?? null;
+                    if ($contestId !== null && $binary !== null && $binary !== '') {
+                        $binaries[$contestId] = $binary;
+                    }
+                }
+            } else {
+                $disk = Storage::disk($this->diskName());
+                foreach ($normalizedIds as $id) {
+                    $path = $this->diskPath($platform, $id);
+                    if ($disk->exists($path)) {
+                        $binaries[$id] = $disk->get($path);
+                    }
+                }
+            }
+        } catch (Throwable $e) {
+            app(ApplicationLogger::class)->warning('StandingsCacheService getMultipleBinaries fetch failed', [
+                'category' => 'storage',
+                'platform' => $platform,
+                'disk' => $this->diskName(),
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        return $binaries;
+    }
+
+    /**
+     * Decode a single binary payload into ContestStandingsDTO.
+     */
+    public function decodeBinary(string $platform, string $contestId, string $binary): ?ContestStandingsDTO
+    {
+        try {
+            $json = @gzdecode($binary);
+            if ($json === false || $json === '') {
+                $json = $binary;
+            }
+
+            $payload = json_decode($json, true);
+            unset($json);
+
+            if (! is_array($payload)) {
+                return null;
+            }
+
+            // 1. Transform from raw API payload if present
+            $transformed = $this->transformRaw($platform, $payload, $contestId);
+            if ($transformed instanceof ContestStandingsDTO) {
+                return $transformed;
+            }
+
+            // 2. Fallback for normalized DTO payloads (backward compatibility)
+            return $this->deserialize($payload);
+        } catch (Throwable $e) {
+            app(ApplicationLogger::class)->warning('StandingsCacheService decodeBinary failed', [
+                'category' => 'storage',
+                'platform' => $platform,
+                'contest_id' => $contestId,
+                'error' => $e->getMessage(),
+            ]);
+
+            return null;
+        }
+    }
+
+    /**
+     * Fetch multiple standings payloads concurrently.
+     *
+     * @param array<int, string|int> $contestIds
+     * @return array<string, ContestStandingsDTO> Map of contestId => ContestStandingsDTO
+     */
+    public function getMultiple(string $platform, array $contestIds): array
+    {
+        $binaries = $this->getMultipleBinaries($platform, $contestIds);
+        $results = [];
+
+        foreach ($binaries as $contestId => $binary) {
+            unset($binaries[$contestId]);
+
+            if ($binary === null || $binary === '') {
+                continue;
+            }
+
+            $dto = $this->decodeBinary($platform, (string) $contestId, $binary);
+            unset($binary);
+
+            if ($dto instanceof ContestStandingsDTO) {
+                $results[(string) $contestId] = $dto;
+            }
+        }
+
+        return $results;
     }
 
     public function put(string $platform, string $contestId, ContestStandingsDTO|array $standings): bool

@@ -92,11 +92,9 @@ class AtCoderAdapter implements PlatformAdapter
 
     public function getUserStandings(string $id): ContestStandingsDTO
     {
-        if ($this->standingsCacheService->has('atcoder', $id)) {
-            $cached = $this->standingsCacheService->get('atcoder', $id);
-            if ($cached instanceof ContestStandingsDTO) {
-                return $cached;
-            }
+        $cached = $this->standingsCacheService->get('atcoder', $id);
+        if ($cached instanceof ContestStandingsDTO) {
+            return $cached;
         }
 
         $standings = $this->standingsTransformer

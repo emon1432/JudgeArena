@@ -92,11 +92,9 @@ class CodeforcesAdapter implements PlatformAdapter
 
     public function getUserStandings(string $id): ContestStandingsDTO
     {
-        if ($this->standingsCacheService->has('codeforces', $id)) {
-            $cached = $this->standingsCacheService->get('codeforces', $id);
-            if ($cached instanceof ContestStandingsDTO) {
-                return $cached;
-            }
+        $cached = $this->standingsCacheService->get('codeforces', $id);
+        if ($cached instanceof ContestStandingsDTO) {
+            return $cached;
         }
 
         $standings = $this->standingsTransformer
