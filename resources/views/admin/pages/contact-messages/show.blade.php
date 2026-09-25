@@ -39,7 +39,7 @@
                 </div>
                 <div class="col-md-6">
                     <label class="form-label text-muted mb-1">{{ __('Received At') }}</label>
-                    <div>{{ $contactMessage->created_at?->format('d M, Y h:i A') }}</div>
+                    <div>{{ format_date_time($contactMessage->created_at) }}</div>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label text-muted mb-1">{{ __('IP Address') }}</label>

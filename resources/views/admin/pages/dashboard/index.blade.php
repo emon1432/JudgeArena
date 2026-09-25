@@ -79,7 +79,7 @@
 						<div class="my-3 pb-3 border-bottom">
 							<div class="d-flex justify-content-between gap-3 mb-1">
 								<span class="badge bg-label-danger text-uppercase">{{ $log->level }}</span>
-								<small class="text-muted">{{ $log->created_at?->format('d M, Y h:i A') }}</small>
+								<small class="text-muted">{{ format_date_time($log->created_at) }}</small>
 							</div>
 							<div class="fw-semibold">{{ $log->message }}</div>
 							<div class="text-muted small">{{ $log->source }}</div>
@@ -100,7 +100,7 @@
 						<div class="my-3 pb-3 border-bottom">
 							<div class="d-flex justify-content-between gap-3 mb-1">
 								<span class="badge bg-label-dark text-uppercase">{{ $log->level }}</span>
-								<small class="text-muted">{{ $log->created_at?->format('d M, Y h:i A') }}</small>
+								<small class="text-muted">{{ format_date_time($log->created_at) }}</small>
 							</div>
 							<div class="fw-semibold">{{ $log->message }}</div>
 							<div class="text-muted small">{{ $log->source }}</div>

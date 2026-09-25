@@ -170,7 +170,7 @@ class ContestController extends Controller
                 $contest->name = (new ContestInfo($contest))->render()->render();
                 $contest->platformName = optional($contest->platform)->name ?? '-';
                 $contest->phase = ucfirst($contest->phase ?? 'Unknown');
-                $contest->startAt = $contest->start_time?->format('d M, Y h:i A') ?? '-';
+                $contest->startAt = format_date_time($contest->start_time);
                 $contest->status = (new StatusBadge((string) ($contest->status ?? 'Unknown')))->render()->render();
 
                 $platformSlug = strtolower($contest->platform?->slug ?? '');

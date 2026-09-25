@@ -52,7 +52,7 @@ class ContactMessageController extends Controller
                 $contactMessage->email = '<a href="mailto:'.e($contactMessage->email).'">'.e($contactMessage->email).'</a>';
                 $contactMessage->subject = e($contactMessage->subject);
                 $contactMessage->status = $this->statusBadge($contactMessage->status);
-                $contactMessage->received_at = $contactMessage->created_at?->format('d M, Y h:i A');
+                $contactMessage->received_at = format_date_time($contactMessage->created_at);
                 $contactMessage->actions = (new Actions([
                     'model' => $contactMessage,
                     'resource' => 'contact-messages',

@@ -76,11 +76,23 @@ class ApplicationLogController extends Controller
         }
 
         if ($startDate !== '') {
-            $query->whereDate('created_at', '>=', $startDate);
+            try {
+                $tz = display_timezone();
+                $start = \Carbon\Carbon::parse($startDate, $tz)->startOfDay()->setTimezone('UTC');
+                $query->where('created_at', '>=', $start);
+            } catch (\Throwable) {
+                $query->whereDate('created_at', '>=', $startDate);
+            }
         }
 
         if ($endDate !== '') {
-            $query->whereDate('created_at', '<=', $endDate);
+            try {
+                $tz = display_timezone();
+                $end = \Carbon\Carbon::parse($endDate, $tz)->endOfDay()->setTimezone('UTC');
+                $query->where('created_at', '<=', $end);
+            } catch (\Throwable) {
+                $query->whereDate('created_at', '<=', $endDate);
+            }
         }
 
         return ServerSideDatatable::make(
@@ -112,7 +124,7 @@ class ApplicationLogController extends Controller
                 ],
             ],
             function (ApplicationLog $log) {
-                $log->createdAt = $log->created_at?->format('d M, Y h:i A');
+                $log->createdAt = format_date_time($log->created_at);
                 $log->level = $this->levelBadge((string) $log->level);
                 $log->category = e($log->category);
                 $log->platform = e($log->platform ?? '-');

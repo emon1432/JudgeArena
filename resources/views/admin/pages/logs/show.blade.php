@@ -37,7 +37,7 @@
                 </div>
                 <div class="col-md-6">
                     <label class="form-label text-muted mb-1">{{ __('Created At') }}</label>
-                    <div>{{ $log->created_at?->format('d M, Y h:i A') }}</div>
+                    <div>{{ format_date_time($log->created_at) }}</div>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label text-muted mb-1">{{ __('User') }}</label>

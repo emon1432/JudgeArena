@@ -762,7 +762,7 @@
                                         </td>
                                         <td class="text-muted small">
                                             <div>{{ $state->updated_at?->diffForHumans() }}</div>
-                                            <div class="text-muted opacity-75" style="font-size: 0.72rem;">{{ $state->updated_at?->format('d M, Y h:i A') }}</div>
+                                            <div class="text-muted opacity-75" style="font-size: 0.72rem;">{{ format_date_time($state->updated_at) }}</div>
                                         </td>
                                         <td class="text-center">
                                             <button type="button"

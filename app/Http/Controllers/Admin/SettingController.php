@@ -53,6 +53,7 @@ class SettingController extends Controller
 
             $setting->value = json_encode($data);
             $setting->save();
+            \Illuminate\Support\Facades\Cache::forget("settings.{$key}");
 
             return response()->json([
                 'status' => 200,

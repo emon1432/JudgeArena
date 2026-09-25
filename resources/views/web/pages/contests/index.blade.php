@@ -313,10 +313,10 @@
                                 </td>
                                 <td>
                                     <div class="fw-medium text-primary-emphasis">
-                                        {{ $contest->start_time ? $contest->start_time->format('d M Y') : 'TBA' }}
+                                        {{ $contest->start_time ? format_date($contest->start_time, format: 'd M Y') : 'TBA' }}
                                     </div>
                                     <div class="font-monospace text-secondary extra-small mt-0-5">
-                                        {{ $contest->start_time ? $contest->start_time->format('H:i A (T)') : '--' }}
+                                        {{ $contest->start_time ? (format_time($contest->start_time, format: 'h:i A') . ' (' . (to_display_timezone($contest->start_time)?->format('T') ?? 'UTC') . ')') : '--' }}
                                     </div>
                                 </td>
                                 <td>

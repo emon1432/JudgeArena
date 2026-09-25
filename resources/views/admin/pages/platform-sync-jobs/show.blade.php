@@ -65,7 +65,7 @@
                                             <span class="fw-semibold">{{ __('Next Scheduled Run') }}</span>
                                             @php $next = $platformSyncJob->nextRunAt(); @endphp
                                             <span
-                                                class="fw-medium text-heading">{{ $next ? $next->format('d M Y, h:i A') . ' (' . $next->diffForHumans() . ')' : __('Immediate') }}</span>
+                                                class="fw-medium text-heading">{{ $next ? format_date_time($next) . ' (' . $next->diffForHumans() . ')' : __('Immediate') }}</span>
                                         </li>
                                     </ul>
                                 </div>
@@ -84,25 +84,25 @@
                                             class="list-group-item d-flex justify-content-between align-items-center bg-transparent">
                                             <span class="fw-semibold">{{ __('Last Started') }}</span>
                                             <span
-                                                class="fw-medium text-heading">{{ $platformSyncJob->last_started_at ? $platformSyncJob->last_started_at->format('d M Y, h:i:s A') : __('Never') }}</span>
+                                                class="fw-medium text-heading">{{ $platformSyncJob->last_started_at ? format_date_time($platformSyncJob->last_started_at) : __('Never') }}</span>
                                         </li>
                                         <li
                                             class="list-group-item d-flex justify-content-between align-items-center bg-transparent">
                                             <span class="fw-semibold">{{ __('Last Finished') }}</span>
                                             <span
-                                                class="fw-medium text-heading">{{ $platformSyncJob->last_finished_at ? $platformSyncJob->last_finished_at->format('d M Y, h:i:s A') : __('Never') }}</span>
+                                                class="fw-medium text-heading">{{ $platformSyncJob->last_finished_at ? format_date_time($platformSyncJob->last_finished_at) : __('Never') }}</span>
                                         </li>
                                         <li
                                             class="list-group-item d-flex justify-content-between align-items-center bg-transparent">
                                             <span class="fw-semibold">{{ __('Last Success') }}</span>
                                             <span
-                                                class="fw-medium text-success">{{ $platformSyncJob->last_success_at ? $platformSyncJob->last_success_at->format('d M Y, h:i:s A') : __('Never') }}</span>
+                                                class="fw-medium text-success">{{ $platformSyncJob->last_success_at ? format_date_time($platformSyncJob->last_success_at) : __('Never') }}</span>
                                         </li>
                                         <li
                                             class="list-group-item d-flex justify-content-between align-items-center bg-transparent border-bottom-0">
                                             <span class="fw-semibold">{{ __('Last Failed') }}</span>
                                             <span
-                                                class="fw-medium text-danger">{{ $platformSyncJob->last_failed_at ? $platformSyncJob->last_failed_at->format('d M Y, h:i:s A') : __('Never') }}</span>
+                                                class="fw-medium text-danger">{{ $platformSyncJob->last_failed_at ? format_date_time($platformSyncJob->last_failed_at) : __('Never') }}</span>
                                         </li>
                                     </ul>
                                 </div>

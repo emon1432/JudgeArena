@@ -41,24 +41,105 @@ if (! function_exists('settings')) {
     }
 }
 
-if (! function_exists('format_date')) {
-    function format_date($date)
+if (! function_exists('display_timezone')) {
+    /**
+     * Resolve the active display timezone.
+     * Hierarchy:
+     * 1. If explicit $user passed or logged in user with custom timezone -> user's timezone
+     * 2. If request is within Admin panel (route is admin.* or url starts with admin) -> system settings timezone (default Asia/Dhaka)
+     * 3. Fallback for general web / guest users -> UTC
+     */
+    function display_timezone(?\App\Models\User $user = null): string
     {
-        return Carbon::parse($date)->format(config('app.date_format'));
+        $resolvedUser = $user ?? auth()->user();
+        if ($resolvedUser && ! empty($resolvedUser->timezone)) {
+            return (string) $resolvedUser->timezone;
+        }
+
+        if (request()?->is('admin*') || str_starts_with(request()?->route()?->getName() ?? '', 'admin.')) {
+            return (string) settings('system_settings', 'app_timezone', 'Asia/Dhaka');
+        }
+
+        return 'UTC';
     }
 }
 
-if (! function_exists('format_time')) {
-    function format_time($time)
+if (! function_exists('to_display_timezone')) {
+    /**
+     * Convert any date/time into a Carbon instance in the display timezone.
+     */
+    function to_display_timezone(mixed $dateTime, ?string $timezone = null): ?Carbon
     {
-        return Carbon::parse($time)->format(config('app.time_format'));
+        if ($dateTime === null || $dateTime === '') {
+            return null;
+        }
+
+        $targetTimezone = $timezone ?: display_timezone();
+
+        try {
+            if ($dateTime instanceof Carbon) {
+                return $dateTime->copy()->setTimezone($targetTimezone);
+            }
+
+            if ($dateTime instanceof \DateTimeInterface) {
+                return Carbon::instance($dateTime)->setTimezone($targetTimezone);
+            }
+
+            if (is_numeric($dateTime)) {
+                return Carbon::createFromTimestamp((int) $dateTime, 'UTC')->setTimezone($targetTimezone);
+            }
+
+            return Carbon::parse((string) $dateTime, 'UTC')->setTimezone($targetTimezone);
+        } catch (\Throwable) {
+            return null;
+        }
     }
 }
 
 if (! function_exists('format_date_time')) {
-    function format_date_time($dateTime)
+    function format_date_time(mixed $dateTime, ?string $timezone = null, ?string $format = null): string
     {
-        return Carbon::parse($dateTime)->format(config('app.date_format').', '.config('app.time_format'));
+        $carbon = to_display_timezone($dateTime, $timezone);
+        if ($carbon === null) {
+            return '-';
+        }
+
+        if ($format) {
+            return $carbon->format($format);
+        }
+
+        $dateFormat = (string) (config('app.date_format') ?: settings('system_settings', 'date_format', 'd M, Y'));
+        $timeFormat = (string) (config('app.time_format') ?: settings('system_settings', 'time_format', 'h:i A'));
+
+        return $carbon->format("{$dateFormat} {$timeFormat}");
+    }
+}
+
+if (! function_exists('format_date')) {
+    function format_date(mixed $date, ?string $timezone = null, ?string $format = null): string
+    {
+        $carbon = to_display_timezone($date, $timezone);
+        if ($carbon === null) {
+            return '-';
+        }
+
+        $dateFormat = $format ?: (string) (config('app.date_format') ?: settings('system_settings', 'date_format', 'd M, Y'));
+
+        return $carbon->format($dateFormat);
+    }
+}
+
+if (! function_exists('format_time')) {
+    function format_time(mixed $time, ?string $timezone = null, ?string $format = null): string
+    {
+        $carbon = to_display_timezone($time, $timezone);
+        if ($carbon === null) {
+            return '-';
+        }
+
+        $timeFormat = $format ?: (string) (config('app.time_format') ?: settings('system_settings', 'time_format', 'h:i A'));
+
+        return $carbon->format($timeFormat);
     }
 }
 
