@@ -94,3 +94,25 @@
 - **Instruction**: Problem importers (`ProblemImporter`) across all platforms (Codeforces, AtCoder) MUST support state-driven batching via `import(?int $limit = null, ?callable $onProgress = null): ImportResult` and query only un-synced contests (where `PlatformSyncEntityType::ContestProblems` is not `Synced` or `phase != 'FINISHED'`). Furthermore, during problem import for a contest, the importer MUST proactively invoke `getUserStandings($contestPlatformId)` to compress and cache the full contest standings in Google Drive via `StandingsCacheService`.
 - **Why**: Eliminates monster 45-minute monolithic script execution, protects against rate-limits, and pre-populates Google Drive with full standings so that future user profile standings syncs can be fulfilled instantly without making external API calls.
 
+---
+
+## 5. Timezone & Presentation Layer Rules
+
+### Rule 5.1: Internal Storage & PHP Engine Pure UTC Invariant
+- **Instruction**: The internal Laravel application runtime, PHP configuration (`date_default_timezone_set`), queue workers, and MySQL database storage MUST ALWAYS strictly run in pure `UTC`. Modifying `config(['app.timezone' => ...])` or `date_default_timezone_set(...)` inside service providers, middleware, or commands is strictly prohibited.
+- **Why**: MySQL `DATETIME` stores raw timestamp strings without offset information. If the global PHP timezone is shifted away from `UTC`, Eloquent misinterprets raw database timestamps as local, causing a 6-hour skew (e.g. `2026-09-25 15:00:00` UTC read as local). Furthermore, global timezone mutations cause split-brain behavior between HTTP requests and background queue workers / CLI commands.
+
+### Rule 5.2: Presentation-Layer Timezone Conversion via Central Helpers
+- **Instruction**: All timezone adjustments MUST occur strictly at the presentation boundary (Blade views, API responses, Livewire components, or Controller display attributes) using the centralized helpers in `app/Helpers/Helper.php`:
+  - `display_timezone()`: Resolves the contextual timezone hierarchy:
+    1. If the route is an Admin route (`request()->is('admin*')`), use `system_settings.app_timezone` (or fallback `config('app.timezone', 'UTC')`).
+    2. If a user is authenticated and has a configured timezone (`auth()->user()?->timezone`), use the user's profile timezone.
+    3. Otherwise (guests and public web), fallback strictly to `UTC`.
+  - `to_display_timezone($date, ?string $timezone = null)`: Safely parses dates, strings, or timestamps into Carbon and shifts to the target display timezone without mutating the source or database state.
+  - `format_date_time()`, `format_date()`, `format_time()`: Format dates consistently with contextual timezone awareness.
+- **Why**: Ensures guests, users across different global timezones, and administrators all view accurate times according to their specific context without compromising data integrity or database index performance.
+
+### Rule 5.3: Timezone-Aware Date Range Filtering in Controllers
+- **Instruction**: When filtering database records by local calendar date (e.g., "today's logs", date picker `startDate` - `endDate`), controllers MUST interpret the start/end of the day in the caller's `display_timezone()` and convert those boundaries to UTC before passing to Eloquent `whereBetween` or `>=` / `<=`.
+- **Why**: Prevents "lost records" or mismatched date queries where a user filters for "September 25" in UTC+6, but the server queries UTC 00:00 - 23:59 (which is 06:00 to 05:59 local time).
+

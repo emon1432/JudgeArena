@@ -193,7 +193,7 @@ class SyncMonitor extends Component
         $filterOptions = $this->filterOptions();
         $entityLabels = $this->entityLabels();
         $isSyncing = ($summary[PlatformSyncStatus::Syncing->value] ?? 0) > 0;
-        $lastRefreshedAt = now()->format('h:i:s A');
+        $lastRefreshedAt = format_time(now(), format: 'h:i:s A');
         $driveHealth = app(StandingsCacheService::class)->getConnectionHealth();
 
         return view('livewire.admin.sync-monitor', compact(

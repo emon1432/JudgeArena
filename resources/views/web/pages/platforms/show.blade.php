@@ -180,10 +180,15 @@
                                     </td>
                                     <td>
                                         <div class="fw-medium text-primary-emphasis">
-                                            {{ $contest->start_time ? $contest->start_time->format('M d, Y · h:i A') : 'TBD' }}
+                                            {{ $contest->start_time ? format_date_time($contest->start_time, format: 'M d, Y · h:i A') : 'TBD' }}
                                         </div>
                                         <div class="extra-small text-muted font-monospace">
-                                            UTC+06:00
+                                            @if ($contest->start_time)
+                                                @php $cTz = to_display_timezone($contest->start_time); @endphp
+                                                {{ $cTz->format('T') }} (UTC{{ $cTz->format('P') }})
+                                            @else
+                                                UTC
+                                            @endif
                                         </div>
                                     </td>
                                     <td>

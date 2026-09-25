@@ -46,36 +46,37 @@
             <div class="col-md-6 form-control-validation">
                 <label class="form-label" for="date_format">{{ __('Date Format') }}<span
                         class="text-danger">*</span></label>
+                @php $nowInTz = to_display_timezone(now()); @endphp
                 <select name="date_format" id="date_format" class="form-select" required>
                     <option value="Y-m-d" {{ ($values['date_format'] ?? '') === 'Y-m-d' ? 'selected' : '' }}>Y-m-d
-                        ({{ date('Y-m-d') }})</option>
+                        ({{ $nowInTz->format('Y-m-d') }})</option>
                     <option value="d-m-Y" {{ ($values['date_format'] ?? '') === 'd-m-Y' ? 'selected' : '' }}>d-m-Y
-                        ({{ date('d-m-Y') }})</option>
+                        ({{ $nowInTz->format('d-m-Y') }})</option>
                     <option value="m-d-Y" {{ ($values['date_format'] ?? '') === 'm-d-Y' ? 'selected' : '' }}>m-d-Y
-                        ({{ date('m-d-Y') }})</option>
+                        ({{ $nowInTz->format('m-d-Y') }})</option>
                     <option value="m/d/Y" {{ ($values['date_format'] ?? '') === 'm/d/Y' ? 'selected' : '' }}>m/d/Y
-                        ({{ date('m/d/Y') }})</option>
+                        ({{ $nowInTz->format('m/d/Y') }})</option>
                     <option value="d/m/Y" {{ ($values['date_format'] ?? '') === 'd/m/Y' ? 'selected' : '' }}>d/m/Y
-                        ({{ date('d/m/Y') }})</option>
+                        ({{ $nowInTz->format('d/m/Y') }})</option>
                     <option value="Y/m/d" {{ ($values['date_format'] ?? '') === 'Y/m/d' ? 'selected' : '' }}>Y/m/d
-                        ({{ date('Y/m/d') }})</option>
+                        ({{ $nowInTz->format('Y/m/d') }})</option>
                     <option value="d.M.Y" {{ ($values['date_format'] ?? '') === 'd.M.Y' ? 'selected' : '' }}>d.M.Y
-                        ({{ date('d.M.Y') }})</option>
+                        ({{ $nowInTz->format('d.M.Y') }})</option>
                     <option value="M d, Y" {{ ($values['date_format'] ?? '') === 'M d, Y' ? 'selected' : '' }}>M d, Y
-                        ({{ date('M d, Y') }})</option>
+                        ({{ $nowInTz->format('M d, Y') }})</option>
                     <option value="d M Y" {{ ($values['date_format'] ?? '') === 'd M Y' ? 'selected' : '' }}>d M Y
-                        ({{ date('d M Y') }})</option>
+                        ({{ $nowInTz->format('d M Y') }})</option>
                     <option value="D, d M Y" {{ ($values['date_format'] ?? '') === 'D, d M Y' ? 'selected' : '' }}>D, d
-                        M Y ({{ date('D, d M Y') }})</option>
+                        M Y ({{ $nowInTz->format('D, d M Y') }})</option>
                 </select>
             </div>
             <div class="col-md-6 form-control-validation">
                 <label class="form-label" for="time_format">{{ __('Time Format') }}<span
                         class="text-danger">*</span></label>
                 <select name="time_format" id="time_format" class="form-select" required>
-                    <option value="H:i" {{ ($values['time_format'] ?? '') === 'H:i' ? 'selected' : '' }}>24 Hour ({{ date('H:i') }})
+                    <option value="H:i" {{ ($values['time_format'] ?? '') === 'H:i' ? 'selected' : '' }}>24 Hour ({{ $nowInTz->format('H:i') }})
                     </option>
-                    <option value="h:i A" {{ ($values['time_format'] ?? '') === 'h:i A' ? 'selected' : '' }}>12 Hour ({{ date('h:i A') }})
+                    <option value="h:i A" {{ ($values['time_format'] ?? '') === 'h:i A' ? 'selected' : '' }}>12 Hour ({{ $nowInTz->format('h:i A') }})
                     </option>
                 </select>
             </div>

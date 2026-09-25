@@ -18,13 +18,17 @@ class DashboardController extends Controller
         $totalProblems = Problem::count();
         $totalUsers = User::where('role', 'user')->count();
 
+        $tz = display_timezone();
+        $startOfToday = \Carbon\Carbon::now($tz)->startOfDay()->setTimezone('UTC');
+        $endOfToday = \Carbon\Carbon::now($tz)->endOfDay()->setTimezone('UTC');
+
         $errorsToday = ApplicationLog::query()
-            ->whereDate('created_at', today())
+            ->whereBetween('created_at', [$startOfToday, $endOfToday])
             ->whereIn('level', ['error', 'critical'])
             ->count();
 
         $warningsToday = ApplicationLog::query()
-            ->whereDate('created_at', today())
+            ->whereBetween('created_at', [$startOfToday, $endOfToday])
             ->where('level', 'warning')
             ->count();
 
